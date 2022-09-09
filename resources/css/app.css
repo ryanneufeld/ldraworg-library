@@ -1,0 +1,5 @@
+@import "fomantic-ui/dist/semantic.min.css";
+body {
+  background-color: #f3f3f3;
+  background: linear-gradient(90deg, #D4D4D4, #F4F4F4, #FFFFFF, #F4F4F4, #D4D4D4);
+}

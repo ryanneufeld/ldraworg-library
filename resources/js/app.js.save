@@ -1,0 +1,26 @@
+import './bootstrap';
+
+import 'ace-builds';
+import 'ace-builds/webpack-resolver';
+
+let editorElement = document.getElementById('ace-editor');
+
+// If we have an editor element
+if(editorElement){
+    // pass options to ace.edit
+    let editor = ace.edit(document.getElementById('ace-editor'), {
+        mode: "ace/mode/php",
+        theme: "ace/theme/monokai",
+    })
+    // use setOptions method to set several options at once
+}
+
+let filebox = document.getElementById('editor-files');
+if(filebox) {
+  filebox.innerHTML = 'Loading';
+  fetch('/edit/files', {method: 'GET', credentials: "same-origin"})
+    .then((response) => response.json())
+    .then((json) => {
+      filebox.innerHTML = 'Response: ' + json.message;
+    });
+}
