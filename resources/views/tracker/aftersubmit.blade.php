@@ -1,0 +1,11 @@
+<x-layout.main>
+  <pre>
+  {{$filedata}}
+  </pre>
+  <br/>
+  File:
+  <br/>
+  <pre><code>
+  {{$file}}
+  </code></pre>
+</x-layout.main>

@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
             $newuser->assignRole('Super Admin');
           }
         }
-        
+
         $legacy_users = [
           'Adriano Aicardi',
           'Arne Hackstein',
@@ -100,7 +100,7 @@ class UserSeeder extends Seeder
           ]);
           $user->assignRole('Legacy User');
         }
-        
+
         $virtual_users = [
           'LEGO Digital Designer',
           'LEGO Instructions App',

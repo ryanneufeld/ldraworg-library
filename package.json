@@ -9,20 +9,15 @@
         "prod": "npm run production",
         "production": "mix --production"
     },
-    "devDependencies": {
-        "@popperjs/core": "^2.10.2",
-        "axios": "^0.27",
-        "bstreeview": "github:nhmvienna/bs5treeview",
-        "fomantic-ui": "^2.8.8",
-        "jquery": "^3.6.0",
-        "laravel-mix": "^6.0.49",
-        "lodash": "^4.17.19",
-        "postcss": "^8.1.14",
-        "resolve-url-loader": "^5.0.0",
-        "sass": "^1.32.11",
-        "sass-loader": "^12.6.0"
-    },
     "dependencies": {
-        "ace-builds": "^1.8.1"
+        "ace-builds": "^1.12.4",
+        "fomantic-ui": "^2.9.0",
+        "jquery": "^3.6.1"
+    },
+    "devDependencies": {
+        "gulp": "^4.0.2",
+        "gulp-less": "^5.0.0",
+        "gulp-util": "^3.0.8",
+        "laravel-mix": "^6.0.49"
     }
 }

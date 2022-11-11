@@ -17,6 +17,8 @@ class CreatePartTypesTable extends Migration
             $table->id();
             $table->string('type');
             $table->string('name');
+            $table->string('folder');
+            $table->string('format');
         });
     }
 

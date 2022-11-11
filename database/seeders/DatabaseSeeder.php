@@ -28,11 +28,11 @@ class DatabaseSeeder extends Seeder
           RoleSeeder::class,
           UserSeeder::class,
 
-          LibrarySeeder::class,
-          VoteSeeder::class,
-          PartEventSeeder::class,
+//          LibrarySeeder::class,
+//          VoteSeeder::class,
+//          PartEventSeeder::class,
 
-          LibraryRefresh::class,
+//          LibraryRefresh::class,
       ]);
     }
 }

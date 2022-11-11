@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Cache;
 
 use App\Models\Part;
 use App\Helpers\PartsLibrary;
+use App\Http\Requests\PartSubmitRequest;
 
 class UnofficialPartController extends Controller
 {
     public function __construct()
     {
-      $this->authorizeResource(Part::class, 'part');
+      //$this->authorizeResource(Part::class, 'part');
     }
 
     /**
@@ -39,7 +40,7 @@ class UnofficialPartController extends Controller
     public function create()
     {
       Log::debug('entered create');
-      return view('library.tracker.submit');
+      return view('tracker.submit');
     }
 
     /**
@@ -48,9 +49,12 @@ class UnofficialPartController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PartSubmitRequest $request)
     {
-        //
+      $filedata = $request->all();
+      
+      $file = ''; //file_get_contents($request->partfile->getRealPath());
+      return view('tracker.aftersubmit', ['filedata' => print_r($filedata, true), 'file' => $file]);
     }
 
     /**
