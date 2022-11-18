@@ -12,7 +12,7 @@ use App\Models\PartTypeQualifier;
 
 class PartsLibrary
 {
-  // Master regualar expressions for parsing Library files
+  // Master regualer expressions for parsing Library files
   public static $patterns = [
     'description' => '#^\s?0\s+(?P<description>.*?)[\r\n]#ius',
     'name' => '#\n\s?0\s+Name\:\s+(?P<name>.*?)[\r\n]#ius',
@@ -23,37 +23,37 @@ class PartsLibrary
     'textures' => '#\n\s?0\s+!TEXMAP\s+(START|NEXT)\s+(PLANAR|CYLINDRICAL|SPHERICAL)\s+([-\.\d]+\s+){9,11}(?P<texture1>.*?\.png)(\s+GLOSSMAP\s+(?P<texture2>.*?\.png)])?#ius',
     'subparts' => '#\n\s?(0\s+!\:\s+)?1\s+([-\.\d]+\s+){13}(?P<subpart>.*?\.dat)#ius',
   ];
-  
+
   public static $default_texture_data = "0 TEXMAP Image <FILENAME>\r\n0 Author: [PTadmin]\r\n0 !LDRAW_ORG Unofficial_Texture\r\n";
-  
+
   public static $known_author_aliases = [
     'unknown' => 'CA User',
     'LEGO Universe Team' => 'The LEGO Universe Team',
     'simlego' => 'Tore_Eriksson',
     'Valemar' => 'rhsexton',
   ];
-  
+
   public static function officialParts($fresh = false) {
     if ($fresh) Cache::forget('official-parts-list');
     return Cache::remember('official-parts-list', 3600, function () {
       return Part::with(['type', 'officialPart'])->where('unofficial', false);
-    });  
+    });
   }
 
   public static function unofficialParts($fresh = false) {
     if ($fresh) Cache::forget('unofficial-parts-list');
     return Cache::remember('unofficial-parts-list', 3600, function () {
       return Part::with(['type', 'officialPart'])->where('unofficial', true)->orderBy('filename')->get();
-    });  
+    });
   }
 
   public static function unofficialStatusSummary($fresh = false) {
     if ($fresh) Cache::forget('unofficial-status-summary');
     return Cache::remember('unofficial-status-summary', 3600, function () {
       return Part::where('unofficial', true)->get()->pluck('vote_sort')->countBy()->sortKeys()->all();
-    });  
+    });
   }
-    
+
   public static function descriptionFromFilestring($file) {
     if (preg_match(self::$patterns['description'], $file, $matches)) {
       return trim($matches['description']);
@@ -61,7 +61,7 @@ class PartsLibrary
     else {
       return false;
     }
-    
+
   }
 
   public static function nameFromFilestring($file) {

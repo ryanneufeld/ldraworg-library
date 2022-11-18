@@ -4,10 +4,15 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\File;
+use App\Rules\ValidLDrawFileType;
+use App\Rules\ValidName;
+use App\Rules\ValidAuthor;
+use App\Rules\ValidDescription;
+use App\Rules\ValidPartType;
 
 class PartSubmitRequest extends FormRequest
 {
+  protected $stopOnFirstFailure = false;
   /**
    * Determine if the user is authorized to make this request.
    *
@@ -26,16 +31,38 @@ class PartSubmitRequest extends FormRequest
   public function rules()
   {
     return [
-      'filetype' => [
-        'required', 
-        Rule::in(['part', 'subpart', 'primitive', 'lores', 'hires', 'part_texmap', 'subpart_texmap', 'primitve_texmap'])
-      ],
+      'part_type_id' => 'required|exists:part_types,id',
       'replace' => 'boolean',
       'partfix' => 'boolean',
       'comment' => 'nullable|string',
-      'user' => 'required|exists:users',
-      'partfile' => ['required'],
-      'partfile.*' => ['file|'],
+      'user_id' => 'required|exists:users,id',
+      'partfile' => 'required',
+      'partfile.*' => ['file', 
+                        new ValidLDrawFileType,
+                        new ValidName,
+                        new ValidDescription,
+                        new ValidAuthor,
+                        new ValidPartType,
+                      ],
     ];
+  }
+
+  /**
+   * Configure the validator instance.
+   *
+   * @param  \Illuminate\Validation\Validator  $validator
+   * @return void
+   */
+  public function withValidator($validator)
+  {
+      $validator->after(function ($validator) {
+        if (request()->hasFile('partfile')) {
+          $partnames = [];
+          foreach(request()->file('partfile') as $file) {
+            $partnames[] = basename(strtolower($file->getClientOriginalName()));
+          }  
+          request()->merge(['partnames' => $partnames]);
+        }  
+      });
   }
 }

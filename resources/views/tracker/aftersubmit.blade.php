@@ -1,11 +1,3 @@
 <x-layout.main>
-  <pre>
-  {{$filedata}}
-  </pre>
-  <br/>
-  File:
-  <br/>
-  <pre><code>
-  {{$file}}
-  </code></pre>
+Sucess!
 </x-layout.main>

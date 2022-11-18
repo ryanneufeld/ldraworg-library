@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 
 use App\Models\PartTypeQualifier;
+use App\LDraw\MetaData;
 
 class PartTypeQualifierSeeder extends Seeder
 {
@@ -15,8 +16,9 @@ class PartTypeQualifierSeeder extends Seeder
      */
     public function run()
     {
-      PartTypeQualifier::create(['type' => 'Alias', 'name' => 'Shortcut']);
-      PartTypeQualifier::create(['type' => 'Physical_Colour', 'name' => 'Physical Colour']);
-      PartTypeQualifier::create(['type' => 'Flexible_Section', 'name' => 'Flexible Section']);
+      $types = MetaData::getPartTypeQualifiers();
+      foreach ($types as $type => $name) {
+        PartTypeQualifier::create(['type' => $type, 'name' => $name]);
+      }
     }
 }

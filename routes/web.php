@@ -6,11 +6,17 @@ use App\Http\Controllers\UnofficialPartController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\PartEventController;
 
+Route::get('/', function () {
+  return view('index');
+});
+
+Route::prefix('tracker')->name('tracker.')->group(function () {
+  Route::get('/submit', [UnofficialPartController::class, 'create'])->name('submit');
+  Route::post('/submit', [UnofficialPartController::class, 'store'])->name('store');
+});
+
 Route::middleware('auth')->group(function () {
 
-  Route::get('/', function () {
-      return view('index');
-  });
 
   Route::prefix('tracker')->name('tracker.')->group(function () {
 
@@ -36,6 +42,6 @@ Route::middleware('auth')->group(function () {
 
 });
 
-Auth::routes(['register' => false]);
+Auth::routes(['register' => false, 'reset' => false, 'confirm' => false, 'verify' => false]);
 
 //Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
