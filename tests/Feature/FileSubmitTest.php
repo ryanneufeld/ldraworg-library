@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 use App\Models\User;
 
-class LDrawFileSubmitTest extends TestCase
+class FileSubmitTest extends TestCase
 {
     /**
      * A basic feature test example.
@@ -19,6 +19,7 @@ class LDrawFileSubmitTest extends TestCase
      */
     public function test_part_submit_form()
     {
+/*
       Storage::fake('parts');
       $user = User::factory()->create();
       $user->assignRole('Part Author');
@@ -59,7 +60,7 @@ class LDrawFileSubmitTest extends TestCase
       $formdata['partfile'] = $datfile;
       $response = $this->actingAs($user,'web')->withSession(['banned' => false])->post('/tracker/submit', $formdata);
       $response->assertValid(['partfile.0']);
-/*      
+      
       //Invalid tests
       $invalidtests = [
         'missingdesc' => 
@@ -67,6 +68,7 @@ class LDrawFileSubmitTest extends TestCase
             ['linenum' => '0', 'line' => '']
           ];
       ];
+
 */      
     }
 }

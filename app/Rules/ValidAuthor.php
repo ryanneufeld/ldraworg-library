@@ -21,10 +21,11 @@ class ValidAuthor implements InvokableRule
      */
     public function __invoke($attribute, $value, $fail) {
       if ($value->getMimetype() === 'text/plain') {
-        if (!PartCheck::checkAuthor($value->get())) {
+        $file = $value->get();
+        if (!PartCheck::checkAuthor($file)) {
           $fail('partcheck.missing')->translate(['attribute' => 'Author:']);
         }
-        elseif (!PartCheck::checkAuthorInUsers($value->get())) {
+        elseif (!PartCheck::checkAuthorInUsers($file)) {
           $fail('partcheck.author.registered')->translate(['attribute' => 'Author:']);
         }
       }

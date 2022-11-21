@@ -45,6 +45,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+/*
         $this->validate($request, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
@@ -61,6 +62,7 @@ class UserController extends Controller
 
         return redirect()->route('users.index')
                       ->with('success','User created successfully');
+*/
     }
 
     /**
@@ -98,6 +100,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+/*
         $user = User::find($id);
         $this->validate($request, [
             'name' => 'required',
@@ -122,7 +125,7 @@ class UserController extends Controller
         return redirect()->route('users.index')
                         ->with('success','User updated successfully');
     }
-
+*/
     /**
      * Remove the specified resource from storage.
      *

@@ -13,28 +13,28 @@ class FileUtils
 {
   // Master regualer expressions for parsing Library files
   public static $patterns = [
-    'description' => '#^\h*0\h+(?P<description>.*?)\h*$#um',
-    'name' => '#^\h*0\h+Name:\h+(?P<name>.*?)\h*$#um',
-    'author' => '#^\h*0\h+Author:\h+((\[(?P<user2>[a-zA-Z0-9_.-]+)\])|(?P<realname>[^\[\]\r\n]+?)(\h+\[(?P<user>[a-zA-Z0-9_.-]+)\])?)\h*$#um',
-    'type' => '#^\h*0\h+!LDRAW_ORG\h+(?P<unofficial>Unofficial_)?(?P<type>###PartTypes###)(\h+(?P<qual>###PartTypesQualifiers###))?(\h+((?P<releasetype>ORIGINAL|UPDATE)(\h+(?P<release>\d{4}-\d{2}))?))?\h*$#um',
-    'category' => '#^\h*0\h+!CATEGORY\h+(?P<category>.*?)\h*$#um',
-    'license' => '#^\h*0\h+!LICENSE\h+(?P<license>.*?)\h*$#um',
-    'help' => '#^\h*0\h+!HELP\h+(?P<help>.*?)\h*$#um',
-    'keywords' => '#^\h*0\h+!KEYWORDS\h+(?P<keywords>.*?)\h*$#um',
-    'bfc' => '#^\h*0\h+BFC\h+(?P<bfc>CERTIFY(\h+(?P<certwinding>CCW|CW))?|NOCERTIFY|(CCW|CW)|NOCLIP|CLIP(\h+(?<clipwinding>CCW|CW))?)\h*$#um',
-    'cmdline' => '#^\h*0\h+!CMDLINE\h+(?P<cmdline>.*?)\h*$#um',
+    'description' => '#^\h*0\h+(?P<description>.*?)\s*$#um',
+    'name' => '#^\h*0\h+Name:\h+(?P<name>.*?)\s*$#um',
+    'author' => '#^\h*0\h+Author:\h+((\[(?P<user2>[a-zA-Z0-9_.-]+)\])|(?P<realname>[^\[\]\r\n]+?)(\h+\[(?P<user>[a-zA-Z0-9_.-]+)\])?)\s*$#um',
+    'type' => '#^\h*0\h+!LDRAW_ORG\h+(?P<unofficial>Unofficial_)?(?P<type>###PartTypes###)(\h+(?P<qual>###PartTypesQualifiers###))?(\h+((?P<releasetype>ORIGINAL|UPDATE)(\h+(?P<release>\d{4}-\d{2}))?))?\s*$#um',
+    'category' => '#^\h*0\h+!CATEGORY\h+(?P<category>.*?)\s*$#um',
+    'license' => '#^\h*0\h+!LICENSE\h+(?P<license>.*?)\s*$#um',
+    'help' => '#^\h*0\h+!HELP\h+(?P<help>.*?)\s*$#um',
+    'keywords' => '#^\h*0\h+!KEYWORDS\h+(?P<keywords>.*?)\s*$#um',
+    'bfc' => '#^\h*0\h+BFC\h+(?P<bfc>CERTIFY(\h+(?P<certwinding>CCW|CW))?|NOCERTIFY|(CCW|CW)|NOCLIP|CLIP(\h+(?<clipwinding>CCW|CW))?)\s*$#um',
+    'cmdline' => '#^\h*0\h+!CMDLINE\h+(?P<cmdline>.*?)\s*$#um',
     'history' => '#^\h*0\h+!HISTORY\s+(?P<date>\d\d\d\d-\d\d-\d\d)\s+[\[{](?P<user>[\w\s\/\\.-]+)[}\]]\s+(?P<comment>.*?)\s*$#um',
     'textures' => '#^\s*0\s+!TEXMAP\s+(START|NEXT)\s+(PLANAR|CYLINDRICAL|SPHERICAL)\s+([-\.\d]+\s+){9,11}(?P<texture1>.*?\.png)(\s+GLOSSMAP\s+(?P<texture2>.*?\.png))?\s*$#um',
     'subparts' => '#^\s*(0\s+!\:\s+)?1\s+((0x)?\d+\s+){1}([-\.\d]+\s+){12}(?P<subpart>.*?\.(dat|ldr))\s*$#um',
   ];
 
   public static $line_patterns = [
-    '0' => '#^\h*0(?:\h*)(.*)?$#um',
-    '1' => '#^\h*1\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+(?P<subpart>[\/a-z0-9_.\\-]+)\h*?$#um',
-    '2' => '#^\h*2\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h*#um',
-    '3' => '#^\h*3\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h*#um',
-    '4' => '#^\h*4\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h*#um',
-    '5' => '#^\h*5\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h*#um',
+    '0' => '#^\h*0(?:\h*)(.*)?\s*$#um',
+    '1' => '#^\h*1\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+(?P<subpart>[\/a-z0-9_.\\-]+)\s*?$#um',
+    '2' => '#^\h*2\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
+    '3' => '#^\h*3\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
+    '4' => '#^\h*4\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
+    '5' => '#^\h*5\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
   ];
   
   public static $allowed_header_metas = ['Name:', 'Author:', '!LDRAW_ORG', '!LICENSE', '!HELP', 'BFC', '!CATEGORY', '!KEYWORDS', '!CMDLINE', '!HISTORY'];
@@ -43,15 +43,18 @@ class FileUtils
   // Trim all lines, remove multi-spaces (except the first line), and change to Unix line ending
   public static function storageFileText($file) {
     if (!empty($file)) {
-      $file = preg_replace('#(\n|\r|\r\n){3,}#us', "\n\n", $file);
+      $file = preg_replace('#\R#us', "\n", $file);
+      $file = preg_replace('#\n{3,}#us', "\n\n", $file);
       $file = explode("\n", $file);
       foreach($file as $index => &$line) {
         if ($index === array_key_first($file)) continue;
-        $line = trim($line);
-        $line = preg_replace('#\h{2,}#u', ' ', $line);
+        $line = preg_replace('#\h+#u', ' ', trim($line));
       }
+      return implode("\n", $file);
     }
-    return implode("\n", $file);
+    else {
+      return false;
+    }
   }
 
   // Change to DOS line endings
