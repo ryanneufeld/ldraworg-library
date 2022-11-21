@@ -47,7 +47,6 @@ class ValidPartType implements DataAwareRule, InvokableRule
 
         $ftype = FileUtils::getPartType($file);
         $part_type = PartType::firstWhere('type', $ftype['type'] ?? '');
-        Log::debug($part_type->folder);
         $name = str_replace('\\','/', FileUtils::getName($file));
         $desc = FileUtils::getDescription($file);
         $dtag = empty($desc) ? false : $desc[0];
@@ -56,7 +55,7 @@ class ValidPartType implements DataAwareRule, InvokableRule
           $fail('partcheck.missing')->translate(['attribute' => '!LDRAW_ORG']);
         }
         elseif (!PartCheck::checkNameAndPartType($file)) {
-          $fail('partcheck.type.path')->translate(['name' => $name, 'type' => $ftype]);
+          $fail('partcheck.type.path')->translate(['name' => $name, 'type' => $ftype['type']]);
         }
         elseif (!empty($part_type) && $this->data['part_type_id'] != $part_type->id) {
           $fail('partcheck.folder')->translate(['attribute' => '!LDRAW_ORG', 'value' => $ftype['type'], 'folder' => $part_type->folder]);
@@ -67,7 +66,7 @@ class ValidPartType implements DataAwareRule, InvokableRule
         elseif ($ftype['qual'] == 'Physical_Color') {
           $fail('partcheck.type.phycolor')->translate();
         }
-        elseif ($ftype['qual'] == 'Alias' && ($ftype['type'] != 'Shortcut' || $ftype['type'] != 'Part')) {
+        elseif ($ftype['qual'] == 'Alias' && $ftype['type'] != 'Shortcut' && $ftype['type'] != 'Part') {
           $fail('partcheck.type.alias')->translate();
         }
         elseif ($ftype['qual'] == 'Alias' && $dtag != '=') {

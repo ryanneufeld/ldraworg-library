@@ -64,6 +64,7 @@
     </div>
     @endcan
 
+{{--
     @can('part.submit.proxy')
     <div class="six wide field">
       <label for="user_id">Author of file(s)</label>
@@ -79,9 +80,13 @@
     </div>
     @else
     <div class="field">
-      <input type="hidden" name="user" value="{{Auth::user()->id}}">
+      <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
     </div>
     @endcan
+--}}
+    <div class="field">
+      <input type="hidden" name="user_id" value="1">
+    </div>
 
     <div class="field">
       <label for="comment">Comments</label>

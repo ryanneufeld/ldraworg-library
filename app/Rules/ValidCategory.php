@@ -4,12 +4,11 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
 
 use App\LDraw\PartCheck;
 use App\LDraw\FileUtils;
 
-class ValidAuthor implements InvokableRule
+class ValidCategory implements InvokableRule
 {
     /**
      * Run the validation rule.
@@ -21,12 +20,15 @@ class ValidAuthor implements InvokableRule
      */
     public function __invoke($attribute, $value, $fail) {
       if ($value->getMimetype() === 'text/plain') {
-        if (!PartCheck::checkAuthor($value->get())) {
-          $fail('partcheck.missing')->translate(['attribute' => 'Author:']);
-        }
-        elseif (!PartCheck::checkAuthorInUsers($value->get())) {
-          $fail('partcheck.author.registered')->translate(['attribute' => 'Author:']);
-        }
+        $file = $value->get();
+        $desc = FileUtils::getDescription($file);
+        $cat = FileUtils::getCategory($file);
+        if (!PartCheck::checkCategory($value->get())) {
+          $fail('partcheck.category.invalid')->translate(['value' => $cat['category']]);
+        }  
+        elseif ($cat['category'] == 'Moved' && $desc[0] != '~') {
+          $fail('partcheck.category.movedto')->translate();
+        }  
       }
     }
 }

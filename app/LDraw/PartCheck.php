@@ -11,6 +11,13 @@ use App\Models\User;
 use App\Models\PartType;
 
 class PartCheck {
+  public static function validLine($line) {
+    $line = trim(preg_replace('#\h{2,}#u', ' ', $line));
+    if (empty($line)) return true;
+    if (!array_key_exists($line[0], FileUtils::$line_patterns)) return false;
+    return preg_match(FileUtils::$line_patterns[$line[0]], $line, $matches) > 0;
+ }
+
   public static function checkDescription($file = '') {
     return FileUtils::getDescription($file) !== false;
   }
@@ -38,23 +45,25 @@ class PartCheck {
 
     // Construct the name implied by the part type
     $folder = PartType::firstWhere('type', $type['type'])->folder;
+    $aname = basename(str_replace('\\','/', $name));
     if (stripos('p/', $folder)) {
-     $aname = substr($folder, stripos('p/', $folder) + 2) . $name;
+     $aname = substr($folder, stripos('p/', $folder) + 2) . $aname;
     }
     else {
-     $aname = substr($folder, stripos('parts/', $folder) + 6) . $name;
+     $aname = substr($folder, stripos('parts/', $folder) + 6) . $aname;
     }
-    str_replace('/','\\', $aname);
+    $aname = str_replace('/','\\', $aname);
     return $name === $aname;
   }
 
   public static function checkAuthor($file = '') {
+    Log::debug('Entered Check Author');
     return FileUtils::getAuthor($file) !== false;
   }
 
   public static function checkAuthorInUsers($file = '') {
     $author = FileUtils::getAuthor($file);
-    return $author !== false && !is_null(User::firstWhere([['name', '=', $author['name']],['realname', '=', $author['realname']]]));
+    return $author !== false && !empty(User::firstWhere('name',$author['user']) ?? User::firstWhere('realname',$author['realname']));
   }
 
   public static function checkPartType($file = '') {
@@ -74,6 +83,11 @@ class PartCheck {
   public static function checkLibraryBFCCertify($file = '') {
     $bfc = FileUtils::getBFC($file);
     return $bfc !== false && !empty($bfc['certwinding'] && $bfc['certwinding'] === 'CCW');
+  }
+
+  public static function checkCategory($file = '') {
+    $cat = FileUtils::getCategory($file);
+    return $cat !== false && in_array($cat['category'], MetaData::getCategories(), true);
   }
 
 }

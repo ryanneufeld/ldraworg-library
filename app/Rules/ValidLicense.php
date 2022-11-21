@@ -4,12 +4,11 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
 
 use App\LDraw\PartCheck;
 use App\LDraw\FileUtils;
 
-class ValidAuthor implements InvokableRule
+class ValidLicense implements InvokableRule
 {
     /**
      * Run the validation rule.
@@ -20,13 +19,13 @@ class ValidAuthor implements InvokableRule
      * @return void
      */
     public function __invoke($attribute, $value, $fail) {
-      if ($value->getMimetype() === 'text/plain') {
-        if (!PartCheck::checkAuthor($value->get())) {
-          $fail('partcheck.missing')->translate(['attribute' => 'Author:']);
-        }
-        elseif (!PartCheck::checkAuthorInUsers($value->get())) {
-          $fail('partcheck.author.registered')->translate(['attribute' => 'Author:']);
-        }
+      if ($value->getMimetype() === 'text/plain')
+        if (!PartCheck::checkLicense($value->get())) {
+          $fail('partcheck.missing')->translate(['attribute' => '!LICENSE']);
+        }  
+        elseif (!PartCheck::checkLibraryApprovedLicense($value->get())) {
+          $fail('partcheck.license.approved')->translate();
+        }  
       }
     }
 }

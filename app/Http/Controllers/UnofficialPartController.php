@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Cache;
 
 use App\Models\Part;
 use App\Helpers\PartsLibrary;
+use App\LDraw\FileUtils;
 use App\Http\Requests\PartSubmitRequest;
 
 class UnofficialPartController extends Controller
@@ -51,8 +52,20 @@ class UnofficialPartController extends Controller
     public function store(PartSubmitRequest $request)
     {
       $filedata = $request->all();
-      $file = ''; //file_get_contents($request->partfile->getRealPath());
-      return view('tracker.aftersubmit', ['filedata' => print_r($filedata, true), 'file' => $file]);
+      if ($request->hasFile('partfile')) {
+        foreach($request->file('partfile') as $file) {
+          if ($file->getMimetype() == 'text/plain') {
+            $text = $file->get();
+            $headers[] =
+              [
+                'filename' => basename(strtolower($file->getClientOriginalName())), 
+                'header' => FileUtils::getHeader(FileUtils::cleanHeader($text)),
+                'text' => FileUtils::storageFileText($text),
+              ];
+          }
+        }
+      }
+      return view('tracker.aftersubmit', ['files' => $headers]);
     }
 
     /**

@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
           	'name' => $user->loginname, 
           	'email' => $user->email,
           	'realname' => $user->username,
-          	'password' => bcrypt('123456'),
+          	'password' => bcrypt(Str::random(40)),
             'forum_user_id' => $user->uid,
           ]);
           $newuser->assignRole('Part Author');
@@ -120,7 +120,12 @@ class UserSeeder extends Seeder
           	'realname' => $u,
           	'password' => bcrypt(Str::random(40)),
           ]);
-          $user->assignRole('Synthetic User');
+          if ($u == 'PTadmin') {
+            $user->assignRole('Part Author');
+          }
+          else {
+            $user->assignRole('Synthetic User');
+          }
         }
     }
 }

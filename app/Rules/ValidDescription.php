@@ -21,13 +21,17 @@ class ValidDescription implements InvokableRule
     public function __invoke($attribute, $value, $fail) {
       if ($value->getMimetype() === 'text/plain') {
         $file = $value->get();
-
+        $name = strtolower(FileUtils::getName($file));
+        $desc = FileUtils::getDescription($file);
         if (!PartCheck::checkDescription($file)) {
           $fail('partcheck.description.missing')->translate();
         }
         elseif (!PartCheck::checkLibraryApprovedDescription($file)) {
           $fail('partcheck.description.invalidchars')->translate();
         }
+        elseif ((substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p') && substr($desc, strrpos($desc, ' ') + 1) != 'Pattern') {
+          $fail('partcheck.description.patternword')->translate();
+        }  
       }
     }
 }

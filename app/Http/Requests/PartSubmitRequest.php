@@ -5,10 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Rules\ValidLDrawFileType;
+use App\Rules\ValidLines;
 use App\Rules\ValidName;
 use App\Rules\ValidAuthor;
 use App\Rules\ValidDescription;
 use App\Rules\ValidPartType;
+use App\Rules\ValidCategory;
+use App\Rules\ValidKeywords;
+use App\Rules\ValidHistory;
 
 class PartSubmitRequest extends FormRequest
 {
@@ -35,7 +39,7 @@ class PartSubmitRequest extends FormRequest
       'replace' => 'boolean',
       'partfix' => 'boolean',
       'comment' => 'nullable|string',
-      'user_id' => 'required|exists:users,id',
+//      'user_id' => 'required|exists:users,id',
       'partfile' => 'required',
       'partfile.*' => ['file', 
                         new ValidLDrawFileType,
@@ -43,6 +47,10 @@ class PartSubmitRequest extends FormRequest
                         new ValidDescription,
                         new ValidAuthor,
                         new ValidPartType,
+                        new ValidCategory,
+                        new ValidKeywords,
+                        new ValidHistory,
+                        new ValidLines,
                       ],
     ];
   }

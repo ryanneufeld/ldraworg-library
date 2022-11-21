@@ -4,6 +4,11 @@ return [
   'fileformat' => 'The file :attribute is invalid (:value)',
   'missing' => 'Invalid/missing :attribute line',
   'folder' => 'Selected destination (:folder) is invalid for :attribute line (:value)',
+  'line' =>
+    [
+      'invalid' => 'Line :value invalid',
+      'invalidmeta' => 'Line :value, invalid META command or comment without //',
+    ],
   'name' =>
     [
       'invalidchars' => 'Only characters a-z, 0-9, _ . and - are allowed in file names',
@@ -12,9 +17,8 @@ return [
   'description' =>
     [
       'missing' => 'First line must be a description line starting "0 "',
-      'invalidchars', 'Description line may not contain special characters',
-      'patternname', 'Pattern part file name must end with "pNN"',
-      'patternword', 'Pattern part description must end with "Pattern"',
+      'invalidchars' => 'Description line may not contain special characters',
+      'patternword' => 'Pattern part description must end with "Pattern"',
     ],
   'type' =>
     [
@@ -30,7 +34,12 @@ return [
     [
       'registered' => ':value is not a Parts Tracker registerd author',
     ],
-  'category' =>
+  'license' => 
+    [
+      'approved' => '!LICENSE is not an approved Parts Library license',
+      'ccby40' => 'CC BY 4.0 License used but all authors listed have not approved the 4.0 CA'
+    ],  
+  'category' => 
     [
       'invalid' => ':value is not a valid category',
       'movedto' => 'Moved to part description must begin with "~"',
@@ -38,7 +47,7 @@ return [
   'keywords' => 'Pattern parts and sticker shortcuts must have at least one "Set <setnumber>" keyword',
   'history' =>
     [
-      'order' => 'History dates must be in ascending order',
+      'invalid' => 'Invalid history line(s)',
       'author' => 'History dated :date has an author (:value) who is not registered with the Parts Tracker',
     ],
 ];

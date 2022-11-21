@@ -1,3 +1,12 @@
 <x-layout.main>
-Sucess!
+  @foreach($files as $file)
+    <div class="ui message">
+      <div class="header">{{$file['filename']}}</div>
+      <div class="content">
+<code><pre>{{$file['header']}}</pre></code>
+<br/><br/>
+<code><pre>{{$file['text']}}</pre></code>
+      </div>
+    </div>
+  @endforeach    
 </x-layout.main>
