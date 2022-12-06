@@ -42,7 +42,6 @@ class PartPolicy
      */
     public function create(User $user)
     {
-      Log::debug('entered create policy');      
       return $user->can('part.submit');
     }
 

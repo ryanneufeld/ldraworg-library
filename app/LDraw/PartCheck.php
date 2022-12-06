@@ -33,7 +33,7 @@ class PartCheck {
 
   public static function checkLibraryApprovedName($file = '') {
     $name = FileUtils::getName($file);
-    return $name !== false && preg_match('#^[a-z0-9_\-]+(\.dat|\.png)$#', $name, $matches);
+    return $name !== false && preg_match('#^[a-z0-9_-]+(\.dat|\.png)$#', $name, $matches);
   }
 
   public static function checkNameAndPartType($file = '') {
@@ -57,7 +57,6 @@ class PartCheck {
   }
 
   public static function checkAuthor($file = '') {
-    Log::debug('Entered Check Author');
     return FileUtils::getAuthor($file) !== false;
   }
 

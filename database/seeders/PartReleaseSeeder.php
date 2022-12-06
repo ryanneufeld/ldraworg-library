@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Stroage;
 
 use \ZipArchive;
 
@@ -51,15 +52,17 @@ class PartReleaseSeeder extends Seeder
         if ($releases !== false) {
           foreach ($releases->distribution as $update) {
             if ($update->release_type == 'UPDATE') {
-              $home_path = '/home/ldrawadmin/ldraw.org/library/updates';
               $release_short = str_replace('-','',substr($update->release_id, -5));
+              
+              $destination_dir = storage_path('app/library/tmp');
+              $local_zip_file = basename(parse_url($update->url, PHP_URL_PATH));
+              if (!file_exists($destination_dir . '/' . $local_zip_file)) copy($update->url, $destination_dir . '/' . $local_zip_file);
+              
               $notes_path_CA = "ldraw/models/Note{$release_short}CA.txt";
               $notes_path_NonCA = "ldraw/models/note{$release_short}.txt";
 
-              $data = array();
-
               $zip = new ZipArchive;
-              if ($zip->open("$home_path/lcad$release_short.zip") === true) {
+              if ($zip->open($destination_dir . '/' . $local_zip_file) === true) {
                 $note = $zip->getFromName($notes_path_CA, 0, ZipArchive::FL_NOCASE);
                 if ($note === false) {
                   $note = $zip->getFromName($notes_path_NonCA, 0, ZipArchive::FL_NOCASE);

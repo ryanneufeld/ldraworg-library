@@ -49,6 +49,9 @@ class ValidName implements DataAwareRule, InvokableRule
       if(!PartCheck::checkLibraryApprovedName("0 Name: $filename")) {
         $fail('partcheck.name.invalidchars')->translate();
       }
+      elseif($filename[0] == 'x') {
+        $fail('partcheck.name.xparts')->translate();
+      }  
       if ($value->getMimetype() === 'text/plain') {
         $file = $value->get();
         $name = str_replace('\\','/', FileUtils::getName($file));

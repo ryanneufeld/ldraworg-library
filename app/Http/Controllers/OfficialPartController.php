@@ -16,8 +16,8 @@ class OfficialPartController extends Controller
      */
     public function index(Request $request)
     {
-      $parts = Part::with(['unofficialPart', 'type'])->where('unofficial', false)->lazy();
-      return view('library.official.index',['parts' => $parts]);
+      $parts = Part::whereRelation('release', 'short', '<>', 'unof')->lazy();
+      return view('official.list',['parts' => $parts]);
     }
 
     /**
@@ -47,11 +47,14 @@ class OfficialPartController extends Controller
      * @param  \App\Models\Part  $part
      * @return \Illuminate\Http\Response
      */
-    public function show(Part $part, Request $request)
+    public function show($part, Request $request)
     {
-      if ($part->unofficial) return redirect()->route('library.tracker.show',$part->id);
-      $part->load(['subparts', 'parents']);
-      return view('library.official.show',['part' => $part]);
+      $p = Part::find($part) ?? Part::findByName($part, false);
+      return view('official.show',[
+        'part' => $p, 
+        'osubparts' => $p->subparts()->whereRelation('release','short','<>','unof')->get(),
+        'oparents' => $p->parents()->whereRelation('release','short','<>','unof')->get(),
+      ]);
     }
 
     /**

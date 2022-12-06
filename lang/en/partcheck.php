@@ -12,7 +12,8 @@ return [
   'name' =>
     [
       'invalidchars' => 'Only characters a-z, 0-9, _ . and - are allowed in file names',
-      'mismatch' => 'Name: line (:value) does not match filename ',
+      'mismatch' => 'Name: line (:value) does not match filename',
+      'xparts' => 'Parts with unknown numbers no longer use "x" as a filename prefix. Contact admin to have them assign you a "u" number.',
     ],
   'description' =>
     [
@@ -50,4 +51,10 @@ return [
       'invalid' => 'Invalid history line(s)',
       'author' => 'History dated :date has an author (:value) who is not registered with the Parts Tracker',
     ],
+  'fix' =>
+    [
+      'unofficial' => 'Official part fixes can only be submitted by an admin, send the part to parts@ldraw.org',
+      'checked' => '"New version of official file(s)" must be checked to submit official part updates',
+    ],
+  'replace' => 'To submit a change to a part already on the Parts Tracker, you must check "Replace existing file(s)"'    
 ];

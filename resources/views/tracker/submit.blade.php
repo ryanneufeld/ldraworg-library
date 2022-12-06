@@ -20,11 +20,16 @@
   @enderror
   <form class="ui form" method="post" enctype="multipart/form-data" ACTION="{{route('tracker.store')}}" NAME="submitform">
     @csrf
-
+    @isset ($dev)
+     <input type="hidden" name="dev" value="1">
+    @endisset    
     <div class="grouped fields">
       @foreach(\App\Models\PartType::pluck('format')->unique()->values()->all() as $format)
         <label for="part_type_id">Upload destination (.{{$format}} files)</label>
         @foreach (\App\Models\PartType::where('format', $format)->get() as $part_type)
+          @if ($part_type->type == "Shortcut")
+            @continue
+          @endif
           <div class="field">
             <div class="ui radio checkbox">
               @if ($loop->index == 0 && $loop->parent->index == 0)
@@ -55,7 +60,7 @@
       </div>
     </div>
 
-    @can('part.submit.fix')
+   @can('part.submit.fix')
     <div class="inline field">
       <div class="ui checkbox">
         <input type="checkbox" name="partfix"></TD>
@@ -64,7 +69,6 @@
     </div>
     @endcan
 
-{{--
     @can('part.submit.proxy')
     <div class="six wide field">
       <label for="user_id">Author of file(s)</label>
@@ -83,11 +87,10 @@
       <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
     </div>
     @endcan
+{{--
+ 
+     <input type="hidden" name="user_id" value="1">
 --}}
-    <div class="field">
-      <input type="hidden" name="user_id" value="1">
-    </div>
-
     <div class="field">
       <label for="comment">Comments</label>
       <textarea name="comment" rows="8"></textarea>

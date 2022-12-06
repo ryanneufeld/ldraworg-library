@@ -7,10 +7,15 @@
 /public/js
 /public/css
 /public/pma
+/public/edit
 /public/mix-manifest.json
+/public/ICEcoder
+/storage/app/library
+/storage/app/images/library
 /storage/*.key
-/vendor
+/resources/bin/ldview
 /resources/semantic
+/vendor
 .env
 .env.backup
 .phpunit.result.cache

@@ -46,7 +46,11 @@ class ValidPartType implements DataAwareRule, InvokableRule
         $file = $value->get();
 
         $ftype = FileUtils::getPartType($file);
-        $part_type = PartType::firstWhere('type', $ftype['type'] ?? '');
+        $typesearch = $ftype ? $ftype['type'] : '';
+        if ($typesearch == 'Shortcut') {
+          $typesearch = 'Part';
+        }  
+        $part_type = PartType::firstWhere('type', $typesearch);
         $name = str_replace('\\','/', FileUtils::getName($file));
         $desc = FileUtils::getDescription($file);
         $dtag = empty($desc) ? false : $desc[0];

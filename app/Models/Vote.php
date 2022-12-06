@@ -12,10 +12,11 @@ use App\Models\User;
 
 class Vote extends Model
 {
-    use HasFactory;
+    protected $fillable = ['user_id', 'part_id', 'vote_type_code'];
 
     protected static function booted()
     {
+/*
         static::saved(function ($vote) {
           if ($vote->part->parents()->exists()) {
             foreach($vote->part->parents as $part) {
@@ -36,6 +37,7 @@ class Vote extends Model
             $vote->part->updateUncertifiedSubpartsCache();
           }  
         });
+*/
     }
     
     public function user()

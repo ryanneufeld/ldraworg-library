@@ -3,8 +3,6 @@
     <div class="ui message">
       <div class="header">{{$file['filename']}}</div>
       <div class="content">
-<code><pre>{{$file['header']}}</pre></code>
-<br/><br/>
 <code><pre>{{$file['text']}}</pre></code>
       </div>
     </div>

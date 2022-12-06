@@ -8,6 +8,7 @@ use App\Models\PartCategory;
 use App\Models\PartRelease;
 use App\Models\PartType;
 use App\Models\PartTypeQualifier;
+use App\Models\PartLicense;
 
 class CreatePartsTable extends Migration
 {
@@ -23,16 +24,15 @@ class CreatePartsTable extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->foreignIdFor(User::class)->constrained();
-            $table->foreignIdFor(PartCategory::class)->nullable()->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignIdFor(PartCategory::class)->nullable()->constrained();
             $table->foreignIdFor(PartRelease::class)->constrained();
+            $table->foreignIdFor(PartLicense::class)->constrained();
             $table->string('filename')->index();
-            $table->string('data_filename')->index();
-//            $table->longText('file')->fullText();
             $table->string('description')->index();
             $table->foreignIdFor(PartType::class)->constrained();
             $table->foreignIdFor(PartTypeQualifier::class)->nullable()->constrained();
-            $table->boolean('unofficial');
             $table->foreignId('official_part_id')->nullable()->references('id')->on('parts')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('unofficial_part_id')->nullable()->references('id')->on('parts')->cascadeOnUpdate()->nullOnDelete();
             $table->index('user_id');
             $table->index('part_category_id');
             $table->unique(['filename','part_release_id']);

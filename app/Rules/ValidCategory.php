@@ -22,8 +22,9 @@ class ValidCategory implements InvokableRule
       if ($value->getMimetype() === 'text/plain') {
         $file = $value->get();
         $desc = FileUtils::getDescription($file);
+        $type = FileUtils::getPartType($file);
         $cat = FileUtils::getCategory($file);
-        if (!PartCheck::checkCategory($value->get())) {
+        if (($type == 'Part' || $type == 'Shortcut') && !PartCheck::checkCategory($value->get())) {
           $fail('partcheck.category.invalid')->translate(['value' => $cat['category']]);
         }  
         elseif ($cat['category'] == 'Moved' && $desc[0] != '~') {

@@ -30,7 +30,7 @@ class FileUtils
 
   public static $line_patterns = [
     '0' => '#^\h*0(?:\h*)(.*)?\s*$#um',
-    '1' => '#^\h*1\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+(?P<subpart>[\/a-z0-9_.\\-]+)\s*?$#um',
+    '1' => '#^\h*1\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+(?P<subpart>[\/a-z0-9_.\\\\-]+)\s*?$#um',
     '2' => '#^\h*2\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
     '3' => '#^\h*3\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
     '4' => '#^\h*4\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
@@ -49,6 +49,7 @@ class FileUtils
       foreach($file as $index => &$line) {
         if ($index === array_key_first($file)) continue;
         $line = preg_replace('#\h+#u', ' ', trim($line));
+        if (!empty($line) && $line[0] === '1') $line = strtolower($line);
       }
       return implode("\n", $file);
     }
@@ -56,14 +57,32 @@ class FileUtils
       return false;
     }
   }
-
+  
+  // There are several badly encoded UTF-8 files in the library.
+  // Hopefully this prevents this from happening
+  public static function cleanFileText($text, $forceunofficial = false, $author_from_db = false) {
+    $text = mb_convert_encoding($text, 'UTF-8', ['ASCII','ISO-8859-1','UTF-8']);
+    $text = preg_replace('#\R#us', "\n", $text);
+    $text = preg_replace('#\n{3,}#us', "\n\n", $text);
+    $text = explode("\n", $text);
+    foreach($text as $index => &$line) {
+      if ($index === array_key_first($text)) continue;
+      $line = preg_replace('#\h+#u', ' ', trim($line));
+      if (!empty($line) && $line[0] === '1') $line = mb_strtolower($line);
+    }
+    $text = implode("\n", $text);
+    $text = self::cleanHeader($text, $forceunofficial, $author_from_db);
+    
+    return $text;
+  }
+  
   // Change to DOS line endings
   public static function downloadFileText($file) {
     return str_replace("\n", "\r\n", $file);
   }
 
   public static function headerEndLine($file) {
-    $file = explode("\n", self::storageFileText($file));
+    $file = preg_split("#\R#u", $file);
     $i = 1;
     while ($i < count($file)) {
       if (empty($file[$i]) || ($file[$i][0] === '0' && in_array(strtok(mb_substr($file[$i], 1), " "), self::$allowed_header_metas, true))) {
@@ -77,27 +96,32 @@ class FileUtils
   }
 
   public static function getHeader($file) {
-    $filearr = preg_split("#\r\n|\n|\r#", $file);
+    $filearr = preg_split("#\R#u", $file);
     return implode("\n", array_slice($filearr, 0, self::headerEndLine($file) + 1));
   }
 
   public static function setHeader($file, $header) {
-    $filearr = preg_split("#\r\n|\n|\r#", $file);
-    return $header . "\n" . implode("\n", array_slice($filearr, self::headerEndLine($file)));
+    $filearr = preg_split("#\R#u", $file);
+    return $header . "\n" . implode("\n", array_slice($filearr, self::headerEndLine($file) + 1));
   }
 
   // This function does no validation and can produce an invalid header
-  public static function cleanHeader($file, $forceunofficial = false) {
+  public static function cleanHeader($file, $forceunofficial = false, $author_from_db = false) {
     $header = '0 ' . self::getDescription($file) . "\n";
-    $header .= '0 Name: ' . self::getName($file) . "\n";
+    $header .= '0 Name: ' . mb_strtolower(self::getName($file)) . "\n";
 
+    $aline = '';
     $author = self::getAuthor($file);
     if (!empty($author)) {
-      if (!empty($author['realname'])) $aline = $author['realname'];
-      if (!empty($author['user'])) $aline .= ' ' . $author['user'];
-    }
-    else {
-      $aline = '';
+      if ($author_from_db) {
+        $user = User::findByName($author['user'], $author['realname']);
+        if (!empty($user)) $aline = $user->authorString();          
+      }
+      else {      
+        if (!empty($author['realname'])) $aline = $author['realname'];
+        if (!empty($author['user'])) $aline .= ' [' . $author['user'] . ']';
+        $aline = trim($aline);
+      }  
     }
     $header .= "0 Author: $aline\n" ;
 
@@ -113,7 +137,7 @@ class FileUtils
     }
     if (!empty($ptline) && !empty($release) && !$forceunofficial) {
       $ptline .= ' ' . $release['releasetype'];
-      if ($release['releasetype'] == 'RELEASE') $ptline .= ' ' . $release['release'];
+      if ($release['releasetype'] == 'UPDATE') $ptline .= ' ' . $release['release'];
     }
     $header .= "0 !LDRAW_ORG $ptline\n";
 
@@ -136,7 +160,8 @@ class FileUtils
     }
 
     $category = self::getCategory($file);
-    if (!empty($category) && $category['meta']) $header .= "0 !CATEGORY " . $category['category'] . "\n";
+    if (!empty($category) && $category['meta'] === true) 
+      $header .= "0 !CATEGORY " . $category['category'] . "\n";
 
     $keywords = self::getKeywords($file);
     if (!empty($keywords)) {
@@ -162,11 +187,14 @@ class FileUtils
 
     $history = self::getHistory($file);
     if (!empty($history)) {
+      usort($history, function ($a, $b) {
+        return strtotime($a['date']) <=> strtotime($b['date']);
+      });
       foreach($history as $hist) {
         $histline = "0 !HISTORY " . $hist['date'] . " ";
-        $user = User::firstWhere('name', $hist['user']) ?? User::firstWhere('realname', $hist['user']);
-        if (!is_null($user) && $user->hasRole('Synthetic User')) {
-          $histline .= '{' . $hist['user'] . "} ";
+        $user = User::findByName($hist['user'], $hist['user']);
+        if (!is_null($user)) {
+          $histline .= $user->historyString() . " ";
         }
         else {
           $histline .= '[' . $hist['user'] . "] ";
@@ -215,19 +243,14 @@ class FileUtils
   }
 
   public static function getAuthor($file) {
-    Log::debug('Entered getAuthor');
-    Log::debug('preg_match result: ');
-    Log::debug(preg_match(self::$patterns['author'], $file, $matches));
     if (preg_match(self::$patterns['author'], $file, $matches)) {
       //preg_match optional pattern bug workaround
       $matches = array_merge(['user2' => '', 'realname' => '', 'user' => ''], $matches);
       if (empty(trim($matches['user2'])) && empty(trim($matches['realname'])) && empty(trim($matches['user']))) return false;
       if (empty($matches['realname'])) $matches['user'] = $matches['user2'];
-      Log::debug('Exit getAuthor with match');
       return ['realname' => $matches['realname'], 'user' => $matches['user']];
     }
     else {
-      Log::debug('Exit getAuthor without match');
       return false;
     }
   }
@@ -241,6 +264,7 @@ class FileUtils
       return ['unofficial' => $matches['unofficial'], 'type' => $matches['type'], 'qual' => $matches['qual']];
     }
     else {
+//      Log::debug($file);
       return false;
     }
   }
@@ -250,6 +274,7 @@ class FileUtils
     $pattern = str_replace('###PartTypesQualifiers###', implode('|', MetaData::getPartTypeQualifiers(true)), $pattern);
     if (preg_match($pattern, $file, $matches)) {
       $matches = array_merge(['releasetype' => '', 'release' => ''], $matches);
+      if ($matches['releasetype'] == 'ORIGINAL') $matches['release'] = 'original';
       return ['releasetype' => $matches['releasetype'], 'release' => $matches['release']];
     }
     else {
@@ -259,7 +284,7 @@ class FileUtils
 
   // Only returns the first valid BFC statement
   public static function getBFC($file) {
-    $file = self::storageFileText($file);
+//    $file = self::storageFileText($file);
     if (preg_match(self::$patterns['bfc'], $file, $matches)) {
       //preg_match optional pattern bug workaround
       $matches = array_merge(['bfc' => '', 'certwinding' => '', 'clipwinding' => ''], $matches);
@@ -283,11 +308,27 @@ class FileUtils
     return $cat;
   }
 
-  public static function getHistory($file) {
+  public static function getHistory($file, $get_user_ids = false) {
     if (preg_match_all(self::$patterns['history'], $file, $matches, PREG_SET_ORDER) > 0) {
       $history = [];
+      $aliases = MetaData::getAuthorAliases();
       foreach ($matches as $match) {
-        $history[] = ['date' => $match['date'], 'user' => $match['user'], 'comment' => $match['comment']];
+        if ($get_user_ids) {
+          if (array_key_exists($match['user'], $aliases)) $match['user'] = $aliases[$match['user']];
+          $user = User::findByName($match['user'], $match['user']);
+          if (!empty($user)) {
+            $uid = $user->id;
+          }  
+          else {
+//            Log::debug($file);
+//            Log::debug($match['user']);
+            $uid = -1;
+          }            
+        }
+        else {
+          $uid = $match['user'];
+        }
+        $history[] = ['date' => $match['date'], 'user' => $uid, 'comment' => $match['comment']];
       }
       return $history;
     }
@@ -309,12 +350,14 @@ class FileUtils
     if (preg_match_all(self::$patterns['keywords'], $file, $matches) > 0) {
       $keywords = [];
       foreach ($matches['keywords'] as $line) {
-        $line = explode(',', self::storageFileText($line));
-        array_walk($line, function(&$value, $key) {
-          $value = trim($value);
-        });
-        $keywords = array_unique(array_merge($line, $keywords));
+        $line = explode(',', $line);
+        foreach($line as $word) {
+          $word = preg_replace('#\h+#u', ' ', trim($word)); 
+          $word = preg_replace('#^[\'"](.*)[\'"]$#u', '$1', trim($word));
+          if (!empty($word)) $keywords[] = $word;
+        }  
       }
+      $keywords = array_unique($keywords);
       return empty($keywords) ? false : $keywords;
     }
     else {
@@ -325,11 +368,17 @@ class FileUtils
   public static function getSubparts($file) {
     $result = ['subparts' => [], 'textures' => []];
     if (preg_match_all(self::$patterns['subparts'], $file, $matches) > 0) {
+      array_walk($matches['subpart'], function(&$arg){
+        $arg = mb_strtolower($arg);
+      });
       $result['subparts'] = array_unique($matches['subpart']);
     }
     if (preg_match_all(self::$patterns['textures'], $file, $matches) > 0) {
       $result['textures'] = $matches['texture1'];
       if (isset($matches['texture2'])) $result['textures'] = array_merge($result['textures'], $matches['texture2']);
+      array_walk($result['textures'], function(&$arg){
+        $arg = mb_strtolower($arg);
+      });
       $result['textures'] = array_unique($result['textures']);
     }
     if (isset($result['subparts']) || isset($result['textures'])) {
@@ -339,4 +388,5 @@ class FileUtils
       return false;
     }
   }
+    
 }

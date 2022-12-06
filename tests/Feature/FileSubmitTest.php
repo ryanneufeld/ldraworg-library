@@ -19,12 +19,12 @@ class FileSubmitTest extends TestCase
      */
     public function test_part_submit_form()
     {
-/*
+
       Storage::fake('parts');
       $user = User::factory()->create();
       $user->assignRole('Part Author');
 
-
+/*
       //Form data missing
       $response = $this->actingAs($user,'web')->withSession(['banned' => false])->post('/tracker/submit');
       $response->assertInvalid(['part_type_id', 'partfile', 'user_id']);

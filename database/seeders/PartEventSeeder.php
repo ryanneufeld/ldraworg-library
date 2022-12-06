@@ -23,106 +23,104 @@ class PartEventSeeder extends Seeder
     public function run()
     {
       $eventtypes = PartEventType::all()->pluck('id', 'slug')->all();
-      $votetypes = VoteType::all()->pluck('code', 'name')->all();
-      foreach (Storage::disk('public')->allDirectories('unofficial') as $dir) {
+      $votetypes = VoteType::all()->pluck('code', 'short')->all();
+      $patterns = [
+        'date' => '#^At (?<date>\w\w\w \w\w\w \d{1,2} \d\d\:\d\d\:\d\d \d\d\d\d)#um',
+        'comment' => '#Comments\:\n(?<comment>.*)$#us',
+        'submit_user' => '#^Submitted by\: (?<user>.*?)( proxy=.*?)?$#um',
+        'reviewer_user' => '#^Reviewer\: (?<user>.*?)$#um',
+        'vote' => '#^Certification\: (?<vote>hold|novote|certify|fasttrack)$#um',
+        'rename' => '#part \'(.*)\' was renamed to \'(.*)\'\.$#um',
+        'edit' => '#a Parts Tracker Admin edited the header.$#um',
+      ];
+      foreach (Storage::disk('local')->allDirectories('library/unofficial') as $dir) {
         if (strpos($dir,'images') !== false) continue;
-        $files = Storage::disk('public')->files($dir);
+        $files = Storage::disk('local')->files($dir);
         foreach ($files as $file) {
           if (pathinfo($file, PATHINFO_EXTENSION) == 'meta') {
-            $partname = substr($file, 11,-5);
-            $part = Part::firstWhere('filename', $partname);
+            $partname = substr($file, 19,-5);
+            $part = Part::findByName($partname, true);
             if (!isset($part)) continue;
-            $metafile = Storage::disk('public')->get($file);
+            $metafile = Storage::disk('local')->get($file);
             $events = explode(str_repeat('=', 70) . "\n", $metafile);
             foreach ($events as $event) {
               if (empty($event)) continue;
-              unset($comment);
-              $date = '';
-              unset($user);
-              unset($eventtype);
-              unset($votetype);
-              $date_pattern = '#At\s+(\S+\s+\S+\s+\d+\s+\d+\:\d+\:\d+\s+\d+)#ius';
-              $comment_pattern = '#Comments\:\n+([\s\S]*?)\z#ius';
-              $submit_user_pattern = '#Submitted by\:\s(.*?)(\s+proxy=.*?)?\n#ius';
-              $reviewer_user_pattern = '#Reviewer\:\s(.*?)\n#ius';
-              $vote_pattern = '#Certification\:\s(.+?)\n#ius';
-              $rename_pattern = '#part \'(.*)\' was renamed to \'(.*)\'\.#ius';
-              $edit_pattern = '#a Parts Tracker Admin edited the header#ius';
               
-              if (preg_match($date_pattern, $event, $matches)) {
-                $date = date_format(date_create($matches[1]), 'Y-m-d H:i:s');
-              }  
-              if (preg_match($comment_pattern, $event, $matches)) {
-                $comment = preg_replace('#\n{3,}#ius', "\n", $matches[1]);
-                $comment = preg_replace('#\n$#ius', '', $comment);
-              }
+              $event = trim($event);
+              $event = preg_replace('#\R#us', "\n", $event);
+              $event = preg_replace('#\n{3,}#us', "\n\n", $event);
+              $event = preg_replace('#\h+#us', ' ', $event);
               
-              if (mb_strpos($event,'the file was initially submitted.') !== false || mb_strpos($event,'a new version of the file was submitted.') !== false) {
-                $eventtypeid = $eventtypes['submit'];
-                $initsubmit = mb_strpos($event,'the file was initially submitted') !== false;
-                if (preg_match($submit_user_pattern, $event, $matches)) {
-                  $uname = preg_replace('#.*(\t.*)#iu','',$matches[1]);
-                  if ($uname == 'simlego') $uname = 'Tore_Eriksson';
-                  if ($uname == 'David Merryweather') $uname = 'hazydavy';
-                  if ($uname == 'Valemar') $uname = 'rhsexton';
-                  $user = User::firstWhere('name', $uname) ?? User::firstWhere('name','Non-CA User');
+              preg_match($patterns['date'], $event, $matches);
+              $date = date_format(date_create($matches['date']), 'Y-m-d H:i:s');
+
+              if (preg_match($patterns['submit_user'], $event, $matches)) {
+                $eid = $eventtypes['submit'];
+                $user = User::findByName(trim($matches['user']), trim($matches['user']));
+                if (preg_match($patterns['comment'], $event, $matches)) {
+                  $comment = $matches['comment'];
                 }
                 else {
-                  $user = $part->user;
+                  $comment = null;
                 }
+                $vc = null;                
               }
-              else if (preg_match($reviewer_user_pattern, $event, $matches)) {
-                if ($matches[1] == 'simlego') $matches[1] = 'Tore_Eriksson';
-                if ($matches[1] == 'David Merryweather') $matches[1] = 'hazydavy';
-                $user = User::firstWhere('name', $matches[1]) ?? User::firstWhere('name','Non-CA User');
-                $eventtypeid = $eventtypes['review'];
-                if (preg_match($vote_pattern, $event, $matches) && $eventtypeid == $eventtypes['review']) {
-                  $vote = trim($matches[1]);
-                  $votecode = $votetypes[ucfirst($vote)] ?? null;
-                  if (isset($user) && isset($votecode) && $votetypes['Certify'] == $votecode && ($user->name == 'OrionP' || $user->name == 'cwdee')) {
-                    $votecode = $votetypes['Admin Certify'];
-                  }  
-                  elseif (strpos($matches[1], 'fastrack')) {
-                    $votecode = $votetypes['Admin Fast Track'];
-                  }
-                  elseif (!isset($votecode)) {
-                    $eventtypeid = $eventtypes['comment'];
-                 }
-                }  
-              }  
-              else if (preg_match($rename_pattern, $event, $matches)) {
-                $comment = $matches[0];
-                $eventtypeid =  $eventtypes['rename'];
-                $user = User::firstWhere('name', 'PTAdmin'); 
-              }
-              else if (preg_match($edit_pattern, $event, $matches)) {
-                $eventtypeid = $eventtypes['edit'];
-                $user = User::firstWhere('name', 'PTAdmin'); 
-              }
-              if (!isset($user)) {
-                Log::debug("User not defined",['part'=>$partname,'event'=>$event]);
-                $user = User::firstWhere('name', 'Non-CA User');
-              }  
-              if ($eventtypeid > 0) {
-                $new_event = new PartEvent;
-                $new_event->created_at = $date;
-                $new_event->part()->associate($part);
-                $new_event->user()->associate($user);
-                $new_event->vote_type_code = $votecode ?? NULL;
-                $new_event->release()->associate(PartRelease::firstWhere('name','unofficial'));
-                $new_event->comment = $comment ?? NULL;
-                $new_event->part_event_type_id = $eventtypeid;
-                $new_event->initial_submit = $initsubmit ?? NULL;
-                $new_event->save();
+              elseif (preg_match($patterns['reviewer_user'], $event, $matches)) {
+                $user = User::findByName(trim($matches['user']), trim($matches['user'])) ?? User::findByName('unknown');
+                preg_match($patterns['vote'], $event, $matches);
+                if ($matches['vote'] == 'novote') {
+                  $vc = null;
+                  $eid = $eventtypes['comment'];
+                }
+                else {                
+                  $vc = $votetypes[$matches['vote']];
+                  if ($vc == 'C' && ($user->name == 'OrionP' || $user->name == 'cwdee')) $vc = $votetypes['admincertify'];
+                  $eid = $eventtypes['review'];
+                }
                 
-                if ($initsubmit && $part->type->type == 'Texmap' && $part->user->name == 'PTadmin') {
-                  $part->user()->associate($user);
-                  $part->save();
+                if (preg_match($patterns['comment'], $event, $matches)) {
+                  $comment = $matches['comment'];
                 }
-              }  
-            }
+                else {
+                  $comment = null;
+                }  
+              }
+              elseif (preg_match($patterns['rename'], $event, $matches)) {
+                $eid = $eventtypes['rename'];
+                $user = User::ptadmin();
+                $vc = null;
+                $comment = $matches[0];
+              }
+              elseif (preg_match($patterns['edit'], $event, $matches)) {
+                $eid = $eventtypes['edit'];
+                $user = User::ptadmin();
+                $vc = null;
+                $comment = null;
+              }
+              
+              if (!isset($user) || $eid == '') dd($event, $partname);
+              
+              PartEvent::create([
+                'created_at' => $date,
+                'part_event_type_id' => $eid,
+                'initial_submit' => null,
+                'part_id' => $part->id,
+                'user_id' => $user->id,
+                'vote_type_code' => $vc,
+                'part_release_id' => PartRelease::unofficial()->id,
+                'comment' => $comment,
+              ]);
+              unset($user);
+              $eid = '';
+            }  
           }  
         }
       }
+      $parts = Part::whereRelation('type','format','png')->whereRelation('release','short','unof')->lazy();
+      foreach ($parts as $part) {
+        $uid = $part->events()->where('part_event_type_id', $eventtypes['submit'])->oldest()->first()->user_id;
+        $part->user_id = $uid;
+        $part->save();
+      }  
     }
 }

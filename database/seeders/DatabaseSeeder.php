@@ -23,16 +23,16 @@ class DatabaseSeeder extends Seeder
           VoteTypeSeeder::class,
           PartEventTypeSeeder::class,
           PartReleaseSeeder::class,
+          PartLicenseSeeder::class,
 
           PermissionSeeder::class,
           RoleSeeder::class,
           UserSeeder::class,
 
-//          LibrarySeeder::class,
-//          VoteSeeder::class,
-//          PartEventSeeder::class,
-
-//          LibraryRefresh::class,
+          PartSeeder::class,
+          RelatedPartsSeeder::class,
+          VoteSeeder::class,
+          PartEventSeeder::class,
       ]);
     }
 }

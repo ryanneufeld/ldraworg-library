@@ -15,5 +15,8 @@ class PartTypeQualifier extends Model
     {
         return $this->hasMany(Part::class);
     }
-    
+
+    public static function findByType($type) {
+      return self::firstWhere('type', $type);
+    }      
 }

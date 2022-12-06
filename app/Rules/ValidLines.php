@@ -45,7 +45,7 @@ class ValidLines implements DataAwareRule, InvokableRule
      */
     public function __invoke($attribute, $value, $fail) {
       if ($value->getMimetype() === 'text/plain') {
-        $file = FileUtils::storageFileText($value->get());
+        $file = FileUtils::cleanFileText($value->get());
         $headerend = FileUtils::headerEndLine($file);
         $file = explode("\n", $file);
         foreach ($file as $index => $line) {

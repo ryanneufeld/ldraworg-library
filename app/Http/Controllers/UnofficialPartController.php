@@ -5,17 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Part;
+use App\Models\PartType;
+use App\Models\PartRelease;
+use App\Models\PartHistory;
 use App\Helpers\PartsLibrary;
 use App\LDraw\FileUtils;
 use App\Http\Requests\PartSubmitRequest;
+use App\Jobs\RenderFile;
 
 class UnofficialPartController extends Controller
 {
     public function __construct()
     {
-      //$this->authorizeResource(Part::class, 'part');
+      $this->authorizeResource(Part::class, 'part');
     }
 
     /**
@@ -25,12 +31,14 @@ class UnofficialPartController extends Controller
      */
     public function index(Request $request)
     {
-      $parts = PartsLibrary::unofficialParts();
-
-      if ($request->has('status') && is_numeric($request->input('status'))) {
-        $parts = $parts->where('vote_sort', $request->input('status'));
-      }
-      return view('library.tracker.list',['parts' => $parts->sortBy('vote_sort')->lazy()]);
+      $unof = PartRelease::unofficial()->id;
+      return view('tracker.list',[
+        'parts' => Part::with(['votes','type'])->where('description', '<>', 'Missing')->
+          where('part_release_id', $unof)->
+          orderBy('part_type_id')->
+          orderBy('description')->
+          lazy(),
+      ]);
     }
 
     /**
@@ -38,9 +46,9 @@ class UnofficialPartController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($dev = null)
     {
-      return view('tracker.submit');
+      return view('tracker.submit', ['dev' => $dev]);
     }
 
     /**
@@ -52,15 +60,73 @@ class UnofficialPartController extends Controller
     public function store(PartSubmitRequest $request)
     {
       $filedata = $request->all();
-      if ($request->hasFile('partfile')) {
+      if (!empty($filedata['dev'])) {
+        foreach($filedata['partfile'] as $file) {
+          $filename = basename(strtolower($file->getClientOriginalName()));
+          
+          $pt = PartType::find($filedata['part_type_id']);
+
+          $upart = Part::findByName($pt->folder . $filename, true);
+          $opart = Part::findByName($pt->folder . $filename);
+
+          // Unofficial file exists
+          if (isset($upart)) {
+            // Save missing state before it is overridden
+            $wasmissing = $upart->description == 'Missing';
+            // Move old version to timestamped file
+            Storage::disk('local')->move('library/unofficial/' . $upart->filename, 'library/backups/' . $upart->filename . '.' . time());
+            if ($upart->isTexmap()) {
+              // If the submitter is not the author and has not edited the file before, add a history line
+              if ($upart->user_id <> $filedata['user_id'] && !empty($upart->history()->where('user_id', $filedata['user_id'])->get()))
+                PartHistory::create(['user_id' => $filedata['user_id'], 'part_id' => $upart->id, 'comment' => 'edited']);
+              $file->storeAs('library/unofficial/' . $upart->filename, 'local');
+            }
+            else {
+              // Update existing part
+              $text = FileUtils::cleanFileText($file->get(), true, true);
+              $upart->fillFromText($text, true, true);
+            }
+            if ($wasmissing) {
+              foreach($upart->parents() as $p) $p->updateUncertifiedSubpartsCache();
+            }  
+          }
+          else {
+            if ($file->getMimeType() == 'image/png') {
+              // Create a new texmap part
+              $upart = Part::create([
+                'user_id' => $filedata['user_id'],
+                'part_release_id' => PartRelease::unofficial(),
+                'part_license_id' => PartLicense::defaultLicense()->id,
+                'filename' => $pt->folder . $filename,
+                'description' => $pt->name . ' ' . $filename,
+                'part_type_id' => $pt->id,
+              ]);
+              $file->storeAs('library/unofficial/' . $upart->filename, 'local');
+            }
+            else {            
+              // Create a new part
+              $text = FileUtils::cleanFileText($file->get(), true, true);
+              $upart = Part::createFromText($text, true, true);
+            }  
+          }
+          $upart->updateSubparts(true);
+          $upart->updateImage(true);
+          if (!empty($opart)) {
+            $upart->official_part->associate($opart);
+            $opart->unofficial_part->associate($upart);
+          }  
+          $partids[] = $upart->id;
+        }
+        return view('tracker.partsub', ['parts' => Part::whereIn('id', $partids)->get()]);
+      }  
+      elseif ($request->hasFile('partfile')) {
         foreach($request->file('partfile') as $file) {
           if ($file->getMimetype() == 'text/plain') {
             $text = $file->get();
             $headers[] =
               [
                 'filename' => basename(strtolower($file->getClientOriginalName())), 
-                'header' => FileUtils::getHeader(FileUtils::cleanHeader($text)),
-                'text' => FileUtils::storageFileText($text),
+                'text' => FileUtils::cleanFileText($text, true, true),
               ];
           }
         }
@@ -74,12 +140,14 @@ class UnofficialPartController extends Controller
      * @param  \App\Models\Part  $part
      * @return \Illuminate\Http\Response
      */
-    public function show(Part $part)
+    public function show($part)
     {
-      if (!$part->unofficial) return redirect()->route('library.official.show',$part->id);
-      $part->load(['subparts', 'parents']);
-      $part->updateUncertifiedSubpartsCache();
-      return view('library.tracker.show',['part' => $part]);
+      $p = Part::find($part) ?? Part::findByName($part, true);
+      return view('tracker.show',[
+        'part' => $p, 
+        'usubparts' => $p->subparts()->whereRelation('release','short','unof')->get(),
+        'uparents' => $p->parents()->whereRelation('release','short','unof')->get(),
+      ]);
     }
 
     /**

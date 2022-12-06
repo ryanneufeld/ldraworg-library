@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 use App\Models\User;
+use App\Models\PartLicense;
 
 class UserSeeder extends Seeder
 {
@@ -18,7 +19,7 @@ class UserSeeder extends Seeder
     public function run()
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
+        $lic = PartLicense::defaultLicense();
         $users = DB::connection('mybb')->table('mybb_users')
           ->select('uid','username', 'email', 'loginname', 'additionalgroups')
           ->where(function($query) {
@@ -36,6 +37,7 @@ class UserSeeder extends Seeder
           	'realname' => $user->username,
           	'password' => bcrypt(Str::random(40)),
             'forum_user_id' => $user->uid,
+            'part_license_id' => $lic->id,
           ]);
           $newuser->assignRole('Part Author');
           $g = explode(',', $user->additionalgroups);
@@ -56,32 +58,25 @@ class UserSeeder extends Seeder
         $legacy_users = [
           'Adriano Aicardi',
           'Arne Hackstein',
-          'Arthur Sigg',
           'Axel Poque',
           'Bernd Munding',
           'Bert J. Giesen',
           'Bram Lambrecht',
           'Chris Moseley',
           'Damien Duquennoy',
-          'Dave Schuler',
           'David Olofsson',
           'Dennis Osborn',
-          'Don Heyse',
           'Duane Hess',
           'Frits Blankenzee',
           'Heather Patey',
           'Ishino Keiichiro',
           'James Jessiman',
-          'James Reynolds',
-          'Jeff Boen',
           'Jeff Stembel',
-          'Jeroen Ottens',
           'Joachim Probst',
           'John Jensen',
           'Jonathan P. Brown',
           'Joseph H. Cardana',
           'Karim Nassar',
-          'Leonardo Zide',
           'Manfred Moolhuysen',
           'Martin G Cormier',
           'Martyn Boogaarts',
@@ -89,7 +84,6 @@ class UserSeeder extends Seeder
           'Richard Finegold',
           'Ryan Dennett',
           'Sascha Broich',
-          'William Ward',
         ];
         foreach ($legacy_users as $u) {
           $user = User::create([
@@ -97,6 +91,7 @@ class UserSeeder extends Seeder
           	'email' => str_replace(' ', '', strtolower($u)) . '@ldraw.org',
           	'realname' => $u,
           	'password' => bcrypt(Str::random(40)),
+            'part_license_id' => $lic->id,
           ]);
           $user->assignRole('Legacy User');
         }
@@ -112,6 +107,7 @@ class UserSeeder extends Seeder
           'PTadmin',
           'Non-CA User',
           'CA User',
+          'unknown',
         ];
         foreach ($virtual_users as $u) {
           $user = User::create([
@@ -119,8 +115,11 @@ class UserSeeder extends Seeder
           	'email' => str_replace(['/',' '], '', strtolower($u)) . '@ldraw.org',
           	'realname' => $u,
           	'password' => bcrypt(Str::random(40)),
+            'part_license_id' => $lic->id,
           ]);
           if ($u == 'PTadmin') {
+            $user->realname = ' ';
+            $user->save();
             $user->assignRole('Part Author');
           }
           else {

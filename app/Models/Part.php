@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use App\Traits\Excludable;
+use App\Jobs\RenderFile;
 
 use App\Models\User;
 use App\Models\PartCategory;
@@ -23,13 +23,24 @@ use App\Models\PartEventType;
 use App\Models\PartHistory;
 use App\Models\PartType;
 use App\Models\PartTypeQualifier;
-use App\Models\File;
+use App\Models\PartLicense;
 
-use App\Helpers\PartsLibrary;
+use App\LDraw\FileUtils;
 
 class Part extends Model
 {
     use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+      'user_id',
+      'part_category_id',
+      'part_license_id',
+      'part_type_id',
+      'part_release_id',
+      'part_type_qualifier_id',
+      'description',
+      'filename',
+    ];
 
     public function user()
     {
@@ -39,6 +50,11 @@ class Part extends Model
     public function category()
     {
         return $this->belongsTo(PartCategory::class, 'part_category_id', 'id');
+    }
+
+    public function license()
+    {
+        return $this->belongsTo(PartLicense::class, 'part_license_id', 'id');
     }
 
     public function type()
@@ -58,6 +74,10 @@ class Part extends Model
     public function parents(){
       return $this->belongsToMany(self::class, 'related_parts', 'subpart_id', 'parent_id');
     }
+
+    public function keywords() {
+      return $this->belongsToMany(self::class, 'parts_part_keywords', 'part_id', 'part_keyword_id');
+    }
     
     public function votes()
     {
@@ -74,75 +94,25 @@ class Part extends Model
         return $this->belongsTo(PartRelease::class, 'part_release_id');
     }
     
-    public function files() {
-      return $this->hasMany(File::class);
-    }
     public function history()
     {
       return $this->hasMany(PartHistory::class);
     }
     
-    public function officialPart() {
-      return $this->belongsTo(Part::class, 'official_part_id', 'id');
+    public function official_part() {
+      return $this->belongsTo(self::class, 'official_part_id', 'id');
     }
 
-    public function unofficialPart() {
-      return $this->hasOne(Part::class, 'official_part_id', 'id');
+    public function unofficial_part() {
+      return $this->belongsTo(self::class, 'unofficial_part_id', 'id');
+    }
+
+    public function getUnofficialAttribute() {
+      return $this->release->short == 'unof';
     }
     
-    public function save(array $options = []) {
-      parent::save($options);
-      if ($this->type->name == 'Texmap') {
-        $this->syncImageData();
-      }
-    }
-    
-    private function imageDataFilename() {
-      return 'textures/data/' . $this->filename . "." . date_format(date_create($this->latestFile()->created_at), "U") . '.txt';
-    }
-    
-    private function imageDataFile() {
-      if (Storage::disk('local')->missing($this->imageDataFilename())) {
-        $author = $this->user->authorString() ?? '[PTadmin]';
-        $this->unofficial ? $u = "Unofficial_" : $u = "";
-        $data = "0 TEXMAP Image {$this->filename}\r\n0 Author: $author\r\n0 !LDRAW_ORG {$u}Texmap";
-      }
-      else {
-        return Storage::disk('local')->get($this->imageDataFilename());
-      }  
-    }
-    
-    private function saveImageData($file) {
-      if (is_string($file)) {
-        Storage::disk('local')->put($this->imageDataFilename(), $file);
-      }
-    }
-    
-    private function syncImageData() {
-      $author = $this->user->authorString();
-      $this->unofficial ? $u = "Unofficial_" : $u = "";
-      $data = "0 TEXMAP Image {$this->filename}\r\n0 Author: $author\r\n0 !LDRAW_ORG {$u}Texmap";
-      foreach ($this->history as $h) {
-        $data .= $h->toString() . "\r\n";
-      }
-      $this->saveImageData($data);
-    }
-    
-    private function refreshDataFile() {
-      if ($this->type->name == 'Texmap') {
-        return $this->imageDataFile();
-      }
-      else {
-        return $this->file;
-      }
-    }
-    
-    private function latestFile() {
-      return $this->hasOne(File::class)->latestOfMany()->first();
-    }
-    
-    public function getFileAttribute() {
-      return $this->latestFile()->getPartFile();
+    public function isTexmap() {
+      return $this->type->format == 'png';
     }
     
     public function getVoteSummaryAttribute() {
@@ -221,181 +191,218 @@ class Part extends Model
     }
     
     public function header() {
-      if ($this->type->type == 'Texmap') return ""; 
-      $file = explode("\r\n", $this->file);
-      $i = 0;
-      while (empty($file[$i]) || $file[$i][0] == '0' || $file[$i][0] == ' ') $i++;
-      return implode("\n", array_slice($file, 0, $i));
+      return FileUtils::getHeader($this->getFileText());
     }
-   
-    public function refreshDescription($file = null) {
-      $file = $file ?? $this->refreshDataFile();
-      if ($description = PartsLibrary::descriptionFromFilestring($file)) $this->description = $description;
+    
+    public function nameString() {
+      preg_match('#^(p/|parts/)(?<name>.*)$#u', $this->filename, $matches);
+      return $matches['name'] ?? '';
     }
-
-    public function refreshAuthor($file = null) {
-      $file = $file ?? $this->refreshDataFile();
-      if ($author = PartsLibrary::authorFromFilestring($file)) {
-        $user = User::firstWhere('name',$author['name']) ?? $user = User::firstWhere('realname',$author['realname']);
-        if (isset($user)) $this->user()->associate($user);
+    
+    public function getFileText() {
+      if ($this->description == 'Missing') {
+        return '';
+      }  
+      elseif (!$this->isTexmap()) {
+        $folder = $this->release->short == 'unof' ? 'unofficial/' : 'official/';
+        return Storage::disk('local')->get('library/' . $folder . $this->filename);
+      }
+      else {
+        $filetext = "0 {$this->description}\n" .
+                    "0 Name: " . $this->nameString() . "\n" .
+                    $this->user->toString() . "\n" .
+                    trim($this->type->toString() . " " . $this->release->toString()) . "\n" .
+                    $this->license->toString() . "\n\n";
+        foreach ($this->history as $hist) {
+          $filetext .= $hist->toString() . "\n";
+        }
+        return $filetext;        
+      }
+    }
+        
+    public function get() {
+      if ($this->description == 'Missing') {
+        return '';
+      }  
+      elseif (!$this->isTexmap()) {
+        return $this->getFileText();
+      }      
+      else {
+        $folder = $this->release->short == 'unof' ? 'unofficial/' : 'official/';
+        return Storage::disk('local')->get('library/' . $folder . $this->filename);
       }      
     }
-
-    public function refreshType($file = null) {
-      $file = $file ?? $this->refreshDataFile();
-      if ($type = PartsLibrary::typeFromFilestring($file)) {
-        $t = PartType::firstWhere('type', $type['type']);
-        $qual = PartTypeQualifier::firstWhere('type', $type['qual']);
-        if (isset($opqual)) $this->type_qualifier()->associate($qual);
-        if (isset($t)) $this->type()->associate($t);
-      }
-    }
-
-    public function refreshRelease($file = null) {
-      $file = $file ?? $this->refreshDataFile();
-      if ($this->unofficial) {
-         $this->release()->associate(PartRelease::firstWhere('short','unof'));
-      }  
-      elseif ($release = PartsLibrary::releaseFromFilestring($file)) {
-        if ($release['releasetype'] == 'ORIGINAL') {
-          $this->release()->associate(PartRelease::firstWhere('short','original'));
-        }
-        elseif ($release['releasetype'] == 'UPDATE') {
-          $r = PartRelease::firstWhere('name', $release['release']);
-          if (isset($r)) $this->release()->associate($r);
-        }
-      }
-    }
-
-    public function refreshCategory($file = null) {
-      $file = $file ?? $this->refreshDataFile();
-      $category = PartsLibrary::categoryFromFilestring($file);
-      if ($this->type->type != 'Part' && $this->type->type != 'Shortcut') {
-        if ($category) {
-          $cat = PartCategory::firstWhere('category', $category);
-          if (isset($cat)) $this->category()->associate($cat);
-        }
-        else {
-          $cat_str = str_replace(['~','|','=','_'], '', mb_strstr($this->description, " ", true));
-          $cat = PartCategory::firstWhere('category', $cat_str);
-          if (isset($cat)) $this->category()->associate($cat);
-        }
-      }
+    
+    public function put($content) {
+        $folder = $this->unofficial ? 'unofficial/' : 'official/';
+        return Storage::disk('local')->put('library/' . $folder . $this->filename, $content);
     }
     
-    public function refreshSubparts($file = null) {
-      $file = $file ?? $this->refreshDataFile();
-      $refs = PartsLibrary::subpartsFromFilestring($file);
+    public function updateSubparts($updateUncertified = false) {
+      if ($this->isTexmap()) return;
+      $file = $this->getFileText();
+      $refs = FileUtils::getSubparts($file);
       $this->subparts()->sync([]);
-      foreach ($refs['subparts'] as $subpart) {
-        $subpart = mb_strtolower(str_replace('\\', '/', $subpart));
-        $subp = Part::where(function($query) use ($subpart) {
-            $query->where('filename', 'p/' . $subpart)
-            ->orWhere('filename', 'parts/' . $subpart);
-        })
-        ->where('unofficial', $this->unofficial)->first();
-        // exclude circular references
-        if (isset($subp) && $subp->id != $this->id) {
-          $this->subparts()->attach($subp);
-          unset($subp);
+      foreach(['subparts','textures'] as $type) {
+        foreach($refs[$type] as $subpart) {
+          if (empty(trim($subpart))) continue;
+          $osubp = self::findByName($subpart, false, true);
+          $usubp = self::findByName($subpart, true, true);
+          if (isset($usubp) && $this->unofficial && $this->id <> $usubp->id) {
+            $this->subparts()->attach($usubp);
+          }  
+          elseif (isset($osubp) && $this->id <> $osubp->id) { 
+            $this->subparts()->attach($osubp);
+          }
+          elseif (!isset($usubp) && $this->unofficial) {
+            $upart = self::createMissing($subpart);
+            $this->subparts()->attach($upart);
+          }    
         }  
       }  
-      foreach ($refs['textures'] as $texture) {
-        $texture = mb_strtolower(str_replace('\\', '/', $texture));
-        $subp = Part::where(function($query) use ($texture) {
-            $query->where('filename', 'parts/textures/' . $texture)
-            ->orWhere('filename', 'p/textures/' . $texture);
-        })
-        ->where('unofficial', $this->unofficial)->first();
-        if (isset($subp)) {
-          $this->subparts()->attach($subp);
-          unset($subp);
-        }  
-      }  
-      $this->updateUncertifiedSubpartsCache();
+      if ($updateUncertified) $this->updateUncertifiedSubpartsCache();
     }
-    
-    public function refreshHistory($file = null) {
-      $file = $file ?? $this->refreshDataFile();
-      foreach ($this->history as $history) {
-        $history->delete();
-      }
-      if ($historyitems = PartsLibrary::historyFromFilestring($file)) {
-        if (count($historyitems) < mb_substr_count($file, '!HISTORY')) {
-          Log::debug("HISTORY count mismatch: {$this->filename}, expected: " . mb_substr_count($this->file, '!HISTORY') . ", actual: " . count($historyitems), ['hostoryitems' => $historyitems]);
-        }  
-        $aliases = PartsLibrary::$known_author_aliases;
-        foreach($historyitems as $history) {
-          if (array_key_exists($history['user'], $aliases)) $history['user'] = $aliases[$history['user']];
-          $user = User::firstWhere('name',$history['user']) ?? User::firstWhere('realname',$history['user']);
-          if (!isset($user)) continue;
-          $h = new PartHistory;
-          $h->comment = $history['comment'];
-          $h->created_at = $history['date'];
-          $h->part()->associate($this);
-          $h->user()->associate($user);
-          $h->save();
-        }
-      }
-    }
-    
-    public function refreshAll($file = null) {
-      $file = $file ?? $this->refreshDataFile();
-      $this->refreshDescription($file);
-      $this->refreshAuthor($file);
-      $this->refreshType($file);
-      $this->refreshRelease($file);
-      $this->refreshCategory($file);
-      $this->refreshSubparts($file);
-      $this->refreshHistory($file);
-    }
-    
-    public static function findByName($name, $officialOnly = false, $withoutFolder = false) {
+   
+    public static function findByName($name, $unofficial = false, $withoutFolder = false) {
+      $filename = str_replace('\\', '/', $name);
       if ($withoutFolder) {
-        $part = self::where(function($query) use ($name) {
-            $query->where('filename', 'p/' . $name)
-            ->orWhere('filename', 'parts/' . $name);
+        if (pathinfo($name, PATHINFO_EXTENSION) == 'png') $filename = "textures/$filename";
+        $part = self::where(function($query) use ($filename) {
+            $query->where('filename', "p/$filename")
+            ->orWhere('filename', "parts/$filename");
         });    
       }
       else {
-        $part = self::where('filename', $name);
+        $part = self::where('filename', $filename);
       }
-      if ($officialOnly) {
-        $part = $part->where('unofficial', false);
+      if ($unofficial) {
+        return $part->whereRelation('release', 'short', 'unof')->first();       
       }
-      return $part->first();
-    }
-
-    public static function createFromFilestring($filestring, $unofficial = true, $folder = null) {
-      $part = new self;
-      $part->unofficial = $unofficial;
-      $part->refreshDescription($filestring);
-      $part->refreshAuthor($filestring);
-      $part->refreshType($filestring);
-      $part->refreshRelease($filestring);
-      $part->refreshCategory($filestring);
-      if ($part->type->type == 'Texture' && isset($folder)) {
-        $part->filename = $folder . '/textures/' . pathinfo($file->path, PATHINFO_BASENAME);
-      }  
       else {
-        $name  = PartsLibrary::nameFromFilestring($filestring);
-        if (isset($folder)) {
-          $part->filename = $folder . '/' . $name;
-          $part->syncImageData();
-        }
-        else {
-          if ($part->type->type == 'Primitive' || $part->type->type == '8_Primitive' || $part->type->type == '48_Primitive') {
-            $part->filename = 'p/' . $name;
-          }
-          else {
-            $part->filename = 'parts/' . $name;
-          }
+        return $part->whereRelation('release', 'short', '<>', 'unof')->first();
+      }  
+    }
+    
+    // Note: this function assumes that the part text has been cleaned and validated
+    public function fillFromText($text, $force_unofficial = false, $updateFile = false) {
+      $author = FileUtils::getAuthor($text);
+      $user = User::findByName($author['user'], $author['realname']);
+      
+      $name = FileUtils::getName($text);
+      
+      $pt = FileUtils::getPartType($text);
+      $type = PartType::findByType($pt['type']);
+      $qual = PartTypeQualifier::findByType($pt['qual']);
+
+      if ($type->name == 'Shortcut' || $type->name == 'Part' || $type->name == 'Subpart' ||  $type->name == 'Helper') {
+        $filename = "parts/" . str_replace('\\', '/', $name);
+      }
+      else {
+        $filename = "p/" . str_replace('\\', '/', $name);
+      }
+      
+      if (!$force_unofficial) {
+        $rel = FileUtils::getRelease($text);
+        $release = PartRelease::firstWhere('name', $rel['release']) ?? PartRelease::unofficial();
+      }
+      else {
+        $release = PartRelease::unofficial();
+      }  
+      $license = PartLicense::firstWhere('text', FileUtils::getLicense($text));
+      
+      if ($type->name == 'Part' || ($type->name == 'Shortcut' && mb_strpos($name, "s\\") === false)) {
+        $category = PartCategory::findByName(FileUtils::getCategory($text));
+        $cid = $category->id;
+      }
+      else {
+        $cid = null;
+      }        
+      
+      $kw = FileUtils::getKeywords($text);
+      
+      $history = FileUtils::getHistory($text, true);
+      
+      $this->fill([
+        'user_id' => $user->id,
+        'part_category_id' => $cid,
+        'part_release_id' => $release->id,
+        'part_license_id' => $license->id,
+        'filename' => $filename,
+        'part_type_id' => $type->id,
+        'part_type_qualifier_id' => $qual->id ?? null,
+        'description' => FileUtils::getDescription($text),
+      ]);
+      $this->save();
+
+      $this->keywords()->sync([]);
+
+      if (!empty($kw)) {
+        foreach($kw as $word) {
+          $keyword = PartKeyword::findByKeywordOrCreate($word);
+          $this->keywords()->attach($keyword);
         }
       }
-      Log::debug('Prior to save', ['part' => $part]);
-      $part->save();
-      $part->refreshSubparts($filestring);
-      $part->refreshHistory($filestring);
+      
+      foreach ($this->history as $hist) {
+        $hist->delete();
+      }
+      
+      if (!empty($history)) {
+        foreach ($history as $hist) {
+          PartHistory::create(['user_id' => $hist['user'], 'part_id' => $this->id, 'created_at' => $hist['date'], 'comment' => $hist['comment']]);
+        }
+      }
+      
+      if ($updateFile) {
+        $file = $release->short == 'unof' ? 'library/unofficial/' . $filename : 'library/official/' . $filename;
+        $this->put($text);
+      }  
+    }
+    
+    public static function createFromText($text, $force_unofficial = false, $updateFile = false) {
+      $part = new self;
+      $part->fillFromText($text, $force_unofficial, $updateFile);
       return $part;
     }
+
+    public static function updateOrCreateFromText($text, $force_unofficial = false, $updateFile = false) {
+      $pt = FileUtils::getPartType($text);
+      $part = self::findByName(FileUtils::getName($text), !empty($pt['unofficial']), true);
+      
+      if (!empty($part)) {
+        $part->fillFromText($text, $force_unofficial, $updateFile);
+      }
+      else {
+        $part = self::createFromText($text, $force_unofficial, $updateFile);
+      }        
+      return $part;
+    }
+
+    // This function assumes file is a Linetype 1 file reference (no parts or p)
+    public static function createMissing($file) {
+      $folder = pathinfo($file, PATHINFO_DIRNAME);
+      if ($folder == '.') $folder = '';
+      if (pathinfo($file, PATHINFO_EXTENSION) == 'png') $folder = "textures/$folder";
+      $pt = PartType::where(function($query) use ($folder) {
+        $query->where('folder', "parts/$folder")
+        ->orWhere('folder', "p/$folder");
+      })->first();
+      return self::create([
+        'user_id' => User::findByName('unknown')->id,
+        'part_release_id' => PartRelease::unofficial()->id,
+        'part_license_id' => PartLicense::defaultLicense()->id,
+        'filename' => $pt->folder . str_replace('\\', '/', basename($file)),
+        'description' => 'Missing',
+        'part_type_id' => $pt->id,
+      ]);       
+    }
+    
+    public function updateImage($updateParents = false) {
+      if (!$this->isTexmap()) RenderFile::dispatch($this);
+      if ($updateParents) {
+        foreach ($this->parents as $part) {
+          $part->updateImage(true);
+        }  
+      }  
+    }      
 }

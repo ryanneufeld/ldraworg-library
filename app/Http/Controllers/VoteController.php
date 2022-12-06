@@ -23,7 +23,7 @@ class VoteController extends Controller
     public function create(Part $part)
     {
       $this->authorize('create', [Vote::class, $part]);
-      return view('votes.vote', ['part' => $part, 'vote' => null]);
+      return view('tracker.vote', ['part' => $part, 'vote' => null]);
     }
 
     /**
@@ -48,7 +48,7 @@ class VoteController extends Controller
     public function edit(Vote $vote)
     {
       $this->authorize('update', $vote);
-      return view('votes.vote',['part' => $vote->part, 'vote' => $vote]);
+      return view('tracker.vote',['part' => $vote->part, 'vote' => $vote]);
     }
 
     /**
@@ -78,7 +78,7 @@ class VoteController extends Controller
         return $this->destroy($request, $vote);
       }
 
-      $event = new PartEvent(['comment' => $input['comment'] ?? '']);
+      $event = new PartEvent(['comment' => $input['comment'] ?? null]);
       
       if ($input['vote_type'] == 'M') {
         $event->part_event_type()->associate(PartEventType::firstWhere('slug','comment'));
@@ -103,7 +103,7 @@ class VoteController extends Controller
       $event->release()->associate(PartRelease::firstWhere('short','unof'));
       $event->save();
 
-      return redirect()->route('library.tracker.show', $part->id);
+      return redirect()->route('tracker.show', $part->id);
       
     }
     /**
@@ -121,13 +121,13 @@ class VoteController extends Controller
         $parent->updateUncertifiedSubpartsCache();
       }
 
-      $event = new PartEvent(['comment' => $input['comment'] ?? '']);
+      $event = new PartEvent(['comment' => $input['comment'] ?? null]);
       $event->user()->associate($request->user());
       $event->part()->associate($part);
       $event->part_event_type()->associate(PartEventType::firstWhere('slug','review'));
       $event->release()->associate(PartRelease::firstWhere('short','unof'));
       $event->save();
 
-      return redirect()->route('library.tracker.show', $part->id);
+      return redirect()->route('tracker.show', $part->id);
     }
 }

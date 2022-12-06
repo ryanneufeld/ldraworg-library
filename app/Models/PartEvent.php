@@ -13,9 +13,13 @@ use App\Models\User;
 
 class PartEvent extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
+      'created_at',
+      'initial_submit',
+      'part_id',
+      'user_id',
+      'vote_type_code',
+      'part_release_id',
       'comment',
     ];
     

@@ -4,6 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+use App\Models\PartLicense;
+
 class CreateUsersTable extends Migration
 {
     /**
@@ -23,7 +25,7 @@ class CreateUsersTable extends Migration
             $table->string('realname')->unique();
             $table->rememberToken();
             $table->bigInteger('forum_user_id')->nullable();
-            $table->integer('license')->default(2);
+            $table->foreignIdFor(PartLicense::class)->constrained();
         });
     }
 

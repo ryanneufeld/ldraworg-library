@@ -4,9 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Part;
-
-class CreateUnofficialVersionTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -15,11 +13,9 @@ class CreateUnofficialVersionTable extends Migration
      */
     public function up()
     {
-        Schema::create('unofficial_version', function (Blueprint $table) {
+        Schema::create('part_keywords', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->longText('file');
-            $table->foreignIdFor(Part::class)->constrained();
+            $table->string('keyword')->unique();
         });
     }
 
@@ -30,6 +26,6 @@ class CreateUnofficialVersionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('unofficial_version');
+        Schema::dropIfExists('part_keywords');
     }
-}
+};

@@ -6,11 +6,14 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
+
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Part;
 use App\Models\Vote;
 use App\Models\PartEvent;
-use App\Models\History;
+use App\Models\PartHistory;
+use App\Models\PartLicense;
 
 class User extends Authenticatable
 {
@@ -65,6 +68,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(PartHistory::class);
     }
+
+    public function license()
+    {
+        return $this->belongsTo(PartLicense::class, 'part_license_id', 'id');
+    }
+    
+    // Find by user or real name
+    public static function findByName($name, $rname = '') {
+      if (!empty($rname)) {
+        return self::firstWhere('realname',$rname) ?? self::firstWhere('name',$name);
+      }  
+      else {
+        return self::firstWhere('name',$name);
+      }  
+    }
+    
+    public static function ptadmin() {
+      return self::firstWhere('name', 'PTadmin');
+    }
     
     public function authorString() {
       if ($this->hasRole('Legacy User')) {
@@ -74,13 +96,13 @@ class User extends Authenticatable
         return "[{$this->name}]";
       }
       else {
-        return "{$this->realname} [{$this->name}]";
+        return trim("{$this->realname} [{$this->name}]");
       }
     }
 
     public function historyString() {
       if ($this->hasRole('Legacy User')) {
-        return "[{$this->realname}]";
+        return "{{$this->realname}}";
       }
       elseif ($this->hasRole('Synthetic User')) {
         return "{{$this->name}}";
@@ -90,4 +112,7 @@ class User extends Authenticatable
       }
     }
     
+    public function toString() {
+      return "0 Author: " . $this->authorString();
+    }
 }

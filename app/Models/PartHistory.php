@@ -10,7 +10,12 @@ use App\Models\Part;
 
 class PartHistory extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+      'user_id',
+      'create_at',
+      'comment',
+      'part_id',
+    ];
     
     public function user()
     {

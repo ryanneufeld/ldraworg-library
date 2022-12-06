@@ -13,6 +13,8 @@ use App\Rules\ValidPartType;
 use App\Rules\ValidCategory;
 use App\Rules\ValidKeywords;
 use App\Rules\ValidHistory;
+use App\Rules\FileReplace;
+use App\Rules\FileOfficial;
 
 class PartSubmitRequest extends FormRequest
 {
@@ -39,7 +41,7 @@ class PartSubmitRequest extends FormRequest
       'replace' => 'boolean',
       'partfix' => 'boolean',
       'comment' => 'nullable|string',
-//      'user_id' => 'required|exists:users,id',
+      'user_id' => 'required|exists:users,id',
       'partfile' => 'required',
       'partfile.*' => ['file', 
                         new ValidLDrawFileType,
@@ -51,6 +53,8 @@ class PartSubmitRequest extends FormRequest
                         new ValidKeywords,
                         new ValidHistory,
                         new ValidLines,
+                        new FileReplace,
+                        new FileOfficial,
                       ],
     ];
   }

@@ -59,6 +59,7 @@ class MetaData {
     'Plant',
     'Plate',
     'Platform',
+    'Pov-RAY',
     'Propeller',
     'Rack',
     'Roadsign',
@@ -72,6 +73,7 @@ class MetaData {
     'Sphere',
     'Staircase',
     'Sticker',
+    'String',
     'Support',
     'Tail',
     'Tap',
@@ -96,13 +98,15 @@ class MetaData {
     'Part' => ['name' => 'Part', 'folder' => 'parts/', 'format' => 'dat'],
     'Subpart' => ['name' => 'Subpart', 'folder' => 'parts/s/', 'format' => 'dat'],
     'Primitive' => ['name' => 'Primitive', 'folder' => 'p/', 'format' => 'dat'],
-    '8_Primitive' => ['name' => '8 Segment Primitive', 'folder' => 'p/48/', 'format' => 'dat'],
-    '48_Primitive' => ['name' => '48 Segment Primitive', 'folder' => 'p/8/', 'format' => 'dat'],
+    '8_Primitive' => ['name' => '8 Segment Primitive', 'folder' => 'p/8/', 'format' => 'dat'],
+    '48_Primitive' => ['name' => '48 Segment Primitive', 'folder' => 'p/48/', 'format' => 'dat'],
     'Shortcut' => ['name' => 'Shortcut', 'folder' => 'parts/', 'format' => 'dat'],
+    'Helper' => ['name' => 'Helper', 'folder' => 'parts/h/', 'format' => 'dat'],
     'Texmap' => ['name' => 'TEXMAP Image', 'folder' => 'parts/textures/', 'format' => 'png'],
     'Subpart_Texmap' => ['name' => 'Subpart TEXMAP Image', 'folder' => 'parts/textures/s/', 'format' => 'png'],
-    'Primitive_Texmap' => ['name' => 'Primitve TEXMAP Image', 'folder' => 'p/textures/', 'format' => 'png'],
-    'Helper' => ['name' => 'Helper', 'folder' => 'parts/h/', 'format' => 'dat']
+    'Primitive_Texmap' => ['name' => 'Primitive TEXMAP Image', 'folder' => 'p/textures/', 'format' => 'png'],
+    '8_Primitive_Texmap' => ['name' => '8 Segment Primitive TEXMAP Image', 'folder' => 'p/textures/8/', 'format' => 'png'],
+    '48_Primitive_Texmap' => ['name' => '48 Segment Primitive TEXMAP Image', 'folder' => 'p/textures/48/', 'format' => 'png'],
   ];
 
   private static $qualifiers = [
@@ -112,15 +116,27 @@ class MetaData {
   ];
 
   private static $library_licenses = [
-    'CC_BY_2.0' => 'Licensed under CC BY 2.0 and CC BY 4.0 : see CAreadme.txt',
-    'CC_BY_4.0' => 'Licensed under CC BY 4.0 : see CAreadme.txt',
+    'CC_BY_2' => 'Licensed under CC BY 2.0 and CC BY 4.0 : see CAreadme.txt',
+    'CC_BY_4' => 'Licensed under CC BY 4.0 : see CAreadme.txt',
     'CA' => 'Redistributable under CCAL version 2.0 : see CAreadme.txt',
     'NonCA' => 'Not redistributable : see NonCAreadme.txt'
+  ];
+  
+  // Some
+  private static $known_author_aliases = [
+    'The LEGO Universe Team' => 'LEGO Universe Team',
+    'simlego' => 'Tore_Eriksson',
+    'Valemar' => 'rhsexton',
   ];
 
   public static function getCategories() {
     return self::$categories;
   }
+
+  public static function getAuthorAliases() {
+    return self::$known_author_aliases;
+  }
+
   public static function getPartTypes($keysonly = false) {
     if ($keysonly) {
       return array_keys(self::$types);

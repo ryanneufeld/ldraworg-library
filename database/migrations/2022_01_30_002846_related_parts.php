@@ -18,6 +18,7 @@ class RelatedParts extends Migration
           $table->foreignId('subpart_id')->references('id')->on('parts')->cascadeOnDelete()->cascadeOnUpdate();
           $table->index('parent_id');
           $table->index('subpart_id');            
+          $table->unique(['parent_id', 'subpart_id']);          
       });
     }
 
