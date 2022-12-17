@@ -26,7 +26,7 @@ class ValidAuthor implements InvokableRule
           $fail('partcheck.missing')->translate(['attribute' => 'Author:']);
         }
         elseif (!PartCheck::checkAuthorInUsers($file)) {
-          $fail('partcheck.author.registered')->translate(['attribute' => 'Author:']);
+          $fail('partcheck.author.registered')->translate(['value' => 'Author:']);
         }
       }
     }

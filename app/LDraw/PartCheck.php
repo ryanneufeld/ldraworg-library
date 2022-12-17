@@ -38,21 +38,24 @@ class PartCheck {
 
   public static function checkNameAndPartType($file = '') {
     $name = FileUtils::getName($file);
+    $name = str_replace('\\','/', $name);
+    
     $type = FileUtils::getPartType($file);
 
     // Automatic fail if no Name:, LDRAW_ORG line, or DAT file has TEXTURE type
     if ($name === false || $type === false || stripos('Texture', $type['type']) !== false) return false;
 
     // Construct the name implied by the part type
-    $folder = PartType::firstWhere('type', $type['type'])->folder;
-    $aname = basename(str_replace('\\','/', $name));
-    if (stripos('p/', $folder)) {
-     $aname = substr($folder, stripos('p/', $folder) + 2) . $aname;
+    $pt = PartType::firstWhere('type', $type['type']);
+    $folder = $pt->folder;
+    if (strpos($folder, 'p/') !== false) {
+      $f = substr($folder, strpos($folder, 'p/') + 2);
     }
     else {
-     $aname = substr($folder, stripos('parts/', $folder) + 6) . $aname;
+      $f = substr($folder, strpos($folder, 'parts/') + 6);
     }
-    $aname = str_replace('/','\\', $aname);
+    $aname = $f . basename($name);
+    
     return $name === $aname;
   }
 

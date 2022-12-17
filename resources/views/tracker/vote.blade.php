@@ -13,27 +13,23 @@
   </ul>
 </div>
 @endif
-
+<h3 class="ui header">Part {{ basename($vote->part->filename ?? $part->filename) }} Voting Form</h3>
 <form class="ui form" method="post" ACTION="{{$vote != null ? route('tracker.vote.update', $vote->id) : route('tracker.vote.store', $part->id)}}" name="reviewform">
 @csrf
 @if($vote != null)
 @method('PUT')
 @endif
-  <div class="inline field">
-    <label>Reviewer</label>
-    <div class="ui transparent input">
-      <input type="text" value="{{ Auth::user()->name }}" readonly>
+  <div class="ui horizontally fitted basic segment">
+    <div>
+      <strong>File:</strong> {{ $vote->part->filename ?? $part->filename }}
+      <a href="http://www.ldraw.org/library/tracker/ref/reviewinfo">
+        <i class="circular help small blue inverted link icon"></i>
+        Help!  What is this page?
+      </a>
     </div>
-    <a href="http://www.ldraw.org/library/tracker/ref/reviewinfo">
-	  <i class="circular help small blue inverted link icon"></i>
-	  Help!  What is this page?
-	</a>  
-  </div>
-  <div class="inline field">
-    <label for="filename">File</label>
-    <div class="ui transparent input">
-      <input type="text" name="part_filename" value="{{ $part->filename }}" readonly>
-    </div>
+    @canany('part.vote.certify', 'part.vote.hold', 'part.vote.admincertify', 'part.vote.fastrack')
+    <div><strong>Your Current Review:</strong> <span class="{{$vote->type->short ?? 'none'}}-text">{{ $vote->type->name ?? 'None' }}</span></div>
+    @endcan
   </div>
   <div class="grouped fields">
     <label for="vote_type">Vote</label>
@@ -57,7 +53,7 @@
     @if((Auth::user()->id == $part->user_id && Auth::user()->can('part.own.vote.' . $vt->short)) || (Auth::user()->can('part.vote.' . $vt->short)))
     <div class="field">
       <div class="ui radio checkbox">
-        <input type="radio" name="vote_type" tabindex="1" value="{{$vt->code}}" @if ($vote != null && $vote->vote_type_code == $vt->code) checked="checked" @endif>
+        <input type="radio" name="vote_type" tabindex="1" value="{{$vt->code}}" @checked($vote != null && $vote->vote_type_code == $vt->code)>
         <label>{{$vt->phrase}}</label>
       </div>
     </div>
@@ -68,6 +64,6 @@
     <label for="comment">Comments</label>
     <textarea name="comment" rows="4" tabindex="19"></textarea>
   </div>
-  <button class="ui button" type="submit" tabindex="20">Submit</button>
+  <button class="ui button" type="submit" tabindex="20">Submit</button><button class="ui button" onclick="window.history.go(-1); return false;" tabindex="21">Back</button>
 </form>
 </x-layout.main>

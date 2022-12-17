@@ -63,7 +63,7 @@ class ValidName implements DataAwareRule, InvokableRule
           $fail('partcheck.name.mismatch')->translate(['value' => basename($name)]);
         }
         elseif (!empty($type) && ('parts/' . $name !== $type->folder . basename($name)) && ('p/' . $name !== $type->folder . basename($name))) {
-          $fail('partcheck.folder')->translate(['attrubute' => 'Name:', 'value' => $name, 'folder' => $type->folder]);
+          $fail('partcheck.folder')->translate(['attribute' => 'Name:', 'value' => $name, 'folder' => $type->folder]);
         }
       }
     }

@@ -17,22 +17,30 @@ class DatabaseSeeder extends Seeder
       file_put_contents(storage_path('logs/laravel.log'),'');
       Cache::flush();
       $this->call([
-          PartCategorySeeder::class,
-          PartTypeSeeder::class,
-          PartTypeQualifierSeeder::class,
-          VoteTypeSeeder::class,
-          PartEventTypeSeeder::class,
-          PartReleaseSeeder::class,
-          PartLicenseSeeder::class,
+        PartCategorySeeder::class,
+        PartTypeSeeder::class,
+        PartTypeQualifierSeeder::class,
+        VoteTypeSeeder::class,
+        PartEventTypeSeeder::class,
+        PartReleaseSeeder::class,
+        PartLicenseSeeder::class,
 
-          PermissionSeeder::class,
-          RoleSeeder::class,
-          UserSeeder::class,
+        PermissionSeeder::class,
+        RoleSeeder::class,
+        UserSeeder::class,
 
-          PartSeeder::class,
-          RelatedPartsSeeder::class,
-          VoteSeeder::class,
-          PartEventSeeder::class,
+        LibImport::class,
+/*
+        PartSeeder::class,
+        RelatedPartsSeeder::class,
+        
+        VoteSeeder::class,
+        UpdateVoteData:: class,
+        
+        PartEventSeeder::class,
+        
+        UpdateImages::class,
+*/        
       ]);
     }
 }

@@ -3,12 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 use App\Models\Part;
-use App\Models\PartRelease;
-use App\LDraw\FileUtils;
 
 class RelatedPartsSeeder extends Seeder
 {
@@ -19,20 +15,8 @@ class RelatedPartsSeeder extends Seeder
      */
     public function run()
     {
-      $parts = Part::lazy();
-      foreach ($parts as $part) {
-        if ($part->type->format == 'png') continue;
+      foreach (Part::lazy() as $part) {
         $part->updateSubparts();
-        $part->updateImage();
-      }
-      $parts = Part::whereRelation('release', 'short', 'unof')->lazy();
-      foreach ($parts as $part) {
-        $part->updateUncertifiedSubpartsCache();
-        $opart = Part::findByName($part->filename)->id;
-        if (!empty($opart)) {
-          $part->official_part->associate($opart);
-          $opart->unofficial_part->associate($part);
-        }  
       }
     }
 }

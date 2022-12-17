@@ -16,6 +16,8 @@ class PartHistory extends Model
       'comment',
       'part_id',
     ];
+
+//    protected $with = ['user'];
     
     public function user()
     {

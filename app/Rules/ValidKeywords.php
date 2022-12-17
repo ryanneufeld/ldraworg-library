@@ -22,7 +22,7 @@ class ValidKeywords implements InvokableRule
       if ($value->getMimetype() === 'text/plain') {
         $file = $value->get();
         $name = strtolower(FileUtils::getName($file));
-        $keywords = FileUtils:: getKeywords($file);
+        $keywords = FileUtils::getKeywords($file);
         $isPattern = (substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p');
         if ($isPattern) {
           if (empty($keywords)) {

@@ -4,6 +4,15 @@
   <p>
   Use this form to upload <b>new</b> files to the Parts Tracker and to update already-submitted <b>unofficial</b> files.
   </p>
+  @if($errors->hasAny(['comment','user_id','partfile'])) 
+    <div class="ui error message">
+      @foreach(['comment','user_id','partfile'] as $errorfield)
+        @error($errorfield)
+        {{implode("<br/>", $errors->get($errorfield))}}@if(!$loop->last)<br/>@endif
+        @enderror
+      @endforeach  
+    </div>
+  @endif
   @error('partfile.*')
     @foreach($errors->get('partfile.*') as $parterr)
       <div class="ui error message">
@@ -20,17 +29,11 @@
   @enderror
   <form class="ui form" method="post" enctype="multipart/form-data" ACTION="{{route('tracker.store')}}" NAME="submitform">
     @csrf
-    @isset ($dev)
-     <input type="hidden" name="dev" value="1">
-    @endisset    
     <div class="grouped fields">
       @foreach(\App\Models\PartType::pluck('format')->unique()->values()->all() as $format)
         <label for="part_type_id">Upload destination (.{{$format}} files)</label>
-        @foreach (\App\Models\PartType::where('format', $format)->get() as $part_type)
-          @if ($part_type->type == "Shortcut")
-            @continue
-          @endif
-          <div class="field">
+        @foreach (\App\Models\PartType::where('type', '<>', 'Shortcut')->where('format', $format)->get() as $part_type)
+         <div class="field">
             <div class="ui radio checkbox">
               @if ($loop->index == 0 && $loop->parent->index == 0)
                 <input type="radio" name="part_type_id" value="{{$part_type->id}}" checked>

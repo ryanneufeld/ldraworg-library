@@ -37,7 +37,11 @@ return [
 
     'guards' => [
         'web' => [
-            'driver' => 'mybb-user',
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'mybb' => [
+            'driver' => 'mybb-session',
             'provider' => 'users',
         ],
     ],

@@ -58,11 +58,10 @@ class FileUtils
     }
   }
   
-  // There are several badly encoded UTF-8 files in the library.
-  // Hopefully this prevents this from happening
+  
   public static function cleanFileText($text, $forceunofficial = false, $author_from_db = false) {
-    $text = mb_convert_encoding($text, 'UTF-8', ['ASCII','ISO-8859-1','UTF-8']);
-    $text = preg_replace('#\R#us', "\n", $text);
+    $text = self::fixEncoding($text);
+    $text = self::dos2unix($text);
     $text = preg_replace('#\n{3,}#us', "\n\n", $text);
     $text = explode("\n", $text);
     foreach($text as $index => &$line) {
@@ -75,17 +74,33 @@ class FileUtils
     
     return $text;
   }
+
+  // There are/were several badly encoded UTF-8 files in the library.
+  // Hopefully this prevents this from happening in the future
+  public static function fixEncoding($text) {
+    return mb_convert_encoding($text, 'UTF-8', ['ASCII','ISO-8859-1','UTF-8']);
+  }
   
-  // Change to DOS line endings
-  public static function downloadFileText($file) {
-    return str_replace("\n", "\r\n", $file);
+  // Change to DOS style line endings as required by the LDraw spec
+  public static function unix2dos($text) {
+    return preg_replace('#\R#us', "\r\n", $text);
+  }
+
+  // Change to UNIX line endings to make text easier to work with
+  public static function dos2unix($text) {
+    return preg_replace('#\R#us', "\n", $text);
   }
 
   public static function headerEndLine($file) {
     $file = preg_split("#\R#u", $file);
+    if (empty($file)) return 0;
     $i = 1;
     while ($i < count($file)) {
-      if (empty($file[$i]) || ($file[$i][0] === '0' && in_array(strtok(mb_substr($file[$i], 1), " "), self::$allowed_header_metas, true))) {
+      if (empty($file[$i]) || 
+         ($file[$i][0] === '0' && 
+          in_array(strtok(mb_substr($file[$i], 1), " "), self::$allowed_header_metas, true) &&
+          $file[$i] !== '0 BFC NOCLIP')
+      ) {
         $i++;
       }
       else {
@@ -97,6 +112,7 @@ class FileUtils
 
   public static function getHeader($file) {
     $filearr = preg_split("#\R#u", $file);
+    if (empty($filearr)) return '';
     return implode("\n", array_slice($filearr, 0, self::headerEndLine($file) + 1));
   }
 
@@ -167,13 +183,15 @@ class FileUtils
     if (!empty($keywords)) {
       $kwline = "0 !KEYWORDS ";
       foreach ($keywords as $index => $kw) {
-        $kwline .= $kw;
-        if (mb_strlen($kwline) > 80) {
+        if (mb_strlen($kwline . ', ' . $kw) > 80) {
           $header .= "$kwline\n";
-          $kwline = "0 !KEYWORDS ";
+          $kwline = "0 !KEYWORDS $kw";
         }
         else {
-          if ($index !== array_key_last($keywords)) $kwline .= ", ";
+          if ($index !== array_key_first($keywords))  {
+            $kwline .= ', ';
+          }
+          $kwline .= $kw;
         }
       }
       $header .= "$kwline\n\n";
@@ -388,5 +406,5 @@ class FileUtils
       return false;
     }
   }
-    
+  
 }

@@ -23,12 +23,12 @@ class VotePolicy
       if ($part->user_id == $user->id) {
         return $user->hasAnyPermission([
           'part.vote.certify', 
-          'part.own.vote.certify', 
           'part.vote.admincertify',
           'part.vote.fastrack',
           'part.vote.hold',
-          'part.vote.own.hold',
           'part.comment',
+          'part.own.vote.certify', 
+          'part.own.vote.hold',
           'part.own.comment',
         ]);
       }
@@ -53,6 +53,8 @@ class VotePolicy
      */
     public function update(User $user, Vote $vote)
     {
+      return $vote->user_id === $user->id;
+      /*
       if ($vote->user_id !== $user->id) return false;
       if ($vote->part->user_id == $user->id) {
         return $user->hasAnyPermission([
@@ -75,7 +77,8 @@ class VotePolicy
           'part.vote.novote',
           'part.comment',
         ]);
-      }  
+      }
+      */      
     }
 
     /**
@@ -87,6 +90,8 @@ class VotePolicy
      */
     public function delete(User $user, Vote $vote)
     {
+      return $vote->user_id === $user->id;
+      /*
       if ($vote->user_id !== $user->id) return false;
       if ($vote->part->user_id == $user->id) {
         return $user->hasAnyPermission([
@@ -109,6 +114,7 @@ class VotePolicy
           'part.vote.novote',
           'part.comment',
         ]);
-      }  
+      }
+      */      
    }
 }

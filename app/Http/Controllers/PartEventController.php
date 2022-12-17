@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\PartEvent;
+use App\Models\Part;
 
 class PartEventController extends Controller
 {
@@ -15,8 +16,9 @@ class PartEventController extends Controller
      */
     public function index()
     {
-      $events = PartEvent::with(['part', 'vote_type', 'user', 'part_event_type'])->orderBy('created_at','desc')->cursorPaginate(20);
-      return view('part-events.index',['events' => $events]);
+      $events = PartEvent::with(['part', 'user', 'part_event_type'])->orderBy('created_at','desc')->cursorPaginate(20);
+      $summary = Part::whereRelation('release','short','unof')->pluck('vote_sort')->countBy()->all();
+      return view('tracker.activity',['events' => $events, 'summary' => $summary]);
     }
 
     /**

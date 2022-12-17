@@ -35,7 +35,6 @@ class VoteController extends Controller
     public function store(Part $part, Request $request)
     {
       $this->authorize('create', [Vote::class, $part]);
-      
       return $this->postVote($part, null, $request);
     }
 
@@ -69,41 +68,41 @@ class VoteController extends Controller
       $vts = array_merge(VoteType::all()->pluck('code')->all(),['N','M']);
       $validated = $request->validate([
           'vote_type' => ['required' , Rule::in($vts)],
-          'comment' => 'exclude_unless:vote_type,H,M|required|string',
+          'comment' => 'required_if:vote_type,N,H|nullable|string',
       ]);
 
-      $input = $request->all();
-
-      if ($input['vote_type'] == 'N') {
+      if ($validated['vote_type'] == 'N') {
         return $this->destroy($request, $vote);
       }
 
-      $event = new PartEvent(['comment' => $input['comment'] ?? null]);
+      $event = new PartEvent(['comment' => $validated['comment'] ?? null]);
       
-      if ($input['vote_type'] == 'M') {
+      if ($validated['vote_type'] == 'M') {
         $event->part_event_type()->associate(PartEventType::firstWhere('slug','comment'));
       }
       else {
         if (isset($vote)) {
-          $vote->vote_type_code = $input['vote_type'];
-        }
-        else {
-          $vote = new Vote;
-          $vote->part()->associate($part);
-          $vote->user()->associate($request->user());
-          $vote->vote_type_code = $input['vote_type'];
+          $vote->vote_type_code = $validated['vote_type'];
           $vote->save();
         }
-        $event->vote_type()->associate($input['vote_type']);
+        else {
+          $vote = Vote::create([
+            'part_id' => $part->id,
+            'user_id' => $request->user->id,
+            'vote_type_code' => $validated['vote_type'],
+          ]);
+        }
+        $event->vote_type()->associate($validated['vote_type']);
         $event->part_event_type()->associate(PartEventType::firstWhere('slug','review'));
+        $part->updateVoteSummary();
       }
 
       $event->user()->associate($request->user());
-      $event->part()->associate($vote->part);
-      $event->release()->associate(PartRelease::firstWhere('short','unof'));
+      $event->part()->associate($part);
+      $event->release()->associate(PartRelease::unofficial());
       $event->save();
 
-      return redirect()->route('tracker.show', $part->id);
+      return redirect()->route('tracker.show', [$part])->with('status','Vote succesfully posted');
       
     }
     /**
@@ -117,16 +116,15 @@ class VoteController extends Controller
       $this->authorize('delete', $vote);
       $part = $vote->part;
       $vote->delete();
-      foreach($part->parents as $parent) {
-        $parent->updateUncertifiedSubpartsCache();
-      }
+      $part->updateVoteSummary();
 
-      $event = new PartEvent(['comment' => $input['comment'] ?? null]);
-      $event->user()->associate($request->user());
-      $event->part()->associate($part);
-      $event->part_event_type()->associate(PartEventType::firstWhere('slug','review'));
-      $event->release()->associate(PartRelease::firstWhere('short','unof'));
-      $event->save();
+      PartEvent::create([
+       'comment' => $request->input('comment') ?? null,
+       'user_id' => $request->user()->id,
+       'part_id' => $part->id,
+       'part_event_type_id' => PartEventType::firstWhere('slug','review')->id,
+       'part_release_id' => PartRelease::unofficial()->id
+      ]);
 
       return redirect()->route('tracker.show', $part->id);
     }

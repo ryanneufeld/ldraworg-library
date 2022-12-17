@@ -1,1 +1,0 @@
-{!! nl2br(htmlspecialchars(print_r($files, true))) !!}

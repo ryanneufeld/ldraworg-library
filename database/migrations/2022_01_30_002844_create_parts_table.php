@@ -29,10 +29,14 @@ class CreatePartsTable extends Migration
             $table->foreignIdFor(PartLicense::class)->constrained();
             $table->string('filename')->index();
             $table->string('description')->index();
+            $table->text('header');
             $table->foreignIdFor(PartType::class)->constrained();
             $table->foreignIdFor(PartTypeQualifier::class)->nullable()->constrained();
-            $table->foreignId('official_part_id')->nullable()->references('id')->on('parts')->cascadeOnUpdate()->nullOnDelete();
-            $table->foreignId('unofficial_part_id')->nullable()->references('id')->on('parts')->cascadeOnUpdate()->nullOnDelete();
+            $table->bigInteger('official_part_id')->nullable();
+            $table->bigInteger('unofficial_part_id')->nullable();
+            $table->integer('uncertified_subpart_count')->default(0);
+            $table->string('vote_summary')->nullable();
+            $table->integer('vote_sort')->default(2);
             $table->index('user_id');
             $table->index('part_category_id');
             $table->unique(['filename','part_release_id']);

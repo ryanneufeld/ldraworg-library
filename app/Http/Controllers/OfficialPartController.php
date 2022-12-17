@@ -6,6 +6,7 @@ use App\Models\Part;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redirect;
 
 class OfficialPartController extends Controller
 {
@@ -49,12 +50,18 @@ class OfficialPartController extends Controller
      */
     public function show($part, Request $request)
     {
-      $p = Part::find($part) ?? Part::findByName($part, false);
+      if (is_numeric($part)) {
+        $p = Part::find($part);
+        if (isset($p) && $p->unofficial) return Redirect::route('tracker.show', $p->id);
+      }
+      else {
+        $p = Part::findByName($part);
+      }
+      if (!isset($p)) abort(404);
+
       return view('official.show',[
-        'part' => $p, 
-        'osubparts' => $p->subparts()->whereRelation('release','short','<>','unof')->get(),
-        'oparents' => $p->parents()->whereRelation('release','short','<>','unof')->get(),
-      ]);
+        'part' => $p->load('events','history','subparts','parents'), 
+     ]);
     }
 
     /**

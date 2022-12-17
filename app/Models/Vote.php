@@ -14,31 +14,7 @@ class Vote extends Model
 {
     protected $fillable = ['user_id', 'part_id', 'vote_type_code'];
 
-    protected static function booted()
-    {
-/*
-        static::saved(function ($vote) {
-          if ($vote->part->parents()->exists()) {
-            foreach($vote->part->parents as $part) {
-              $part->updateUncertifiedSubpartsCache();
-            }
-          }
-          else {
-            $vote->part->updateUncertifiedSubpartsCache();
-          }  
-        });
-        static::deleted(function ($vote) {
-          if ($vote->part->parents()->exists()) {
-            foreach($vote->part->parents as $part) {
-              $part->updateUncertifiedSubpartsCache();
-            }
-          }
-          else {
-            $vote->part->updateUncertifiedSubpartsCache();
-          }  
-        });
-*/
-    }
+//    protected $with = ['user', 'type'];
     
     public function user()
     {
@@ -55,4 +31,15 @@ class Vote extends Model
         return $this->belongsTo(VoteType::class, 'vote_type_code', 'code');
     }
     
+    public function updatePartSubpartCount() {
+      $this->part->load('parents');
+      if ($this->part->parents()->exists()) {
+        foreach($this->part->parents as $part) {
+          $part->updateUncertifiedSubpartsCache();
+        }
+      }
+      else {
+        $this->part->updateUncertifiedSubpartsCache();
+      }  
+    }  
 }

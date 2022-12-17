@@ -16,7 +16,7 @@ class PartEventTypeSeeder extends Seeder
     {
       PartEventType::create(['slug' => 'review', 'name' => 'Review']);
       PartEventType::create(['slug' => 'submit', 'name' => 'Submit']);
-      PartEventType::create(['slug' => 'edit', 'name' => 'Edit']);
+      PartEventType::create(['slug' => 'edit', 'name' => 'Header Edit']);
       PartEventType::create(['slug' => 'rename', 'name' => 'Rename']);
       PartEventType::create(['slug' => 'release', 'name' => 'Release']);
       PartEventType::create(['slug' => 'delete', 'name' => 'Delete']);

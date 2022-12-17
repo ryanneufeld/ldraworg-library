@@ -15,6 +15,7 @@ use App\Rules\ValidKeywords;
 use App\Rules\ValidHistory;
 use App\Rules\FileReplace;
 use App\Rules\FileOfficial;
+use App\Rules\ProxySubmit;
 
 class PartSubmitRequest extends FormRequest
 {
@@ -38,10 +39,8 @@ class PartSubmitRequest extends FormRequest
   {
     return [
       'part_type_id' => 'required|exists:part_types,id',
-      'replace' => 'boolean',
-      'partfix' => 'boolean',
       'comment' => 'nullable|string',
-      'user_id' => 'required|exists:users,id',
+      'user_id' => ['required', 'exists:users,id', new ProxySubmit],
       'partfile' => 'required',
       'partfile.*' => ['file', 
                         new ValidLDrawFileType,

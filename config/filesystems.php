@@ -33,14 +33,62 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
+            'permissions' => [
+              'file' => [
+                'public' => 0664,
+                'private' => 0664,
+              ],
+              'dir' => [
+                'public' => 2775,
+                'private' => 2775,
+              ],
+            ],
+            'visibility' => 'public',
+            'directory_visibility' => 'public',
             'throw' => false,
         ],
-
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => storage_path('app'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
+            'directory_visibility' => 'public',
+            'throw' => false,
+        ],
+        'library' => [
+            'driver' => 'local',
+            'root' => storage_path('app/library'),
+            'permissions' => [
+              'file' => [
+                'public' => 0664,
+                'private' => 0664,
+              ],
+              'dir' => [
+                'public' => 2775,
+                'private' => 2775,
+              ],
+            ],
+            'url' => env('APP_URL').'/library',
+            'visibility' => 'public',
+            'directory_visibility' => 'public',
+            'throw' => false,
+        ],
+        'images' => [
+            'driver' => 'local',
+            'root' => storage_path('app/images'),
+            'permissions' => [
+              'file' => [
+                'public' => 0664,
+                'private' => 0664,
+              ],
+              'dir' => [
+                'public' => 2775,
+                'private' => 2775,
+              ],
+            ],
+            'url' => env('APP_URL').'/images',
+            'visibility' => 'public',
+            'directory_visibility' => 'public',
             'throw' => false,
         ],
 

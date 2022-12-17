@@ -1,6 +1,6 @@
-@aware(['part'])
-@isset($part->official_part_id)
-({{str_repeat('T', $part->vote_summary['T']) . str_repeat('A', $part->vote_summary['A']) . str_repeat('C', $part->vote_summary['C']) . str_repeat('H', $part->vote_summary['H']) . str_repeat('S', $part->uncertified_subparts)}}F)
+@aware(['vote'])
+@if($vote['F'])
+({{str_repeat('T', $vote['T']) . str_repeat('A', $vote['A']) . str_repeat('C', $vote['C']) . str_repeat('H', $vote['H']) . str_repeat('S', $vote['S'])}}F)
 @else
-({{str_repeat('T', $part->vote_summary['T']) . str_repeat('A', $part->vote_summary['A']) . str_repeat('C', $part->vote_summary['C']) . str_repeat('H', $part->vote_summary['H']) . str_repeat('S', $part->uncertified_subparts)}}N)
+({{str_repeat('T', $vote['T']) . str_repeat('A', $vote['A']) . str_repeat('C', $vote['C']) . str_repeat('H', $vote['H']) . str_repeat('S', $vote['S'])}}N)
 @endisset

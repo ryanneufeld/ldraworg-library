@@ -1,9 +1,7 @@
 const mix = require('laravel-mix');
 const webpack = require('webpack');
 
-mix.js('resources/js/app.js', 'js');
-
-mix.js('resources/js/edit.js', 'js');
-
-mix.postCss('resources/css/app.css', 'css')
-  .postCss('resources/css/edit.css', 'css');
+mix.copy('resources/ldbi', 'public/assets/ldbi');
+mix.copy('resources/semantic/dist', 'public/assets/fomantic');
+mix.copy('resources/js/*.js', 'public/assets/js');
+mix.copy('resources/css/*.css', 'public/assets/css');

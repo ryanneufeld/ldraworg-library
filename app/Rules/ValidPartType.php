@@ -51,6 +51,8 @@ class ValidPartType implements DataAwareRule, InvokableRule
           $typesearch = 'Part';
         }  
         $part_type = PartType::firstWhere('type', $typesearch);
+        $form_type = PartType::find($this->data['part_type_id']);
+        
         $name = str_replace('\\','/', FileUtils::getName($file));
         $desc = FileUtils::getDescription($file);
         $dtag = empty($desc) ? false : $desc[0];
@@ -58,30 +60,34 @@ class ValidPartType implements DataAwareRule, InvokableRule
         if (!PartCheck::checkPartType($file)) {
           $fail('partcheck.missing')->translate(['attribute' => '!LDRAW_ORG']);
         }
-        elseif (!PartCheck::checkNameAndPartType($file)) {
-          $fail('partcheck.type.path')->translate(['name' => $name, 'type' => $ftype['type']]);
-        }
-        elseif (!empty($part_type) && $this->data['part_type_id'] != $part_type->id) {
-          $fail('partcheck.folder')->translate(['attribute' => '!LDRAW_ORG', 'value' => $ftype['type'], 'folder' => $part_type->folder]);
-        }
-        elseif ($ftype['type'] == 'Subpart' && $dtag != "~") {
-          $fail('partcheck.type.subpartdesc')->translate();
-        }
-        elseif ($ftype['qual'] == 'Physical_Color') {
-          $fail('partcheck.type.phycolor')->translate();
-        }
-        elseif ($ftype['qual'] == 'Alias' && $ftype['type'] != 'Shortcut' && $ftype['type'] != 'Part') {
-          $fail('partcheck.type.alias')->translate();
-        }
-        elseif ($ftype['qual'] == 'Alias' && $dtag != '=') {
-          $fail('partcheck.type.aliasdesc')->translate();
-        }
-        elseif ($ftype['qual'] == 'Flexible_Section' && $ftype['type'] != 'Part') {
-          $fail('partcheck.type.flex')->translate();
-        }
-        elseif ($ftype['qual'] == 'Flexible_Section' && !preg_match('#^[a-z0-9_-]+?k[a-z0-9]{2}\.dat#', $name, $matches)) {
-          $fail('partcheck.type.flexname')->translate();
-        }
+        else {
+          if (!PartCheck::checkNameAndPartType($file)) {
+            $fail('partcheck.type.path')->translate(['name' => $name, 'type' => $ftype['type']]);
+          }
+          if (!empty($part_type) && $this->data['part_type_id'] != $part_type->id) {
+            $fail('partcheck.folder')->translate(['attribute' => '!LDRAW_ORG', 'value' => $ftype['type'], 'folder' => $form_type->folder]);
+          }
+          if ($ftype['type'] == 'Subpart' && $dtag != "~") {
+            $fail('partcheck.type.subpartdesc')->translate();
+          }
+          
+          //Check qualifiers
+          if ($ftype['qual'] == 'Physical_Color') {
+            $fail('partcheck.type.phycolor')->translate();
+          }
+          elseif ($ftype['qual'] == 'Alias' && $ftype['type'] != 'Shortcut' && $ftype['type'] != 'Part') {
+            $fail('partcheck.type.alias')->translate();
+          }
+          elseif ($ftype['qual'] == 'Alias' && $dtag != '=') {
+            $fail('partcheck.type.aliasdesc')->translate();
+          }
+          elseif ($ftype['qual'] == 'Flexible_Section' && $ftype['type'] != 'Part') {
+            $fail('partcheck.type.flex')->translate();
+          }
+          elseif ($ftype['qual'] == 'Flexible_Section' && !preg_match('#^[a-z0-9_-]+?k[a-z0-9]{2}\.dat#', $name, $matches)) {
+            $fail('partcheck.type.flexname')->translate();
+          }
+        }  
       }
     }
 }

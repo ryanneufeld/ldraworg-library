@@ -43,13 +43,13 @@ class FileOfficial implements DataAwareRule, InvokableRule
     {
       $filename = basename(strtolower($value->getClientOriginalName()));
       $pt = PartType::find($this->data['part_type_id']);
-      $cannotfix = empty(Auth::user()) ? true : Auth::user()->cannot('part.submit.fix');
-      $official_exists = Storage::disk('public')->exists('library/official/' . $pt->folder . $filename);
-      $unofficial_exists = Storage::disk('public')->exists('library/unofficial/' . $pt->folder . $filename);
+      $cannotfix = empty(Auth::user()) || Auth::user()->cannot('part.submit.fix');
+      $official_exists = Storage::disk('local')->exists('library/official/' . $pt->folder . $filename);
+      $unofficial_exists = Storage::disk('local')->exists('library/unofficial/' . $pt->folder . $filename);
       if ($official_exists && !$unofficial_exists && $cannotfix) {
         $fail('partcheck.fix.unofficial')->translate();
       }
-      elseif ($official_exists && !$unofficial_exists && !$data['partfix']) {
+      elseif ($official_exists && !$unofficial_exists && !isset($data['partfix'])) {
         $fail('partcheck.fix.checked')->translate();
       }  
     }

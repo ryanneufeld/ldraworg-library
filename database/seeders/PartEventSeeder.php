@@ -40,7 +40,7 @@ class PartEventSeeder extends Seeder
           if (pathinfo($file, PATHINFO_EXTENSION) == 'meta') {
             $partname = substr($file, 19,-5);
             $part = Part::findByName($partname, true);
-            if (!isset($part)) continue;
+            if (empty($part)) continue;
             $metafile = Storage::disk('local')->get($file);
             $events = explode(str_repeat('=', 70) . "\n", $metafile);
             foreach ($events as $event) {
@@ -99,7 +99,7 @@ class PartEventSeeder extends Seeder
               }
               
               if (!isset($user) || $eid == '') dd($event, $partname);
-              
+              if (!is_null($comment)) $comment = nl2br(htmlspecialchars($comment));
               PartEvent::create([
                 'created_at' => $date,
                 'part_event_type_id' => $eid,
@@ -112,15 +112,20 @@ class PartEventSeeder extends Seeder
               ]);
               unset($user);
               $eid = '';
-            }  
+            }
+            unset($part);
+            unset($metafile);
+            unset($events);
           }  
         }
       }
-      $parts = Part::whereRelation('type','format','png')->whereRelation('release','short','unof')->lazy();
+
+      $parts = Part::with('events')->whereRelation('type','format','png')->whereRelation('release','short','unof')->where('description', '<>', 'Missing')->lazy();
       foreach ($parts as $part) {
-        $uid = $part->events()->where('part_event_type_id', $eventtypes['submit'])->oldest()->first()->user_id;
+        $uid = $part->events()->where('part_event_type_id', 2)->oldest()->first()->user_id;
         $part->user_id = $uid;
         $part->save();
-      }  
+      }
+
     }
 }

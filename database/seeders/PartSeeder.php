@@ -30,7 +30,7 @@ class PartSeeder extends Seeder
           foreach ($files as $file) {
             if (pathinfo($file, PATHINFO_EXTENSION) == 'dat') {
               $text = FileUtils::cleanFileText(Storage::disk('local')->get($file));
-              Part::updateOrCreateFromText($text);
+              $p = Part::updateOrCreateFromText($text);
             }
 
             elseif(pathinfo($file, PATHINFO_EXTENSION) == 'png') {
@@ -38,7 +38,7 @@ class PartSeeder extends Seeder
               if (Part::findByName($filename, $lib == 'unofficial')) continue;
               $pt = PartType::firstWhere('folder', pathinfo($filename,PATHINFO_DIRNAME) . '/');
               $relcomp = $lib == "official" ?  : "=";
-              Part::create([
+              $p = Part::createTexmap([
                 'user_id' => User::findByName('unknown')->id,
                 'part_release_id' => $lib == "official" ? PartRelease::current()->id : PartRelease::unofficial()->id,
                 'part_license_id' => PartLicense::defaultLicense()->id,
@@ -47,6 +47,18 @@ class PartSeeder extends Seeder
                 'part_type_id' => $pt->id,
               ]);
             }
+            // Unofficial is processed after official, find official part and associate it.
+            if ($lib == 'unofficial' && isset($p)) {
+              $opart = Part::findByName($p->filename);
+              if (!empty($opart) ) {
+                $p->official_part_id = $opart->id;
+                $p->save();
+                $opart->unofficial_part_id = $p->id;
+                $opart->save();
+              }
+              unset($opart);
+            }
+            unset($p);            
           }  
         }  
       }

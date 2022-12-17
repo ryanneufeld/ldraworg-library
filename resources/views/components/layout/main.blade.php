@@ -1,31 +1,30 @@
-@props(['title' => ''])
-<x-layout.base title="{{$title}}" :styles="['app']" :scripts="['app']">
+@props(['title' => '', 'ldbi' => false])
+<x-layout.base title="{{$title}}" ldbi="{{$ldbi}}">
    <div class="ui container">
-    <div class="ui clearing basic segment logos">
-      <img id="main-logo" class="ui left floated image" src="{{asset('/images/banners/default/main.png')}}">
-      <img class="ui right floated image" src="{{asset('/images/banners/default/tracker-trimmed.png')}}">
+    <div class="basic segment">
+      <div class="ui center aligned icon warning message">
+        <i class="exclamation triangle icon"></i>
+        <div class="content">
+          <div class="header">You are on the BETA Parts Tracker.</div> 
+          For the live version go here: <a href="https://www.ldraw.org/library/tracker">http://www.ldraw.org/library/tracker</a>
+        </div>
+      </div>
     </div>
-    <div class="ui menu">
-      <div class="item">Placeholder 1</div>
-      <div class="item">Placeholder 2</div>
-      <div class="item">Placeholder 3</div>
-      <div class="item">Placeholder 4</div>
-      <div class="right menu">
-        <div class="ui right aligned category search item">
-         <div class="ui transparent icon input">
-           <input class="prompt" type="text" placeholder="Search library...">
-           <i class="search link icon"></i>
-         </div>
-         <div class="results"></div>
-         </div>
-       </div>
+    <div class="ui clearing basic segment logos">
+      <a href="https://www.ldraw.org"><img id="main-logo" class="ui left floated image" src="{{asset('/images/banners/main.png')}}"></a>
+      <img class="ui right floated image" src="{{asset('/images/banners/tracker-trimmed.png')}}">
+    </div>
+    <x-menu.tracker />
+    <div class="ui hidden fitted clearing divider"></div>
+    <div class="ui right floated compact fitted basic segment">
+      @auth
+        Welcome {{Auth::user()->name}} :: <i class="id card outline icon"></i><a href="{{route('dashboard.index')}}">User Dashboard</a>  
+      @endauth
     </div>
     <div class="ui basic segment breadcrumb">
-      <a class="section">Home</a>
-      <div class="divider"> / </div>
-      <a class="section">Store</a>
-      <div class="divider"> / </div>
-      <div class="active section">T-Shirt</div>
+      <div class="section"><a href="https://www.ldraw.org">LDraw.org</a></div>
+      <div class="divider"><i class="angle double right icon"></i></div>
+      <div class="active section">Parts Tracker</div>
     </div>
     <div class="ui segment main-content">
        {{ $slot ?? '' }}
@@ -46,5 +45,5 @@
         <a href="https://www.lego.com" target="_blank">http://www.lego.com</a>
       </p>
     </div>
-    </div>
+  </div>
 </x-layout.base>

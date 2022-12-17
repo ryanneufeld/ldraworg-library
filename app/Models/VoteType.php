@@ -18,8 +18,8 @@ class VoteType extends Model
     }
     
     public static function defaultArray() {
-      $arr = [];
-      foreach (self::all() as $vt) $arr[$vt->code] = 0;
+      $arr = ['A','C','H','T'];
+//      foreach (self::all() as $vt) $arr[$vt->code] = 0;
       return $arr;
     }
 }
