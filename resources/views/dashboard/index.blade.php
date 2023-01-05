@@ -1,6 +1,41 @@
 <x-layout.main>
   <x-slot name="title">{{Auth::user()->name}}'s Dashboard</x-slot>
-  <a href="{{route('dashboard.submits')}}">My Submits</a> - A listing of all unofficial parts currently on the Parts Tracker that you have submitted<br>
-  <a href="{{ route('dashboard.votes') }}">My Votes</a> - A listing of all unofficial parts currently on the Parts Tracker where you have an active vote<br>
-  <a href="{{-- route('dashboard.notifications') --}}">My Notifications</a> - A listing of all unofficial parts currently on the Parts Tracker where you have posted any event (vote, submit, comment)<br>
+  <h3 class="ui header">{{Auth::user()->name}}'s Dashboard</h3>
+  <div class="ui two column grid">
+    <div class="column">
+      <h4 class="ui header">My Submits</h4>
+      <div class="ui scrolling segment">
+      <x-part.table unofficial="1" :parts="$submits" none="None" />
+      </div>      
+    </div>
+    <div class="column">
+      <h4 class="ui header">My Votes</h4>    
+      <div class="ui scrolling segment">
+        @if (!empty($votes))
+          <table class="ui striped celled sortable table">
+            <thead>
+              <tr>
+                <th>Part</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>My Vote</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($votes as $vote)
+              <tr>
+                <td>{{$vote->part->filename}}</td>
+                <td><a href="{{ route('tracker.show',$vote->part->id) }}">{{$vote->part->description}}</a></td>
+                <td><x-part.status :vote="$vote->part->vote_summary" /></td>
+                <td>{{ $vote->type->name }}</td>
+              </tr>
+              @endforeach
+            </tbody>
+          </table>
+        @else
+          No votes found
+        @endif        
+      </div>      
+    </div>
+  </div>
 </x-layout.main>

@@ -5,7 +5,7 @@ namespace App\Rules;
 use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Http\UploadedFile;
 
-class ValidLdrawFileType implements InvokableRule
+class ValidLDrawFileType implements InvokableRule
 {
     /**
      * Run the validation rule.

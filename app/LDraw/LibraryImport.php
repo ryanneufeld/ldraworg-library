@@ -20,7 +20,7 @@ use App\LDraw\FileUtils;
 
 class LibraryImport {
   
-  // Current as of 2205
+  // Current as of 2206
   public static $official_texture_authors = [
     'parts/textures/13710a.png' => ['Philippe Hurbain', '2202'],
     'parts/textures/13710b.png' => ['Philippe Hurbain', '2202'],
@@ -107,53 +107,49 @@ class LibraryImport {
   public static function importParts($unofficialOnly = false, $updateImages = false) {
     $texusers = self::$official_texture_authors;
     $libs = $unofficialOnly ? ['unofficial'] : ['official','unofficial'];
-    foreach (['official','unofficial'] as $lib) {
+    foreach ($libs as $lib) {
       foreach (Storage::disk('library')->allDirectories($lib) as $dir) {
         if (strpos($dir,'models') !== false) continue;
         $files = Storage::disk('library')->files($dir);
         foreach ($files as $file) {
+          
+          if (pathinfo($file, PATHINFO_EXTENSION) != 'dat' && pathinfo($file, PATHINFO_EXTENSION) != 'png') continue;
           if (pathinfo($file, PATHINFO_EXTENSION) == 'dat') {
-            $text = FileUtils::cleanFileText(Storage::disk('library')->get($file));
-            $p = Part::updateOrCreateFromText($text);
+            $p = Part::createFromFile(Storage::disk('library')->path($file));
           }
-          elseif(pathinfo($file, PATHINFO_EXTENSION) == 'png') {
-            $f = substr($file, strpos($file, 'official/') + 9);
+          elseif (pathinfo($file, PATHINFO_EXTENSION) == 'png') {
+            $f = str_replace("$lib/", '', $file);
             $pt = PartType::firstWhere('folder', pathinfo($f, PATHINFO_DIRNAME) . '/');
             $filename = $pt->folder . basename($file);
-            $p = Part::findByName($filename, $lib != "official");
-            $relcomp = $lib == "official" ?  : "=";
-            if (isset($texusers[$filename])) {
+            
+            if (isset($texusers[$filename][0])) {
               $user = User::findByName($texusers[$filename][0], $texusers[$filename][0]);
-              $rel = PartRelease::firstWhere('short', $texusers[$filename][1]);
             }
             else {
               $user = User::findByName('unknown');
-              $rel = $lib == "official" ? PartRelease::current() : PartRelease::unofficial();
             }
-            if (!empty($p) && !$p->unofficial) {
-              $p->user_id = $user->id;
-              $p->part_release_id = $rel->id;
-              $p->save();
-              $p->refresh();
-              $p->refreshHeader();
+            
+            if (isset($texusers[$filename][1])) {
+              $rel = PartRelease::firstWhere('short', $texusers[$filename][1]);
             }
-            else {            
-              $p = Part::createTexmap([
-                'user_id' => $user->id,
-                'part_release_id' => $rel->id,
-                'part_license_id' => $user->license->id,
-                'filename' => $filename,
-                'description' => $pt->name . ' ' . basename($file),
-                'part_type_id' => $pt->id,
-              ]);
+            else {
+              if ($lib == 'unofficial') {
+                $rel = PartRelease::unofficial();
+              }
+              else {
+                $rel = PartRelease::current();
+              }
             }
+            
+            $p = Part::createFromFile(Storage::disk('library')->path($file), $user, $pt, $rel);
+            
             unset($user);
             unset($rel);
             unset($pt);
           }
           // Unofficial is processed after official, find official part and associate it.
           if ($lib == 'unofficial' && isset($p)) {
-            $opart = Part::findByName($p->filename);
+            $opart = Part::findOfficialByName($p->filename);
             if (!empty($opart) ) {
               $p->official_part_id = $opart->id;
               $p->save();
@@ -180,7 +176,7 @@ class LibraryImport {
       foreach ($files as $file) {
         if (pathinfo($file, PATHINFO_EXTENSION) == 'vote') {
           $partname = substr($file, 11,-5);
-          $part = Part::findByName($partname, true);
+          $part = Part::findUnofficialByName($partname);
           $votefile = Storage::disk('library')->get($file);
           $votes = explode("\n", $votefile);
           $fasttrack = (strpos($votefile, 'PTadmin1=certify') !== false && 
@@ -218,7 +214,7 @@ class LibraryImport {
       }
     }
     // Update the cached vote count
-    foreach (Part::whereRelation('release', 'short', 'unof')->lazy() as $part) {
+    foreach (Part::unofficial()->lazy() as $part) {
       $part->updateUncertifiedSubpartCount(true);
     }  
   }
@@ -242,7 +238,7 @@ class LibraryImport {
       foreach ($files as $file) {
         if (pathinfo($file, PATHINFO_EXTENSION) == 'meta') {
           $partname = substr($file, 11,-5);
-          $part = Part::findByName($partname, true);
+          $part = Part::findUnofficialByName($partname);
           if (empty($part)) continue;
           $metafile = Storage::disk('library')->get($file);
           $events = explode(str_repeat('=', 70) . "\n", $metafile);
@@ -329,7 +325,7 @@ class LibraryImport {
     // update the event initial submit and part created_at
   public static function updatePartWithEvent() {
     DB::table('part_events')->where('part_release_id', PartRelease::unofficial()->id)->update(['initial_submit' => null]);
-    $parts = Part::with('events')->whereRelation('release','short','unof')->where('description', '<>', 'Missing')->lazy();
+    $parts = Part::with('events')->unofficial()->lazy();
     foreach ($parts as $part) {
       $sevent = $part->events()->whereRelation('part_event_type', 'slug', 'submit')->oldest()->first();
       $event = $part->events()->oldest()->first();

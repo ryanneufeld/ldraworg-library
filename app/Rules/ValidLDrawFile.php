@@ -2,14 +2,37 @@
 
 namespace App\Rules;
 
+use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Http\UploadedFile;
 
 use App\LDraw\PartCheck;
 use App\LDraw\FileUtils;
+use App\LDraw\LDrawFileValidate;
 
-class ValidLDrawFile implements InvokableRule
+class ValidLDrawFile implements DataAwareRule, InvokableRule
 {
+    /**
+     * All of the data under validation.
+     *
+     * @var array
+     */
+    protected $data = [];
+ 
+    // ...
+ 
+    /**
+     * Set the data under validation.
+     *
+     * @param  array  $data
+     * @return $this
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+
     /**
      * Run the validation rule.
      *
@@ -20,66 +43,38 @@ class ValidLDrawFile implements InvokableRule
      */
     public function __invoke($attribute, $value, $fail)
     {
-      $filename = basename($value->getClientOriginalName());
-      $fileext = $value->getClientOriginalExtension();
+      $fileext = strtolower($value->getClientOriginalExtension());
       $filemime = $value->getMimetype();
+      
       //Check valid file format
-      if ((strtolower($fileext) !== 'dat' &&
-           strtolower($fileext) !== 'png') ||
-          ($filemime !== 'text/plain' &&
+      if ($fileext !== 'dat' && $fileext !== 'png') {
+        $fail('partcheck.fileformat')->translate(['attribute' => 'extension', 'value' => $fileext]);
+        return;
+      }
+      if (($filemime !== 'text/plain' &&
            $filemime !== 'image/png') ||
           (($fileext === 'dat' && $filemime !== 'text/plain') &&
            ($fileext === 'png' && $filemime !== 'image/png'))) {
-        $fail('File ' . $filename . ' has an invalid file format');
+        $fail('partcheck.fileformat')->translate(['attribute' => 'format', 'value' => $fileext]);
+        return;
       }
-
-      if ($filemime === 'text/plain') {
-        $file = $value->get();
-        $header = FileUtils::getHeader($file);
-
-        $checker = new PartCheck($filename, $header);
-
-        if (!$checker->checkName()) {
-          $fail('File ' . $filename . ' has an invalid Name line');
-          return;
-        }
-        if (!$checker->checkAuthor()) {
-          $fail('File ' . $filename . ' has an invalid Author line');
-          return;
-        }
-        if (!$checker->checkPartType()) {
-          $fail('File ' . $filename . ' has an invalid !LDRAW_ORG line');
-          return;
-        }
-        if (!$checker->checkLicense()) {
-          $fail('File ' . $filename . ' has an invalid !LICENSE line');
-          return;
-        }
-        if (!$checker->checkApprovedLibraryLicense()) {
-          $fail('File ' . $filename . ' has a !LICENSE that is not approved for the library');
-          return;
-        }
-        if (!$checker->checkBFCCertify()) {
-          $fail('File ' . $filename . ' has an invalid BFC CERTIFY line in the header');
-          return;
-        }
-        if (!$checker->checkAuthorInUsers()) {
-          $fail('File ' . $filename . ' Author not found');
-          return;
-        }
-        if (!$checker->checkNameAndPartType()) {
-          $fail('File ' . $filename . ' Name is invalid for part type');
-          return;
-        }
-      //Check/Validate for Name line
-      //Check Part Type
-      //Check Licence
-      //Check BFC
-      //Check Category
-      //Check for "Pattern" and Set Keywords
-      //Check history
-      //Check header order
+      
+      $text = $filemime == 'text/plain' ? FileUtils::cleanFileText($value->get()) : '';
+      $errors = LDrawFileValidate::ValidName($text, $value->getClientOriginalName(), $this->data['part_type_id']);
+      
+      // These checks are only valid for non-texmaps
+      if ($filemime == 'text/plain') {
+        $errors = array_merge($errors, LDrawFileValidate::ValidDescription($text));
+        $errors = array_merge($errors, LDrawFileValidate::ValidAuthor($text));
+        $errors = array_merge($errors, LDrawFileValidate::ValidPartType($text, $this->data['part_type_id']));
+        $errors = array_merge($errors, LDrawFileValidate::ValidCategory($text));
+        $errors = array_merge($errors, LDrawFileValidate::ValidKeywords($text));
+        $errors = array_merge($errors, LDrawFileValidate::ValidHistory($text));
+        $errors = array_merge($errors, LDrawFileValidate::ValidLines($text));      
       }
-
+      
+      foreach ($errors as $error) {
+        $fail($error);
+      }
     }
 }

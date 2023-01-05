@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use App\Rules\ValidLDrawFile;
 use App\Rules\ValidLDrawFileType;
 use App\Rules\ValidLines;
 use App\Rules\ValidName;
@@ -42,16 +43,16 @@ class PartSubmitRequest extends FormRequest
       'comment' => 'nullable|string',
       'user_id' => ['required', 'exists:users,id', new ProxySubmit],
       'partfile' => 'required',
-      'partfile.*' => ['file', 
-                        new ValidLDrawFileType,
-                        new ValidName,
-                        new ValidDescription,
-                        new ValidAuthor,
-                        new ValidPartType,
-                        new ValidCategory,
-                        new ValidKeywords,
-                        new ValidHistory,
-                        new ValidLines,
+      'partfile.*' => ['file', new ValidLDrawFile,
+//                        new ValidLDrawFileType,
+//                        new ValidName,
+//                        new ValidDescription,
+//                        new ValidAuthor,
+//                        new ValidPartType,
+//                        new ValidCategory,
+//                        new ValidKeywords,
+//                        new ValidHistory,
+//                        new ValidLines,
                         new FileReplace,
                         new FileOfficial,
                       ],
@@ -69,8 +70,8 @@ class PartSubmitRequest extends FormRequest
       $validator->after(function ($validator) {
         if (request()->hasFile('partfile')) {
           $partnames = [];
-          foreach(request()->file('partfile') as $file) {
-            $partnames[] = basename(strtolower($file->getClientOriginalName()));
+          foreach(request()->file('partfile') as $index => $file) {
+            $partnames["partfile.$index"] = basename(strtolower($file->getClientOriginalName()));
           }  
           request()->merge(['partnames' => $partnames]);
         }  

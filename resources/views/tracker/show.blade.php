@@ -30,7 +30,7 @@
     </code>
   </pre>
   <div class="ui medium header">Status:</div>
-  <x-part.status :vote="unserialize($part->vote_summary)" status_text="1" />
+  <x-part.status :vote="$part->vote_summary" status_text="1" />
   <div class="ui medium header">Reviewers' certifications:</div>
   @if ($part->votes->count())
   <table class="ui collapsing compact celled striped small table">
@@ -57,8 +57,8 @@
   None
   @endif
   <div class="ui clearing basic segment"></div>
-  <x-part.table title="Required unofficial subparts" unofficial=1 :parts="$part->subparts()->whereRelation('release','short','unof')->get()" />
-  <x-part.table title="Unofficial parent parts" unofficial=1 :parts="$part->parents()->whereRelation('release','short','unof')->get()" />
+  <x-part.table title="Required unofficial subparts" unofficial=1 :parts="$part->subparts()->unofficial()->get()" />
+  <x-part.table title="Unofficial parent parts" unofficial=1 :parts="$part->parents()->unofficial()->get()" />
   <x-event.list title="File events" :events="$part->events" /> 
   <x-menu.unofficial-part :part="$part" />
   <x-part.attribution :copyuser="$part->user" :editusers="$part->editHistoryUsers()" />

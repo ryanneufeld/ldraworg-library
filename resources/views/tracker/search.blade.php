@@ -1,5 +1,5 @@
 <x-layout.main>
-  <h3 class="ui header">Parts Tracker File Scan</h3>
+  <h3 class="ui header">LDraw.org Library Search</h3>
 @if ($errors->any())
   <div class="ui error message">
     <ul class="ui list">

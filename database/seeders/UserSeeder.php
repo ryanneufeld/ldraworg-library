@@ -115,7 +115,7 @@ class UserSeeder extends Seeder
           	'email' => str_replace(['/',' '], '', strtolower($u)) . '@ldraw.org',
           	'realname' => $u,
           	'password' => bcrypt(Str::random(40)),
-            'part_license_id' => $lic->id,
+            'part_license_id' => PartLicense::findByName('CC_BY_4')->id,
           ]);
           if ($u == 'PTadmin') {
             $user->realname = ' ';

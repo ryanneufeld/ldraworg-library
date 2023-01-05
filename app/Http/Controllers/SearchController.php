@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\LDraw\LibraryUtils;
+use App\LDraw\LibrarySearch;
 
 class SearchController extends Controller
 {
@@ -13,11 +13,11 @@ class SearchController extends Controller
     if (!empty($input['s']) && is_string($input['s'])) {
       $scope = in_array($input['scope'] ?? '', ['filename', 'description', 'header', 'file'], true) ? $input['scope'] : 'header';
       if ($request->expectsJson()) {
-        $search = LibraryUtils::dopartsearch($scope, $input['s'], true);
+        $search = LibrarySearch::dopartsearch($scope, $input['s'], true);
         return response()->json($search);
       }
       else {
-        $search = LibraryUtils::dopartsearch($scope, $input['s']);
+        $search = LibrarySearch::dopartsearch($scope, $input['s']);
         return view('tracker.search', $search);
       }  
     }
@@ -35,7 +35,7 @@ class SearchController extends Controller
   public function suffixsearch(Request $request) {
     $input = $request->all();
     if (!empty($input['s']) && is_string($input['s']) && !empty($input['scope']) && in_array($input['scope'], ['p','c','d'])) {
-      return view('tracker.summary', LibraryUtils::dosuffixsearch($input['s'], $input['scope']));
+      return view('tracker.summary', LibrarySearch::dosuffixsearch($input['s'], $input['scope']));
     }
     else {
       return view('tracker.summary');        

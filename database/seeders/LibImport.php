@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 
 use App\LDraw\LibraryImport;
+use App\Models\Part;
 
 class LibImport extends Seeder
 {

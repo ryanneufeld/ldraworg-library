@@ -36,7 +36,7 @@ class CreatePartsTable extends Migration
             $table->bigInteger('unofficial_part_id')->nullable();
             $table->integer('uncertified_subpart_count')->default(0);
             $table->string('vote_summary')->nullable();
-            $table->integer('vote_sort')->default(2);
+            $table->integer('vote_sort')->default(1);
             $table->index('user_id');
             $table->index('part_category_id');
             $table->unique(['filename','part_release_id']);

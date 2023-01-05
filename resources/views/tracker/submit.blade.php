@@ -14,10 +14,10 @@
     </div>
   @endif
   @error('partfile.*')
-    @foreach($errors->get('partfile.*') as $parterr)
+    @foreach($errors->get('partfile.*') as $index => $parterr)
       <div class="ui error message">
         <div class="header">
-          {{old('partnames')[$loop->index]}}
+          {{old('partnames')[$index]}}
         </div>
         <ul class="list">
           @foreach($parterr as $error)

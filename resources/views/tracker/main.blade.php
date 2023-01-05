@@ -21,7 +21,7 @@
         @can('create',\App\Models\Part::class)
         <h5 class="ui header"><a href="{{route('tracker.submit')}}">Submit New Parts</a></h5>
         <p>
-          To submit parts, visit the part submission page and input your parts. You parts will
+          To submit parts, visit the part submission page and input your parts. Your parts will
           be validated and, if they pass, be added to the Parts Tracker for review.
         </p>
         @else

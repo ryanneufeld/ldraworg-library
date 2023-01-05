@@ -14,10 +14,12 @@
     </div>
   </div>
   <div class="ui dropdown item">
-    <a href="https://www.ldraw.org/docs-main.html">Documentation</a> <i class="dropdown icon"></i>
+    <a href="https://www.ldraw.org/docs-main.html">Documentation</a>
+    <i class="dropdown icon"></i>
     <div class="menu">
       <div class="ui dropdown item">
-        LDraw File Format <i class="dropdown icon"></i>
+        LDraw File Format 
+        <i class="dropdown icon"></i>
         <div class="menu">
           <a class="item" href="https://www.ldraw.org/article/218.html">LDraw File Format Specification</a>
           <a class="item" href="https://www.ldraw.org/article/299.html">Colour Definition (!COLOUR) Language Extension</a>

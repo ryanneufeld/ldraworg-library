@@ -1,4 +1,4 @@
-<x-layout.main :scripts="['app','ldbi']" :styles="['app','ldbi']">
+<x-layout.main ldbi="1">
   <x-slot name="title">File Detail {{ $part->filename }}</x-slot>
   <div class="ui segment main-content">
     <x-menu.official-part :part="$part" />

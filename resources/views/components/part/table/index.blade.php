@@ -1,5 +1,5 @@
-@props(['parts', 'title', 'unofficial', 'none' => 'None'])
-<div class="ui medium header">{{$title}}</div>
+@props(['parts', 'title' => '', 'hsize' => 'medium', 'none' => 'None'])
+<div class="ui {{$hsize}} header">{{$title}}</div>
 @if ($parts->count())
 <table class="ui collapsing celled striped sortable table">
   <thead>
@@ -12,7 +12,7 @@
   </thead>
   <tbody>
     @foreach ($parts as $part)
-    <x-part.table.row :part="$part" unofficial="{{$unofficial}}"/>
+    <x-part.table.row :part="$part" />
     @endforeach  
   </tbody>
 </table>

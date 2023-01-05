@@ -3,9 +3,8 @@
 namespace App\LDraw;
 
 use App\Models\Part;
-use App\LDraw\FileUtils;
 
-class LibraryUtils {
+class LibrarySearch {
   
   public static function dopartsearch($scope, $input, $json = false, $limit = 7) {
     
@@ -27,13 +26,13 @@ class LibraryUtils {
       $search = str_replace("'", "'\''", $search);
       exec("cd $libdir/official && grep -liP '" . $search . "' $dirs", $of);
       exec("cd $libdir/unofficial && grep -liP '" . $search . "' $dirs", $uf);
-      $uparts = Part::whereRelation('release', 'short', 'unof')->where('description', '<>', 'Missing')->whereIn('filename', $uf)->orderBy('filename')->lazy();
-      $oparts = Part::whereRelation('release', 'short', '<>', 'unof')->where('description', '<>', 'Missing')->whereIn('filename', $of)->orderBy('filename')->lazy();
+      $uparts = Part::unofficial()->whereIn('filename', $uf)->orderBy('filename')->lazy();
+      $oparts = Part::official()->whereIn('filename', $of)->orderBy('filename')->lazy();
     }
     else {
       $ids = ['u' => [], 'o' => []];
-      foreach(['u' => '=','o' => '<>'] as $r => $opr) {
-        $p = Part::whereRelation('release', 'short', $opr, 'unof')->where('description', '<>', 'Missing');
+      foreach(['u', 'o'] as $r) {
+        $p = $r == 'u' ? Part::unofficial() : Part::official();
         $parts = $p->pluck($scope, 'id');
         if ($scope == 'description') {
           $desc = $parts;
@@ -86,9 +85,8 @@ class LibraryUtils {
 
   public static function dosuffixsearch($name, $scope) {
     if (strpos($name, '.dat') === false) $name .= '.dat';
-    $basepart = Part::findByName($name, false, true) ?? Part::findByName($name, true, true);
+    $basepart = Part::findByName($name, true, true) ?? Part::findByName($name, false, true);
     if (!isset($basepart)) return ['results' => ['basepart' => null, 'parts' => null]];
-    if (isset($basepart->unofficial_part_id)) $basepart = Part::find($basepart->unofficial_part_id);
     $c = '0123456789abcdefghijklmnopqrstuvwxyz';
     $codes = MetaData::getPatternCodes();
     $parts = [];
@@ -114,61 +112,11 @@ class LibraryUtils {
         }                         
       }
       
-      //if ($searchcode == 'd8') dd($ps, $char_limit);
       if (!empty(array_filter($ps, function ($a) { return $a !== null;}))) {
         $parts[$searchcode] = ['description' => "{$searchcode}0 - $searchcode" . $c[$char_limit] . ": $desc", 'parts' => $ps]; 
       }
     }
     return ['results' => ['basepart' => $basepart, 'parts' => $parts]];
   }  
-  
-  public static function WebGLPart(Part $part, &$parts, $without_folder = false) {
-    if (empty($parts)) $parts = [];
-    $pn = $part->filename;
-    if ($without_folder) {
-      if ($part->isTexmap()) {
-        $pn = str_replace(["parts/textures/","p/textures/"], '', $pn);
-      }
-      else {
-        $pn = str_replace(["parts/","p/"], '', $pn);
-      }
-    } 
-    if(!array_key_exists($pn, $parts)) {
-      if ($part->isTexmap()) {
-        $parts[$pn] = "/library/" . $part->libFolder() . "/" . $part->filename;
-      }
-      else {
-        $parts[$pn] = 'data:text/plain;base64,' .  base64_encode($part->get());        
-      }
-    } 
-    if ($part->unofficial) {
-      foreach ($part->subparts()->whereRelation('release', 'short', 'unof')->get() as $spart) {
-        self::WebGLPart($spart, $parts, $without_folder);
-      }  
-      foreach ($part->subparts()->whereRelation('release', 'short', '<>', 'unof')->get() as $spart) {
-        self::WebGLPart($spart, $parts, $without_folder);
-      }  
-    }
-    else {
-      foreach ($part->subparts as $spart) {
-        self::WebGLPart($spart, $parts, $without_folder);
-      }        
-    }  
-  }
-
-  public static function WebGLModel($model, $without_folder = false) {
-    $name = FileUtils::getName($model) ? FileUtils::getName($model) : 'model';
-    $mparts[$name] = 'data:text/plain;base64,' .  base64_encode($model);
-    if ($sp = FileUtils::getSubparts($model)) {
-      foreach(['subparts','textures'] as $type) {
-        foreach ($sp[$type] as $part) {
-          $op = Part::findByName($part, true, true);
-          $up = Part::findByName($part, false, true);
-          self::WebGLPart($op ?? $up, $mparts, $without_folder);          
-        }
-      }
-    }
-    return $mparts;
-  }
-  
+    
 }

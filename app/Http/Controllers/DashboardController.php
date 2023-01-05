@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Models\PartEventType;
+use App\Models\Part;
+use App\Models\Vote;
 
 class DashboardController extends Controller
 {
@@ -14,26 +17,11 @@ class DashboardController extends Controller
   }
 
   public function index() {
-    return view('dashboard.index');
-  }
-  
-  public function submits() {
-    $events = Auth::user()
-      ->part_events()
-      ->with('part')
-      ->where('part_event_type_id', PartEventType::firstWhere('slug','submit')->id)->get()
-      ->sortBy('part.description')
-      ->unique('part.id')->values()->all();
-    return view('dashboard.submits', ['events' => $events]);
-  }
-
-  public function votes() {
-    $votes = Auth::user()->votes()->with(['part','type'])->get()->sortBy('part.description');
-    return view('dashboard.votes', ['votes' => $votes]);
-  }
-
-  public function notifications() {
-    return view('dashboard.notifications');
+    $submits = Part::whereHas('events', function (Builder $query) {
+        $query->whereRelation('part_event_type', 'slug', 'submit')->where('user_id', Auth::user()->id);
+      })->get();
+    $votes = Vote::where('user_id', Auth::user()->id)->get();
+    return view('dashboard.index', ['submits' => $submits, 'votes' => $votes]);
   }
   
 }

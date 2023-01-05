@@ -36,6 +36,7 @@ return [
   'author' =>
   [
     'registered' => ':value is not a Parts Tracker registered author',
+    'mismatch' => 'File author (:value) does not match submitting author id',
   ],
   'license' => 
   [
@@ -54,6 +55,7 @@ return [
     'author' => 'History dated :date has an author (:value) who is not registered with the Parts Tracker',
     'removed' => 'History lines cannot be removed via header edit',
     'alter' => 'Only history comments may be altered',
+    'eventmismatch' => 'Users with submit events but no !HISTORY line, :users',
   ],
   'fix' =>
   [

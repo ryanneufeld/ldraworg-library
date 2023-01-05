@@ -9,7 +9,7 @@
     Licensed under <x-part.license :license="$copyuser->license->name" /><br>
     <br>
     Edits:<br>
-    PTadmin (Chris Dee, Orion Pobursky, and/or Steve Bliss), Licensed under <x-part.license license="CC_BY_4" /><br><br>
+    LDraw.org Parts Tracker Admins/Software, Licensed under <x-part.license license="CC_BY_4" /><br><br>
     @forelse($editusers as $u)
     @if(!$u->hasRole('Synthetic User'))
     {{$u->realname}}, Licensed under <x-part.license :license="$u->license->name" /><br>
