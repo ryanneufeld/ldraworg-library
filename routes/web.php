@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+
 use App\Http\Controllers\UnofficialPartController;
 use App\Http\Controllers\OfficialPartController;
 use App\Http\Controllers\VoteController;
@@ -10,12 +10,11 @@ use App\Http\Controllers\PartEventController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\UserController;
+
 use App\Models\Part;
-use App\Models\Vote;
-use App\LDraw\PartCheck;
+
 use App\LDraw\LibraryOperations;
-use App\Models\PartCategory;
 
 Route::get('/categories.txt', function () {
   return response(LibraryOperations::categoriesText())->header('Content-Type','text/plain');
@@ -41,7 +40,7 @@ Route::get('/user-224', function () {
 */
 
 Route::get('/ldbi/{part}/parts', function (Part $part) {
-  \App\LDraw\WebGL::WebGLPart($part, $parts, true);
+  \App\LDraw\WebGL::WebGLPart($part, $parts, true, $part->isUnofficial());
   return response(json_encode($parts));
 });
 
@@ -53,7 +52,14 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::get('/list', [UnofficialPartController::class, 'index'])->name('index');
   Route::get('/weekly', [UnofficialPartController::class, 'weekly'])->name('weekly');
-  Route::get('/{part}/edit', [UnofficialPartController::class, 'edit'])->name('edit');
+
+  Route::get('/{part}/edit', [UnofficialPartController::class, 'edit'])->name('editheader');
+  Route::put('/{part}/edit', [UnofficialPartController::class, 'update'])->name('doeditheader');
+
+  Route::get('/{part}/move', [UnofficialPartController::class, 'move'])->name('move');
+  Route::put('/{part}/move', [UnofficialPartController::class, 'domove'])->name('domove');
+
+  Route::delete('/{part}/delete', [UnofficialPartController::class, 'domove'])->name('destroy');
 
   Route::get('/search', [SearchController::class, 'partsearch'])->name('search');
   Route::get('/suffixsearch', [SearchController::class, 'suffixsearch'])->name('suffixsearch');
@@ -68,8 +74,23 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->match(['get', 'post'], '/release/{step?}', [ReleaseController::class, 'create'])->name('release.create');
   
   // These have to be last
-  Route::put('/{part}', [UnofficialPartController::class, 'update'])->name('update');
   Route::get('/{part}', [UnofficialPartController::class, 'show'])->where('part', '[a-z0-9_/.-]+')->name('show');
+});
+
+Route::get('/dailydigest', function () {  
+  $yesterday = date_create('2023-01-12');
+  $today = date_add(clone $yesterday, new \DateInterval('P1D'));
+
+  $user = App\Models\User::findByName('Philo');
+
+  $events = App\Models\PartEvent::whereBetween('created_at', [$yesterday, $today])
+    ->whereIn('part_id', $user->notification_parts->pluck('id'))->get();
+
+  return new App\Mail\DailyDigest($yesterday, $events);
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+  Route::resource('users', UserController::class);
 });
 
 Route::prefix('dashboard')->name('dashboard.')->group(function () {

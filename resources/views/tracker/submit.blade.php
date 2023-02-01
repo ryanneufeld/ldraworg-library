@@ -29,23 +29,7 @@
   @enderror
   <form class="ui form" method="post" enctype="multipart/form-data" ACTION="{{route('tracker.store')}}" NAME="submitform">
     @csrf
-    <div class="grouped fields">
-      @foreach(\App\Models\PartType::pluck('format')->unique()->values()->all() as $format)
-        <label for="part_type_id">Upload destination (.{{$format}} files)</label>
-        @foreach (\App\Models\PartType::where('type', '<>', 'Shortcut')->where('format', $format)->get() as $part_type)
-         <div class="field">
-            <div class="ui radio checkbox">
-              @if ($loop->index == 0 && $loop->parent->index == 0)
-                <input type="radio" name="part_type_id" value="{{$part_type->id}}" checked>
-              @else
-                <input type="radio" name="part_type_id" value="{{$part_type->id}}">
-              @endif
-              <label>{{$part_type->folder}} ({{$part_type->name}})</label>
-            </div>
-          </div>
-        @endforeach
-      @endforeach
-    </div>
+    <x-type.radio label="Upload destination" />
 
     <div class="eight wide field">
       <div class="ui file action input">
@@ -90,10 +74,6 @@
       <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
     </div>
     @endcan
-{{--
- 
-     <input type="hidden" name="user_id" value="1">
---}}
     <div class="field">
       <label for="comment">Comments</label>
       <textarea name="comment" rows="8"></textarea>

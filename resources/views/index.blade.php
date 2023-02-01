@@ -4,7 +4,7 @@
   </x-slot>
   <div class="ui grid container">
     <div class="ui segment">
-      New Parts Track Coming Soon
+      New Parts Tracker Coming Soon
     </div>
   </div>    
 </x-layout.base>

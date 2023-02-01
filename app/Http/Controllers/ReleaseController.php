@@ -179,7 +179,7 @@ class ReleaseController extends Controller
       }  
     }
     
-    foreach($ldrawfile as $file) {
+    foreach($ldrawfiles as $file) {
       $contents = $file->get();
       if ($file->getMime() == 'text/plain') $contents = FileUtils::unix2dos($contents);
       $zip->addFromString('ldraw', $contents);

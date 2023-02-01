@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
@@ -22,6 +23,7 @@ use App\Models\PartLicense;
 use App\Jobs\RenderFile;
 
 use App\LDraw\FileUtils;
+use RuntimeException;
 
 class Part extends Model
 {
@@ -85,9 +87,13 @@ class Part extends Model
     }
 
     public function keywords() {
-      return $this->belongsToMany(self::class, 'parts_part_keywords', 'part_id', 'part_keyword_id');
+      return $this->belongsToMany(PartKeyword::class, 'parts_part_keywords', 'part_id', 'part_keyword_id');
     }
-    
+
+    public function notification_users() {
+      return $this->belongsToMany(User::class, 'user_part_notifications', 'part_id', 'user_id');
+    }
+
     public function votes() {
         return $this->hasMany(Vote::class, 'part_id', 'id');
     }
@@ -118,6 +124,20 @@ class Part extends Model
 
     public function isUnofficial(): bool {
       return $this->release->short == 'unof';
+    }
+
+    public function hasPatterns(): bool {
+      $number = basename($this->filename);
+      return self::where('filename', 'like', "{$number}p??%.dat")->count() > 0;
+    }
+
+    public function hasComposites(): bool {
+      $number = basename($this->filename);
+      return self::where('filename', 'like', "{$number}c??%.dat")->count() > 0;
+    }
+    public function hasStickerShortcuts(): bool {
+      $number = basename($this->filename);
+      return self::where('filename', 'like', "{$number}d??%.dat")->count() > 0;
     }
 
     public function libFolder(): string {
@@ -171,7 +191,7 @@ class Part extends Model
             $header .= "0 !CATEGORY {$this->category->category}\n";
           }
         }
-        if ($this->keywords()->count() > 0) {
+        if ($this->keywords->count() > 0) {
           $header .= "0 !KEYWORDS " . implode(',', $this->keywords->pluck('keyword')->all()) . "\n";
         }
         if ($cmd = FileUtils::getCmdLine($this->header)) {
@@ -380,6 +400,31 @@ class Part extends Model
         'vote_sort' => '5',
       ]);       
     }
+
+    public static function createMovedTo(Part $oldPart, Part $newPart): ?self {
+      if ($oldPart->isUnofficial() || !$newPart->isUnofficial() || 
+          !is_null($oldPart->unofficial_part_id) || 
+          ($oldPart->type->type != 'Part' && $oldPart->type->type != 'Shortcut')) {
+        return null;
+      }
+      else {
+        $p = new self;
+        $text =
+          "0 ~Moved To " . $newPart->name() . "\n" .
+          "0 Name: " . $oldPart->name() . "\n" .
+          Auth::user()->toString() . "\n" .
+          $newPart->typeString() . "\n" . 
+          $newPart->license->toString() . "\n\n" .
+          "0 BFC CERTIFY CCW\n\n" .
+          "0 1 16 0 0 0 1 0 0 0 1 0 0 0 1 " . $newPart->name(); 
+        ;
+        $p->fillFromText($text);
+        $p->save();
+        $p->updateImage();
+        PartEvent::createFromType('submit', Auth::user(), $p, null, null, null, true);
+        return $p;
+      }
+    }
   
     public function fillFromText(string $text, bool $headerOnly = false, PartRelease $rel = null): void {
       $author = FileUtils::getAuthor($text);
@@ -528,7 +573,7 @@ class Part extends Model
       if ($updateUncertified) $this->updateUncertifiedSubpartCount();
     }
 
-    public function updateImage($updateParents = false) {
+    public function updateImage($updateParents = false): void {
       RenderFile::dispatch($this);
       if ($updateParents) {
         foreach ($this->parents as $part) {
@@ -537,4 +582,62 @@ class Part extends Model
       }  
     }
 
+    public function move(string $newName = null, PartType $newType = null): void {
+      if (is_null($newName) && is_null($newType)) return;
+
+      $folder = $newType->folder ?? $this->type->folder;
+      $fname = $newName ?? basename($this->filename);
+      $fname = $folder . $fname;
+      $name = str_replace('/', '\\', str_replace(['p/', 'parts/'] , '', $fname));
+
+      if (Storage::disk('library')->exists($this->libFolder() . '/' . $fname)) 
+        throw new RuntimeException("Move failed: " . $this->libFolder() . '/' . $fname . " already exists");
+      
+      if ($this->isUnofficial()) {
+        Storage::disk('library')->move('unofficial/' . $this->filename, 'unofficial/' . $fname);
+        Storage::disk('images')->move('library/unofficial/' . substr($this->filename, 0, -4) . '.png', 'library/unofficial/' . substr($fname, 0, -4) . '.png');
+        Storage::disk('images')->move('library/unofficial/' . substr($this->filename, 0, -4) . '_thumb.png', 'library/unofficial/' . substr($fname, 0, -4) . '_thumb.png');
+        $oldname = $this->name();
+        if (!is_null($newType)) $this->type()->associate($newType);
+        $this->filename = $fname;
+        $this->saveHeader();
+
+        foreach($this->parents as $parent) {
+          $text = str_replace($oldname, $name, $parent->get());
+          $parent->fillFromText($text);
+          $parent->updateImage(true);
+        }
+        PartEvent::createFromType('rename', Auth::user(), $this, "part $oldname was renamed to {$this->filename}");
+      }
+      else {
+        if ($this->isTexmap()) {
+          Storage::disk('library')->copy('official/' . $this->filename, 'unofficial/' . $fname);
+          $p = self::createFromFile(storage_path('app/library/unofficial/' . $fname), $this->user, $newType ?? $this->type, PartRelease::unofficial());
+          foreach ($this->history as $h) {
+            $hist = $h->duplicate();
+            $hist->part_id = $p->id;
+            $hist->save();
+          }
+          PartEvent::createFromType('submit', Auth::user(), $p, null, null, null, true);
+        }
+        else {
+          $p = new self;
+          $oldName = $this->name();
+          $text = str_replace($this->name(), $name, $this->get());
+          $p->fillFromText($text, false, PartRelease::unofficial());
+          if (!is_null($newType)) $p->type()->associate($newType);
+          $p->filename = $fname;
+          PartHistory::create([
+            'part_id' => $p->id,
+            'user_id' => Auth::user()->id,
+            'comment' => "Moved from $oldName",
+          ]);
+
+          $p->saveHeader();
+          $p->updateImage();
+          PartEvent::createFromType('submit', Auth::user(), $p, null, null, null, true);
+          $mt = self::createMovedTo($this, $p);
+        }
+      }  
+    }
 }

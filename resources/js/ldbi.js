@@ -26,25 +26,27 @@ var idToTextureUrl = function(id) {
   }
 };
 
+var menuClick = function(e) {
+  partID = $('#filename').text().replace(/^(parts\/|p\/)/, '');
+  if ( !WEBGL.isWebGLAvailable() ) { return; }
+  $('.ui.ldbi.modal').modal('show');
+  if (!scene) {
+    // pre-fetch the paths to the subfiles used to speed up loading
+    var posting = $.get( '/ldbi/' + part_id + '/parts')
+      .done(function( response ) {
+        part_paths = JSON.parse(response);
+        scene = new LDrawOrg.Model(canvas, partID, {idToUrl: idToUrl, idToTextureUrl: idToTextureUrl});
+        window.addEventListener('resize', () => scene.onChange(), false);
+    });
+  }
+  return false;  
+}
+
 $(document).ready( function() {
   // Init the modal
   $('.ui.ldbi.modal').modal();
   
-  $('#webglview').add('.part-img').on('click', function(e) {
-    partID = $('#filename').text().replace(/^(parts\/|p\/)/, '');
-    if ( !WEBGL.isWebGLAvailable() ) { return; }
-    $('.ui.ldbi.modal').modal('show');
-    if (!scene) {
-      // pre-fetch the paths to the subfiles used to speed up loading
-      var posting = $.get( '/ldbi/' + part_id + '/parts')
-        .done(function( response ) {
-          part_paths = JSON.parse(response);
-          scene = new LDrawOrg.Model(canvas, partID, {idToUrl: idToUrl, idToTextureUrl: idToTextureUrl});
-          window.addEventListener('resize', () => scene.onChange(), false);
-      });
-    }
-    return false;
-  });
+  $('.webglview').add('.part-img').on('click', menuClick);
 
   $('.default-mode').on('click', function(e) {
     $('.stud-logos').removeClass('active');

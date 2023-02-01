@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -41,12 +40,12 @@ class UpdateZip implements ShouldQueue
       $zip = new \ZipArchive;
       if (Storage::disk('library')->exists('unofficial/ldrawunf.zip')) {
         $zip->open(storage_path('app/library/unofficial/ldrawunf.zip'), \ZipArchive::CREATE);
-        if (pathinfo($this->filename, PATHINFO_EXTENSION) == 'dat') $contents = preg_replace('#\R#u', "\r\n", $contents);
+        if (pathinfo($this->filename, PATHINFO_EXTENSION) == 'dat') $contents = preg_replace('#\R#u', "\r\n", $this->contents);
         if (is_null($this->newfilename)) {
           $zip->addFromString($this->filename, $this->contents);
         }
         else {
-          $zip->deleteName($filename);
+          $zip->deleteName($this->filename);
           $zip->addFromString($this->newfilename, $this->contents);
         }
         $zip->close();        

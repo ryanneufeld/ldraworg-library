@@ -17,7 +17,7 @@ class OfficialPartController extends Controller
      */
     public function index(Request $request)
     {
-      $parts = Part::whereRelation('release', 'short', '<>', 'unof')->lazy();
+      $parts = Part::official()->lazy();
       return view('official.list',['parts' => $parts]);
     }
 
@@ -52,10 +52,9 @@ class OfficialPartController extends Controller
     {
       if (is_numeric($part)) {
         $p = Part::find($part);
-        if (isset($p) && $p->unofficial) return Redirect::route('tracker.show', $p->id);
       }
       else {
-        $p = Part::findByName($part);
+        $p = Part::findOfficialByName($part);
       }
       if (!isset($p)) abort(404);
 

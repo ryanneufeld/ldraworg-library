@@ -1,8 +1,6 @@
 <x-layout.main>
   <h4 class="ui header'">The following files passed validation checks and have been submitted to the Parts Tracker</h4>
-  <ul class="ui list">
-    @foreach($parts as $part)
-    <li></li>{{$part->nameString()}} - <a href="{{route('tracker.show', $part->id)}}">{{$part->description}}</a></li>
-    @endforeach
-  </ul>
+  Note: part image creation is a queued process and may lag the display of this table.<br>
+  <x-part.table :parts="$parts" unofficial=1 />
+  <a href="{{route('tracker.submit')}}">Submit more parts</a>
 </x-layout.main>

@@ -5,14 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Arr;
+
 use App\Models\User;
 use Spatie\Permission\Models\Role;
-
+use App\Jobs\UpdateMybbUser;
 
 class UserController extends Controller
 {
+    /**
+     * Create the controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->authorizeResource(User::class, 'user');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -20,10 +29,9 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $data = User::orderBy('id','DESC')->paginate(5);
+        $users = User::orderBy('realname')->get();
 
-        return view('users.index',compact('data'))
-            ->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('admin.users.index',compact('users'));
     }
 
     /**
@@ -31,10 +39,16 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        $roles = Role::pluck('name','name')->all();
-        return view('users.create',compact('roles'));
+      $validated = $request->validate([
+        'forum_user_id' => 'required|integer',
+      ]);  
+      $roles = Role::pluck('name','name')->all();
+      $user = DB::connection('mybb')->table('mybb_users')
+        ->select('uid', 'username', 'loginname', 'email')
+        ->where('uid', $validated['forum_user_id'])->first();
+      return view('admin.users.create', ['roles' => $roles, 'user' => $user]);
     }
 
     /**
@@ -45,24 +59,26 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-/*
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|same:confirm-password',
-            'roles' => 'required'
-
+        $validated = $request->validate([
+          'realname' => ['required', 'string', Rule::unique('users')],
+          'name' => ['required', 'string', Rule::unique('users')],
+          'email' => ['required', 'email', Rule::unique('users')],
+          'roles' => 'required',
+          'part_license_id' => 'required|exists:part_licenses,id'
         ]);
 
-        $input = $request->all();
-        $input['password'] = Hash::make($input['password']);
-
-        $user = User::create($input);
-        $user->assignRole($request->input('roles'));
-
-        return redirect()->route('users.index')
-                      ->with('success','User created successfully');
-*/
+        $user->create([
+          'name' => $validated['name'],
+          'realname' => $validated['realname'],
+          'email' => $validated['email'],
+          'part_license_id' => $validated['part_license_id'],
+        ]);
+        $user->assignRole($validated['roles']);
+        $user->syncRoles($validated['roles']);
+        $user->save();
+        UpdateMybbUser::dispatch($user);
+        return redirect()->route('admin.users.index')
+                        ->with('success','User updated successfully');                        
     }
 
     /**
@@ -71,9 +87,8 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::find($id);
         return view('users.show',compact('user'));
     }
 
@@ -83,12 +98,11 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(User $user)
     {
-        $user = User::find($id);
         $roles = Role::pluck('name','name')->all();
         $userRole = $user->roles->pluck('name','name')->all();
-        return view('users.edit',compact('user','roles','userRole'));
+        return view('admin.users.edit',compact('user','roles','userRole'));
     }
 
     /**
@@ -98,43 +112,39 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-/*
-        $user = User::find($id);
-        $this->validate($request, [
-            'name' => 'required',
-            'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'password' => 'same:confirm-password',
-            'roles' => 'required'
+        $validated = $request->validate([
+          'realname' => ['required', 'string', Rule::unique('users')->ignore($user->id)],
+          'name' => ['required', 'string', Rule::unique('users')->ignore($user->id)],
+          'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+          'roles' => 'required',
+          'part_license_id' => 'required|exists:part_licenses,id'
         ]);
 
-        $input = $request->all();
-
-        if(!empty($input['password'])){ 
-            $input['password'] = Hash::make($input['password']);
-        }else{
-            $input = Arr::except($input,array('password'));    
-        }
-
-        $user->update($input);
-//        DB::table('model_has_roles')->where('model_id',$id)->delete();
-
-//        $user->assignRole($request->input('roles'));
-        $user->syncRoles($request->input('roles'));
-        return redirect()->route('users.index')
-                        ->with('success','User updated successfully');
+        $user->fill([
+          'name' => $validated['name'],
+          'realname' => $validated['realname'],
+          'email' => $validated['email'],
+          'part_license_id' => $validated['part_license_id'],
+        ]);
+        $user->assignRole($validated['roles']);
+        $user->syncRoles($validated['roles']);
+        $user->save();
+        UpdateMybbUser::dispatch($user);
+        return redirect()->route('admin.users.index')
+                        ->with('success','User updated successfully');                        
     }
-*/
+
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        User::find($id)->delete();
+        $user->delete();
         return redirect()->route('users.index')
                         ->with('success','User deleted successfully');
     }

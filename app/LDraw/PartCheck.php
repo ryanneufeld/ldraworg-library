@@ -2,8 +2,6 @@
 
 namespace App\LDraw;
 
-use Illuminate\Support\Facades\Log;
-
 use App\LDraw\FileUtils;
 use App\LDraw\MetaData;
 

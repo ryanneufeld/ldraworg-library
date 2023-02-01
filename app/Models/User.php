@@ -27,7 +27,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'realname',
         'password',
+        'part_license_id'
     ];
 
     /**
@@ -74,6 +76,10 @@ class User extends Authenticatable
     public function license()
     {
         return $this->belongsTo(PartLicense::class, 'part_license_id', 'id');
+    }
+
+    public function notification_parts() {
+      return $this->belongsToMany(Part::class, 'user_part_notifications', 'user_id', 'part_id');
     }
     
     // Find by user or real name

@@ -10,8 +10,9 @@
     </select>
   </div>
   <div class="field">
+    <label>Base Part Number:</label>
     <div class="ui action input">
-      <input type="text" name="s" value="{{request()->input('s')}}" placeholder="Patterned Part Lookup..." />
+      <input type="text" name="s" value="{{request()->input('s')}}" placeholder="Part Number..." />
       <button class="ui button" type="submit">Go</button>
     </div>
   </div>
@@ -21,8 +22,8 @@
     @php($type = ['p'=>'Pattern','c' => 'Composite', 'd' => 'Sticker Shortcut'])
     <div class="ui large header">{{$type[request()->input('scope')]}} Part Reference for {{basename($results['basepart']->filename)}}</div>
 
-    <div @class(['ui', 'official' => !$results['basepart']->unofficial, 'unofficial' => $results['basepart']->unofficial, 'right floated center aligned compact segment'])>
-      @if($results['basepart']->unofficial)
+    <div @class(['ui', 'official' => !$results['basepart']->isUnofficial(), 'unofficial' => $results['basepart']->isUnofficial(), 'right floated center aligned compact segment'])>
+      @if($results['basepart']->isUnofficial())
         <a class="ui image" href="{{asset('images/library/unofficial/' . substr($results['basepart']->filename, 0, -4) . '.png')}}">
         <img src="{{asset('images/library/unofficial/' . substr($results['basepart']->filename, 0, -4) . '.png')}}" title='Base part image' alt='Base part image'></a>
       @else
@@ -53,18 +54,18 @@
       <div class="column">
         <div @class(['ui',
           'obsolete' => stripos($part->description, "obsolete") !== false,      
-          'official' => !$part->unofficial && stripos($part->description, "obsolete") === false, 
-          'unofficial' => $part->unofficial && stripos($part->description, "obsolete") === false, 
+          'official' => !$part->isUnofficial() && stripos($part->description, "obsolete") === false, 
+          'unofficial' => $part->isUnofficial() && stripos($part->description, "obsolete") === false, 
           'pattern center aligned segment'])>
         @if(stripos($part->description, "obsolete") !== false)
           Obsolete file<br/><br/>
           {{basename($part->filename, '.dat')}}
-        @elseif($part->unofficial)
+        @elseif($part->isUnofficial())
           <a class="ui image" href="{{asset('images/library/unofficial/' . substr($part->filename, 0, -4) . '.png')}}">
             <img src="{{asset('images/library/unofficial/' . substr($part->filename, 0, -4) . '.png')}}" title="{{$part->description}}" alt="{{$part->description}}" border="0" />
           </a><br />
           <a href="{{route('tracker.show', $part)}}">{{basename($part->filename, '.dat')}}</a><br/>
-          <x-part.status :vote="unserialize($part->vote_summary)" status_text="0" />
+          <x-part.status :vote="$part->vote_summary" status_text="0" />
         @else
           <a class="ui image" href="{{asset('images/library/official/' . substr($results['basepart']->filename, 0, -4) . '.png')}}">
             <img src="{{asset('images/library/official/' . substr($part->filename, 0, -4) . '.png')}}" title="{{$part->description}}" alt="{{$part->description}}" border="0" />

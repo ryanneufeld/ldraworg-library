@@ -43,19 +43,12 @@ class PartSubmitRequest extends FormRequest
       'comment' => 'nullable|string',
       'user_id' => ['required', 'exists:users,id', new ProxySubmit],
       'partfile' => 'required',
-      'partfile.*' => ['file', new ValidLDrawFile,
-//                        new ValidLDrawFileType,
-//                        new ValidName,
-//                        new ValidDescription,
-//                        new ValidAuthor,
-//                        new ValidPartType,
-//                        new ValidCategory,
-//                        new ValidKeywords,
-//                        new ValidHistory,
-//                        new ValidLines,
-                        new FileReplace,
-                        new FileOfficial,
-                      ],
+      'partfile.*' => [
+        'file', 
+        new ValidLDrawFile,
+        new FileReplace,
+        new FileOfficial,
+      ],
     ];
   }
 

@@ -9,7 +9,7 @@
     </ul>    
   </div>
 @endif
-<form class="ui form" name="headeredit" action="{{route('tracker.update', $part->id)}}" method="POST">
+<form class="ui form" name="headeredit" action="{{route('tracker.doeditheader', $part->id)}}" method="POST">
 @method('PUT')
 @csrf
   <div class="field">

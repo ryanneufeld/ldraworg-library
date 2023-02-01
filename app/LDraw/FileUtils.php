@@ -2,10 +2,6 @@
 
 namespace App\LDraw;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Cache;
-
 use App\LDraw\MetaData;
 use App\Models\User;
 
@@ -99,7 +95,7 @@ class FileUtils
       if (empty($file[$i]) || 
          ($file[$i][0] === '0' && 
           in_array(strtok(mb_substr($file[$i], 1), " "), self::$allowed_header_metas, true) &&
-          $file[$i] !== '0 BFC NOCLIP')
+          $file[$i] !== '0 BFC NOCLIP' && $file[$i] !== '0 BFC INVERTNEXT' && $file[$i] !== '0 BFC CLIP')
       ) {
         $i++;
       }
@@ -282,7 +278,6 @@ class FileUtils
       return ['unofficial' => $matches['unofficial'], 'type' => $matches['type'], 'qual' => $matches['qual']];
     }
     else {
-//      Log::debug($file);
       return false;
     }
   }
@@ -302,7 +297,6 @@ class FileUtils
 
   // Only returns the first valid BFC statement
   public static function getBFC($file) {
-//    $file = self::storageFileText($file);
     if (preg_match(self::$patterns['bfc'], $file, $matches)) {
       //preg_match optional pattern bug workaround
       $matches = array_merge(['bfc' => '', 'certwinding' => '', 'clipwinding' => ''], $matches);
@@ -338,8 +332,6 @@ class FileUtils
             $uid = $user->id;
           }  
           else {
-//            Log::debug($file);
-//            Log::debug($match['user']);
             $uid = -1;
           }            
         }

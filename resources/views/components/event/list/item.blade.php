@@ -1,17 +1,7 @@
 @props(['event', 'colspan' => 1])
   <div class="event">
     <div class="label">
-      <i @class([
-        'red' => $event->vote_type_code == 'H', 
-        'green' => $event->vote_type_code == 'C',
-        'olive' => $event->vote_type_code == 'T' || $event->vote_type_code == 'A',
-        'file' => $event->part_event_type->slug == 'submit',
-        'edit' => $event->part_event_type->slug == 'edit' || $event->part_event_type->slug == 'rename',
-        'exclamation circle' => $event->part_event_type->slug == 'review' && $event->vote_type_code == 'H',
-        'check double' => $event->part_event_type->slug == 'review',
-        'comment' => $event->part_event_type->slug == 'comment',
-        'icon',
-      ])></i>
+      <x-event.icon :event="$event" />
     </div>
     <div class="content">
       <div class="partevent summary">
@@ -24,7 +14,7 @@
         @endif
         @switch($event->part_event_type->slug)
           @case('submit')
-            @isset($event->initial_submit)
+            @if(isset($event->initial_submit) && $event->initial_submit == true)
               initially submitted the part.
             @else
               submitted a new version of the part.

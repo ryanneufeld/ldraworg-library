@@ -6,7 +6,7 @@ use App\Models\Part;
 
 class LibrarySearch {
   
-  public static function dopartsearch($scope, $input, $json = false, $limit = 7) {
+  public static function partSearch($scope, $input, $json = false, $jsonLimit = 7) {
     
     //Pull the terms out of the search string
     $pattern = '#([^\s"]+)|"([^"]*)"#u';
@@ -62,14 +62,14 @@ class LibrarySearch {
           'uparts' => ['name' => "Unofficial\nParts", 'results' => []],
         ]
       ];
-      foreach($uparts->slice(0, $limit)->all() as $part) {
+      foreach($uparts->slice(0, $jsonLimit)->all() as $part) {
         $results['results']['uparts']['results'][] = [
           'title' => $part->nameString(),
           'description' => $part->description,
           'url' => route('tracker.show', $part),
         ];
       }  
-      foreach($oparts->slice(0, $limit)->all() as $part) {
+      foreach($oparts->slice(0, $jsonLimit)->all() as $part) {
         $results['results']['oparts']['results'][] = [
           'title' => $part->nameString(),
           'description' => $part->description,
@@ -83,9 +83,9 @@ class LibrarySearch {
     }
   }
 
-  public static function dosuffixsearch($name, $scope) {
+  public static function suffixSearch($name, $scope) {
     if (strpos($name, '.dat') === false) $name .= '.dat';
-    $basepart = Part::findByName($name, true, true) ?? Part::findByName($name, false, true);
+    $basepart = Part::findOfficialByName($name, true) ?? Part::findUnofficialByName($name, true);
     if (!isset($basepart)) return ['results' => ['basepart' => null, 'parts' => null]];
     $c = '0123456789abcdefghijklmnopqrstuvwxyz';
     $codes = MetaData::getPatternCodes();
@@ -102,8 +102,8 @@ class LibrarySearch {
       $ps = [];
       for($i=0;$i <= $char_limit; $i++) {
         $search = $basepart->type->folder . basename($basepart->filename, '.dat') . $scope . $searchcode . $c[$i] . ".dat";
-        $op = Part::findByName($search);            
-        $up = Part::findByName($search, true);
+        $op = Part::findOfficialByName($search);            
+        $up = Part::findUnofficialByName($search);
         if (empty($op) && empty($up)) {
           $ps[] = null;
         }

@@ -3,12 +3,13 @@
 namespace App\LDraw;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Mail;
 
 use App\Models\Part;
 use App\Models\PartType;
 use App\Models\PartHistory;
-use App\Models\PartRelease;
-use App\Models\PartLicense;
 use App\Models\PartEvent;
 use App\Models\User;
 use App\Models\Vote;
@@ -18,14 +19,16 @@ use App\LDraw\FileUtils;
 
 use App\Jobs\UpdateZip;
 
+use App\Mail\DailyDigest;
+
 class LibraryOperations {
   
   // $file MUST be validated BEFORE using this function
-  public static function addFiles($files, User $user, PartType $pt) {
+  public static function addFiles($files, User $user, PartType $pt, string $comment = null) {
     $parts = new Collection;
     foreach($files as $file) {
       $filename = basename(strtolower($file->getClientOriginalName()));
-      
+      $file->storeAs('tmp', $filename, 'library'); 
       $upart = Part::findUnofficialByName($pt->folder . $filename);
       $opart = Part::findOfficialByName($pt->folder . $filename);
       $votes_deleted = false;
@@ -51,22 +54,7 @@ class LibraryOperations {
       // Create a new part
       else {
         $init_submit = true;
-        if ($file->getMimeType() == 'image/png') {
-          // Create a new texmap part
-          $upart = Part::createTexmap([
-            'user_id' => $user->id,
-            'part_release_id' => PartRelease::unofficial(),
-            'part_license_id' => PartLicense::defaultLicense()->id,
-            'filename' => $pt->folder . $filename,
-            'description' => $pt->name . ' ' . $filename,
-            'part_type_id' => $pt->id,
-          ], $file->get());
-        }
-        else {            
-          // Create a new part
-          $text = FileUtils::cleanFileText($file->get(), true, true);
-          $upart = Part::createFromText($text, PartRelease::unofficial(), true);
-        }  
+        $upart = Part::createFromFile(Storage::disk('library')->path('tmp/' . $filename), $user, $pt);
       }
       
       $upart->updateSubparts(true);
@@ -79,11 +67,12 @@ class LibraryOperations {
         $opart->save();
       }
 
-      $comment = $filedata['comment'] ?? null;
       PartEvent::createFromType('submit', $user, $upart, $comment, null, null, $init_submit);        
 
       $parts->add($upart);
       UpdateZip::dispatch($upart->filename, $upart->get());
+      
+      Storage::disk('library')->delete('tmp/' . $filename);
     }
     
     return $parts;    
@@ -97,5 +86,14 @@ class LibraryOperations {
 
   public static function categoriesText() {
     return implode("\n", PartCategory::all()->pluck('category')->all());
+  }
+
+  public static function refreshNotifications(): void {
+    foreach (User::all() as $user) {
+      $parts = Part::whereHas('events', function (Builder $query) use ($user) {
+        $query->where('user_id', $user->id);
+      })->pluck('id');
+      $user->notification_parts()->sync($parts);
+    }
   }
 }

@@ -8,7 +8,7 @@
     </p>
     <div class="ui two column grid">
       <div class="column">
-        <h5 class="ui header"><A href="">Parts Tracker Policies</a></h5>
+        <h5 class="ui header"><a href="https://www.ldraw.org/library/tracker/ref/policy/">Parts Tracker Policies</a></h5>
         <p>
           Policies for users of the Parts Tracker.
         </p>
@@ -39,7 +39,7 @@
         @endcan
       </div>
       <div class="column">
-        <h5 class="ui header"><A HREF="{{route('tracker.index')}}">Parts List</A></h5>
+        <h5 class="ui header"><a HREF="{{route('tracker.index')}}">Parts List</a></h5>
         <p>
           Look at the complete list of unofficial files.
         </p>

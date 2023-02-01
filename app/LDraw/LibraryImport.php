@@ -2,21 +2,17 @@
 
 namespace App\LDraw;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Part;
 use App\Models\PartType;
 use App\Models\PartRelease;
-use App\Models\PartLicense;
 use App\Models\User;
 use App\Models\Vote;
 use App\Models\VoteType;
 use App\Models\PartEventType;
 use App\Models\PartEvent;
-
-use App\LDraw\FileUtils;
 
 class LibraryImport {
   

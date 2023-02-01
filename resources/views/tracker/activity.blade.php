@@ -33,9 +33,9 @@
       @foreach($events as $event)
       <tr>
         <td>{{$event->created_at}}</td>
-        <td>{{$event->part_event_type->name}}</td>
+        <td class="center aligned"><x-event.icon :event="$event"/></td>
         <td>{{$event->part->filename}}</td>
-        <td><a href="{{ $event->part->unofficial ? route('tracker.show',$event->part->id) : route('official.show',$event->part->id)}}">{{$event->part->description}}</a></td>
+        <td><a href="{{ $event->part->isUnofficial() ? route('tracker.show',$event->part->id) : route('official.show',$event->part->id)}}">{{$event->part->description}}</a></td>
         <td>{{$event->user->name ?? ''}}</td>
         <td>
           @if ($event->part_event_type->slug == 'review' || $event->part_event_type->slug == 'submit')
@@ -53,7 +53,7 @@
             @endempty 
           @endif
         </td>
-        <td><x-part.status :vote="unserialize($event->part->vote_summary)" /></td>
+        <td><x-part.status :vote="$event->part->vote_summary" /></td>
       </tr>
       @endforeach
     </tbody>

@@ -2,11 +2,9 @@
 
 namespace App\LDraw;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 
 use App\LDraw\FileUtils;
-use App\LDraw\MetaData;
 use App\LDraw\PartCheck;
 
 use App\Models\PartType;
@@ -161,10 +159,6 @@ class LDrawFileValidate {
   public static function ValidPartType($text, $input_pt = null) {
     $results = [];
     $ftype = FileUtils::getPartType($text);
-//    $typesearch = $ftype ? $ftype['type'] : '';
-//    if ($typesearch == 'Shortcut') {
-//      $typesearch = 'Part';
-//    }  
     $part_type = PartType::firstWhere('type', $ftype['type']);
     if(isset($input_pt)) $form_type = PartType::find($input_pt);
     

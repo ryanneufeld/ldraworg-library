@@ -3,33 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
 use App\Models\User;
 use App\Models\Part;
 use App\Models\PartType;
-use App\Models\PartRelease;
-use App\Models\PartHistory;
 use App\Models\PartEvent;
-use App\Models\PartEventType;
-use App\Models\Vote;
 
 use App\LDraw\FileUtils;
-use App\LDraw\PartCheck;
 use App\LDraw\LibraryOperations;
 
 use App\Http\Requests\PartSubmitRequest;
 use App\Http\Requests\PartHeaderEditRequest;
 
+use App\Rules\MoveName;
+
 use App\Jobs\UpdateZip;
-
-use App\Rules\ValidMove;
-
 
 class UnofficialPartController extends Controller
 {
@@ -74,7 +65,7 @@ class UnofficialPartController extends Controller
       $filedata = $request->safe()->all();
       $user = User::find($filedata['user_id']);
       $pt = PartType::find($filedata['part_type_id']);
-      $parts = LibraryOperations::addFiles($filedata['partfile'], $user, $pt);
+      $parts = LibraryOperations::addFiles($filedata['partfile'], $user, $pt, $filedata['comment'] ?? null);
       return view('tracker.postsubmit', ['parts' => $parts]);
     }
 
@@ -105,7 +96,7 @@ class UnofficialPartController extends Controller
      * @param  \App\Models\Part  $part
      * @return \Illuminate\Http\Response
      */
-    public function edit(Part $part)
+    public function editheader(Part $part)
     {
       $this->authorize('edit', $part);
       $rows = count(explode("\n", $part->header));
@@ -119,7 +110,7 @@ class UnofficialPartController extends Controller
      * @param  \App\Models\Part  $part
      * @return \Illuminate\Http\Response
      */
-    public function update(PartHeaderEditRequest $request, Part $part)
+    public function doeditheader(PartHeaderEditRequest $request, Part $part)
     {
       $this->authorize('edit', $part);
       $data = $request->safe()->all();
@@ -145,6 +136,8 @@ class UnofficialPartController extends Controller
     public function destroy(Part $part)
     {
       $this->authorize('delete', $part);
+      Storage::disk('library')->move('unofficial/' . $part->filename, 'backups/' . $part->filename . 'deleted');
+      $part->delete();
     }
     
     public function weekly(Request $request) {
@@ -155,38 +148,26 @@ class UnofficialPartController extends Controller
           $query->orWhereRelation('type', 'type', 'Part')->orWhereRelation('type', 'type', 'Shortcut');
         });
       if ($request->has('order') && $request->input('order') == 'asc') {
-        $part = $parts->oldest();
+        $parts = $parts->oldest();
       } 
       else {
-        $part = $parts->latest();
+        $parts = $parts->latest();
       }
       return view('tracker.weekly', ['parts' => $parts->get()]);
     }
     
-    public function move(Part $part, Request $request) {
-/*      
+    public function move(Part $part) {    
       $this->authorize('edit', $part);
+      return view('tracker.move', ['part' => $part]);
+    }
+
+    public function domove(Part $part, Request $request) {    
       $validated = $request->validate([
-        'new_filename' => [
-          'required',
-          'string'
-          function ($attribute, $value, $fail) {
-            if (!PartCheck::libraryApprovedName("0 Name: $value")) {
-              $fail('partcheck.name.invalidchars')->translate();
-            }
-          },
-          function ($attribute, $value, $fail) {
-            if (Part::findByName) {
-              $fail('partcheck.name.invalidchars')->translate();
-            }
-          },
-        ],
+        'part_id' => 'required|in:' . $part->id,
+        'part_type_id' => 'required|exists:part_types,id',
+        'newname' => [new MoveName],
       ]);
-      if (!part->unofficial) {
-        
-      }
-      $oldfilename = $part->filename;
-      $part->filename = $part->$libfolder . '/' . $part->type->folder . $validated['new_filename'];
-*/      
+      $part->move($validated['newname'], PartType::find($validated['part_type_id']));
+      return redirect()->route('tracker.show', [$part])->with('status','Move successful');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Mail;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-//      Model::preventLazyLoading(! app()->isProduction());
+      if ($this->app->environment('local')) {
+        Mail::alwaysTo('orion@ldraw.org');
+      }  
     }
 }
