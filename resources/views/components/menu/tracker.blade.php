@@ -5,7 +5,8 @@
   @endcan
   <a class="item" href="{{route('tracker.index')}}">Parts List</a> 
   <a class="item" href="{{route('tracker.activity')}}">Activity</a> 
-  <a class="item" href="{{route('tracker.weekly')}}">Weekly New Parts</a> 
+  <a class="item" href="{{route('tracker.weekly')}}">Weekly New Parts</a>
+{{--   
   <div class="ui dropdown item">
     Review Summaries<i class="dropdown icon"></i>
     <div class="menu">
@@ -13,6 +14,7 @@
       <a class="item" href="">Placeholder</a>
     </div>
   </div>
+--}}  
   <div class="ui dropdown item">
     <a href="https://www.ldraw.org/docs-main.html">Documentation</a>
     <i class="dropdown icon"></i>
@@ -82,7 +84,7 @@
   <div class="right menu">
     <div class="item">
       <form id="pt_search_comp" action="{{route('tracker.search')}}" method="get" name="pt_search_comp">
-      <div class="ui scrolling category search ptsearch">
+      <div class="ui right aligned scrolling category search ptsearch">
       <div class="ui transparent icon input">
         <input class="prompt" name="s" type="text" placeholder="Quick Search">
         <i class="search link icon" onclick=""></i>

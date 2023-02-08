@@ -57,8 +57,8 @@
   None
   @endif
   <div class="ui clearing basic segment"></div>
-  <x-part.table title="Required unofficial subparts" unofficial=1 :parts="$part->subparts()->unofficial()->get()" />
-  <x-part.table title="Unofficial parent parts" unofficial=1 :parts="$part->parents()->unofficial()->get()" />
+  <x-part.table title="Required unofficial subparts" unofficial=1 :parts="$part->subparts()->withoutGlobalScope('missing')->unofficial()->get()" />
+  <x-part.table title="Unofficial parent parts" unofficial=1 :parts="$part->parents()->withoutGlobalScope('missing')->unofficial()->get()" />
   <x-event.list title="File events" :events="$part->events" /> 
   <x-menu.unofficial-part :part="$part" />
   <x-part.attribution :copyuser="$part->user" :editusers="$part->editHistoryUsers()" />

@@ -1,7 +1,8 @@
 @props(['title' => '', 'ldbi' => false])
 <x-layout.base title="{{$title}}" ldbi="{{$ldbi}}">
-   <div class="ui container">
-    <div class="basic segment">
+  <div class="ui container">
+    <div class="basic segment">      
+{{--
       <div class="ui center aligned icon warning message">
         <i class="exclamation triangle icon"></i>
         <div class="content">
@@ -9,7 +10,9 @@
           For the live version go here: <a href="https://www.ldraw.org/library/tracker">http://www.ldraw.org/library/tracker</a>
         </div>
       </div>
+--}}
     </div>
+    
     <div class="ui clearing basic segment logos">
       <a href="https://www.ldraw.org"><img id="main-logo" class="ui left floated image" src="{{asset('/images/banners/main.png')}}"></a>
       <img class="ui right floated image" src="{{asset('/images/banners/tracker-trimmed.png')}}">
@@ -21,20 +24,19 @@
         Welcome {{Auth::user()->name}} :: <i class="id card outline icon"></i><a href="{{route('dashboard.index')}}">User Dashboard</a>  
       @endauth
     </div>
-{{--    
+    
     <div class="ui basic segment breadcrumb">
       <div class="section"><a href="https://www.ldraw.org">LDraw.org</a></div>
       <div class="divider"><i class="angle double right icon"></i></div>
       <div class="active section">Parts Tracker</div>
     </div>
---}}    
-    <div class="ui one column grid container basic segment">
-      <div class="column">
+    
+
     <div class="ui segment main-content">
        {{ $slot ?? '' }}
     </div>
-  </div>
-</div>
+  
+
     <div class="ui basic segment footer">
       <p>
         Website copyright &copy;2003-{{date_format(now(),"Y")}} LDraw.org, see 

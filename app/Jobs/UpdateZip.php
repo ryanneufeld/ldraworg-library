@@ -37,6 +37,7 @@ class UpdateZip implements ShouldQueue
      */
     public function handle()
     {
+      $this->contents = base64_decode($this->contents);
       $zip = new \ZipArchive;
       if (Storage::disk('library')->exists('unofficial/ldrawunf.zip')) {
         $zip->open(storage_path('app/library/unofficial/ldrawunf.zip'), \ZipArchive::CREATE);

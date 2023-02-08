@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tracker_history', function (Blueprint $table) {
+        Schema::create('part_helps', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->string('history_data');
+            $table->integer('order');
+            $table->string('text');
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tracker_history');
+        Schema::dropIfExists('part_helps');
     }
 };

@@ -30,12 +30,12 @@ class LoginMybbUser
           $u = DB::connection('mybb')->table('mybb_users')
                 ->select('uid')
                 ->where('uid', $mybb[0])->where('loginkey', $mybb[1])->first();
-          if (is_null($u)) $next($request);
-          
+          if (empty($u)) $next($request);
+
           // Check if the logged in user matches a user in the library db
           $usr = Auth::getProvider()->retrieveByCredentials(['forum_user_id' => $u->uid]);
           if (empty($usr)) $next($request);
-          
+
           // Log the mybb user in since checking the mybb db every time is slow
           Auth::login($usr, true);
           $request->user = Auth::user();

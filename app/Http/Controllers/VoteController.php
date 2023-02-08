@@ -67,7 +67,7 @@ class VoteController extends Controller
       $vts = array_merge(VoteType::all()->pluck('code')->all(),['N','M']);
       $validated = $request->validate([
           'vote_type' => ['required' , Rule::in($vts)],
-          'comment' => 'required_if:vote_type,N,H|nullable|string',
+          'comment' => 'required_if:vote_type,M,H|nullable|string',
       ]);
 
       if ($validated['vote_type'] == 'N') {
@@ -95,7 +95,7 @@ class VoteController extends Controller
         $event->part_event_type()->associate(PartEventType::firstWhere('slug','review'));
         $part->updateVoteSummary();
       }
-
+      $request->user->notification_parts()->syncWithoutDetaching([$part->id]);
       $event->user()->associate($request->user());
       $event->part()->associate($part);
       $event->release()->associate(PartRelease::unofficial());

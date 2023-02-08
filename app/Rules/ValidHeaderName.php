@@ -23,7 +23,7 @@ class ValidHeaderName implements InvokableRule
       if (!PartCheck::checkName($value)) {
         $fail('partcheck.missing')->translate(['attribute' => 'Name:']);
       }
-      elseif (FileUtils::getName($value) != $part->nameString()) {
+      elseif (FileUtils::getName($value) != $part->name()) {
         $fail('partcheck.name.change')->translate();
       }
     }

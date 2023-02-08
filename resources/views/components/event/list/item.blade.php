@@ -41,7 +41,7 @@
           {{ $event->created_at }}
         </div>
       </div>
-      <div class="extra text">
+      <div class="partfeed extra text">
         {!! nl2br(htmlspecialchars(html_entity_decode($event->comment))) !!}
       </div>
     </div>

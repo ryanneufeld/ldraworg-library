@@ -12,7 +12,7 @@ class PartHistory extends Model
 {
     protected $fillable = [
       'user_id',
-      'create_at',
+      'created_at',
       'comment',
       'part_id',
     ];

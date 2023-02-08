@@ -38,12 +38,14 @@ class ValidHeaderHistory implements InvokableRule
               $usererr = true;
             }
           }
+          /*
           if (!$usererr) {
             foreach($part->history as $phist) {
               $found = false;
               foreach($history as $hist) {
+                $d = new \DateTime($phist->created_at);
                 if (User::findByName($hist['user'], $hist['user'])->id == $phist->user->id &&
-                    date_format(date_create($phist->created_at, 'Y-m-d')) == $hist['date']) {
+                    $d->format('Y-m-d') == $hist['date']) {
                   $found = true;
                   break;
                 }                      
@@ -53,7 +55,8 @@ class ValidHeaderHistory implements InvokableRule
                 break;
               }  
             }
-          }  
+          }
+          */
         }
       }
     }

@@ -3,17 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use App\Rules\ValidLDrawFile;
-use App\Rules\ValidLDrawFileType;
-use App\Rules\ValidLines;
-use App\Rules\ValidName;
-use App\Rules\ValidAuthor;
-use App\Rules\ValidDescription;
-use App\Rules\ValidPartType;
-use App\Rules\ValidCategory;
-use App\Rules\ValidKeywords;
-use App\Rules\ValidHistory;
 use App\Rules\FileReplace;
 use App\Rules\FileOfficial;
 use App\Rules\ProxySubmit;

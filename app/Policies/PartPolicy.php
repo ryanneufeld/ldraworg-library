@@ -31,7 +31,7 @@ class PartPolicy
      */
     public function update(User $user, Part $part)
     {
-      return $part->unofficial && $user->can('part.edit.header', 'part.edit.number');
+      return $part->isUnofficial() && $user->can('part.edit.header', 'part.edit.number');
     }
 
     /**
@@ -43,7 +43,7 @@ class PartPolicy
      */
     public function delete(User $user, Part $part)
     {
-      return $part->unofficial && $user->can('part.delete');
+      return $part->isUnofficial() && $user->can('part.delete');
     }
 
     /**
@@ -67,6 +67,6 @@ class PartPolicy
      */
     public function forceDelete(User $user, Part $part)
     {
-      return $part->unofficial && $user->can('part.delete');
+      return $part->isUnofficial() && $user->can('part.delete');
     }
 }

@@ -18,5 +18,6 @@ class LibImport extends Seeder
       LibraryImport::importParts(false, true);
       LibraryImport::importVotes(true);
       LibraryImport::importEvents(true);
+      LibraryImport::importTrackerHistory();
     }
 }

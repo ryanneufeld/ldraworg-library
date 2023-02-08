@@ -19,6 +19,8 @@ use App\Models\PartHistory;
 use App\Models\PartType;
 use App\Models\PartTypeQualifier;
 use App\Models\PartLicense;
+use App\Models\PartHelp;
+use App\Models\PartBody;
 
 use App\Jobs\RenderFile;
 
@@ -39,6 +41,8 @@ class Part extends Model
       'description',
       'filename',
       'header',
+      'cmdline',
+      'bfc',
     ];
 
     protected $with = ['release', 'type'];
@@ -56,6 +60,11 @@ class Part extends Model
       static::addGlobalScope('missing', function (Builder $builder) {
         $builder->where('description', '<>', 'Missing');
       });
+/*
+      static::saving(function ($part) {
+        $part->header = $part->getHeaderText();
+      });
+*/
     }
 
     public function user() {
@@ -110,6 +119,14 @@ class Part extends Model
       return $this->hasMany(PartHistory::class, 'part_id', 'id');
     }
 
+    public function help() {
+      return $this->hasMany(PartHelp::class, 'part_id', 'id');
+    }
+
+    public function body() {
+      return $this->hasOne(PartBody::class, 'part_id', 'id');
+    }
+    
     public function scopeOfficial($query) {
         return $query->whereRelation('release', 'short', '<>', 'unof');
     }
@@ -172,18 +189,14 @@ class Part extends Model
           $this->typeString() . "\n" . 
           $this->license->toString() . "\n";
         
-        if ($help = FileUtils::getHelp($this->header)) {
-          foreach($help as $h) {
-            $header .= "0 !HELP $h\n";
+        if ($this->help->count() > 0) {
+          foreach($this->help()->orderBy('order')->get() as $h) {
+            $header .= "0 !HELP {$h->text}\n";
           }
         }
-        if ($bfc = FileUtils::getBFC($this->header)) {
-          if (!empty($bfc['certwinding'])) {
-            $header .= '0 BFC CERTIFY ' . $bfc['certwinding'] . "\n\n";
-          }
-          else {
-            $header .= "0 BFC NOCERTIFY\n\n";
-          }
+
+        if (!is_null($this->bfc)) {
+            $header .= '0 BFC CERTIFY ' . $this->bfc . "\n\n";
         }
         if (!is_null($this->category)) {
           $cat = FileUtils::getCategory($this->header);
@@ -191,13 +204,14 @@ class Part extends Model
             $header .= "0 !CATEGORY {$this->category->category}\n";
           }
         }
+
         if ($this->keywords->count() > 0) {
-          $header .= "0 !KEYWORDS " . implode(',', $this->keywords->pluck('keyword')->all()) . "\n";
+          $header .= "0 !KEYWORDS " . implode(',', $this->keywords()->orderBy('keyword')->pluck('keyword')->all()) . "\n";
         }
-        if ($cmd = FileUtils::getCmdLine($this->header)) {
-          $header .= "0 !CMDLINE $cmd\n";
+        if (!is_null($this->cmdline)) {
+          $header .= "0 !CMDLINE $this->cmdline\n";
         }
-        if ($this->history()->count() > 0) {
+        if ($this->history->count() > 0) {
           foreach($this->history as $h) {
             $header .= $h->toString() . "\n";
           }
@@ -332,7 +346,7 @@ class Part extends Model
       $data['S'] = $this->uncertified_subpart_count;
       $data['F'] = $this->official_part_id !== null;
       $this->vote_summary = $data; 
-      $this->save();
+      $this->saveQuietly();
       $this->updateVoteSort($forceUpdate);
     }
     
@@ -360,7 +374,7 @@ class Part extends Model
       else {
         $this->vote_sort = 3;
       }  
-      $this->save();
+      $this->saveQuietly();
       if ($forceUpdate || ($old_sort == 1 && $this->vote_sort != 1) || ($old_sort != 1 && $this->vote_sort == 1)) {
         foreach ($this->parents()->unofficial()->get() as $p) {
           $p->updateUncertifiedSubpartCount($forceUpdate);
@@ -376,7 +390,7 @@ class Part extends Model
         if ($subpart->vote_sort != 1) $us++;
       }
       $this->uncertified_subpart_count = $us;
-      $this->save();
+      $this->saveQuietly();
       // Report own certification status back to caller
       $this->updateVoteSummary($forceUpdate);
     }
@@ -427,6 +441,7 @@ class Part extends Model
     }
   
     public function fillFromText(string $text, bool $headerOnly = false, PartRelease $rel = null): void {
+      
       $author = FileUtils::getAuthor($text);
       $user = User::findByName($author['user'], $author['realname']);
       
@@ -447,8 +462,6 @@ class Part extends Model
         $release = FileUtils::getRelease($text);
         $rel = PartRelease::firstWhere('name', $release['release']) ?? PartRelease::unofficial();
       }
-
-      $license = PartLicense::firstWhere('text', FileUtils::getLicense($text));
       
       if ($type->name == 'Part' || ($type->name == 'Shortcut' && mb_strpos($name, "s\\") === false)) {
         $category = PartCategory::findByName(FileUtils::getCategory($text));
@@ -461,21 +474,37 @@ class Part extends Model
       $kw = FileUtils::getKeywords($text);
       
       $history = FileUtils::getHistory($text, true);
-      
+      $help = FileUtils::getHelp($text);
+      $cmdline = FileUtils::getCmdLine($text);
+      $bfc = FileUtils::getBFC($text);
+
       $this->fill([
         'user_id' => $user->id,
         'part_category_id' => $cid,
         'part_release_id' => $rel->id,
-        'part_license_id' => PartLicense::defaultLicense()->id,
         'filename' => $filename,
         'part_type_id' => $type->id,
         'part_type_qualifier_id' => $qual->id ?? null,
         'description' => FileUtils::getDescription($text),
         'header' => FileUtils::getHeader($text),
+        'cmdline' => $cmdline === false ? NULL : $cmdline,
+        'bfc' => $bfc === false ? NULL : $bfc['certwinding'],
       ]);
+      if (is_null($this->part_license_id)) $this->part_license_id = 1;
+
       $this->save();
       $this->refresh();
       
+      if (!$headerOnly) {
+        $body = FileUtils::setHeader($this->get(), '');
+        if (is_null($this->body)) {
+          PartBody::create(['part_id' => $this->id, 'body' => $body]);
+        }
+        else {
+          $this->body->body = $body;
+        }  
+      } 
+        
       $this->keywords()->sync([]);
   
       if (!empty($kw)) {
@@ -494,11 +523,23 @@ class Part extends Model
           PartHistory::create(['user_id' => $hist['user'], 'part_id' => $this->id, 'created_at' => $hist['date'], 'comment' => $hist['comment']]);
         }
       }
+
+      foreach ($this->help as $h) {
+        $h->delete();
+      }
       
+      if (!empty($help)) {
+        $order = 0;
+        foreach ($help as $h) {
+          PartHelp::create(['part_id' => $this->id, 'order' => $order, 'text' => $h]);
+          $order++;
+        }
+      }
+
       $this->refreshHeader();
+      $this->updateLicense();
       
-      if ($headerOnly) $text = FileUtils::setHeader($text, $this->get());
-  
+      if ($headerOnly) $text = FileUtils::setHeader($this->get(), $text);
       $this->put($text);
     }
   
@@ -535,14 +576,14 @@ class Part extends Model
     
     public function updateLicense(): void {
       $users = $this->editHistoryUsers()->add($this->user);
-      $lic = PartLicense::defaultLicense();
+      $lid = PartLicense::findByName('CC_BY_4')->id;
       foreach($users as $user) {
-        if ($user->license->name <> $lic->name) {
-          $lic = $user->license;
+        if ($user->license->id <> $lid) {
+          $lid = $user->license->id;
           break;
         }
       }
-      $this->part_license_id = $lic->id;
+      $this->part_license_id = $lid;
       $this->save();
       $this->refresh();
     }
@@ -639,5 +680,10 @@ class Part extends Model
           $mt = self::createMovedTo($this, $p);
         }
       }  
+    }
+
+    public function refreshFromStorage() {
+      if (!$this->isTexmap())
+        $this->fillFromText(FileUtils::cleanFileText($this->get()));
     }
 }

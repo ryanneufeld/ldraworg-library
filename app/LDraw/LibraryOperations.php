@@ -70,7 +70,7 @@ class LibraryOperations {
       PartEvent::createFromType('submit', $user, $upart, $comment, null, null, $init_submit);        
 
       $parts->add($upart);
-      UpdateZip::dispatch($upart->filename, $upart->get());
+      UpdateZip::dispatch($upart->filename, base64_encode($upart->get()));
       
       Storage::disk('library')->delete('tmp/' . $filename);
     }

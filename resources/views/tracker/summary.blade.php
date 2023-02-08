@@ -24,10 +24,10 @@
 
     <div @class(['ui', 'official' => !$results['basepart']->isUnofficial(), 'unofficial' => $results['basepart']->isUnofficial(), 'right floated center aligned compact segment'])>
       @if($results['basepart']->isUnofficial())
-        <a class="ui image" href="{{asset('images/library/unofficial/' . substr($results['basepart']->filename, 0, -4) . '.png')}}">
+        <a class="ui image" href="{{route('tracker.show', $results['basepart'])}}">
         <img src="{{asset('images/library/unofficial/' . substr($results['basepart']->filename, 0, -4) . '.png')}}" title='Base part image' alt='Base part image'></a>
       @else
-        <a class="ui small image" href="{{asset('images/library/official/' . substr($results['basepart']->filename, 0, -4) . '.png')}}">
+        <a class="ui small image" href="{{route('official.show', $results['basepart'])}}">
         <img src="{{asset('images/library/official/' . substr($results['basepart']->filename, 0, -4) . '.png')}}" title='Base part image' alt='Base part image'></a>
       @endif  
     </div>
@@ -61,13 +61,13 @@
           Obsolete file<br/><br/>
           {{basename($part->filename, '.dat')}}
         @elseif($part->isUnofficial())
-          <a class="ui image" href="{{asset('images/library/unofficial/' . substr($part->filename, 0, -4) . '.png')}}">
+          <a class="ui image" href="{{route('tracker.show', $part)}}">
             <img src="{{asset('images/library/unofficial/' . substr($part->filename, 0, -4) . '.png')}}" title="{{$part->description}}" alt="{{$part->description}}" border="0" />
           </a><br />
           <a href="{{route('tracker.show', $part)}}">{{basename($part->filename, '.dat')}}</a><br/>
           <x-part.status :vote="$part->vote_summary" status_text="0" />
         @else
-          <a class="ui image" href="{{asset('images/library/official/' . substr($results['basepart']->filename, 0, -4) . '.png')}}">
+          <a class="ui image" href="{{route('official.show', $part)}}">
             <img src="{{asset('images/library/official/' . substr($part->filename, 0, -4) . '.png')}}" title="{{$part->description}}" alt="{{$part->description}}" border="0" />
           </a><br />
           <a href="{{route('official.show', $part)}}">{{basename($part->filename, '.dat')}}</a>

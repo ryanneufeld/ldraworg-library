@@ -6,12 +6,12 @@
   <a class="item" title="Review/Comment" href="{{ $part->votes()->firstWhere('user_id', Auth::user()->id) ? route('tracker.vote.edit', $part->votes()->firstWhere('user_id', Auth::user()->id)) : route('tracker.vote.create',$part->id) }}">Review/Comment</a>
   @endif
   @endauth
-  @canany(['part.header.edit','part.own.header.edit','part.edit.number','part.delete'])
+  @canany(['part.edit.header','part.own.edit.header','part.edit.number','part.delete'])
   <div class="ui dropdown item">
     Admin Actions<i class="dropdown icon"></i>
     <div class="menu">
       @if($part->type->format == 'dat')
-      @canany(['part.header.edit','part.own.header.edit'])
+      @canany(['part.edit.header','part.own.edit.header'])
         <a class="item" title="Edit the file header" href="{{route('tracker.editheader', $part->id)}}">Edit Header</a>
       @endcanany
       @endif

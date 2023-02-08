@@ -131,6 +131,7 @@ class LDrawFileValidate {
   
   public static function ValidName($text, $filename = null, $input_pt = null) {
     $results = [];
+
     if (isset($filename)) {
       $filename = basename(strtolower($filename));
       if(!PartCheck::checkLibraryApprovedName("0 Name: $filename")) {
@@ -139,19 +140,22 @@ class LDrawFileValidate {
       elseif($filename[0] == 'x') {
         $results[] = __('partcheck.name.xparts');
       }  
-    } 
+    }
+
     if (isset($input_pt)) $type = PartType::find($input_pt);
     
-    $name = str_replace('\\','/', FileUtils::getName($text));
+    if (!empty($text)) {
+      $name = str_replace('\\','/', FileUtils::getName($text));
 
-    if (!PartCheck::checkName($text)) {
-      $results[] = __('partcheck.missing', ['attribute' => 'Name:']);
-    }
-    elseif (isset($filename) && basename($name) !== $filename) {
-      $results[] = __('partcheck.name.mismatch', ['value' => basename($name)]);
-    }
-    elseif (isset($input_pt) && ('parts/' . $name !== $type->folder . basename($name)) && ('p/' . $name !== $type->folder . basename($name))) {
-      $results[] = __('partcheck.folder', ['attribute' => 'Name:', 'value' => $name, 'folder' => $type->folder]);
+      if (!PartCheck::checkName($text)) {
+        $results[] = __('partcheck.missing', ['attribute' => 'Name:']);
+      }
+      elseif (isset($filename) && basename($name) !== $filename) {
+        $results[] = __('partcheck.name.mismatch', ['value' => basename($name)]);
+      }
+      elseif (isset($input_pt) && ('parts/' . $name !== $type->folder . basename($name)) && ('p/' . $name !== $type->folder . basename($name))) {
+        $results[] = __('partcheck.folder', ['attribute' => 'Name:', 'value' => $name, 'folder' => $type->folder]);
+      }
     }
     return $results;        
   }
@@ -173,7 +177,7 @@ class LDrawFileValidate {
       if (!PartCheck::checkNameAndPartType($text)) {
         $results[] = __('partcheck.type.path', ['name' => $name, 'type' => $ftype['type']]);
       }
-      if (isset($input_pt) && !empty($form_type) && !empty($part_type) && $form_type->id != $part_type->id) {
+      if (isset($input_pt) && !empty($form_type) && !empty($part_type) && $form_type->folder != $part_type->folder) {
         $results[] = __('partcheck.folder', ['attribute' => '!LDRAW_ORG', 'value' => $ftype['type'], 'folder' => $form_type->folder]);
       }
       if ($ftype['type'] == 'Subpart' && $dtag != "~") {

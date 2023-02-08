@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 use App\Http\Controllers\UnofficialPartController;
@@ -15,6 +16,8 @@ use App\Http\Controllers\UserController;
 use App\Models\Part;
 
 use App\LDraw\LibraryOperations;
+
+Route::redirect('/', '/tracker');
 
 Route::get('/categories.txt', function () {
   return response(LibraryOperations::categoriesText())->header('Content-Type','text/plain');
@@ -33,9 +36,10 @@ Route::get('/ptreleases', function (Request $request) {
 
 /*
 // Only enable this route for testing
-Route::get('/user-224', function () {
+Route::get('/user-4', function () {
   Auth::logout();
-  Auth::login(\App\Models\User::find(224));
+  Auth::login(\App\Models\User::find(4));
+  return response()->redirectTo('/', 302);
 });
 */
 
@@ -53,8 +57,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::get('/list', [UnofficialPartController::class, 'index'])->name('index');
   Route::get('/weekly', [UnofficialPartController::class, 'weekly'])->name('weekly');
 
-  Route::get('/{part}/edit', [UnofficialPartController::class, 'edit'])->name('editheader');
-  Route::put('/{part}/edit', [UnofficialPartController::class, 'update'])->name('doeditheader');
+  Route::get('/{part}/edit', [UnofficialPartController::class, 'editheader'])->name('editheader');
+  Route::put('/{part}/edit', [UnofficialPartController::class, 'doeditheader'])->name('doeditheader');
 
   Route::get('/{part}/move', [UnofficialPartController::class, 'move'])->name('move');
   Route::put('/{part}/move', [UnofficialPartController::class, 'domove'])->name('domove');

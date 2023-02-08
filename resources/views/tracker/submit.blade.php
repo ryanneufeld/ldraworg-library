@@ -33,7 +33,7 @@
 
     <div class="eight wide field">
       <div class="ui file action input">
-        <input id="partfile" type="file" name="partfile[]" tabindex="18" accept="application/x-ldraw,image/png,text/plain,.dat,.png" multiple="multiple">
+        <input id="partfile" type="file" name="partfile[]" tabindex="18" {{-- accept="application/x-ldraw,image/png,text/plain,.dat,.png" --}} multiple="multiple">
         <label for="partfile" class="ui button">
           <i class="upload icon"></i>
         </label>

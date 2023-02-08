@@ -80,3 +80,7 @@ pre {
 .pattern.segment {
    height: 100%;
 }
+
+.ui.feed > .event > .content .extra.text {
+  max-width: 95%;
+}

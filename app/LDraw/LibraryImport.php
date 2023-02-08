@@ -13,6 +13,7 @@ use App\Models\Vote;
 use App\Models\VoteType;
 use App\Models\PartEventType;
 use App\Models\PartEvent;
+use App\Models\TrackerHistory;
 
 class LibraryImport {
   
@@ -100,6 +101,19 @@ class LibraryImport {
     'parts/textures/u9481.png' => ['Alex Taylor', '2202'],
   ];
   
+  public static function fixUnofficialHistory() {
+    Part::unofficial()->lazy()->each(function($part) {
+      $text = FileUtils::cleanFileText(Storage::disk('library')->get('tmp/unofficial/' . $part->filename));
+      $history = FileUtils::getHistory($text, true);
+      foreach ($history as $h) {
+        $hist = \App\Models\PartHistory::where('user_id', $h['user'])->where('part_id', $part->id)->where('comment', $h['comment'])->first();
+        $hist->created_at = $h['date'];
+        $hist->save();
+      }
+      $part->saveHeader();
+    });
+  }
+
   public static function importParts($unofficialOnly = false, $updateImages = false) {
     $texusers = self::$official_texture_authors;
     $libs = $unofficialOnly ? ['unofficial'] : ['official','unofficial'];
@@ -339,5 +353,27 @@ class LibraryImport {
       $part->refresh();
       $part->refreshHeader();
     }
+  }
+
+  public static function importTrackerHistory(): void {
+    $file = Storage::disk('library')->get('tmp/daily.file.counts.log');
+    $file = explode("\n", $file);
+    foreach ($file as $line) {
+      $line = explode("\t", $line);
+      $date = \DateTime::createFromFormat('U', $line[0]);
+      $data = ['1' => $line[1], '2' => $line[2], '3' => $line[3], '4' => $line[4], '5' => $line[5]];
+      $h = new TrackerHistory;
+      $h->created_at = $date;
+      $h->history_data = $data;
+      $h->save();
+    }
+  }
+
+  public static function savePartBodies() {
+    Part::lazy()->each(function ($part) {
+      if (!$part->isTexmap()) {
+        \App\Models\PartBody::create(['part_id' => $part->id, 'body' => FileUtils::setHeader($part->get(), '')]);
+      }
+    });
   }
 }

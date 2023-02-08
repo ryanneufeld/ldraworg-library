@@ -64,14 +64,14 @@ class LibrarySearch {
       ];
       foreach($uparts->slice(0, $jsonLimit)->all() as $part) {
         $results['results']['uparts']['results'][] = [
-          'title' => $part->nameString(),
+          'title' => $part->name(),
           'description' => $part->description,
           'url' => route('tracker.show', $part),
         ];
       }  
       foreach($oparts->slice(0, $jsonLimit)->all() as $part) {
         $results['results']['oparts']['results'][] = [
-          'title' => $part->nameString(),
+          'title' => $part->name(),
           'description' => $part->description,
           'url' => route('official.show', $part),
         ];

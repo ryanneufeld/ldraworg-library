@@ -7,6 +7,7 @@
       <th>Image</th>
       <th>Part</th>
       <th>Description</th>
+      <th>DAT</th>
       <th>Status</th>
     </tr>
   </thead>
