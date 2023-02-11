@@ -84,7 +84,7 @@ class Part extends Model
     }
 
     public function type_qualifier() {
-        return $this->belongsTo(PartType::class, 'part_type_qualifier_id', 'id');
+        return $this->belongsTo(PartTypeQualifier::class, 'part_type_qualifier_id', 'id');
     }
 
     public function subparts() {
@@ -162,7 +162,10 @@ class Part extends Model
     }
 
     public function typeString(): string {
-      return $this->isUnofficial() ? $this->type->toString(true) : $this->type->toString() . $this->release->toString();
+      $s = $this->type->toString($this->isUnofficial());
+      if (!is_null($this->type_qualifier)) $s .= ' ' . $this->type_qualifier->type;
+      if (!$this->isUnofficial()) $s .=  ' ' . $this->release->toString();
+      return $s;
     }
         
     public function name(): string {
@@ -496,7 +499,7 @@ class Part extends Model
       $this->refresh();
       
       if (!$headerOnly) {
-        $body = FileUtils::setHeader($this->get(), '');
+        $body = FileUtils::setHeader($text, '');
         if (is_null($this->body)) {
           PartBody::create(['part_id' => $this->id, 'body' => $body]);
         }
@@ -536,8 +539,8 @@ class Part extends Model
         }
       }
 
-      $this->refreshHeader();
       $this->updateLicense();
+      $this->refreshHeader();
       
       if ($headerOnly) $text = FileUtils::setHeader($this->get(), $text);
       $this->put($text);

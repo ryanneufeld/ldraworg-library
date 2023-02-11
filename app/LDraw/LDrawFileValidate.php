@@ -53,7 +53,9 @@ class LDrawFileValidate {
     elseif (!PartCheck::checkLibraryApprovedDescription($text)) {
       $results[] = __('partcheck.description.invalidchars');
     }
-    elseif ($inPartFolder && ((substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p') && mb_substr($desc, mb_strrpos($desc, ' ') + 1) != 'Pattern')) {
+    elseif ($inPartFolder && 
+      ((substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p') && 
+       (mb_substr($desc, mb_strrpos($desc, ' ') + 1) != 'Pattern' && mb_substr($desc, mb_strrpos($desc, ' ') + 1) != '(Obsolete)'))) {
       $results[] = __('partcheck.description.patternword');
     }  
     return $results;    

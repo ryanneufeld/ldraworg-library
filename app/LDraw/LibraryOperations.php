@@ -14,12 +14,11 @@ use App\Models\PartEvent;
 use App\Models\User;
 use App\Models\Vote;
 use App\Models\PartCategory;
+use App\Models\PartRelease;
 
 use App\LDraw\FileUtils;
 
 use App\Jobs\UpdateZip;
-
-use App\Mail\DailyDigest;
 
 class LibraryOperations {
   
@@ -37,15 +36,20 @@ class LibraryOperations {
       if (isset($upart)) {
         $init_submit = false;
         if ($upart->isTexmap()) {
-          // If the submitter is not the author and has not edited the file before, add a history line
-          if ($upart->user_id <> $user->id && empty($upart->history()->whereFirst('user_id', $user->id)))
-            PartHistory::create(['user_id' => $user->id, 'part_id' => $upart->id, 'comment' => 'edited']);
-          $upart->put($file->get());
+          if ($upart->description == 'Missing') {
+            $upart->fillFromFile(Storage::disk('library')->path('tmp/' . $filename), $user, $pt, PartRelease::unofficial());
+          }
+          else {
+            // If the submitter is not the author and has not edited the file before, add a history line
+            if ($upart->user_id <> $user->id && empty($upart->history()->whereFirst('user_id', $user->id)))
+              PartHistory::create(['user_id' => $user->id, 'part_id' => $upart->id, 'comment' => 'edited']);  
+            $upart->put(Storage::disk('library')->get('tmp/' . $filename));
+          }
         }
         else {
           // Update existing part
-          $text = FileUtils::cleanFileText($file->get(), true, true);
-          $upart->fillFromText($text);
+          $text = FileUtils::cleanFileText(Storage::disk('library')->get('tmp/' . $filename), true, true);
+          $upart->fillFromText($text, false, PartRelease::unofficial());
         }
         if ($upart->votes->count() > 0) $votes_deleted = true;
         Vote::where('part_id', $upart->id)->delete();
@@ -54,17 +58,23 @@ class LibraryOperations {
       // Create a new part
       else {
         $init_submit = true;
-        $upart = Part::createFromFile(Storage::disk('library')->path('tmp/' . $filename), $user, $pt);
+        $upart = Part::createFromFile(Storage::disk('library')->path('tmp/' . $filename), $user, $pt, PartRelease::unofficial());
       }
       
       $upart->updateSubparts(true);
       $upart->updateImage(true);
-      
+      $upart->saveHeader();
+
       if (!empty($opart)) {
         $upart->official_part_id = $opart->id;
         $upart->save();
         $opart->unofficial_part_id = $upart->id;
         $opart->save();
+        Part::unofficial()->whereHas('subparts', function (Builder $query) use ($opart) {
+          return $query->where('id', $opart->id);
+        })->each(function (Part $part) {
+          $part->updateSubparts(true);
+        });
       }
 
       PartEvent::createFromType('submit', $user, $upart, $comment, null, null, $init_submit);        

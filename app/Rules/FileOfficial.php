@@ -49,7 +49,7 @@ class FileOfficial implements DataAwareRule, InvokableRule
       if ($official_exists && !$unofficial_exists && $cannotfix) {
         $fail('partcheck.fix.unofficial')->translate();
       }
-      elseif ($official_exists && !$unofficial_exists && !isset($data['partfix'])) {
+      elseif ($official_exists && !$unofficial_exists && !isset($this->data['partfix'])) {
         $fail('partcheck.fix.checked')->translate();
       }  
     }

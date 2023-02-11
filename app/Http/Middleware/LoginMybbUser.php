@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\User;
 
@@ -30,12 +31,11 @@ class LoginMybbUser
           $u = DB::connection('mybb')->table('mybb_users')
                 ->select('uid')
                 ->where('uid', $mybb[0])->where('loginkey', $mybb[1])->first();
-          if (empty($u)) $next($request);
-
+          if (empty($u)) return $next($request);
           // Check if the logged in user matches a user in the library db
           $usr = Auth::getProvider()->retrieveByCredentials(['forum_user_id' => $u->uid]);
-          if (empty($usr)) $next($request);
-
+          if (!isset($usr->id)) return $next($request);
+//Log::debug($usr->toString());
           // Log the mybb user in since checking the mybb db every time is slow
           Auth::login($usr, true);
           $request->user = Auth::user();

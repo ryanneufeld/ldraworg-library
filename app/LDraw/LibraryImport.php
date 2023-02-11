@@ -114,6 +114,25 @@ class LibraryImport {
     });
   }
 
+  public static function fixPartQualifiers() {
+    Part::lazy()->each( function ($part) {
+      if ($part->type->folder == 'parts/') {
+        $text = Storage::disk('library')->get('tmp/' . $part->libFolder() . '/' . $part->filename);
+        $type = FileUtils::getPartType($text);
+        
+        if ($type !== false && !empty($type['qual'])) {
+          $qual = \App\Models\PartTypeQualifier::firstWhere('type', $type['qual']);
+          if (!empty($qual)) {
+            
+            $part->part_type_qualifier_id = $qual->id;
+            $part->save();
+            $part->refresh();
+            $part->saveHeader();
+          }
+        }
+      }
+    });
+  }
   public static function importParts($unofficialOnly = false, $updateImages = false) {
     $texusers = self::$official_texture_authors;
     $libs = $unofficialOnly ? ['unofficial'] : ['official','unofficial'];
