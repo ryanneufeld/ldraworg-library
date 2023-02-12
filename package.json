@@ -1,16 +1,16 @@
 {
     "private": true,
     "scripts": {
-      "dev": "npm run development",
-      "development": "mix",
-      "watch": "mix watch",
-      "watch-poll": "mix watch -- --watch-options-poll=1000",
-      "hot": "mix watch --hot",
-      "prod": "npm run production",
-      "production": "mix --production"
+        "dev": "npm run development",
+        "development": "mix",
+        "watch": "mix watch",
+        "watch-poll": "mix watch -- --watch-options-poll=1000",
+        "hot": "mix watch --hot",
+        "prod": "npm run production",
+        "production": "mix --production"
     },
     "dependencies": {
-        "fomantic-ui": "^2.9.0",
+        "fomantic-ui": "^2.9.2",
         "jquery": "^3.6.1"
     },
     "devDependencies": {
