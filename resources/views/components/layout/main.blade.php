@@ -2,15 +2,15 @@
 <x-layout.base title="{{$title}}" ldbi="{{$ldbi}}">
   <div class="ui container">
     <div class="basic segment">      
-{{--
+      @env('local')
       <div class="ui center aligned icon warning message">
         <i class="exclamation triangle icon"></i>
         <div class="content">
-          <div class="header">You are on the BETA Parts Tracker.</div> 
-          For the live version go here: <a href="https://www.ldraw.org/library/tracker">http://www.ldraw.org/library/tracker</a>
+          <div class="header">You are on the BETA LDraw.org Library Site.</div> 
+          For the live version go here: <a href="https://library.ldraw.org">http://library.ldraw.org</a>
         </div>
       </div>
---}}
+      @endenv
     </div>
     
     <div class="ui clearing basic segment logos">
