@@ -1,4 +1,4 @@
-<x-layouts.standard>
+<x-layout.main>
   <x-slot name="title">Notifications list for {{ Auth::user()->name }}</x-slot>
   @if (Auth::user()->has('part_events'))
     <table class="ui striped celled sortable table">
@@ -30,4 +30,4 @@
   @else
     No submits found
   @endif
-</x-layouts.standard>
+</x-layout.main>
