@@ -23,6 +23,7 @@ Route::get('/categories.txt', function () {
   return response(LibraryOperations::categoriesText())->header('Content-Type','text/plain');
 })->name('categories-txt');
 
+/*
 Route::get('/ptreleases', function (Request $request) {
   $output = $request->get('output');
   $releases = LibraryOperations::ptreleases($request->get('output'), $request->get('type'), $request->get('fields'));
@@ -34,7 +35,7 @@ Route::get('/ptreleases', function (Request $request) {
   }
 })->name('ptreleases-cgi');
 
-/*
+
 // Only enable this route for testing
 Route::get('/user-4', function () {
   Auth::logout();
@@ -75,7 +76,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
 
-  Route::middleware(['auth'])->match(['get', 'post'], '/release/{step?}', [ReleaseController::class, 'create'])->name('release.create');
+//  Route::middleware(['auth'])->match(['get', 'post'], '/release/{step?}', [ReleaseController::class, 'create'])->name('release.create');
   
   // These have to be last
   Route::get('/{part}', [UnofficialPartController::class, 'show'])->where('part', '[a-z0-9_/.-]+')->name('show');
