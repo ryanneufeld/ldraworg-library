@@ -1,6 +1,6 @@
 <x-layout.main ldbi="1">
   <x-slot name="title">File Detail {{ $part->filename }}</x-slot>
-  <x-menu.unofficial-part :part="$part" />
+  <x-menu.part-detail :part="$part" />
   @if(session('status'))
   <div class="ui message success">
     <div class="header">{{session('status')}}</div>
@@ -60,7 +60,7 @@
   <x-part.table title="Required unofficial subparts" unofficial=1 :parts="$part->subparts()->withoutGlobalScope('missing')->unofficial()->get()" />
   <x-part.table title="Unofficial parent parts" unofficial=1 :parts="$part->parents()->withoutGlobalScope('missing')->unofficial()->get()" />
   <x-event.list title="File events" :events="$part->events" /> 
-  <x-menu.unofficial-part :part="$part" />
+  <x-menu.part-detail :part="$part" />
   <x-part.attribution :copyuser="$part->user" :editusers="$part->editHistoryUsers()" />
   <x-part.3dmodal id="{{$part->id}}" />
 </x-layout.main>

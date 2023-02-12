@@ -1,4 +1,4 @@
-<div class="ui menu">
+<div class="ui stackable menu">
   <a class="item" href="{{route('tracker.main')}}">Parts Tracker</a> 
   @can('create', App\Models\Part::class)
   <a class="item" href="{{route('tracker.submit')}}">Submit</a>

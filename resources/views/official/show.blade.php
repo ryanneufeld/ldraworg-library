@@ -1,7 +1,7 @@
 <x-layout.main ldbi="1">
   <x-slot name="title">File Detail {{ $part->filename }}</x-slot>
   <div class="ui segment main-content">
-    <x-menu.official-part :part="$part" />
+    <x-menu.part-detail :part="$part" />
     <div class="ui large header"><span class="official">Official File <span id="filename">{{ $part->filename }}</span></span></div>
     <div>
       @isset ($part->unofficial_part_id)
