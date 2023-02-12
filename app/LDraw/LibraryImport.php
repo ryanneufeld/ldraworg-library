@@ -14,6 +14,7 @@ use App\Models\VoteType;
 use App\Models\PartEventType;
 use App\Models\PartEvent;
 use App\Models\TrackerHistory;
+use App\Models\PartBody;
 
 class LibraryImport {
   
@@ -391,8 +392,31 @@ class LibraryImport {
   public static function savePartBodies() {
     Part::lazy()->each(function ($part) {
       if (!$part->isTexmap()) {
-        \App\Models\PartBody::create(['part_id' => $part->id, 'body' => FileUtils::setHeader($part->get(), '')]);
+        if (is_null($part->body)) {
+          PartBody::create(['part_id' => $part->id, 'body' => FileUtils::setHeader($part->get(), '')]);
+        }
+        else {
+          $part->body->body = FileUtils::setHeader($part->get(), '');
+        }  
       }
+      else {
+        if (is_null($part->body)) {
+          PartBody::create(['part_id' => $part->id, 'body' => base64_encode($part->get())]);
+        }
+        else {
+          $part->body->body = base64_encode($part->get());
+        }  
+      }
+    });
+  }
+
+  public static function restoreLibraryFromDatabase() {
+    Part::lazy()->each(function (Part $part) {
+      $body = $part->isTexmap() ? base64_decode($part->body->body) : $part->body->body;
+      $part->put($part->getHeaderText() . "\n\n$body");
+    });
+    Part::lazy()->each(function (Part $part) {
+      $part->updateImage();
     });
   }
 }

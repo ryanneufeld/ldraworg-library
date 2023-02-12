@@ -27,12 +27,13 @@
             <th>Image</th>
             <th>Part</th>
             <th>Description</th>
+            <th>DAT</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
     @endif
-          <x-part.table.row :part="$part" unofficial="1" />
+          <x-part.table.row :part="$part" />
     @if ($loop->last)
         </tbody>
       </table>

@@ -560,6 +560,12 @@ class Part extends Model
         ];
         $this->fill($fill);
         $this->refreshHeader();
+        if (is_null($this->body)) {
+          PartBody::create(['part_id' => $this->id, 'body' => base64_encode(File::get($path))]);
+        }
+        else {
+          $this->body->body = base64_encode(File::get($path));
+        }  
         $this->put(File::get($path));
         $this->save();
       }
