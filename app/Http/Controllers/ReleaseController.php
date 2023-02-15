@@ -28,6 +28,7 @@ class ReleaseController extends Controller
 
   public function create(Request $request, $step = null)
     {
+      $this->authorize('create', PartRelease::class);
       switch($step) {
         case 3:
           $validated = $request->validate([
