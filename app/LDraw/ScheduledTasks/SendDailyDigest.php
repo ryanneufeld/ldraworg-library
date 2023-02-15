@@ -21,7 +21,7 @@ class SendDailyDigest {
     foreach (User::all() as $user) {
       if ($user->hasRole(['Legacy User', 'Synthetic User']) || $user->name == 'PTadmin') continue;
       $events = PartEvent::whereBetween('created_at', [$this->date, $next])
-        ->whereIn('part_id', $user->notification_parts->pluck('id'))->get();
+        ->whereIn('part_id', $user->notification_parts->pluck('id'))->oldest()->get();
       if ($events->count() > 0) {
         
         Mail::to($user)->send(new DailyDigest($this->date, $events));

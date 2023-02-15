@@ -2,6 +2,7 @@
 @if (!$loop->first)
 ==
 @endif
+On {{$event->created_at}}: 
 @switch($event->part_event_type->slug)
 @case('submit')
 A new version of file {{$event->part->filename}} '{{$event->part->description}}' was submitted by {{$event->user->name}}
