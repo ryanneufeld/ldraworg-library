@@ -21,7 +21,7 @@ class LoginMybbUser
      */
     public function handle(Request $request, Closure $next)
     {
-      if (is_null($request->user)) {
+      if (is_null($request->user())) {
         // Get the mybb login data from the mybbuser cookie
         if ($mybb = $request->cookies->get('mybbuser')) {
           $mybb = explode("_", $mybb);
@@ -35,12 +35,10 @@ class LoginMybbUser
           // Check if the logged in user matches a user in the library db
           $usr = Auth::getProvider()->retrieveByCredentials(['forum_user_id' => $u->uid]);
           if (!isset($usr->id)) return $next($request);
-//Log::debug($usr->toString());
           // Log the mybb user in since checking the mybb db every time is slow
           Auth::login($usr, true);
-          $request->user = Auth::user();
         }
       }
       return $next($request);
-    }
+    }  
 }

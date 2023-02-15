@@ -87,7 +87,7 @@ class VoteController extends Controller
         else {
           $vote = Vote::create([
             'part_id' => $part->id,
-            'user_id' => $request->user->id,
+            'user_id' => $request->user()->id,
             'vote_type_code' => $validated['vote_type'],
           ]);
         }
@@ -95,7 +95,7 @@ class VoteController extends Controller
         $event->part_event_type()->associate(PartEventType::firstWhere('slug','review'));
         $part->updateVoteSummary();
       }
-      $request->user->notification_parts()->syncWithoutDetaching([$part->id]);
+      $request->user()->notification_parts()->syncWithoutDetaching([$part->id]);
       $event->user()->associate($request->user());
       $event->part()->associate($part);
       $event->release()->associate(PartRelease::unofficial());

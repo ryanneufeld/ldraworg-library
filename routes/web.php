@@ -37,9 +37,9 @@ Route::get('/ptreleases', function (Request $request) {
 
 
 // Only enable this route for testing
-Route::get('/user-4', function () {
+Route::get('/user-233', function () {
   Auth::logout();
-  Auth::login(\App\Models\User::find(4));
+  Auth::login(\App\Models\User::find(233));
   return response()->redirectTo('/', 302);
 });
 */
