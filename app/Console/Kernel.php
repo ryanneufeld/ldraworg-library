@@ -7,6 +7,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 use App\LDraw\ScheduledTasks\SendDailyDigest;
 use App\LDraw\ScheduledTasks\UpdateTrackerHistory;
+use App\Jobs\UpdateUncertifiedSubparts;
 
 class Kernel extends ConsoleKernel
 {
@@ -19,7 +20,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
       //$schedule->command('telescope:prune')->daily();
-      $schedule->call(new SendDailyDigest(new \DateTime('yesterday')))->dailyAt('00:01');
+      $schedule->call(new SendDailyDigest(new \DateTime('yesterday')))->dailyAt('01:30');
+      $schedule->job(new UpdateUncertifiedSubparts)->dailyAt('01:00');
       $schedule->call(new UpdateTrackerHistory)->daily();
     }
 
