@@ -15,15 +15,14 @@ class UpdateUncertifiedSubparts implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $part;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Part $part)
+    public function __construct()
     {
-      $this->part = $part;
+      //
     }
 
     /**
@@ -33,6 +32,8 @@ class UpdateUncertifiedSubparts implements ShouldQueue
      */
     public function handle()
     {
-      $vs = $this->part->vote_summary();
+      Part::unofficial()->each(function (Part $part) {
+        $part->updateUncertifiedSubpartCount(true);
+      });
     }
 }

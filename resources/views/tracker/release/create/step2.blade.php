@@ -4,11 +4,10 @@
     @foreach($ids as $id)
       <input type="hidden" name="ids[]" value="{{$id}}">
     @endforeach
-    <div class="field">
-      <label for="ldrawfile">Other new ldraw folder files (Note: No validation will be done these files)</label>
-      <div class="ui file input">
-        <input name="ldrawfiles[]" type="file" multiple="multiple">
-      </div>
+    <h5 class="ui header">Release Files:</h5>
+    <div class="ui segment">
+      <a href="{{asset($zips['update'])}}">Release zip</a><br>
+      <a href="{{asset($zips['complete'])}}">Complete zip</a>
     </div>
     <h5 class="ui header">Notes File:</h5>
     <div class="ui scrolling segment">

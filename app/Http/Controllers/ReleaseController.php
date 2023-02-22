@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 use App\Models\Part;
 use App\Models\PartType;
 use App\Models\PartRelease;
+use App\Models\PartEvent;
+use App\Models\PartHistory;
 
 use App\LDraw\LDrawFileValidate;
 use App\LDraw\FileUtils;
@@ -32,17 +35,18 @@ class ReleaseController extends Controller
       switch($step) {
         case 3:
           $validated = $request->validate([
-            'ldrawfile.*' => 'sometimes|required|file',
             'ids.*' => 'required|integer',
             'approve' => 'required:accepted',
           ]);
           $this->doStep3($validated['ids'], $request->file('ldrawfile'));
           break;
         case 2:
+          //dd($request->file('ldrawfiles')[0]->getClientOriginalName());
           $validated = $request->validate([
+            'ldrawfiles.*' => 'sometimes|file',
             'ids.*' => 'required|integer',
           ]);
-          return $this->doStep2($validated['ids']);
+          return $this->doStep2($validated['ids'], $validated['ldrawfiles'] ?? []);
           break;
         case 1:
         default:
@@ -52,7 +56,7 @@ class ReleaseController extends Controller
     }
     
   protected function doStep1() {
-    $parts = Part::where('vote_sort', 1)->orderBy('part_type_id')->get();
+    $parts = Part::unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->get();
     $results = [];
     foreach($parts as $part) {
       $text = $part->isTexmap() ? $part->header : $part->get();
@@ -78,40 +82,51 @@ class ReleaseController extends Controller
     return view('tracker.release.create.step1', ['parts' => $results]);
   }
 
-  protected function doStep2($ids) {
-    $notes = $this->makeNotes($ids);            
-    return view('tracker.release.create.step2', ['notes' => $notes, 'ids' => $ids]);
+  protected function doStep2($ids, $ldrawfiles = []) {
+    $notes = $this->makeNotes($ids);
+    $r = PartRelease::next();
+    $this->makeZipFiles($r, $notes, $ids, $ldrawfiles);
+    $zips = ['update' => 'library/updates/staging/lcad'. $r['short'] . '.zip', 'complete' => 'library/updates/staging/completeCA.zip'];
+    return view('tracker.release.create.step2', ['notes' => $notes, 'ids' => $ids, 'zips' => $zips]);
   }
 
-  protected function doStep3($ids, $ldrawfiles) {
-    $notes = $this->makeNotes($ids);
+  protected function doStep3($ids) {
     $next = PartRelease::next();
-    $release = PartRelease::create(['name' => $next['name'], 'short' => $next['short'], 'notes' => $notes]);
-    foreach(Part::whereIn('id', $ids)->lazy() as $part) {
-      $part->part_release_id = $release->id;
-      $part->refresh();
-      $part->updateHeaderFromDB();
+
+    $zip = new \ZipArchive;
+    $zip->open(storage_path('app/library/updates/staging/lcad'. $next['short'] . '.zip'));
+    $note = $zip->getFromName('ldraw/models/Note' . $next['short'] . 'CA.txt', 0, \ZipArchive::FL_NOCASE);
+    $zip->close();
+
+    $release = PartRelease::create(['name' => $next['name'], 'short' => $next['short'], 'notes' => $note]);
+
+    Part::whereIn('id', $ids)->lazy()->each(function (Part $part) use ($release) {
+      $part->events()->whereRelation('release', 'short', 'unof')->each(function (PartEvent $event) use ($release) {
+        $event->release()->associate($release);
+        $event->save();
+      });
+      
+      PartEvent::createFromType('release', Auth::user(), $part, 'Release ' . $release->name, null, $release);
+
       if (!is_null($part->official_part_id)) {
-        $op = Part::find($part->official_part_id);
-        if ($part->isTexmap()) {
-          $op->header = $part->header;
-          $op->fillFromText($part->get(), null, false, true);
-        }
-        else {
-          $op->fillFromText($part->get(), null, true);
-        }
-        $op->unofficial_part_id = null;
-        $op->save();
+        // Update the official part
+        $opart = Part::find($part->official_part_id);
+        $opart->fillFromText(rtrim($part->header) . "/n/n" . $part->body->body, false, $release);
+        PartHistory::create(['user_id' => Auth::user()->id, 'part_id' => $opart->id, 'comment' => 'Official Update ' . $release->name]);
+        //Remove the unofficial part
         $part->delete();
       }
       else {
-        Storage::disk('library')->move('unofficial/' . $part->filename, 'official/' . $part->filename);
-        $part->vote_sort = 1;
-        $part->vote_summary = null;
-        $part->uncertified_subparts = 0;
+        // Make unofficial part official
+        PartHistory::create(['user_id' => Auth::user()->id, 'part_id' => $part->id, 'comment' => 'Official Update ' . $release->name]);
+        $part->release()->associate($release);
+        $part->notification_users()->sync([]);
+        $part->save();
+        $part->refresh();
+        $part->refreshHeader();
+        $part->put(rtrim($part->header) . "/n/n" . $part->body->body);
       }
-    }
-    $this->makeZipFiles($release, $notes, $ldrawfiles);
+    });
     return view('tracker.release.create.step3');
   }
     
@@ -142,56 +157,68 @@ class ReleaseController extends Controller
     $notes .= "\n" . 
       "Moved Parts\n";
     foreach (Part::whereIn('id', $ids)->whereRelation('category', 'category', 'Moved')->get() as $part) {
-      $notes .= '   ' . $part->nameString() . str_repeat(' ', 27 - strlen($part->nameString())) . "{$part->description}\n"; 
+      $notes .= '   ' . $part->name() . str_repeat(' ', 27 - strlen($part->name())) . "{$part->description}\n"; 
     }
     $rename = '';
     $fixes = '';
     foreach (Part::whereIn('id', $ids)->where('official_part_id', '<>', null)->get() as $part) {
       $op = Part::find($part->official_part_id);
       if ($part->description != $op->description) {
-        $rename .= '   ' . $part->nameString() . str_repeat(' ', 27 - strlen($part->nameString())) . "{$op->description}\n" .
+        $rename .= '   ' . $part->name() . str_repeat(' ', 27 - strlen($part->name())) . "{$op->description}\n" .
           "   changed to    {$part->description}\n";
       }
       else {
-        $fixes .= '   ' . $part->nameString() . str_repeat(' ', 27 - strlen($part->nameString())) . "{$part->description}\n";
+        $fixes .= '   ' . $part->name() . str_repeat(' ', 27 - strlen($part->name())) . "{$part->description}\n";
       }
     }
     $notes .= "\nRenamed Parts\n$rename\nOther Fixed Parts\n$fixes";
     return $notes;      
   }
   
-  protected function makeZipFiles($release, $notes, $ldrawfiles = []) {
+  protected function makeZipFiles($release, $notes, $ids, $ldrawfiles = []) {
     $uzip = new \ZipArchive;
-    $uzip->open(storage_path('app/library/updates/staging/lcad'. $release->short . '.zip'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+    $uzip->open(storage_path('app/library/updates/staging/lcad'. $release['short'] . '.zip'), \ZipArchive::CREATE);
 
+    Storage::disk('library')->copy('updates/complete.zip','updates/staging/completeCA.zip');
     $zip = new \ZipArchive;
-    $zip->open(storage_path('app/library/updates/staging/completeCA.zip'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-    
-    $parts = Part::where('part_release_id', $release->id)->pluck('filename')->all();
-    $dirs = Storage::disk('library')->allDirectories('official');
-    foreach(Storage::disk('library')->allDirectories('official') as $dir) {
-      foreach(Storage::disk('library')->files($dir) as $file) {
-        if (pathinfo($file, PATHINFO_EXTENSION) != 'dat' && pathinfo($file, PATHINFO_EXTENSION) != 'png') continue;
-        $contents = Storage::disk('library')->get($file);
-        if (pathinfo($file, PATHINFO_EXTENSION) == 'dat') $contents = FileUtils::unix2dos($contents);
-        $loc = str_replace('official/', 'ldraw/', $file);
-        $zip->addFromString($loc, $contents);
-        if (in_array(str_replace('ldraw/', '', $loc), $parts)) $uzip->addFromString($loc, $contents);
-      }  
+    $zip->open(storage_path('app/library/updates/staging/completeCA.zip'));
+    set_time_limit(60);
+
+    // Create update zip and update complete zip
+    foreach(Part::whereIn('id', $ids)->get() as $part) {      
+      if($part->isTexmap()) {
+        $content = base64_decode($part->body->body);
+      }
+      else {
+        $content = rtrim($part->header);
+
+        // Replae type with release type line
+        $utype = '0 !LDRAW_ORG Unofficial_' . $part->type->type;
+        $rtype = '0 !LDRAW_ORG ' . $part->type->type . ' UPDATE ' . $release['name'];
+        $content = str_replace($utype, $rtype, $content);
+
+        // Add release history line
+        if (stripos($content, '!HISTORY') === false) $content .= "\n";
+        $content .= "\n0 !HISTORY " . date_format(date_create(), "Y-m-d") . " [" . Auth::user()->name . "] Official Update " . $release['name'];
+
+        //Dos line endings
+        $content = FileUtils::unix2dos($content . "\n\n" . $part->body->body);
+      }
+      $uzip->addFromString('ldraw/' . $part->filename, $content);
+      $zip->addFromString('ldraw/' . $part->filename, $content);
     }
+
+    // Add the notes file
+    $uzip->addFromString('ldraw/models/Note' . $release['short'] . 'CA.txt', $notes);
+    $zip->addFromString('ldraw/models/Note' . $release['short'] . 'CA.txt', $notes);
     
+    // Add updated files for the base folder
     foreach($ldrawfiles as $file) {
-      $contents = $file->get();
-      if ($file->getMime() == 'text/plain') $contents = FileUtils::unix2dos($contents);
-      $zip->addFromString('ldraw', $contents);
-      $uzip->addFromString('ldraw', $contents);
+      $uzip->addFromString('ldraw/' . $file->getClientOriginalName(), $file->get());
+      $zip->addFromString('ldraw/' . $file->getClientOriginalName(), $file->get());  
     }
-    
-    $zip->addFromString("ldraw/models/Notes{$release->short}CA.txt", FileUtils::unix2dos($notes));
-    $uzip->addFromString("ldraw/models/Notes{$release->short}CA.txt", FileUtils::unix2dos($notes));
-    
+
     $zip->close();
     $uzip->close();
-
   }
 }

@@ -46,16 +46,4 @@ class PartRelease extends Model
         return ['name' => date_format($year, 'Y') . "-$num", 'short' => date_format($year, 'y') . $num];
       }    
     }
-    
-    // Warning: this function does not check if the release line already exists
-    public function addHistoryToParts() {
-      foreach ($this->parts() as $part) {
-        PartHistory::create([
-          'user_id' => User::ptadmin(), 
-          'part_id' => $part->id, 
-          'created_at' => date_format(date_create($this->created_at), "Y-m-d"), 
-          'comment' => "Official Update {$this->name}"
-        ]);
-      }  
-    }  
 }

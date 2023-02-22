@@ -32,7 +32,7 @@ class LibraryOperations {
       $upart = Part::findUnofficialByName($pt->folder . $filename);
       $opart = Part::findOfficialByName($pt->folder . $filename);
       $votes_deleted = false;
-
+      $mpart = Part::findUnofficialByName($filename, true);
       // Unofficial file exists
       if (isset($upart)) {
         $init_submit = false;
@@ -71,7 +71,12 @@ class LibraryOperations {
       $upart->updateSubparts(true);
       $upart->updateImage(true);
       $upart->saveHeader();
-
+      if (!empty($mpart) && $mpart->description == 'Missing' && $mpart->filename != $upart->filename) {
+        $mpart->parents()->each(function (Part $part) { 
+          $part->updateSubparts(true);
+          $part->updateImage(true); 
+        });
+      }
       if (!empty($opart)) {
         $upart->official_part_id = $opart->id;
         $upart->save();

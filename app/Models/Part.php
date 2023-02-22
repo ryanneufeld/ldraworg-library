@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 
 use App\Models\User;
@@ -292,6 +293,7 @@ class Part extends Model
         foreach($this->parents as $parent) {
           if ($parent->releasable() || $parent->release->short <> 'unof') return true;
         }
+        return false;
       }
       // Otherwise not releaseable
       else {
@@ -340,7 +342,12 @@ class Part extends Model
       // If someone reads this and can explain what I'm doing wrong, submit
       // a report on github
       umask(000);
-      chmod(storage_path('app/library/') . $this->libFolder() . '/' . $this->filename, 0664);
+      try {
+        chmod(storage_path('app/library/') . $this->libFolder() . '/' . $this->filename, 0664);
+      }
+      catch (\Exception $e) {
+        Log::debug($this->filename);
+      }
     }
     
     public function updateVoteSummary(bool $forceUpdate = false): void {
