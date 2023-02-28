@@ -76,6 +76,10 @@ class RenderFile implements ShouldQueue
         Storage::disk($renderdisk)->delete($file);
       }
       else {
+        // LDview requires a p and a parts directory even if empty
+        Storage::disk($renderdisk)->createDirectory("$renderpath/ldraw/parts");
+        Storage::disk($renderdisk)->createDirectory("$renderpath/ldraw/p");
+
         $parts = new Collection;
         LibraryOperations::dependencies($this->part, $parts, $this->part->isUnofficial());
         $parts = $parts->diff(new Collection([$this->part]));
