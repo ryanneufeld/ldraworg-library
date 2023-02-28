@@ -158,8 +158,9 @@ class LibraryOperations {
   public static function baselineComplete() {
     $zip = new \ZipArchive;
     $zip->open(storage_path('app/library/updates/completeBase.zip'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+    $zip->addFromString('test.txt', 'test');
     $zip->close();
-    Part::official()->chunk(1000, function (Collection $parts) use ($zip) {
+    Part::official()->chunk(500, function (Collection $parts) use ($zip) {
       $zip->open(storage_path('app/library/updates/completeBase.zip'));
       foreach($parts as $part) {
         $zip->addFromString('ldraw/' . $part->filename, $part->get());
@@ -170,6 +171,7 @@ class LibraryOperations {
     foreach (Storage::disk('library')->allFiles('official') as $filename) {
       $zip->addFromString('ldraw/' . str_replace('official/', '', $filename), Storage::disk('library')->get($filename));
     }
+    $zip->deleteName('test.txt');
     $zip->close();
   }
 }
