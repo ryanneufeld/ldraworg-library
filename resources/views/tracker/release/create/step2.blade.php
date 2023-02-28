@@ -6,8 +6,8 @@
     @endforeach
     <h5 class="ui header">Release Files:</h5>
     <div class="ui segment">
-      <a href="{{asset($zips['update'])}}">Release zip</a><br>
-      <a href="{{asset($zips['complete'])}}">Complete zip</a>
+      <a href="{{$zips['update']}}">Release zip</a><br>
+      <a href="{{$zips['complete']}}">Complete zip</a>
     </div>
     <h5 class="ui header">Notes File:</h5>
     <div class="ui scrolling segment">

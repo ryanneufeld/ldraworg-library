@@ -79,8 +79,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->match(['get', 'post'], '/release/create/{step?}', [ReleaseController::class, 'create'])->name('release.create');
   
   // These have to be last
-  Route::get('/{unofficialpart}', [UnofficialPartController::class, 'show'])->name('show');
-  Route::get('/{part}', [UnofficialPartController::class, 'show'])->name('show');
+  Route::get('/{part}', [UnofficialPartController::class, 'show'])->where('part', '[a-z0-9_/.-]+')->name('show');
 });
 
 /*
@@ -120,10 +119,9 @@ Route::prefix('official')->name('official.')->group(function () {
   ]);
   Route::redirect('/search', '/tracker/search');
   // This has to be last
-  Route::get('/{officialpart}', [OfficialPartController::class, 'show'])->name('show');
-  Route::get('/{part}', [OfficialPartController::class, 'show'])->name('show');
+  Route::get('/{part}', [OfficialPartController::class, 'show'])->where('part', '[a-z0-9_/.-]+')->name('show');
 });
 
-Route::get('/library/official/ldraw/{officialpart}', [OfficialPartController::class, 'download'])->name('official.download');
-Route::get('/library/unofficial/{unofficialpart}', [UnofficialPartController::class, 'download'])->name('unofficial.download');
+Route::get('/library/official/ldraw/{part:filename}', [OfficialPartController::class, 'download'])->name('official.download');
+Route::get('/library/unofficial/{part:filename}', [UnofficialPartController::class, 'download'])->where('->name('unofficial.download');
 

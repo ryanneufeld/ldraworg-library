@@ -397,6 +397,7 @@ class LibraryImport {
         }
         else {
           $part->body->body = FileUtils::setHeader($part->get(), '');
+          $part->body->save();
         }  
       }
       else {
@@ -405,6 +406,7 @@ class LibraryImport {
         }
         else {
           $part->body->body = base64_encode($part->get());
+          $part->body->save();
         }  
       }
     });
@@ -418,23 +420,5 @@ class LibraryImport {
     Part::lazy()->each(function (Part $part) {
       $part->updateImage();
     });
-  }
-
-  public static function recreateComplete() {
-    Storage::disk('library')->copy('updates/complete.zip','updates/staging/complete.zip');
-    $zip = new \ZipArchive;
-    $zip->open(storage_path('app/library/updates/staging/complete.zip'));
-    // Create complete zip
-    Part::official()->lazy()->each(function (Part $part) use ($zip) {
-      if($part->isTexmap()) {
-        $content = base64_decode($part->body->body);
-      }
-      else {
-        $content = rtrim($part->header);
-        $content = FileUtils::unix2dos($content . "\n\n" . $part->body->body);
-      }
-      $zip->addFromString('ldraw/' . $part->filename, $content);
-    });
-    $zip->close();
   }
 }

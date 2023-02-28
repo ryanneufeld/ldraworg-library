@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -24,13 +25,14 @@ use App\Models\PartHelp;
 use App\Models\PartBody;
 
 use App\Jobs\RenderFile;
+use App\Jobs\UpdateZip;
 
 use App\LDraw\FileUtils;
 use RuntimeException;
 
 class Part extends Model
 {
-    use HasFactory;
+    use SoftDeletes, HasFactory;
 
     protected $fillable = [
       'user_id',
@@ -230,7 +232,7 @@ class Part extends Model
         $filetext = "0 !DATA " . str_replace(['parts/textures/', 'p/textures/'], '', $this->filename) . "\n";
         $filetext .= $this->header;
         $filetext .= "0 !:" . implode("\n0 !:", $data) . "\n";
-        return $this->getHeaderText();
+        return FileUtils::unix2dos($this->getHeaderText());
       }
       else {
         return $this->get();
@@ -239,7 +241,13 @@ class Part extends Model
         
     public function get(): string {
       if ($this->description == 'Missing') return '';
-      return Storage::disk('library')->get($this->libFolder() . '/' . $this->filename);  
+      if ($this->isTexmap()) {
+        return base64_decode($this->body->body);
+      }
+      else {
+        return FileUtils::unix2dos(rtrim($this->header) . "\n\n" . $this->body->body);
+      }
+      //return Storage::disk('library')->get($this->libFolder() . '/' . $this->filename);  
     }
     
     public static function findUnofficialByName(string $name, bool $withoutFolder = false): ?self {
@@ -333,7 +341,7 @@ class Part extends Model
     
     public function put(string $content): void {
       if ($this->isUnofficial()) Storage::disk('library')->move('unofficial/' . $this->filename, 'backups/' . $this->filename . '.' . time());
-  
+/*  
       if (!$this->isTexmap()) $content = FileUtils::unix2dos($content);
       Storage::disk('library')->put($this->libFolder() . '/' . $this->filename, $content);
       
@@ -348,6 +356,7 @@ class Part extends Model
       catch (\Exception $e) {
         Log::debug($this->filename);
       }
+*/      
     }
     
     public function updateVoteSummary(bool $forceUpdate = false): void {
@@ -441,11 +450,12 @@ class Part extends Model
           $newPart->license->toString() . "\n\n" .
           "0 BFC CERTIFY CCW\n\n" .
           "0 1 16 0 0 0 1 0 0 0 1 0 0 0 1 " . $newPart->name(); 
-        ;
+        
         $p->fillFromText($text);
         $p->save();
         $p->updateImage();
         PartEvent::createFromType('submit', Auth::user(), $p, null, null, null, true);
+        UpdateZip::dispatch($p);
         return $p;
       }
     }
@@ -512,6 +522,7 @@ class Part extends Model
         }
         else {
           $this->body->body = $body;
+          $this->body->save();
         }  
       } 
         
@@ -548,9 +559,10 @@ class Part extends Model
 
       $this->updateLicense();
       $this->refreshHeader();
-      
-      if ($headerOnly) $text = FileUtils::setHeader($this->get(), $text);
-      $this->put($text);
+      $this->updateSubparts(true);
+      $this->save();
+      //if ($headerOnly) $text = FileUtils::setHeader($this->get(), $text);
+      //$this->put($text);
     }
   
     // Note: this function assumes that the part text has been cleaned and validated
@@ -572,8 +584,9 @@ class Part extends Model
         }
         else {
           $this->body->body = base64_encode(File::get($path));
+          $this->body->save();
         }  
-        $this->put(File::get($path));
+        //$this->put(File::get($path));
         $this->save();
       }
       elseif (File::extension($path) == 'dat' && File::mimeType($path) == 'text/plain') {
@@ -640,66 +653,39 @@ class Part extends Model
     }
 
     public function move(string $newName = null, PartType $newType = null): void {
-      if (is_null($newName) && is_null($newType)) return;
-
-      $folder = $newType->folder ?? $this->type->folder;
-      $fname = $newName ?? basename($this->filename);
-      $fname = $folder . $fname;
-      $name = str_replace('/', '\\', str_replace(['p/', 'parts/'] , '', $fname));
-
-      if (Storage::disk('library')->exists($this->libFolder() . '/' . $fname)) 
-        throw new RuntimeException("Move failed: " . $this->libFolder() . '/' . $fname . " already exists");
-      
+      $oldname = $this->filename;
+      if (is_null($newName)) $newName = $this->filename;
       if ($this->isUnofficial()) {
-        Storage::disk('library')->move('unofficial/' . $this->filename, 'unofficial/' . $fname);
-        Storage::disk('images')->move('library/unofficial/' . substr($this->filename, 0, -4) . '.png', 'library/unofficial/' . substr($fname, 0, -4) . '.png');
-        Storage::disk('images')->move('library/unofficial/' . substr($this->filename, 0, -4) . '_thumb.png', 'library/unofficial/' . substr($fname, 0, -4) . '_thumb.png');
-        $oldname = $this->name();
         if (!is_null($newType)) $this->type()->associate($newType);
-        $this->filename = $fname;
-        $this->saveHeader();
-
-        foreach($this->parents as $parent) {
-          $text = str_replace($oldname, $name, $parent->get());
-          $parent->fillFromText($text);
-          $parent->updateImage(true);
-        }
-        PartEvent::createFromType('rename', Auth::user(), $this, "part $oldname was renamed to {$this->filename}");
+        $this->filename = $this->type->folder . $newName;
+        $this->refreshHeader();
+        $this->save();
+        $this->updateImage();
+        UpdateZip::dispatch($this, $oldname);
       }
       else {
-        if ($this->isTexmap()) {
-          Storage::disk('library')->copy('official/' . $this->filename, 'unofficial/' . $fname);
-          $p = self::createFromFile(storage_path('app/library/unofficial/' . $fname), $this->user, $newType ?? $this->type, PartRelease::unofficial());
-          foreach ($this->history as $h) {
-            $hist = $h->duplicate();
-            $hist->part_id = $p->id;
-            $hist->save();
-          }
-          PartEvent::createFromType('submit', Auth::user(), $p, null, null, null, true);
+        if (!is_null($this->unofficial_part_id)) return;
+        if (!is_null($newType)) {
+          $newName = $newType->folder . $newName;
         }
         else {
-          $p = new self;
-          $oldName = $this->name();
-          $text = str_replace($this->name(), $name, $this->get());
-          $p->fillFromText($text, false, PartRelease::unofficial());
-          if (!is_null($newType)) $p->type()->associate($newType);
-          $p->filename = $fname;
-          PartHistory::create([
-            'part_id' => $p->id,
-            'user_id' => Auth::user()->id,
-            'comment' => "Moved from $oldName",
-          ]);
-
-          $p->saveHeader();
-          $p->updateImage();
-          PartEvent::createFromType('submit', Auth::user(), $p, null, null, null, true);
-          $mt = self::createMovedTo($this, $p);
+          $newName = $this->type->folder . $newName;
+        } 
+        $upart = self::findUnofficialByName($newName);
+        if (is_null($upart)) {
+          $upart = new self;
+          $upart->fillFromText($this->get(), false, PartRelease::unofficial());
+          if (!is_null($newType)) $upart->type()->associate($newType);
+          $upart->filename = $newName;
+          PartHistory::create(['user_id' => Auth::user()->id, 'comment' => 'Moved from' . $oldname]);
+          $upart->refreshHeader();
+          $upart->save();
+          $upart->updateImage();
+          UpdateZip::dispatch($upart);
         }
-      }  
+        if ($this->type->folder == 'parts/') 
+          self::createMovedTo($this, $upart);
+      }
     }
 
-    public function refreshFromStorage() {
-      if (!$this->isTexmap())
-        $this->fillFromText(FileUtils::cleanFileText($this->get()));
-    }
 }

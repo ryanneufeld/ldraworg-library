@@ -33,16 +33,6 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
-            'permissions' => [
-              'file' => [
-                'public' => 0664,
-                'private' => 0664,
-              ],
-              'dir' => [
-                'public' => 2775,
-                'private' => 2775,
-              ],
-            ],
             'visibility' => 'public',
             'directory_visibility' => 'public',
             'throw' => false,
@@ -58,16 +48,6 @@ return [
         'library' => [
             'driver' => 'local',
             'root' => storage_path('app/library'),
-            'permissions' => [
-              'file' => [
-                'public' => 0664,
-                'private' => 0664,
-              ],
-              'dir' => [
-                'public' => 2775,
-                'private' => 2775,
-              ],
-            ],
             'url' => env('APP_URL').'/library',
             'visibility' => 'public',
             'directory_visibility' => 'public',
@@ -76,22 +56,11 @@ return [
         'images' => [
             'driver' => 'local',
             'root' => storage_path('app/images'),
-            'permissions' => [
-              'file' => [
-                'public' => 0664,
-                'private' => 0664,
-              ],
-              'dir' => [
-                'public' => 2775,
-                'private' => 2775,
-              ],
-            ],
             'url' => env('APP_URL').'/images',
             'visibility' => 'public',
             'directory_visibility' => 'public',
             'throw' => false,
         ],
-
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

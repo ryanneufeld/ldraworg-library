@@ -48,19 +48,29 @@ class OfficialPartController extends Controller
      * @param  \App\Models\Part  $part
      * @return \Illuminate\Http\Response
      */
-    public function show($part, Request $request)
+    public function show(Part $part, Request $request)
     {
-      if (is_numeric($part)) {
-        $p = Part::find($part);
+      if ($part->isUnofficial() && !is_null($part->official_part_id)) {
+        $part = Part::find($part->official_part_id);
+      }
+      elseif ($part->isUnofficial() && is_null($part->official_part_id)) {
+        abort(404);
+      } 
+      
+      $part->load('events','history','subparts','parents');
+      return view('official.show',[
+        'part' => $part, 
+     ]);
+    }
+
+    public function download(Part $part) {
+      if ($part->isTexmap()) {
+        $header = ['Content-Type' => 'image/png'];
       }
       else {
-        $p = Part::findOfficialByName($part);
+        $header = ['Content-Type' => 'text/plain'];
       }
-      if (!isset($p)) abort(404);
-
-      return view('official.show',[
-        'part' => $p->load('events','history','subparts','parents'), 
-     ]);
+      return response()->streamDownload(function() use ($part) { echo $part->get(); }, basename($part->filename), $header);
     }
 
     /**

@@ -7,14 +7,17 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\Part;
+use App\LDraw\LibraryOperations;
 
 class RenderFile implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     
-    private $part;
+    private Part $part;
     /**
      * Create a new job instance.
      *
@@ -32,16 +35,27 @@ class RenderFile implements ShouldQueue
      */
     public function handle()
     {
+      $renderdisk = config('ldraw.ldview.dir.render.disk');
+      $renderpath = config('ldraw.ldview.dir.render.path');
+      $renderfullpath = realpath(config("filesystems.disks.$renderdisk.root") . '/' . $renderpath);
+      $officialimagedisk = config('ldraw.ldview.dir.image.official.disk');
+      $officialimagepath = config('ldraw.ldview.dir.image.official.path');
+      $officialimagefullpath = realpath(config("filesystems.disks.$officialimagedisk.root") . '/' . $officialimagepath);
+      $unofficialimagedisk = config('ldraw.ldview.dir.image.unofficial.disk');
+      $unofficialimagepath = config('ldraw.ldview.dir.image.unofficial.path');
+      $unofficialimagefullpath = realpath(config("filesystems.disks.$unofficialimagedisk.root") . '/' . $unofficialimagepath);
+
+      $file = $renderpath . '/' . basename($this->part->filename);
+      Storage::disk($renderdisk)->put($file, $this->part->get());
+      $filepath = Storage::disk($renderdisk)->path($file);
       if ($this->part->isTexmap()) {
         $tw = config('ldraw.image.thumb.width');
         $th = config('ldraw.image.thumb.height');
         if ($this->part->isUnofficial()) {
-          $filepath = storage_path('app/library/unofficial/') . $this->part->filename;
-          $thumbpngfile = config('ldraw.unofficialimagedir') . '/' . substr($this->part->filename, 0, -4) . '_thumb.png';        
+          $thumbpngfile = $unofficialimagefullpath . '/' . substr($this->part->filename, 0, -4) . '_thumb.png';        
         }
         else {
-          $filepath = storage_path('app/library/official/') . $this->part->filename;
-          $thumbpngfile = config('ldraw.officialimagedir') . '/' . substr($this->part->filename, 0, -4) . '_thumb.png';        
+          $thumbpngfile = $officialimagefullpath . '/' . substr($this->part->filename, 0, -4) . '_thumb.png';        
         }
         list($width, $height) = getimagesize($filepath);
         $r = $width / $height;
@@ -57,47 +71,46 @@ class RenderFile implements ShouldQueue
         imagepng($png, $thumbpngfile);
         exec("optipng $filepath");
         exec("optipng $thumbpngfile");
+        $this->part->body->body = base64_encode(Storage::disk($renderdisk)->get($file));
+        $this->part->body->save();
+        Storage::disk($renderdisk)->delete($file);
       }
       else {
+        $parts = new Collection;
+        LibraryOperations::dependencies($this->part, $parts, $this->part->isUnofficial());
+        $parts = $parts->diff(new Collection([$this->part]));
+        foreach ($parts as $p) {
+          Storage::disk($renderdisk)->put($renderpath . '/ldraw/' . $p->filename, $p->get());
+        }
+
         if ($this->part->isUnofficial()) {
-          $filepath = config('ldraw.unofficialdir') . '/' . $this->part->filename;
-          $pngfile = config('ldraw.unofficialimagedir') . '/' . substr($this->part->filename, 0, -4) . '.png';
-          $ldrawdir = config('ldraw.unofficialdir');
-          if (file_exists($ldrawdir . '/LDConfig.ldr')) {
-            $ldconfig = $ldrawdir . '/LDConfig.ldr';
-          }
-          else {
-            $ldconfig = config('ldraw.officialdir') . '/LDConfig.ldr';
-          }  
-          $ex001 = config('ldraw.officialdir') . '/parts';
-          $ex002 = config('ldraw.officialdir') . '/p';
+          $pngfile = $unofficialimagefullpath . '/' . substr($this->part->filename, 0, -4) . '.png';
         }
         else {
-          $filepath = config('ldraw.officialdir') . '/' . $this->part->filename;
-          $pngfile = config('ldraw.officialimagedir') . '/' . substr($this->part->filename, 0, -4) . '.png';
-          $ldrawdir = config('ldraw.officialdir');
-          $ldconfig = $ldrawdir . '/LDConfig.ldr'; 
-          $ex001 = config('ldraw.unofficialdir') . '/parts';
-          $ex002 = config('ldraw.unofficialdir') . '/p';
+          $pngfile = $officialimagefullpath . '/' . substr($this->part->filename, 0, -4) . '.png';
         }
         
-        $ldview = config('ldraw.ldview');
+        $ldrawdir = $renderfullpath . '/ldraw';
+        $ldconfig = realpath(config('filesystems.disks.library.root') . '/official/LDConfig.ldr');
+        $ldview = config('ldraw.ldview.path');
   
         $normal_size = "-SaveWidth=" . config('ldraw.image.normal.width') . " -SaveHeight=" . config('ldraw.image.normal.height');
         $thumb_size = "-SaveWidth=" . config('ldraw.image.thumb.width') . " -SaveHeight=" . config('ldraw.image.thumb.height');
         $thumbfile = substr($pngfile, 0, -4) . '_thumb.png';
         
         $cmds = '';
-        foreach(config('ldraw.ldview_commands') as $command => $value) {
+        foreach(config('ldraw.ldview.commands') as $command => $value) {
           $cmds .= " -$command=$value";
         }  
         
-        $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir -ExtraSearchDirs/Dir001=$ex001 -ExtraSearchDirs/Dir002=$ex002 $cmds $normal_size -SaveSnapshot=$pngfile";
+        $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir $cmds $normal_size -SaveSnapshot=$pngfile";
         exec($ldviewcmd);
         exec("optipng $pngfile");
-        $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir -ExtraSearchDirs/Dir001=$ex001 -ExtraSearchDirs/Dir002=$ex002 $cmds $thumb_size -SaveSnapshot=$thumbfile";
+        $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir $cmds $thumb_size -SaveSnapshot=$thumbfile";
         exec($ldviewcmd);
         exec("optipng $thumbfile");
+        Storage::disk($renderdisk)->deleteDirectory("$renderpath/ldraw");
+        Storage::disk($renderdisk)->delete($file);
       }
 
    }

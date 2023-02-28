@@ -14,8 +14,8 @@
   </div>      
   <div class="ui right floated center aligned compact unofficial detail-img segment">
     @if ($part->isTexmap())
-    <a class="ui part-img image" href="{{asset('library/unofficial/' . $part->filename)}}">
-      <img src="{{asset('library/unofficial/' . $part->filename)}}" alt='part image' title="{{ $part->description }}" >
+    <a class="ui image" href="{{route('unofficial.download', $part->filename)}}">
+      <img src="{{route('unofficial.download', $part->filename)}}" alt='part image' title="{{ $part->description }}" >
     </a>
     @else
     <a class="ui part-img image" href="{{asset('images/library/unofficial/' . substr($part->filename, 0, -4) . '.png')}}">

@@ -4,17 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 
 use App\Models\Parts;
-use App\Models\PartHistory;
-use App\Models\User;
 
 class PartRelease extends Model
 {
     use HasFactory;
     
     protected $fillable = ['name', 'short', 'notes', 'created_at'];
-    
+
+    protected $casts = [
+      'part_list' => AsArrayObject::class,
+    ];
+
     public function parts() {
       return $this->hasMany(Parts::class);
     }

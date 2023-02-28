@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
+use App\Models\Part;
+
 class RouteServiceProvider extends ServiceProvider
 {
     /**
@@ -26,16 +28,24 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->configureRateLimiting();
+      $this->configureRateLimiting();
 
-        $this->routes(function () {
-            Route::middleware('api')
-                ->prefix('api')
-                ->group(base_path('routes/api.php'));
+      $this->routes(function () {
+          Route::middleware('api')
+              ->prefix('api')
+              ->group(base_path('routes/api.php'));
 
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
-        });
+          Route::middleware('web')
+              ->group(base_path('routes/web.php'));
+      });
+      Route::pattern('officialpart', '[a-z0-9_/-]+(\.dat|\.png)');
+      Route::pattern('unofficialpart', '[a-z0-9_/-]+(\.dat|\.png)');
+      Route::bind('officialpart', function ($value) {
+        return Part::official()->where('filename', $value)->firstOrFail();
+      });
+      Route::bind('unofficialpart', function ($value) {
+        return Part::unofficial()->where('filename', $value)->firstOrFail();
+      });
     }
 
     /**

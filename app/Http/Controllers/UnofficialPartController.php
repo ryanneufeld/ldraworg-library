@@ -50,11 +50,14 @@ class UnofficialPartController extends Controller
         orderBy('part_type_id')->
         orderBy('filename')->
         lazy();
+
+      $summary = Part::whereRelation('release','short','unof')->pluck('vote_sort')->countBy()->all();
       return view('tracker.list',[
         'parts' => $parts,
         'subset' => $subset,
         'users' => $users,
         'part_types' => $part_types,
+        'summary' => $summary,
       ]);
     }
 
@@ -93,19 +96,29 @@ class UnofficialPartController extends Controller
      * @param  \App\Models\Part  $part
      * @return \Illuminate\Http\Response
      */
-    public function show($part)
+    public function show(Part $part)
     {
-      if (is_numeric($part)) {
-        $p = Part::find($part);
+      if (!$part->isUnofficial() && !is_null($part->unofficial_part_id)) {
+        $part = Part::find($part->unofficial_part_id);
+      }
+      elseif (!$part->isUnofficial() && is_null($part->unofficial_part_id)) {
+        abort(404);
+      } 
+      
+      $part->load('events','history','subparts','parents');
+      return view('tracker.show',[
+        'part' => $part, 
+     ]);
+    }
+
+    public function download(Part $part) {
+      if ($part->isTexmap()) {
+        $header = ['Content-Type' => 'image/png'];
       }
       else {
-        $p = Part::findUnofficialByName($part);
+        $header = ['Content-Type' => 'text/plain'];
       }
-      if (!isset($p)) abort(404);
-      $p->load('events','history','subparts','parents');
-      return view('tracker.show',[
-        'part' => $p, 
-     ]);
+      return response()->streamDownload(function() use ($part) { echo $part->get(); }, basename($part->filename), $header);
     }
 
     /**

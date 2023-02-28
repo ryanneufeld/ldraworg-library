@@ -19,7 +19,7 @@
        <div class="ui list">
        <div class="item">
          <div class="header">
-           <a href="">Preview Parts in Update</a>
+           <a href="{{route('release.view', $release)}}">Preview Parts in Update</a>
          </div>
          <div class="description">
            (graphics-intensive page)
@@ -27,7 +27,7 @@
        </div>
        <div class="item">
          <div class="header">
-           <a href="">Download .exe</a>
+           {{--<a href="{{asset('library/updates/lcad' . $release->short . '.exe')}}">--}}Download .exe{{--</a>--}}
          </div>
          <div class="description">
            Use this link to download the Windows installer for the complete library.
@@ -35,7 +35,7 @@
        </div>
        <div class="item">
          <div class="header">
-           <a href="">Download lcad{{$release->short}}.zip</a>
+           <a href="{{asset('library/updates/lcad' . $release->short . '.zip')}}">Download lcad{{$release->short}}.zip</a>
          </div>
          <div class="description">
            Use this link if you just want a zip version of the update.
@@ -44,7 +44,7 @@
        @if ($current)
        <div class="item">
          <div class="header">
-           <a href="http://www.ldraw.org/library/updates/complete.zip">Download complete.zip</a>
+           <a href="{{asset('library/updates/complete.zip')}}">Download complete.zip</a>
          </div>
          <div class="description">
            Use this link if you want a zip version of the entire parts library.

@@ -5,7 +5,7 @@ namespace App\LDraw;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Mail;
+
 
 use App\Models\Part;
 use App\Models\PartType;
@@ -49,6 +49,7 @@ class LibraryOperations {
             }
             else {
               $upart->body->body = base64_encode(Storage::disk('library')->get('tmp/' . $filename));
+              $upart->body->save();
             }            
             $upart->put(Storage::disk('library')->get('tmp/' . $filename));
           }
@@ -92,7 +93,7 @@ class LibraryOperations {
       PartEvent::createFromType('submit', $user, $upart, $comment, null, null, $init_submit);        
 
       $parts->add($upart);
-      UpdateZip::dispatch($upart->filename, base64_encode($upart->get()));
+      UpdateZip::dispatch($upart);
       
       Storage::disk('library')->delete('tmp/' . $filename);
     }
@@ -117,5 +118,58 @@ class LibraryOperations {
       })->pluck('id');
       $user->notification_parts()->sync($parts);
     }
+  }
+
+  public static function makeMPD(Part $part, bool $unOfficialPriority = false): string {
+    $parts = new Collection;
+    self::dependencies($part, $parts, $unOfficialPriority);
+    $parts = $parts->diff(new Collection([$part]));
+    if ($part->isTexmap()) {
+      $model = $part->getFileText();
+    }
+    else {
+      $model = "0 FILE " . $part->name() . "\r\n" . $part->getFileText();
+    }  
+    foreach ($parts as $p) {
+      if ($p->isTexmap()) {
+        $model .= "\r\n" . $p->getFileText();
+      }
+      else {
+        $model .= "\r\n0 FILE " . $p->name() . "\r\n" . $p->getFileText();
+      }  
+    }
+    return $model;
+  }
+
+  public static function dependencies(Part $part, Collection $parts, bool $unOfficialPriority = false): void {
+    if(!$parts->contains($part)) {
+      $parts->add($part);
+    }
+    foreach ($part->subparts as $spart) {
+      if ($unOfficialPriority && !$spart->isUnofficial() && !is_null($spart->unofficial_part_id)) {
+        self::dependencies(Part::find($spart->unofficial_part_id), $parts, $unOfficialPriority);
+      }
+      else {
+        self::dependencies($spart, $parts, $unOfficialPriority);
+      }
+    }
+  }
+  
+  public static function baselineComplete() {
+    $zip = new \ZipArchive;
+    $zip->open(storage_path('app/library/updates/completeBase.zip'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+    $zip->close();
+    Part::official()->chunk(1000, function (Collection $parts) use ($zip) {
+      $zip->open(storage_path('app/library/updates/completeBase.zip'));
+      foreach($parts as $part) {
+        $zip->addFromString('ldraw/' . $part->filename, $part->get());
+      }
+      $zip->close();
+    });
+    $zip->open(storage_path('app/library/updates/completeBase.zip'));
+    foreach (Storage::disk('library')->allFiles('official') as $filename) {
+      $zip->addFromString('ldraw/' . str_replace('official/', '', $filename), Storage::disk('library')->get($filename));
+    }
+    $zip->close();
   }
 }

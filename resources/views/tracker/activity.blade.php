@@ -1,7 +1,7 @@
 <x-layout.main>
   <x-slot name="title">Recent Activity</x-slot>
-    <div class="ui right floated right aligned basic segment">
-    Server Time: {{date('r')}}<br/>
+  <div class="ui right floated right aligned basic segment">
+    Server Time: {{date('Y-m-d H:i:s')}}<br/>
     <x-part.unofficial-count :summary="$summary"/>
   </div>
 
@@ -34,6 +34,9 @@
     </thead>
     <tbody>
       @foreach($events as $event)
+      @empty($event->part)
+      {{dd($event)}}
+      @endempty
       <tr>
         <td class="center aligned">
           <x-event.icon :event="$event"/>

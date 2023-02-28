@@ -1,9 +1,9 @@
 @props(['part'])
 <div class="ui compact stackable menu">
   @if($part->isUnofficial())
-  <a class="item" title="Get a copy of the file" href="/library/unofficial/{{$part->filename}}">
+  <a class="item" title="Get a copy of the file" href="{{route('unofficial.download', $part->filename)}}">
   @else
-  <a class="item" title="Get a copy of the file" href="/library/official/{{$part->filename}}">
+  <a class="item" title="Get a copy of the file" href="{{route('official.download', $part->filename)}}">
   @endif
     Download
   </a>  

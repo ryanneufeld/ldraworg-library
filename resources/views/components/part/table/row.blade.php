@@ -23,9 +23,9 @@
     @if($part->description == 'Missing')
      &nbsp;
     @elseif($part->isUnofficial())
-    <a href="/library/unofficial/{{$part->filename}}">[DAT]</a>
+    <a href="{{route('unofficial.download', $part->filename)}}">[DAT]</a>
     @else
-    <a href="/library/official/{{$part->filename}}">[DAT]</a>
+    <a href="{{route('official.download', $part->filename)}}">[DAT]</a>
     @endif
   </td>
   <td>
