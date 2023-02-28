@@ -288,25 +288,22 @@ class Part extends Model
     }
 
     public function releasable(): bool {
-      // Is not certified
-      if ($this->vote_sort !== 1) {
-        return false;
-      } 
-      // Is a part or shorcut and certified
-      if (($this->type->type == "Part" || $this->type->type == "Shortcut")) {
-        return $this->vote_sort === 1;
-      }
-      // Has at least one releaseable Part or Shortcut in the parent chain
-      elseif ($this->parents->count() > 0) {
-        foreach($this->parents as $parent) {
-          if ($parent->releasable() || $parent->release->short <> 'unof') return true;
+      // Already official
+      if (!$this->isUnofficial()) return true;
+      
+      if ($this->vote_sort == 1) {
+        // Part, Shortcut, or part fix
+        if ($this->type->type == "Part" || $this->type->type == "Shortcut" || !is_null($this->official_part_id)) {
+          return true;
         }
-        return false;
+        // Has a releasable part in the part chain
+        elseif ($this->parents->count() > 0) {
+          foreach($this->parents as $parent) {
+            if ($parent->releasable()) return true;
+          }
+        }
       }
-      // Otherwise not releaseable
-      else {
-        return false;
-      }
+      return false;
     }
   
     public function makeOfficial(PartRelease $release = null): void {

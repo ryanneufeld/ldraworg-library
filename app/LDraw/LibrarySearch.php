@@ -20,7 +20,7 @@ class LibrarySearch {
     $search = '(?=.*' . implode(')(?=.*', $regterms) . ')';
     $pattern = "#{$search}#iu";
 
-    if ($scope == 'file') {
+    if ($scope == 'files') {
       $dirs = 'parts/*.dat parts/s/*.dat p/*.dat p/8/*.dat p/48/*.dat';
       $libdir = storage_path('app/library/');
       $search = str_replace("'", "'\''", $search);
@@ -30,14 +30,19 @@ class LibrarySearch {
       $oparts = Part::official()->whereIn('filename', $of)->orderBy('filename')->lazy();
     }
     else {
+
       $ids = ['u' => [], 'o' => []];
       foreach(['u', 'o'] as $r) {
         $p = $r == 'u' ? Part::unofficial() : Part::official();
-        $parts = $p->pluck($scope, 'id');
+        $s = $scope == 'file' ? 'header' : $scope;
+        $parts = $p->pluck($s, 'id');
         if ($scope == 'description') {
           $desc = $parts;
           $parts = $p->pluck('filename', 'id');
-        }  
+        }
+        if ($scope == 'file') {
+          $bodies = $p->get()->load('body')->pluck('body.body', 'id');
+        }
         foreach($parts as $id => $pt) {
           switch ($scope) {
             case 'filename':
@@ -48,6 +53,9 @@ class LibrarySearch {
               break;
             case 'header':
               $term = $pt;
+              break;
+            case 'file':
+              $term = $pt . "\n" . $bodies[$id];
               break;
           }
           if (preg_match($pattern, $term, $matches)) $ids[$r][] = $id;
