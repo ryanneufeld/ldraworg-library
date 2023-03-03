@@ -7,9 +7,22 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Models\Part;
 use App\Models\PartRelease;
 
-class LibraryOperations {
-  public static function unofficialZip(Part $part) {
-
+class ZipFiles {
+  public static function unofficialZip(Part $part, string $oldfilename = null) {
+    $zip = new \ZipArchive;
+    if (Storage::disk('library')->exists('unofficial/ldrawunf.zip')) {
+      $zip->open(Storage::disk('library')->path('unofficial/ldrawunf.zip'));
+      if (!is_null($oldfilename)) $zip->deleteName($oldfilename);
+      $zip->addFromString($part->filename, $part->get());
+      $zip->close();        
+    }
+    else {
+      $zip->open(Storage::disk('library')->path('unofficial/ldrawunf.zip'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+      Part::unofficial()->each(function (Part $part) use ($zip) {
+        $zip->addFromString($part->filename, $part->get());
+      });        
+      $zip->close();
+    }
   }
 
   public static function releaseZip(PartRelease $release, array $newSupportFiles) {

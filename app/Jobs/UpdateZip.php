@@ -10,6 +10,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
 use App\Models\Part;
+use App\LDraw\ZipFiles;
 
 class UpdateZip implements ShouldQueue
 {
@@ -35,19 +36,6 @@ class UpdateZip implements ShouldQueue
      */
     public function handle()
     {
-      $zip = new \ZipArchive;
-      if (Storage::disk('library')->exists('unofficial/ldrawunf.zip')) {
-        $zip->open(Storage::disk('library')->path('unofficial/ldrawunf.zip'));
-        if (!is_null($this->oldfilename)) $zip->deleteName($this->oldfilename);
-        $zip->addFromString($this->part->filename, $this->part->get());
-        $zip->close();        
-      }
-      else {
-        $zip->open(Storage::disk('library')->path('unofficial/ldrawunf.zip'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        Part::unofficial()->each(function (Part $part) use ($zip) {
-          $zip->addFromString($part->filename, $part->get());
-        });        
-        $zip->close();
-      }
+      ZipFiles::unofficialZip($this->part, $this->oldfilename);
     }
 }

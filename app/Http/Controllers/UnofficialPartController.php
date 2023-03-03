@@ -153,7 +153,7 @@ class UnofficialPartController extends Controller
         // Post an event
         PartEvent::createFromType('edit', Auth::user(), $part);
         Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
-        UpdateZip::dispatch($part->filename, $part->get());
+        UpdateZip::dispatch($part);
       }        
       return redirect()->route('tracker.show', [$part])->with('status','Header update successful');
     }
