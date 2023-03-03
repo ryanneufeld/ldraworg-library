@@ -3,6 +3,19 @@
 // LDraw Config Values
 
 return [
+  'dirs' => [
+    'parts',
+    'parts/s',
+    'parts/textures',
+    'parts/textures/s',
+    'p',
+    'p/48',
+    'p/8',
+    'p/textures/48',
+    'p/textures/8',
+    'parts/h',
+    'parts/textures/h',
+  ],
   'ldview' => [
     'path' => realpath(resource_path('bin/ldview')),
     'dir' => [

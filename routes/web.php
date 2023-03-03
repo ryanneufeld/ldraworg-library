@@ -112,12 +112,14 @@ Route::redirect('/search', '/tracker/search');
 
 Route::prefix('official')->name('official.')->group(function () {
   Route::get('/list', [OfficialPartController::class, 'index'])->name('index');
+/*
   Route::view('/orphans', 'official.list', ['parts' => 
     Part::whereRelation('release','short','<>','unof')->
     whereRelation('type', 'folder', '<>', 'parts/')->
     where('description', 'not like', '%obsolete%')->
     whereDoesntHave('parents')->get()
   ]);
+*/  
   Route::redirect('/search', '/tracker/search');
   // This has to be last
   Route::get('/{officialpart}', [OfficialPartController::class, 'show'])->name('show');

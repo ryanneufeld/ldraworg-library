@@ -11,18 +11,23 @@ use Illuminate\Queue\SerializesModels;
 
 use App\Models\Part;
 
-class UpdateUncertifiedSubparts implements ShouldQueue
+class UpdateUncertifiedSubparts implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $force;
+
+    public $uniqueFor = 3600;
+    public $timeout = 3600;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(bool $force = false)
     {
-      //
+      $this->force = $force;
     }
 
     /**
@@ -32,8 +37,9 @@ class UpdateUncertifiedSubparts implements ShouldQueue
      */
     public function handle()
     {
-      Part::unofficial()->each(function (Part $part) {
-        $part->updateUncertifiedSubpartCount(true);
+      $f = $this->force;
+      Part::unofficial()->each(function (Part $part) use ($f) {
+        $part->updateUncertifiedSubpartCount($f);
       });
     }
 }

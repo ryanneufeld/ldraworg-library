@@ -174,4 +174,102 @@ class LibraryOperations {
     $zip->deleteName('test.txt');
     $zip->close();
   }
+
+  public static function checkOrCreateStandardDirs(string $disk, string $path): void {
+    if (!Storage::disk($disk)->exists($path))
+      Storage::disk($disk)->createDirectory($path);
+    foreach (config('ldraw.dirs') as $dir) {
+      if (!Storage::disk($disk)->exists($path . '/' . $dir))
+        Storage::disk($disk)->createDirectory($path . '/' . $dir);
+      if (!Storage::disk($disk)->exists($path . '/' . $dir))
+        Storage::disk($disk)->createDirectory($path . '/' . $dir);
+    }
+  }
+
+  public static function renderPart(Part $part): void {
+    $renderdisk = config('ldraw.ldview.dir.render.disk');
+    $renderpath = config('ldraw.ldview.dir.render.path');
+    $renderfullpath = realpath(config("filesystems.disks.$renderdisk.root") . '/' . $renderpath);
+    $officialimagedisk = config('ldraw.ldview.dir.image.official.disk');
+    $officialimagepath = config('ldraw.ldview.dir.image.official.path');
+    $officialimagefullpath = realpath(config("filesystems.disks.$officialimagedisk.root") . '/' . $officialimagepath);
+    $unofficialimagedisk = config('ldraw.ldview.dir.image.unofficial.disk');
+    $unofficialimagepath = config('ldraw.ldview.dir.image.unofficial.path');
+    $unofficialimagefullpath = realpath(config("filesystems.disks.$unofficialimagedisk.root") . '/' . $unofficialimagepath);
+
+    // Image saving will fail if these directories do not exist
+    self::checkOrCreateStandardDirs($officialimagedisk, $officialimagepath);
+    self::checkOrCreateStandardDirs($unofficialimagedisk, $unofficialimagepath);
+
+    $file = $renderpath . '/' . basename($part->filename);
+    Storage::disk($renderdisk)->put($file, $part->get());
+    $filepath = Storage::disk($renderdisk)->path($file);
+    if ($part->isTexmap()) {
+      $tw = config('ldraw.image.thumb.width');
+      $th = config('ldraw.image.thumb.height');
+      if ($part->isUnofficial()) {
+        $thumbpngfile = $unofficialimagefullpath . '/' . substr($part->filename, 0, -4) . '_thumb.png';        
+      }
+      else {
+        $thumbpngfile = $officialimagefullpath . '/' . substr($part->filename, 0, -4) . '_thumb.png';        
+      }
+      list($width, $height) = getimagesize($filepath);
+      $r = $width / $height;
+      if ($tw/$th > $r) {
+          $newwidth = $th*$r;
+      } else {
+          $newwidth = $tw;
+      }
+      $png = imagecreatefrompng($filepath);
+      imagealphablending($png, false);
+      $png = imagescale($png, $newwidth);
+      imagesavealpha($png, true);
+      imagepng($png, $thumbpngfile);
+      exec("optipng $filepath");
+      exec("optipng $thumbpngfile");
+      $part->body->body = base64_encode(Storage::disk($renderdisk)->get($file));
+      $part->body->save();
+      Storage::disk($renderdisk)->delete($file);
+    }
+    else {
+      // LDview requires a p and a parts directory even if empty
+      self::checkOrCreateStandardDirs($renderdisk, "$renderpath/ldraw");
+
+      $parts = new Collection;
+      LibraryOperations::dependencies($part, $parts, $part->isUnofficial());
+      $parts = $parts->diff(new Collection([$part]));
+      foreach ($parts as $p) {
+        Storage::disk($renderdisk)->put($renderpath . '/ldraw/' . $p->filename, $p->get());
+      }
+
+      if ($part->isUnofficial()) {
+        $pngfile = $unofficialimagefullpath . '/' . substr($part->filename, 0, -4) . '.png';
+      }
+      else {
+        $pngfile = $officialimagefullpath . '/' . substr($part->filename, 0, -4) . '.png';
+      }
+      
+      $ldrawdir = $renderfullpath . '/ldraw';
+      $ldconfig = realpath(config('filesystems.disks.library.root') . '/official/LDConfig.ldr');
+      $ldview = config('ldraw.ldview.path');
+
+      $normal_size = "-SaveWidth=" . config('ldraw.image.normal.width') . " -SaveHeight=" . config('ldraw.image.normal.height');
+      $thumb_size = "-SaveWidth=" . config('ldraw.image.thumb.width') . " -SaveHeight=" . config('ldraw.image.thumb.height');
+      $thumbfile = substr($pngfile, 0, -4) . '_thumb.png';
+      
+      $cmds = '';
+      foreach(config('ldraw.ldview.commands') as $command => $value) {
+        $cmds .= " -$command=$value";
+      }  
+      
+      $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir $cmds $normal_size -SaveSnapshot=$pngfile";
+      exec($ldviewcmd);
+      exec("optipng $pngfile");
+      $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir $cmds $thumb_size -SaveSnapshot=$thumbfile";
+      exec($ldviewcmd);
+      exec("optipng $thumbfile");
+      Storage::disk($renderdisk)->deleteDirectory("$renderpath/ldraw");
+      Storage::disk($renderdisk)->delete($file);
+    }
+  }
 }

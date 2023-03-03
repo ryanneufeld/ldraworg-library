@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
 
 use App\Models\Part;
 use App\Models\PartType;
@@ -15,6 +16,8 @@ use App\Models\PartHistory;
 
 use App\LDraw\LDrawFileValidate;
 use App\LDraw\FileUtils;
+
+use App\Jobs\MakePartRelease;
 
 class ReleaseController extends Controller
 {
@@ -100,72 +103,15 @@ class ReleaseController extends Controller
   }
 
   protected function doStep3($ids) {
-    $next = PartRelease::next();
-    $note = Storage::disk('library')->get('official/models/Note' . $next['short'] . 'CA.txt');
-    $release = PartRelease::create(['name' => $next['name'], 'short' => $next['short'], 'notes' => $note]);
-    $partslist = [];
-    foreach (Part::whereIn('id', $ids)->lazy() as $part) {
-     // Update release for event released parts
-      PartEvent::whereRelation('release', 'short', 'unof')->where('part_id', $part->id)->update(['part_release_id' => $release->id]);
-
-      // Post a release event     
-      PartEvent::createFromType('release', Auth::user(), $part, 'Release ' . $release->name, null, $release);
-
-      // Add history line
-      PartHistory::create(['user_id' => Auth::user()->id, 'part_id' => $part->id, 'comment' => 'Official Update ' . $release->name]);
-      $part->refreshHeader();
-
-      //Copy images to view summary
-      Storage::disk('images')->copy('library/unofficial/' . substr($part->filename, 0, -4) . '.png', 'library/updates/view' . $release->short . '/' . substr($part->filename, 0, -4) . '.png');
-      Storage::disk('images')->copy('library/unofficial/' . substr($part->filename, 0, -4) . '_thumb.png', 'library/updates/view' . $release->short . '/' . substr($part->filename, 0, -4) . '_thumb.png');
-
-      // Part is an official update
-      if (!is_null($part->official_part_id)) {
-        $opart = Part::find($part->official_part_id);
-        $text = $part->get();
-
-        // Update the official part
-        if ($opart->isTexmap()) {
-          $opart->body->body = $part->get();
-          $opart->body->save();
-          foreach($opart->history() as $h) {
-            $h->delete();
-          }
-          foreach($part->history()->latest()->get() as $h) {
-            PartHistory::create(['created_at' => $h->created_at, 'user_id' => $h->user_id, 'part_id' => $opart->id, 'comment' => $h->comment]);
-          }
-        } 
-        else {
-          $opart->fillFromText($text, false, $release);
-        }
-        $opart->unofficial_part_id = null;
-        $opart->save();
-
-        // Update events with official part id
-        PartEvent::where('part_release_id', $release->id)->where('part_id', $part->id)->update(['part_id' => $opart->id]);
- 
-        $part->delete();
-      }
-      // Part is a new part
-      else {
-        // Make unofficial part official
-        $part->release()->associate($release);
-        $part->notification_users()->sync([]);
-        $part->save();
-
-        // Update parts list
-        if ($part->type->folder == 'parts/')
-          $partslist[] = [$part->description, $part->filename];
-      }
-    }
-    foreach(Part::where('part_release_id', $release->id)->get() as $p) {
-      $p->updateSubparts(true);
-      $p->updateImage(true);
-    }
-    $release->part_list = $partslist;
-    $release->save();
-    Storage::disk('library')->move('updates/staging/lcad'. $release['short'] . '.zip', 'updates/lcad'. $release['short'] . '.zip');
-    Storage::disk('library')->move('updates/staging/complete.zip', 'updates/complete.zip');
+    Bus::chain([
+      new MakePartRelease($ids, Auth::user()),
+      new \App\Jobs\UpdateSubparts(false),
+      new \App\Jobs\UpdateUncertifiedSubparts(true),
+      function () {
+        Part::unofficial()->each( function ($p) { $p->updateImage(); });
+        Part::official()->where('part_release_id', PartRelease::current()->id)->each( function (Part $p) { $p->updateImage(true); });
+      },
+    ])->dispatch();
     return redirect()->route('tracker.activity');
   }
     

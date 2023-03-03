@@ -19,51 +19,34 @@ class LibrarySearch {
     }  
     $search = '(?=.*' . implode(')(?=.*', $regterms) . ')';
     $pattern = "#{$search}#iu";
-
-    if ($scope == 'files') {
-      $dirs = 'parts/*.dat parts/s/*.dat p/*.dat p/8/*.dat p/48/*.dat';
-      $libdir = storage_path('app/library/');
-      $search = str_replace("'", "'\''", $search);
-      exec("cd $libdir/official && grep -liP '" . $search . "' $dirs", $of);
-      exec("cd $libdir/unofficial && grep -liP '" . $search . "' $dirs", $uf);
-      $uparts = Part::unofficial()->whereIn('filename', $uf)->orderBy('filename')->lazy();
-      $oparts = Part::official()->whereIn('filename', $of)->orderBy('filename')->lazy();
-    }
-    else {
-
-      $ids = ['u' => [], 'o' => []];
-      foreach(['u', 'o'] as $r) {
-        $p = $r == 'u' ? Part::unofficial() : Part::official();
-        $s = $scope == 'file' ? 'header' : $scope;
-        $parts = $p->pluck($s, 'id');
-        if ($scope == 'description') {
-          $desc = $parts;
-          $parts = $p->pluck('filename', 'id');
-        }
-        if ($scope == 'file') {
-          $bodies = $p->get()->load('body')->pluck('body.body', 'id');
-        }
-        foreach($parts as $id => $pt) {
+    $ids = ['u' => [], 'o' => []];
+    foreach(['u', 'o'] as $r) {
+      $p = $r == 'u' ? Part::unofficial() : Part::official();
+      $p->chunk('1000', function (\Illuminate\Database\Eloquent\Collection $pts) use ($r, &$ids, $scope, $pattern) {
+        foreach($pts as $part) {
           switch ($scope) {
             case 'filename':
-              $term = basename($pt);
+              $term = basename($part->filename);
               break;
             case 'description':
-              $term = basename($pt) . ' ' . $desc[$id];
+              $term = basename($part->filename) . ' ' . $part->description;
               break;
             case 'header':
-              $term = $pt;
+              $term = $part->header;
               break;
             case 'file':
-              $term = $pt . "\n" . $bodies[$id];
+              $term = $part->isTexmap() ? $part->header : $part->get();
               break;
           }
-          if (preg_match($pattern, $term, $matches)) $ids[$r][] = $id;
-        }
-      }
-      $uparts = Part::whereIn('id', $ids['u'])->orderBy('filename')->lazy();
-      $oparts = Part::whereIn('id', $ids['o'])->orderBy('filename')->lazy();
+          if (preg_match($pattern, $term, $matches)) {
+            $ids[$r][] = $part->id;
+          }
+        }         
+      });
     }
+    $uparts = Part::whereIn('id', $ids['u'])->orderBy('filename')->lazy();
+    $oparts = Part::whereIn('id', $ids['o'])->orderBy('filename')->lazy();
+
     if ($json == true) {
       $results = ['results' => [
           'oparts' => ['name' => "Official\nParts", 'results' => []],
