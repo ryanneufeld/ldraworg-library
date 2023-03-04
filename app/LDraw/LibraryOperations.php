@@ -177,12 +177,12 @@ class LibraryOperations {
 
   public static function checkOrCreateStandardDirs(string $disk, string $path): void {
     if (!Storage::disk($disk)->exists($path))
-      Storage::disk($disk)->createDirectory($path);
+      Storage::disk($disk)->makeDirectory($path);
     foreach (config('ldraw.dirs') as $dir) {
       if (!Storage::disk($disk)->exists($path . '/' . $dir))
-        Storage::disk($disk)->createDirectory($path . '/' . $dir);
+        Storage::disk($disk)->makeDirectory($path . '/' . $dir);
       if (!Storage::disk($disk)->exists($path . '/' . $dir))
-        Storage::disk($disk)->createDirectory($path . '/' . $dir);
+        Storage::disk($disk)->makeDirectory($path . '/' . $dir);
     }
   }
 
@@ -272,4 +272,15 @@ class LibraryOperations {
       Storage::disk($renderdisk)->delete($file);
     }
   }
+  
+  public static function getAllParentIds($part, &$parents, $unofficialOnly = false) {
+    if (empty($parents)) $parents = [];
+    foreach($part->parents as $parent) {
+      if ($unofficialOnly && !$parent->idUnofficial()) continue;
+      if (!in_array($parent->id, $parents))
+        $parents[] = $parent->id;
+      self::getAllParentIds($parent, $parents, $unofficialOnly);
+    }
+  }
+
 }
