@@ -1,11 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 
-use App\Http\Controllers\UnofficialPartController;
-use App\Http\Controllers\OfficialPartController;
+use App\Http\Controllers\PartController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\PartEventController;
 use App\Http\Controllers\SearchController;
@@ -52,19 +49,19 @@ Route::get('/ldbi/{part}/parts', function (Part $part) {
 Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::view('/', 'tracker.main', ['summary' => null/*Part::whereRelation('release','short','unof')->pluck('vote_sort')->countBy()->all()*/])->name('main');
 
-  Route::get('/submit', [UnofficialPartController::class, 'create'])->name('submit');
-  Route::post('/submit', [UnofficialPartController::class, 'store'])->name('store');
+  Route::get('/submit', [PartController::class, 'create'])->name('submit');
+  Route::post('/submit', [PartController::class, 'store'])->name('store');
 
-  Route::get('/list', [UnofficialPartController::class, 'index'])->name('index');
-  Route::get('/weekly', [UnofficialPartController::class, 'weekly'])->name('weekly');
+  Route::get('/list', [PartController::class, 'index'])->name('index');
+  Route::get('/weekly', [PartController::class, 'weekly'])->name('weekly');
 
-  Route::get('/{part}/edit', [UnofficialPartController::class, 'editheader'])->name('editheader');
-  Route::put('/{part}/edit', [UnofficialPartController::class, 'doeditheader'])->name('doeditheader');
+  Route::get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
+  Route::put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
 
-  Route::get('/{part}/move', [UnofficialPartController::class, 'move'])->name('move');
-  Route::put('/{part}/move', [UnofficialPartController::class, 'domove'])->name('domove');
+  Route::get('/{part}/move', [PartController::class, 'move'])->name('move');
+  Route::put('/{part}/move', [PartController::class, 'domove'])->name('domove');
 
-  Route::delete('/{part}/delete', [UnofficialPartController::class, 'domove'])->name('destroy');
+  Route::delete('/{part}/delete', [PartController::class, 'domove'])->name('destroy');
 
   Route::get('/search', [SearchController::class, 'partsearch'])->name('search');
   Route::get('/suffixsearch', [SearchController::class, 'suffixsearch'])->name('suffixsearch');
@@ -78,9 +75,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::middleware(['auth'])->match(['get', 'post'], '/release/create/{step?}', [ReleaseController::class, 'create'])->name('release.create');
   
-  // These have to be last
-  Route::get('/{unofficialpart}', [UnofficialPartController::class, 'show'])->name('show');
-  Route::get('/{part}', [UnofficialPartController::class, 'show'])->name('show');
+  Route::get('/{unofficialpart}', [PartController::class, 'show'])->name('show.filename');
+  Route::get('/{part}', [PartController::class, 'show'])->name('show');
 });
 
 /*
@@ -111,21 +107,12 @@ Route::get('/updates/view{release:short}', [ReleaseController::class, 'view'])->
 Route::redirect('/search', '/tracker/search');
 
 Route::prefix('official')->name('official.')->group(function () {
-  Route::get('/list', [OfficialPartController::class, 'index'])->name('index');
-/*
-  Route::view('/orphans', 'official.list', ['parts' => 
-    Part::whereRelation('release','short','<>','unof')->
-    whereRelation('type', 'folder', '<>', 'parts/')->
-    where('description', 'not like', '%obsolete%')->
-    whereDoesntHave('parents')->get()
-  ]);
-*/  
   Route::redirect('/search', '/tracker/search');
-  // This has to be last
-  Route::get('/{officialpart}', [OfficialPartController::class, 'show'])->name('show');
-  Route::get('/{part}', [OfficialPartController::class, 'show'])->name('show');
+  Route::get('/list', [PartController::class, 'index'])->name('index');
+  Route::get('/{officialpart}', [PartController::class, 'show'])->name('show.filename');
+  Route::get('/{part}', [PartController::class, 'show'])->name('show');
 });
 
-Route::get('/library/official/ldraw/{officialpart}', [OfficialPartController::class, 'download'])->name('official.download');
-Route::get('/library/unofficial/{unofficialpart}', [UnofficialPartController::class, 'download'])->name('unofficial.download');
+Route::get('/library/official/ldraw/{officialpart}', [PartController::class, 'download'])->name('official.download');
+Route::get('/library/unofficial/{unofficialpart}', [PartController::class, 'download'])->name('unofficial.download');
 
