@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,7 +14,7 @@ use App\Models\Part;
 
 class UpdateUncertifiedSubparts implements ShouldQueue, ShouldBeUnique
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $force;
 
@@ -37,6 +38,9 @@ class UpdateUncertifiedSubparts implements ShouldQueue, ShouldBeUnique
      */
     public function handle()
     {
+      if (!empty($this->batch()->id) && $this->batch()->cancelled()) {
+         return;
+      }
       $f = $this->force;
       Part::unofficial()->each(function (Part $part) use ($f) {
         $part->updateUncertifiedSubpartCount($f);

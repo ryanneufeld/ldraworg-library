@@ -25,26 +25,43 @@ class ZipFiles {
     }
   }
 
-  public static function releaseZip(PartRelease $release, array $newSupportFiles) {
+  public static function releaseZip() {
+    $release = PartRelease::current();
+    $sdisk = config('ldraw.staging_dir.disk');
+    $spath = config('ldraw.staging_dir.path');
+    if (!Storage::disk($sdisk)->exists($spath))
+      Storage::disk($sdisk)->makeDirectory($spath);
+    $sfullpath = realpath(config("filesystems.disks.$sdisk.root") . "/$spath");
+    $uzipname = "$sfullpath/lcad{$release->short}.zip";
+    $zipname = "$sfullpath/complete.zip";
     $uzip = new \ZipArchive;
-    $uzip->open(storage_path('app/library/updates/staging/lcad'. $release->short . '.zip'), \ZipArchive::CREATE);
+    $uzip->open($uzipname, \ZipArchive::CREATE);
 
     $zip = new \ZipArchive;
-    $zip->open(storage_path('app/library/updates/staging/complete.zip'), \ZipArchive::CREATE);
+    $zip->open($zipname, \ZipArchive::CREATE);
 
     foreach (Storage::disk('library')->allFiles('official') as $filename) {
       $zipfilename = str_replace('official/', '', $filename);
       $content = Storage::disk('library')->get($filename);
       $zip->addFromString('ldraw/' . $zipfilename, $content);
-      if (in_array($zipfilename, $newSupportFiles))
-        $uzip->addFromString('ldraw/' . $zipfilename, $content);
+    }
+    $zip->close();
+
+    $zip->open($zipname);
+    foreach (Storage::disk($sdisk)->allFiles("$spath/ldraw") as $filename) {
+      $zipfilename = str_replace("$spath/", '', $filename);
+      $content = Storage::disk($sdisk)->get($filename);
+      $uzip->addFromString($zipfilename, $content);
+      if ($zip->getFromName($zipfilename) !== false)
+        $zip->deleteName($zipfilename);
+      $zip->addFromString($zipfilename, $content);
     }
     $zip->close();
 
     // This has to be chunked because php doesn't write the file to disk immediately
     // Trying to hold the entire library in memory will cause an OOM error
-    Part::official()->chunk(500, function (Collection $parts) use ($zip, $uzip, $release) {
-      $zip->open(storage_path('app/library/updates/staging/complete.zip'));
+    Part::official()->chunk(500, function (Collection $parts) use ($zip, $zipname, $uzip, $release) {
+      $zip->open($zipname);
       foreach($parts as $part) {
         $content = $part->get();
         $zip->addFromString('ldraw/' . $part->filename, $content);
@@ -53,5 +70,9 @@ class ZipFiles {
       }
       $zip->close();
     });
+    $uzip->close();
+    Storage::disk('library')->copy('updates/complete.zip', "updates/complete-{$release->short}.zip");
+    Storage::disk('library')->writeStream("updates/lcad{$release->short}.zip", Storage::disk($sdisk)->readStream("$spath/lcad{$release->short}.zip"));
+    Storage::disk('library')->writeStream("updates/complete.zip", Storage::disk($sdisk)->readStream("$spath/complete.zip"));
   }
 }

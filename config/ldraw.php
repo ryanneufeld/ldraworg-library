@@ -16,6 +16,10 @@ return [
     'parts/h',
     'parts/textures/h',
   ],
+  'staging_dir' => [
+    'disk' => 'local',
+    'path' => 'tmp'
+  ],
   'ldview' => [
     'path' => realpath(resource_path('bin/ldview')),
     'dir' => [

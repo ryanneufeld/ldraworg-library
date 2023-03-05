@@ -276,7 +276,7 @@ class LibraryOperations {
   public static function getAllParentIds($part, &$parents, $unofficialOnly = false) {
     if (empty($parents)) $parents = [];
     foreach($part->parents as $parent) {
-      if ($unofficialOnly && !$parent->idUnofficial()) continue;
+      if ($unofficialOnly && !$parent->isUnofficial()) continue;
       if (!in_array($parent->id, $parents))
         $parents[] = $parent->id;
       self::getAllParentIds($parent, $parents, $unofficialOnly);
