@@ -56,13 +56,11 @@ class PartController extends Controller
           orderBy('filename')->
           lazy();
   
-        $summary = Part::whereRelation('release','short','unof')->pluck('vote_sort')->countBy()->all();
         return view('tracker.list',[
           'parts' => $parts,
           'subset' => $subset,
           'users' => $users,
           'part_types' => $part_types,
-          'summary' => $summary,
         ]);  
       }
     }

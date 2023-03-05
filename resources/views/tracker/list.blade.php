@@ -2,7 +2,7 @@
   <x-slot name="title">Unofficial Part List</x-slot>
   <div class="ui right floated right aligned basic segment">
     Server Time: {{date('Y-m-d H:i:s')}}<br/>
-    <x-part.unofficial-count :summary="$summary"/>
+    <x-part.unofficial-part-count />
   </div>
   <form class="ui form" action="" method="GET">
     <div class="four fields">

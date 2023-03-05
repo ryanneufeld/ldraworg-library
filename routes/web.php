@@ -47,7 +47,7 @@ Route::get('/ldbi/{part}/parts', function (Part $part) {
 });
 
 Route::prefix('tracker')->name('tracker.')->group(function () {
-  Route::view('/', 'tracker.main', ['summary' => null/*Part::whereRelation('release','short','unof')->pluck('vote_sort')->countBy()->all()*/])->name('main');
+  Route::view('/', 'tracker.main')->name('main');
 
   Route::get('/submit', [PartController::class, 'create'])->name('submit');
   Route::post('/submit', [PartController::class, 'store'])->name('store');

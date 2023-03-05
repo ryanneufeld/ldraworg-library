@@ -45,6 +45,7 @@ class PostReleaseCleanup implements ShouldQueue, ShouldBeUnique
         return;
       }
 
+      // Regenerate the images of affected parts
       foreach(Part::where('part_release_id', PartRelease::current()->id)->lazy() as $part) {
         if (!in_array($part->id, $this->ids)) $this->ids[] = $part->id;
         LibraryOperations::getAllParentIds($part, $this->ids);
@@ -53,10 +54,19 @@ class PostReleaseCleanup implements ShouldQueue, ShouldBeUnique
         $this->batch()->add(new RenderFile(Part::find($id)));
       }
 
+      // Save the new non-part files
       $sdisk = config('ldraw.staging_dir.disk');
       $spath = config('ldraw.staging_dir.path');
+
+      foreach (Storage::disk($sdisk)->allFiles("$spath/ldraw") as $filename) {
+        $content = Storage::disk($sdisk)->get($filename);
+        $f = str_replace("$spath/ldraw/", 'official/', $filename);
+        Storage::disk('library')->put($f, $content);
+      }
+
+      // Remove all the temp files
       Storage::disk($sdisk)->deleteDirectory($spath);
       Storage::disk($sdisk)->makeDirectory($spath);
-      
+
     }
 }

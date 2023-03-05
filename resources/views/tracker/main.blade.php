@@ -60,7 +60,7 @@
     <div class="ui two column grid">
       <div class="column">
         <h4 class="ui header">Stats for Unofficial Files:</h4>
-        <x-part.unofficial-count :summary="$summary" small="0"/>
+        <x-part.unofficial-part-count small="0"/>
       </div>
       <div class="column">
         {{-- PT Status placeholder --}}

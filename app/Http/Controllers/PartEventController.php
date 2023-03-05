@@ -17,7 +17,6 @@ class PartEventController extends Controller
     public function index()
     {
       $events = PartEvent::with(['part', 'user', 'part_event_type'])->orderBy('created_at','desc')->cursorPaginate(20);
-      $summary = Part::whereRelation('release','short','unof')->pluck('vote_sort')->countBy()->all();
-      return view('tracker.activity',['events' => $events, 'summary' => $summary]);
+      return view('tracker.activity',['events' => $events]);
     }
 }
