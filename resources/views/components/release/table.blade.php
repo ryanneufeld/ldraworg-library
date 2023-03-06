@@ -25,14 +25,16 @@
            (graphics-intensive page)
          </div>
        </div>
+       @if ($current)
        <div class="item">
          <div class="header">
-           {{--<a href="{{asset('library/updates/lcad' . $release->short . '.exe')}}">--}}Download .exe{{--</a>--}}
+           <a href="{{asset('library/updates/LDrawParts.exe')}}">Download .exe</a>
          </div>
          <div class="description">
            Use this link to download the Windows installer for the complete library.
          </div>
        </div>
+       @endif
        <div class="item">
          <div class="header">
            <a href="{{asset('library/updates/lcad' . $release->short . '.zip')}}">Download lcad{{$release->short}}.zip</a>
