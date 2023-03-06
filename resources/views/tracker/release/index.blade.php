@@ -8,6 +8,7 @@
       @else
         <x-release.table :release="$release" current="0"/>   
       @endif
+      <br>
     @endforeach
   @endif  
 </x-layout.main>
