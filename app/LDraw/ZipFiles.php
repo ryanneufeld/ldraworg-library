@@ -25,6 +25,31 @@ class ZipFiles {
     }
   }
 
+  public static function completeZip() {
+    $sdisk = config('ldraw.staging_dir.disk');
+    $spath = config('ldraw.staging_dir.path');
+    if (!Storage::disk($sdisk)->exists($spath))
+      Storage::disk($sdisk)->makeDirectory($spath);
+    $sfullpath = realpath(config("filesystems.disks.$sdisk.root") . "/$spath");
+    $zipname = "$sfullpath/complete.zip";
+    $zip = new \ZipArchive;
+    $zip->open($zipname, \ZipArchive::CREATE);
+    foreach (Storage::disk('library')->allFiles('official') as $filename) {
+      $zipfilename = str_replace('official/', '', $filename);
+      $content = Storage::disk('library')->get($filename);
+      $zip->addFromString('ldraw/' . $zipfilename, $content);
+    }
+    $zip->close();
+    Part::official()->chunk(500, function (Collection $parts) use ($zip, $zipname) {
+      $zip->open($zipname);
+      foreach($parts as $part) {
+        $content = $part->get();
+        $zip->addFromString('ldraw/' . $part->filename, $content);
+      }
+      $zip->close();
+    });
+  }
+  
   public static function releaseZip() {
     $release = PartRelease::current();
     $sdisk = config('ldraw.staging_dir.disk');

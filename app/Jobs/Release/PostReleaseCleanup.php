@@ -15,6 +15,7 @@ use App\Jobs\RenderFile;
 use App\Models\Part;
 use App\Models\PartRelease;
 use App\LDraw\LibraryOperations;
+use App\LDraw\ZipFiles;
 
 class PostReleaseCleanup implements ShouldQueue, ShouldBeUnique
 {
@@ -67,6 +68,9 @@ class PostReleaseCleanup implements ShouldQueue, ShouldBeUnique
       // Remove all the temp files
       Storage::disk($sdisk)->deleteDirectory($spath);
       Storage::disk($sdisk)->makeDirectory($spath);
-
+      
+      // Reset the unofficial zip file
+      Storage::disk('library')->delete('unofficial/ldrawunf.zip');
+      ZipFiles::unofficialZip(Part::unofficial()->first());
     }
 }
