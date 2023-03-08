@@ -140,6 +140,19 @@ class PartController extends Controller
     }
 
     /**
+     * Update the image of the part.
+     *
+     * @param  \App\Models\Part  $part
+     * @return \Illuminate\Http\Response
+     */
+    public function updateimage(Part $part)
+    {
+      $this->authorize('update', $part);
+      $part->updateImage();
+      return redirect()->route('tracker.show', [$part])->with('status','Part image update queued');
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -172,7 +185,7 @@ class PartController extends Controller
     public function destroy(Part $part)
     {
       $this->authorize('delete', $part);
-      Storage::disk('library')->move('unofficial/' . $part->filename, 'backups/' . $part->filename . 'deleted');
+//      Storage::disk('library')->move('unofficial/' . $part->filename, 'backups/' . $part->filename . 'deleted');
       $part->delete();
     }
     

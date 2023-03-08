@@ -21,6 +21,9 @@
         <a class="item" title="Edit the file header" href="{{route('tracker.editheader', $part->id)}}">Edit Header</a>
       @endcanany
       @endif
+      @can('part.edit.header')
+        <a class="item" title="Regenerate Part Image" href="{{route('tracker.updateimage', $part->id)}}">Regenerate Image</a>
+      @endcan  
       @can('part.edit.number')
         <a class="item" title="Renumber part" href="{{route('tracker.move', $part->id)}}">Renumber</a>
       @endcan

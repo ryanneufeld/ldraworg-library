@@ -61,6 +61,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::get('/{part}/move', [PartController::class, 'move'])->name('move');
   Route::put('/{part}/move', [PartController::class, 'domove'])->name('domove');
 
+  Route::get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
+
   Route::delete('/{part}/delete', [PartController::class, 'domove'])->name('destroy');
 
   Route::get('/search', [SearchController::class, 'partsearch'])->name('search');
