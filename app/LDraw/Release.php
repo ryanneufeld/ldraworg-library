@@ -17,12 +17,12 @@ class Release {
     $next = PartRelease::next();
     $sdisk = config('ldraw.staging_dir.disk');
     $spath = config('ldraw.staging_dir.path');
-    $note = self::makeNotes($ids);
-    Storage::disk($sdisk)->put("$spath/ldraw/models/Note" . $next['short'] . "CA.txt", $note);
-    $release = PartRelease::create(['name' => $next['name'], 'short' => $next['short'], 'notes' => $note]);
+    $data = self::getReleaseData($ids);
+    //Storage::disk($sdisk)->put("$spath/ldraw/models/Note" . $next['short'] . "CA.txt", $note);
+    $release = PartRelease::create(['name' => $next['name'], 'short' => $next['short'], 'part_data' => $data]);
     $partslist = [];
     foreach (Part::whereIn('id', $ids)->lazy() as $part) {
-    // Update release for event released parts
+      // Update release for event released parts
       PartEvent::whereRelation('release', 'short', 'unof')->where('part_id', $part->id)->update(['part_release_id' => $release->id]);
 
       // Post a release event     
@@ -31,7 +31,12 @@ class Release {
       // Add history line
       PartHistory::create(['user_id' => $user->id, 'part_id' => $part->id, 'comment' => 'Official Update ' . $release->name]);
       $part->refreshHeader();
-
+      
+      // Remove the votes associated with the part
+      foreach ($part->votes as $vote) {
+        $vote->delete();
+      }
+      
       // Part is an official update
       if (!is_null($part->official_part_id)) {
         $opart = Part::find($part->official_part_id);
@@ -90,16 +95,12 @@ class Release {
     $release->save();
   }
 
-  public static function makeNotes($ids) {
+  public static function getReleaseData(array $ids): array {
     $next = PartRelease::next();
-    $notes = "ldraw.org Parts Update " . $next['name'] . "\n" . 
-      str_repeat('-', 76) . "\n\n" .
-      "Redistributable Parts Library - Core Library\n" . 
-      str_repeat('-', 76) . "\n\n" .
-      "Notes created " . date_format(date_create(), "r"). " by the Parts Tracker\n\n" .
-      "Release statistics:\n" . 
-      "   Total files: " . Part::whereIn('id', $ids)->count() . "\n" . 
-      "   New files: " . Part::whereIn('id', $ids)->where('official_part_id', null)->count() . "\n";
+    $data = [];
+    $data['total_files'] = Part::whereIn('id', $ids)->count();
+    $data['new_files'] = Part::whereIn('id', $ids)->where('official_part_id', null)->count();
+    $data['new_types'] = [];
     foreach (PartType::all() as $type) {
       if ($type->type == "Part") {
         $count = Part::whereIn('id', $ids)->where('official_part_id', null)->where(function (Builder $query) use ($type) {
@@ -112,26 +113,53 @@ class Release {
       else {
         $count = Part::whereIn('id', $ids)->where('official_part_id', null)->where('part_type_id', $type->id)->count();
       } 
-      if ($count > 0) $notes .= "   New " . strtolower($type->name) . "s: $count\n";
+      if ($count > 0) $data['new_types'][] = ['name' => $type->name, 'count' => $count];
+    }
+    $data['moved_parts'] = [];
+    foreach (Part::whereIn('id', $ids)->whereRelation('category', 'category', 'Moved')->get() as $part) {
+      $data['moved_parts'][] = ['name' => $part->name(),  'movedto' => $part->description]; 
+    }
+    $data['fixes'] = [];
+    $data['rename'] = [];
+    foreach (Part::whereIn('id', $ids)->where('official_part_id', '<>', null)->whereRelation('category', 'category', '<>', 'Moved')->get() as $part) {
+      $op = Part::find($part->official_part_id);
+      if ($part->description != $op->description) {
+        $data['rename'][] = ['name' => $part->name(), 'decription' => $part->description, 'old_description' => $op->description];
+      }
+      else {
+        $data['fixed'][] = ['name' => $part->name(), 'decription' => $part->description];
+      }
+    }
+    return $data;
+  }
+  public static function makeNotes(PartRelease $r): string {
+    $data = $r->part_data;
+    $notes = "ldraw.org Parts Update " . $r->name . "\n" . 
+      str_repeat('-', 76) . "\n\n" .
+      "Redistributable Parts Library - Core Library\n" . 
+      str_repeat('-', 76) . "\n\n" .
+      "Notes created " . date_format($r->created_at, "r"). " by the Parts Tracker\n\n" .
+      "Release statistics:\n" . 
+      "   Total files: " . $data['total_files'] . "\n" . 
+      "   New files: " . $data['new_files'] . "\n";
+    foreach ($data['new_types'] as $t) {
+      $notes .= "   New " . $t['name'] . "s:" . $t['count'] . "\n";
     }
     $notes .= "\n" . 
       "Moved Parts\n";
-    foreach (Part::whereIn('id', $ids)->whereRelation('category', 'category', 'Moved')->get() as $part) {
-      $notes .= '   ' . $part->name() . str_repeat(' ', 27 - strlen($part->name())) . "{$part->description}\n"; 
+    foreach ($data['moved_parts'] as $m) {
+      $notes .= '   ' . $m['name'] . str_repeat(' ', 27 - strlen($m['name'])) . $m['movedto']. "\n"; 
     }
-    $rename = '';
-    $fixes = '';
-    foreach (Part::whereIn('id', $ids)->where('official_part_id', '<>', null)->get() as $part) {
-      $op = Part::find($part->official_part_id);
-      if ($part->description != $op->description) {
-        $rename .= '   ' . $part->name() . str_repeat(' ', 27 - strlen($part->name())) . "{$op->description}\n" .
-          "   changed to    {$part->description}\n";
-      }
-      else {
-        $fixes .= '   ' . $part->name() . str_repeat(' ', 27 - strlen($part->name())) . "{$part->description}\n";
-      }
+    $notes .= "\n" . 
+      "Renamed Parts\n";
+    foreach ($data['rename'] as $m) {
+      $notes .= '   ' . $m['name'] . str_repeat(' ', 27 - strlen($m['name'])) . $m['old_decription'] . "\n" .
+      "   changed to    ". $m['decription'] ."\n";    }  
+    $notes .= "\n" . 
+      "Other Fixed Parts\n";
+    foreach ($data['fixes'] as $m) {
+      $notes .= '   ' . $m['name'] . str_repeat(' ', 27 - strlen($m['name'])) . $m['decription'] . "\n";
     }
-    $notes .= "\nRenamed Parts\n$rename\nOther Fixed Parts\n$fixes";
     return $notes;      
   }
 
