@@ -20,6 +20,10 @@ Route::get('/categories.txt', function () {
   return response(LibraryOperations::categoriesText())->header('Content-Type','text/plain');
 })->name('categories-txt');
 
+Route::get('/library.csv', function () {
+  return response(LibraryOperations::libaryCsv())->header('Content-Type','text/plain; charset=utf-8');
+})->name('library-csv');
+
 /*
 Route::get('/ptreleases', function (Request $request) {
   $output = $request->get('output');
