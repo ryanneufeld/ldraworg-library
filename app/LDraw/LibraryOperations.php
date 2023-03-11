@@ -120,6 +120,16 @@ class LibraryOperations {
     }
   }
 
+  public static function libaryCsv(): string {
+    $csv = "part_number,part_description,part_url,image_url\n";
+    foreach (Part::whereRelation('type', 'folder', 'parts/')->lazy() as $part) {
+      if (in_array($part->description[0], ['~','_','|','='])) continue;
+      $num = basename($part->filename);
+      $csv .= "$num,{$part->description}," . route(str_replace('/', '', $part->libFolder()) . ".download", $part->filename) . "," . asset('images/library/'. $part->libFolder() . substr($part->filename, 0, -4) . '.png') . "\n";
+    }
+    return $csv;
+  }
+
   public static function makeMPD(Part $part, bool $unOfficialPriority = false): string {
     $parts = new Collection;
     self::dependencies($part, $parts, $unOfficialPriority);
