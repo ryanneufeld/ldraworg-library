@@ -2,51 +2,62 @@
 
 namespace App\LDraw;
 
+use Illuminate\Database\Eloquent\Collection;
+
 use App\Models\Part;
 
 class LibrarySearch {
   
   public static function partSearch($scope, $input, $json = false, $jsonLimit = 7) {
-    
     //Pull the terms out of the search string
     $pattern = '#([^\s"]+)|"([^"]*)"#u';
     preg_match_all($pattern, $input, $matches, PREG_SET_ORDER);
-    
-    // Prep the trems for regex searches
-    $regterms = [];
-    foreach($matches as $m) {
-      $regterms[] = preg_quote($m[count($m)-1]);
-    }  
-    $search = '(?=.*' . implode(')(?=.*', $regterms) . ')';
-    $pattern = "#{$search}#iu";
-    $ids = ['u' => [], 'o' => []];
-    foreach(['u', 'o'] as $r) {
-      $p = $r == 'u' ? Part::unofficial() : Part::official();
-      $p->chunk('1000', function (\Illuminate\Database\Eloquent\Collection $pts) use ($r, &$ids, $scope, $pattern) {
-        foreach($pts as $part) {
-          switch ($scope) {
-            case 'filename':
-              $term = basename($part->filename);
-              break;
-            case 'description':
-              $term = basename($part->filename) . ' ' . $part->description;
-              break;
-            case 'header':
-              $term = $part->header;
-              break;
-            case 'file':
-              $term = $part->isTexmap() ? $part->header : $part->get();
-              break;
-          }
-          if (preg_match($pattern, $term, $matches)) {
-            $ids[$r][] = $part->id;
-          }
-        }         
-      });
-    }
-    $uparts = Part::whereIn('id', $ids['u'])->orderBy('filename')->lazy();
-    $oparts = Part::whereIn('id', $ids['o'])->orderBy('filename')->lazy();
 
+    $terms = [];
+    foreach($matches as $m) {
+      $terms[] = $m[count($m)-1];
+    }  
+    
+    $uparts = new Collection;
+    $oparts = new Collection;
+    
+    $first = true;
+    foreach($terms as $term) {     
+      switch($scope) {
+        case 'filename':
+        case 'description':
+        case 'header';  
+           if ($first) {
+            $uparts = Part::unofficial()->where($scope, 'LIKE', "%$term%")->get();
+            $oparts = Part::official()->where($scope, 'LIKE', "%$term%")->get();
+            $first = false;
+          }
+          else {
+            $uparts = $uparts->intersect(Part::unofficial()->where($scope, 'LIKE', "%$term%")->get());
+            $oparts = $oparts->intersect(Part::official()->where($scope, 'LIKE', "%$term%")->get());
+          }
+        break;
+        case 'file':
+          if ($first) {
+            $uparts = Part::unofficial()->where(function($q) use ($scope, $term) {
+              $q->orWhere('header', 'LIKE', "%$term%")->orWhereRelation('body', 'body', 'LIKE', "%$term%");
+            })->get();
+            $oparts = Part::official()->where(function($q) use ($scope, $term) {
+              $q->orWhere('header', 'LIKE', "%$term%")->orWhereRelation('body', 'body', 'LIKE', "%$term%");
+            })->get();
+            $first = false;
+          }
+          else {
+            $uparts = $uparts->intersect(Part::unofficial()->where(function($q) use ($scope, $term) {
+              $q->orWhere('header', 'LIKE', "%$term%")->orWhereRelation('body', 'body', 'LIKE', "%$term%");
+            })->get());
+            $oparts = $oparts->intersect(Part::official()->where(function($q) use ($scope, $term) {
+              $q->orWhere('header', 'LIKE', "%$term%")->orWhereRelation('body', 'body', 'LIKE', "%$term%");
+            })->get());
+          }
+        break;  
+      }
+    }
     if ($json == true) {
       $results = ['results' => [
           'oparts' => ['name' => "Official\nParts", 'results' => []],
