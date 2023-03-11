@@ -24,10 +24,28 @@ class LibrarySearch {
     $first = true;
     foreach($terms as $term) {     
       switch($scope) {
-        case 'filename':
         case 'description':
+          if ($first) {
+            $uparts = Part::unofficial()->where(function($q) use ($scope, $term) {
+              $q->orWhere('filename', 'LIKE', "%$term%")->orWhere('description', 'LIKE', "%$term%");
+            })->get();
+            $oparts = Part::official()->where(function($q) use ($scope, $term) {
+              $q->orWhere('filename', 'LIKE', "%$term%")->orWhere('description', 'LIKE', "%$term%");
+            })->get();
+            $first = false;
+          }
+          else {
+            $uparts = $uparts->intersect(Part::unofficial()->where(function($q) use ($scope, $term) {
+              $q->orWhere('filename', 'LIKE', "%$term%")->orWhere('description', 'LIKE', "%$term%");
+            })->get());
+            $oparts = $oparts->intersect(Part::official()->where(function($q) use ($scope, $term) {
+              $q->orWhere('filename', 'LIKE', "%$term%")->orWhere('description', 'LIKE', "%$term%");
+            })->get());
+          }
+          break;
+        case 'filename':
         case 'header';  
-           if ($first) {
+          if ($first) {
             $uparts = Part::unofficial()->where($scope, 'LIKE', "%$term%")->get();
             $oparts = Part::official()->where($scope, 'LIKE', "%$term%")->get();
             $first = false;
