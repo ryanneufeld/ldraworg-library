@@ -29,8 +29,8 @@ class LDrawFileValidate {
     $desc = FileUtils::getDescription($text);
     $type = FileUtils::getPartType($text);
     $cat = FileUtils::getCategory($text);
-    $results = [];
-    if (($type == 'Part' || $type == 'Shortcut') && !PartCheck::checkCategory($text)) {
+
+    if (($type['type'] == 'Part' || $type['type'] == 'Shortcut') && !PartCheck::checkCategory($text)) {
       $results[] = __('partcheck.category.invalid', ['value' => $cat['category']]);
     }  
     elseif ($cat['category'] == 'Moved' && $desc[0] != '~') {
