@@ -21,7 +21,7 @@ class WebGL {
     } 
     if(!array_key_exists($pn, $parts)) {
       if ($part->isTexmap()) {
-        $parts[$pn] = Storage::disk('library')->url($part->libFolder() . "/" . $part->filename); //"/library/" . $part->libFolder() . "/" . $part->filename;
+        $parts[$pn] = "/library/" . $part->libFolder() . $part->filename;
       }
       else {
         $parts[$pn] = 'data:text/plain;base64,' .  base64_encode($part->get());        
