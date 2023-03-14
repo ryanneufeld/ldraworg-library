@@ -101,16 +101,6 @@ class LibraryOperations {
     return $parts;    
   }
   
-  public static function ptreleases($output, $type, $fields) {
-    if ($output != 'XML' && $output != 'TAB') $output = 'XML';
-    if (!in_array($type, ['ANY','ZIP','ARJ'])) $type = 'ANY';
-    $fields = explode('-', $fields);
-  }
-
-  public static function categoriesText() {
-    return implode("\n", PartCategory::all()->pluck('category')->all());
-  }
-
   public static function refreshNotifications(): void {
     foreach (User::all() as $user) {
       $parts = Part::whereHas('events', function (Builder $query) use ($user) {
@@ -118,16 +108,6 @@ class LibraryOperations {
       })->pluck('id');
       $user->notification_parts()->sync($parts);
     }
-  }
-
-  public static function libaryCsv(): string {
-    $csv = "part_number,part_description,part_url,image_url\n";
-    foreach (Part::whereRelation('type', 'folder', 'parts/')->lazy() as $part) {
-      if (in_array($part->description[0], ['~','_','|','='])) continue;
-      $num = basename($part->filename);
-      $csv .= "$num,{$part->description}," . route(str_replace('/', '', $part->libFolder()) . ".download", $part->filename) . "," . asset('images/library/'. $part->libFolder() . substr($part->filename, 0, -4) . '.png') . "\n";
-    }
-    return $csv;
   }
 
   public static function makeMPD(Part $part, bool $unOfficialPriority = false): string {
@@ -272,6 +252,11 @@ class LibraryOperations {
         $cmds .= " -$command=$value";
       }  
       
+      if (array_key_exists($part->basePart(), config('ldraw.ldview.alt-camera'))) {
+        $ac = config('ldraw.ldview.alt-camera');
+        $cmds .= " -DefaultLatLong=" . $ac[$part->basePart()];
+      }
+
       $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir $cmds $normal_size -SaveSnapshot=$pngfile";
       exec($ldviewcmd);
       exec("optipng $pngfile");

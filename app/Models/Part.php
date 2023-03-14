@@ -160,6 +160,11 @@ class Part extends Model
       return self::where('filename', 'like', "{$number}d??%.dat")->count() > 0;
     }
 
+    public function basePart(): string {
+      $number = pathinfo($this->filename, PATHINFO_FILENAME);
+      preg_match('#(\d+|\d+[a-z])(p|c|d|k|-)?(.*)?#u', $number, $matches);
+      return $matches[1] ?? '';
+    }
     public function libFolder(): string {
       return $this->isUnofficial() ? 'unofficial/' : 'official/';
     }
