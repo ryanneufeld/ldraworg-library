@@ -217,7 +217,9 @@ class PartController extends Controller
         'part_type_id' => 'required|exists:part_types,id',
         'newname' => [new MoveName],
       ]);
+      $oldname = $part->name();
       $part->move($validated['newname'], PartType::find($validated['part_type_id']));
+      PartEvent::createFromType('rename', Auth::user(), $part, "part $oldname was renamed to {$part->name()}");
       return redirect()->route('tracker.show', [$part])->with('status','Move successful');
     }
 }

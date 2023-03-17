@@ -656,6 +656,7 @@ class Part extends Model
 
     public function move(string $newName = null, PartType $newType = null): void {
       $oldname = $this->filename;
+      $oldnamestr = $this->name();
       if (is_null($newName)) $newName = $this->filename;
       if ($this->isUnofficial()) {
         if (!is_null($newType)) $this->type()->associate($newType);
@@ -663,6 +664,11 @@ class Part extends Model
         $this->refreshHeader();
         $this->save();
         $this->updateImage();
+        foreach ($this->parents()->unofficial()->get() as $p) {
+          $p->body->body = str_replace($oldnamestr, $this->name(), $p->body->body);
+          $p->body->save();
+          $p->updateSubparts(true);
+        }
         UpdateZip::dispatch($this, $oldname);
       }
       else {
