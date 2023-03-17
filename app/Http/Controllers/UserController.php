@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 use App\Models\User;
 use Spatie\Permission\Models\Role;
@@ -67,10 +68,12 @@ class UserController extends Controller
           'part_license_id' => 'required|exists:part_licenses,id'
         ]);
 
-        $user->create([
+        $user = User::create([
           'name' => $validated['name'],
           'realname' => $validated['realname'],
           'email' => $validated['email'],
+          'password' => bcrypt(Str::random(40)),
+          'forum_user_id' => $request->input('forum_user_id'),
           'part_license_id' => $validated['part_license_id'],
         ]);
         $user->assignRole($validated['roles']);
