@@ -22,7 +22,7 @@
 <i @class(['big' => $type == 'table', 'red slash icon'])></i>
 @endif
 @if($event->part_event_type->slug != 'comment' && !is_null($event->comment) && $type == 'table')
-<i @class(['small' => $type == 'table', 'blue bottom right corner comment icon'])></i>
+<i @class(['small' => $type == 'table', 'blue bottom left corner comment icon'])></i>
 @endif
 </i>
 @endif
