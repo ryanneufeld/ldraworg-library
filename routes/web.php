@@ -39,21 +39,21 @@ Route::get('/ldbi/{part}/parts', function (Part $part) {
 Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::view('/', 'tracker.main')->name('main');
 
-  Route::get('/submit', [PartController::class, 'create'])->name('submit');
-  Route::post('/submit', [PartController::class, 'store'])->name('store');
+  Route::middleware(['auth'])->get('/submit', [PartController::class, 'create'])->name('submit');
+  Route::middleware(['auth'])->post('/submit', [PartController::class, 'store'])->name('store');
 
   Route::get('/list', [PartController::class, 'index'])->name('index');
   Route::get('/weekly', [PartController::class, 'weekly'])->name('weekly');
 
-  Route::get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
-  Route::put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
+  Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
+  Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
 
-  Route::get('/{part}/move', [PartController::class, 'move'])->name('move');
-  Route::put('/{part}/move', [PartController::class, 'domove'])->name('domove');
+  Route::middleware(['auth'])->get('/{part}/move', [PartController::class, 'move'])->name('move');
+  Route::middleware(['auth'])->put('/{part}/move', [PartController::class, 'domove'])->name('domove');
 
-  Route::get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
+  Route::middleware(['auth'])->get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
 
-  Route::delete('/{part}/delete', [PartController::class, 'domove'])->name('destroy');
+  Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'domove'])->name('destroy');
 
   Route::get('/search', [SearchController::class, 'partsearch'])->name('search');
   Route::get('/suffixsearch', [SearchController::class, 'suffixsearch'])->name('suffixsearch');
@@ -85,11 +85,11 @@ Route::get('/dailydigest', function () {
 });
 */
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
   Route::resource('users', UserController::class);
 });
 
-Route::prefix('dashboard')->name('dashboard.')->group(function () {
+Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
   Route::get('/', [DashboardController::class, 'index'])->name('index');
 });
 
