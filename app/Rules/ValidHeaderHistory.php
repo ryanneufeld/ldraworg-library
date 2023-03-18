@@ -2,62 +2,73 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\DataAwareRule;
 
-use App\LDraw\PartCheck;
 use App\LDraw\FileUtils;
-use App\Models\User;
+use App\LDraw\LDrawFileValidate;
 
-class ValidHeaderHistory implements InvokableRule
+class ValidHeaderHistory implements DataAwareRule, ValidationRule
 {
+    /**
+     * Indicates whether the rule should be implicit.
+     *
+     * @var bool
+     */
+    public $implicit = true;
+
+    /**
+     * All of the data under validation.
+     *
+     * @var array<string, mixed>
+     */
+    protected $data = [];
+ 
+    /**
+     * Set the data under validation.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function setData(array $data): static
+    {
+        $this->data = $data;
+ 
+        return $this;
+    }
+
     /**
      * Run the validation rule.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
-     * @return void
      */
-    public function __invoke($attribute, $value, $fail)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-      $history = FileUtils::getHistory($value);
-      $part = request()->part;
-      $histcount = empty($history) ? 0 : count($history); 
-      if ($histcount < $part->history()->count()) {
-        $fail('partcheck.history.removed')->translate();
-      }
-      if (!empty($history)) {
-        if (count($history) < mb_substr_count($value, '!HISTORY')) {
+      if (!is_null($value)) {
+        $lines = explode("\n", FileUtils::dos2unix(rtrim($value)));
+  
+        if (count($lines) != mb_substr_count($value, '0 !HISTORY')) {
           $fail('partcheck.history.invalid')->translate();
-        }
-        else {
-          $usererr = false;
-          foreach($history as $hist) {
-            if (empty(User::findByName($hist['user'], $hist['user']))) {
-              $fail('partcheck.history.author')->translate(['value' => $hist['user'], 'date' => $hist['date']]);
-              $usererr = true;
-            }
-          }
-          /*
-          if (!$usererr) {
-            foreach($part->history as $phist) {
-              $found = false;
-              foreach($history as $hist) {
-                $d = new \DateTime($phist->created_at);
-                if (User::findByName($hist['user'], $hist['user'])->id == $phist->user->id &&
-                    $d->format('Y-m-d') == $hist['date']) {
-                  $found = true;
-                  break;
-                }                      
-              }
-              if (!$found) {
-                $fail('partcheck.history.alter')->translate();
-                break;
-              }  
-            }
-          }
-          */
-        }
+          return;
+        }  
       }
+
+      $errors = LDrawFileValidate::ValidHistory($value);
+      if (!empty($errors)) {
+        foreach($errors as $e) {
+          $fail($e);
+        }
+        return;
+      }
+
+      $part = request()->part;
+
+      $hist = '';
+      foreach ($part->history()->oldest()->get() as $h) {
+        $hist .= $h->toString() . "\n";
+      }
+      $hist = rtrim($hist);
+      if ((!empty($hist) && empty($value)) || strpos(FileUtils::dos2unix(rtrim($value)), $hist) === false && empty($this->data['editcomment'])) 
+        $fail('partcheck.history.alter')->translate();
     }
 }

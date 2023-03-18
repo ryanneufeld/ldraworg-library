@@ -1,4 +1,4 @@
-$(document).ready( function() {
+$( function() {
 	$('.ui.sidebar').sidebar('attach events', '#menubutton', 'show');
 	$('.ui.checkbox').checkbox();
 	$('.ui.dropdown').dropdown();
@@ -38,6 +38,5 @@ $(document).ready( function() {
 		type:'image'
 		}
 	);
-
 
 });

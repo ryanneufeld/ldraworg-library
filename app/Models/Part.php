@@ -210,8 +210,8 @@ class Part extends Model
             $header .= '0 BFC CERTIFY ' . $this->bfc . "\n\n";
         }
         if (!is_null($this->category)) {
-          $cat = FileUtils::getCategory($this->header);
-          if ($cat['meta'] === true) {
+          $cat = str_replace(['~','|','=','_'], '', mb_strstr($this->description, " ", true));
+          if ($cat != $this->category->category) {
             $header .= "0 !CATEGORY {$this->category->category}\n";
           }
         }
@@ -462,6 +462,53 @@ class Part extends Model
       }
     }
   
+    public function setHelp(string $text, bool $withoutMeta = false): void {
+      $text = FileUtils::dos2unix($text);
+
+      $help = $withoutMeta === true ? explode("\n", $text) : FileUtils::getHelp($text);
+
+      foreach ($this->help as $h) {
+        $h->delete();
+      }
+      
+      if (!empty($help)) {
+        $order = 0;
+        foreach ($help as $h) {
+          if (!empty($h)) {
+            PartHelp::create(['part_id' => $this->id, 'order' => $order, 'text' => $h]);
+            $order++;  
+          }
+        }
+      }
+    }
+
+    public function setKeywords(string $text, bool $withoutMeta = false): void {
+      $text = FileUtils::dos2unix($text);
+      $kw = $withoutMeta === true ? explode(",", str_replace("\n", ",", $text)) : FileUtils::getKeywords($text);
+
+      $this->keywords()->sync([]);
+  
+      if (!empty($kw)) {
+        foreach($kw as $word) {
+          $keyword = PartKeyword::findByKeywordOrCreate($word);
+          $this->keywords()->attach($keyword);
+        }
+      }  
+    }
+
+    public function setHistory(string $text): void {
+      $history = FileUtils::getHistory(FileUtils::dos2unix($text));
+      foreach ($this->history as $hist) {
+        $hist->delete();
+      }
+      
+      if (!empty($history)) {
+        foreach ($history as $hist) {
+          PartHistory::create(['user_id' => $hist['user'], 'part_id' => $this->id, 'created_at' => $hist['date'], 'comment' => $hist['comment']]);
+        }
+      }      
+    }
+
     public function fillFromText(string $text, bool $headerOnly = false, PartRelease $rel = null): void {
       
       $author = FileUtils::getAuthor($text);

@@ -2,33 +2,22 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-use App\LDraw\PartCheck;
-use App\LDraw\FileUtils;
+use App\LDraw\LDrawFileValidate;
 
-class ValidHeaderDescription implements InvokableRule
+class ValidHeaderDescription implements ValidationRule
 {
     /**
      * Run the validation rule.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
-     * @return void
      */
-    public function __invoke($attribute, $value, $fail)
-    {
-      $name = FileUtils::getName($value);
-      $desc = FileUtils::getDescription($value);
-      if (!PartCheck::checkDescription($value)) {
-        $fail('partcheck.description.missing')->translate();
-      }
-      elseif (!PartCheck::checkLibraryApprovedDescription($value)) {
-        $fail('partcheck.description.invalidchars')->translate();
-      }
-      elseif ((substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p') && substr($desc, strrpos($desc, ' ') + 1) != 'Pattern') {
-        $fail('partcheck.description.patternword')->translate();
-      }  
+    public function validate(string $attribute, mixed $value, Closure $fail): void {
+      $type = request()->part->typeString();
+      $text = "0 $value\n$type";
+      $error = LDrawFileValidate::ValidDescription($text);
+      if (!empty($error)) $fail($error[0]);      
     }
 }

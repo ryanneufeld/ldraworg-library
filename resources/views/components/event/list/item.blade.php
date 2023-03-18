@@ -42,7 +42,7 @@
         </div>
       </div>
       <div class="partfeed extra text">
-        {!! nl2br(htmlspecialchars(html_entity_decode($event->comment))) !!}
+<pre>{!! $event->comment !!}</pre>
       </div>
     </div>
   </div>

@@ -2,31 +2,49 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\DataAwareRule;
 
-use App\LDraw\PartCheck;
-use App\LDraw\FileUtils;
+use App\Models\PartCategory;
 
-class ValidHeaderCategory implements InvokableRule
+class ValidHeaderCategory implements DataAwareRule, ValidationRule
 {
+    /**
+     * Indicates whether the rule should be implicit.
+     *
+     * @var bool
+     */
+    public $implicit = true;
+
+    /**
+     * All of the data under validation.
+     *
+     * @var array<string, mixed>
+     */
+    protected $data = [];
+ 
+    /**
+     * Set the data under validation.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function setData(array $data): static
+    {
+        $this->data = $data;
+ 
+        return $this;
+    }
+
     /**
      * Run the validation rule.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
-     * @return void
      */
-    public function __invoke($attribute, $value, $fail)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-      $desc = FileUtils::getDescription($value);
-      $type = FileUtils::getPartType($value);
-      $cat = FileUtils::getCategory($value);
-      if (($type == 'Part' || $type == 'Shortcut') && !PartCheck::checkCategory($value)) {
-        $fail('partcheck.category.invalid')->translate(['value' => $cat['category']]);
-      }  
-      elseif ($cat['category'] == 'Moved' && $desc[0] != '~') {
-        $fail('partcheck.category.movedto')->translate();
-      }  
+      $c = str_replace(['~','|','=','_'], '', mb_strstr($this->data['description'], " ", true));
+      $cat = PartCategory::findByName($c);
+      if (empty($cat) && empty($value)) $fail('partcheck.category.invalid')->translate(['value' => $c]);
     }
 }

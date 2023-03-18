@@ -16,6 +16,7 @@ class PartRelease extends Model
 
     protected $casts = [
       'part_list' => AsArrayObject::class,
+      'part_data' => AsArrayObject::class,
     ];
 
     public function parts() {

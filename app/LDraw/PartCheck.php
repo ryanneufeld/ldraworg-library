@@ -21,7 +21,7 @@ class PartCheck {
   }
 
   public static function checkLibraryApprovedDescription($file = '') {
-    $desc = FileUtils::getName($file);
+    $desc = FileUtils::getDescription($file);
     return $desc !== false && preg_match('#^[\x20-\x7E\p{Latin}\p{Han}\p{Hiragana}\p{Katakana}\pS]+$#', $desc, $matches);
   }
 

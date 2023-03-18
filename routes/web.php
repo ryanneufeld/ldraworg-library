@@ -9,6 +9,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SupportFilesController;
 
 use App\Models\Part;
 
@@ -16,27 +17,12 @@ use App\LDraw\LibraryOperations;
 
 Route::redirect('/', '/tracker');
 
-Route::get('/categories.txt', function () {
-  return response(LibraryOperations::categoriesText())->header('Content-Type','text/plain');
-})->name('categories-txt');
+Route::get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
+Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
+Route::get('/ptreleases', [SupportFilesController::class, 'ptreleases'])->name('ptreleases');
 
-Route::get('/library.csv', function () {
-  return response(LibraryOperations::libaryCsv())->header('Content-Type','text/plain; charset=utf-8');
-})->name('library-csv');
 
 /*
-Route::get('/ptreleases', function (Request $request) {
-  $output = $request->get('output');
-  $releases = LibraryOperations::ptreleases($request->get('output'), $request->get('type'), $request->get('fields'));
-  if ($output == 'TAB') {
-    return response($releases)->header('Content-Type','text/plain');
-  }
-  else {
-    return response($releases)->header('Content-Type','application/xml');    
-  }
-})->name('ptreleases-cgi');
-
-
 // Only enable this route for testing
 Route::get('/user-233', function () {
   Auth::logout();

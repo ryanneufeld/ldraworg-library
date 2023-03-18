@@ -421,4 +421,25 @@ class LibraryImport {
       $part->updateImage();
     });
   }
+
+  public static function updateReleaseData() {
+    foreach (PartRelease::latest() as $r) {
+      if (Storage::disk('library')->exists("official/models/Note{$r->short}CA.txt")) {
+        $note = Storage::disk('library')->get("official/models/note{$r->short}.txt");
+      }
+      elseif (Storage::disk('library')->exists("official/models/note{$r->short}.txt")) {
+        $note = Storage::disk('library')->get("official/models/note{$r->short}.txt");
+      }
+      else {
+        continue;
+      }
+      $note = explode("/r/n", $note);
+      
+      $line = 0;
+
+      while ($line < count($note)) {
+        
+      }
+    }
+  }
 }

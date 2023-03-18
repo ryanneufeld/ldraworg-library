@@ -2,36 +2,50 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\DataAwareRule;
 
-use App\LDraw\PartCheck;
 use App\LDraw\FileUtils;
+use App\LDraw\LDrawFileValidate;
 
-class ValidHeaderKeywords implements InvokableRule
+class ValidHeaderKeywords implements DataAwareRule, ValidationRule
 {
+    /**
+     * Indicates whether the rule should be implicit.
+     *
+     * @var bool
+     */
+    public $implicit = true;
+    
+    /**
+     * All of the data under validation.
+     *
+     * @var array<string, mixed>
+     */
+    protected $data = [];
+ 
+    /**
+     * Set the data under validation.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function setData(array $data): static
+    {
+        $this->data = $data;
+ 
+        return $this;
+    }
+
     /**
      * Run the validation rule.
      *
-     * @param  string  $attribute
-     * @param  mixed  $value
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
-     * @return void
      */
-    public function __invoke($attribute, $value, $fail)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-      $name = FileUtils::getName($value);
-      $keywords = FileUtils::getKeywords($value);
-      $isPattern = (substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p');
-      if ($isPattern) {
-        if (empty($keywords)) {
-          $fail('partcheck.keywords')->translate();
-        }
-        else {
-          foreach ($keywords as $word) {
-            if (strtolower(strtok($word, " ")) == 'set') return;
-          }
-          $fail('keywords')->translate();
-        }  
-      }        
+      $text = "0 {$this->data['description']}\n0 !KEYWORDS $value";
+      $error = LDrawFileValidate::ValidKeywords($text);
+      if (!empty($error)) $fail($error[0]);
     }
 }

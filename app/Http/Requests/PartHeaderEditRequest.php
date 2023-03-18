@@ -4,14 +4,10 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-use App\Rules\ValidHeaderName;
-use App\Rules\ValidHeaderAuthor;
 use App\Rules\ValidHeaderDescription;
-use App\Rules\ValidHeaderPartType;
-use App\Rules\ValidHeaderCategory;
-use App\Rules\ValidHeaderKeywords;
 use App\Rules\ValidHeaderHistory;
-use App\Rules\ValidHeaderLicense;
+use App\Rules\ValidHeaderKeywords;
+use App\Rules\ValidHeaderCategory;
 
 class PartHeaderEditRequest extends FormRequest
 {
@@ -34,18 +30,14 @@ class PartHeaderEditRequest extends FormRequest
   public function rules()
   {
     return [
-      'h' => [
-        'required',
-        'string',
-        new ValidHeaderName,
-        new ValidHeaderDescription,
-        new ValidHeaderAuthor,
-        new ValidHeaderPartType,
-        new ValidHeaderCategory,
-        new ValidHeaderKeywords,
-        new ValidHeaderHistory,
-        new ValidHeaderLicense,
-      ],
+      'description' => ['required', 'string', new ValidHeaderDescription],
+      'part_type_qualifier_id' => 'nullable|exists:part_type_qualifiers,id',
+      'help' => 'nullable|string',
+      'keywords' => ['nullable','string', new ValidHeaderKeywords],
+      'cmdline' => 'nullable|string',
+      'part_category_id' => ['nullable','exists:part_categories,id', new ValidHeaderCategory],
+      'history' => ['nullable','string', new ValidHeaderHistory],
+      'editcomment' => 'nullable|string',
     ];
   }
 }

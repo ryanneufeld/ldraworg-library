@@ -55,7 +55,9 @@ class LDrawFileValidate {
     }
     elseif ($inPartFolder && 
       ((substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p') && 
-       (mb_substr($desc, mb_strrpos($desc, ' ') + 1) != 'Pattern' && mb_substr($desc, mb_strrpos($desc, ' ') + 1) != '(Obsolete)'))) {
+       (mb_substr($desc, mb_strrpos($desc, ' ') + 1) != 'Pattern' && 
+        mb_substr($desc, mb_strrpos($desc, ' ') + 1) != '(Obsolete)' &&
+        mb_substr($desc, mb_strrpos($desc, ' ') + 1) != 'Work)'))) {
       $results[] = __('partcheck.description.patternword');
     }  
     return $results;    
@@ -63,16 +65,15 @@ class LDrawFileValidate {
   
   public static function ValidHistory($text) {
     $history = FileUtils::getHistory($text);
+    $hcount = $history === false ? 0 : count($history);
     $results = [];
+    if ($hcount != mb_substr_count($text, '!HISTORY')) {
+      $results[] = __('partcheck.history.invalid');
+    }
     if (!empty($history)) {
-      if (count($history) < mb_substr_count($text, '!HISTORY')) {
-        $results[] = __('partcheck.history.invalid');
-      }
-      else {
-        foreach($history as $hist) {
-          if (empty(User::firstWhere('name', $hist['user']) ?? User::firstWhere('realname', $hist['user']))) {
-            $results[] = __('partcheck.history.author', ['value' => $hist['user'], 'date' => $hist['date']]);
-          }
+      foreach($history as $hist) {
+        if (empty(User::firstWhere('name', $hist['user']) ?? User::firstWhere('realname', $hist['user']))) {
+          $results[] = __('partcheck.history.author', ['value' => $hist['user'], 'date' => $hist['date']]);
         }
       }
     }  

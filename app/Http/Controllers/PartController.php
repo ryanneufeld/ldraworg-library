@@ -11,6 +11,8 @@ use App\Models\User;
 use App\Models\Part;
 use App\Models\PartType;
 use App\Models\PartEvent;
+use App\Models\PartHelp;
+use App\Models\PartCategory;
 
 use App\LDraw\FileUtils;
 use App\LDraw\LibraryOperations;
@@ -75,8 +77,10 @@ class PartController extends Controller
     {
       $view = $part->isUnofficial() ? 'tracker.show' : 'official.show';
       $part->load('events','history','subparts','parents');
+      $urlpattern = '#https?:\/\/(?:www\.)?[a-zA-Z0-9@:%._\+~\#=-]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[a-zA-Z0-9()@:%_\+.~\#?&\/=-]*)#u';
+
       foreach ($part->events as $e) {
-       //$e->comment = preg_replace('/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/u', '<a href="$0">$0</a>', $e->comment);
+        $e->comment = preg_replace($urlpattern, '<a href="$0">$0</a>', $e->comment);
       }
       return view($view, [
         'part' => $part, 
@@ -138,8 +142,7 @@ class PartController extends Controller
     public function editheader(Part $part)
     {
       $this->authorize('update', $part);
-      $rows = count(explode("\n", $part->header));
-      return view('tracker.edit', ['part' => $part, 'rows' => $rows]);
+      return view('tracker.edit', ['part' => $part]);
     }
 
     /**
@@ -167,15 +170,29 @@ class PartController extends Controller
       $this->authorize('update', $part);
       $data = $request->safe()->all();
       
-      if ($part->header != $data['h']) {
-        // Update the header in the db
-        $part->fillFromText(FileUtils::cleanHeader($data['h']), true);
-        
-        // Post an event
-        PartEvent::createFromType('edit', Auth::user(), $part);
-        Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
-        UpdateZip::dispatch($part);
-      }        
+      if (!empty($data['description'])) {
+        $part->description = $data['description'];
+        $cat = str_replace(['~','|','=','_'], '', mb_strstr($data['description'], " ", true));
+        if ($c = PartCategory::findByName($cat)) $part->part_category_id = $c->id;
+      }
+
+      $part->part_type_qualifier_id = $data['part_type_qualifier_id'] ?? null;
+      empty($data['help']) ? $part->setHelp('', true) : $part->setHelp($data['help'], true);
+      empty($data['keywords']) ? $part->setKeywords('', true) : $part->setKeywords($data['keywords'], true);
+      empty($data['history']) ? $part->setHistory('', true) : $part->setHistory($data['history'], true);
+      $part->cmdline = $data['cmdline'] ?? null;
+      
+      if(!empty($data['part_category_id']) && $data['part_category_id'] != $part->part_category_id) $part->part_category_id = $data['part_category_id'];
+
+      $part->save();
+      $part->refresh();
+      $part->refreshHeader();
+      
+      // Post an event
+      PartEvent::createFromType('edit', Auth::user(), $part);
+      Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
+      UpdateZip::dispatch($part);
+
       return redirect()->route('tracker.show', [$part])->with('status','Header update successful');
     }
 
@@ -221,7 +238,9 @@ class PartController extends Controller
         'newname' => [new MoveName],
       ]);
       $oldname = $part->name();
-      $part->move($validated['newname'], PartType::find($validated['part_type_id']));
+      $newtype = PartType::find($validated['part_type_id']);
+      $newname = pathinfo($validated['newname'], PATHINFO_FILENAME) . '.' . $newtype->format;
+      $part->move($newname, $newtype);
       PartEvent::createFromType('rename', Auth::user(), $part, "part $oldname was renamed to {$part->name()}");
       return redirect()->route('tracker.show', [$part])->with('status','Move successful');
     }
