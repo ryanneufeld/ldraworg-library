@@ -14,6 +14,6 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
-      return redirect()->away('https://forums.ldraw.org/member.php?action=login');
+      return '/login';
     }
 }

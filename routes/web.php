@@ -105,6 +105,8 @@ Route::prefix('official')->name('official.')->group(function () {
   Route::get('/{part}', [PartController::class, 'show'])->name('show');
 });
 
+Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
+
 Route::get('/library/official/{officialpart}', [PartController::class, 'download'])->name('official.download');
 Route::get('/library/unofficial/{unofficialpart}', [PartController::class, 'download'])->name('unofficial.download');
 
