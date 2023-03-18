@@ -91,6 +91,7 @@ class Release {
           
       }
     }
+    usort($partslist, function(array $a, array $b) { return $a[0] <=> $b[0]; });
     $release->part_list = $partslist;
     $release->save();
   }
