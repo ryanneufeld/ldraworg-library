@@ -38,7 +38,7 @@ class MoveName implements InvokableRule, DataAwareRule
     $p = Part::find($this->data['part_id']);
     $fname = !empty($value) ? $value : basename($p->filename);
     $fname = $pt->folder . $fname;
-    if (Storage::disk('library')->exists($p->libFolder() . '/' . $fname))  {
+    if (!empty(Part::firstWhere('filename', $fname)))  {
       $fail($fname . " already exists");
     }      
   }

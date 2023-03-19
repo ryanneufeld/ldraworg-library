@@ -4,10 +4,9 @@ namespace App\Rules;
 
 use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 use App\Models\PartType;
+use App\Models\Part;
 
 class FileReplace implements DataAwareRule, InvokableRule
 {
@@ -42,7 +41,7 @@ class FileReplace implements DataAwareRule, InvokableRule
     {
       $filename = basename(strtolower($value->getClientOriginalName()));
       $pt = PartType::find($this->data['part_type_id']);
-      if (Storage::disk('local')->exists('library/unofficial/' . $pt->folder . $filename) && !isset($this->data['replace'])) {
+      if (!empty(Part::findUnofficialByName($pt->folder . $filename)) && !isset($this->data['replace'])) {
         $fail('partcheck.replace')->translate();
       }  
     }
