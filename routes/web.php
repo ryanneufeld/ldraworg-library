@@ -10,6 +10,7 @@ use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupportFilesController;
+use App\Http\Controllers\RoleController;
 
 Route::redirect('/', '/tracker');
 
@@ -56,6 +57,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
   Route::resource('users', UserController::class);
+  Route::resource('roles', RoleController::class);
 });
 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
