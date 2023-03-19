@@ -497,7 +497,7 @@ class Part extends Model
     }
 
     public function setHistory(string $text): void {
-      $history = FileUtils::getHistory(FileUtils::dos2unix($text));
+      $history = FileUtils::getHistory(FileUtils::dos2unix($text), true);
       foreach ($this->history as $hist) {
         $hist->delete();
       }
