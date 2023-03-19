@@ -252,7 +252,6 @@ class Part extends Model
       else {
         return FileUtils::unix2dos(rtrim($this->header) . "\n\n" . $this->body->body);
       }
-      //return Storage::disk('library')->get($this->libFolder() . '/' . $this->filename);  
     }
     
     public static function findUnofficialByName(string $name, bool $withoutFolder = false): ?self {
@@ -311,26 +310,6 @@ class Part extends Model
       return false;
     }
   
-    public function makeOfficial(PartRelease $release = null): void {
-      if (is_null($release)) $release = PartRelease::current();
-      
-      if (!is_null($this->official_part_id)) {
-        $op = Part::find($this->official_part_id);
-        $this->created_at = $op->created_at;
-        $this->official_part_id = null;
-        $op->delete();
-      }
-  
-      $this->updateLicense();
-      $this->release()->associate($release);
-      $this->header = $this->getHeaderText();
-      $this->vote_sort = 1;
-      $this->vote_summary = null;
-      $this->uncertified_subpart_count = 0;
-      $this->save();
-      Storage::disk('library')->move('unofficial/' . $this->filename, 'official/' . $this->filename);
-    }
-  
     public function refreshHeader(): void {
       $this->header = $this->getHeaderText();
       $this->save();
@@ -342,23 +321,7 @@ class Part extends Model
     }
     
     public function put(string $content): void {
-      if ($this->isUnofficial()) Storage::disk('library')->move('unofficial/' . $this->filename, 'backups/' . $this->filename . '.' . time());
-/*  
-      if (!$this->isTexmap()) $content = FileUtils::unix2dos($content);
-      Storage::disk('library')->put($this->libFolder() . '/' . $this->filename, $content);
-      
-      // IDK whats going on with the Storage Facade and file permissions
-      // but it's borked for me and this is the only solution that worked
-      // If someone reads this and can explain what I'm doing wrong, submit
-      // a report on github
-      umask(000);
-      try {
-        chmod(storage_path('app/library/') . $this->libFolder() . '/' . $this->filename, 0664);
-      }
-      catch (\Exception $e) {
-        Log::debug($this->filename);
-      }
-*/      
+      // Nothing yet...
     }
     
     public function updateVoteSummary(bool $forceUpdate = false): void {
