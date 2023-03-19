@@ -80,14 +80,13 @@ class PartController extends Controller
      */
     public function show(Part $part)
     {
-      $view = $part->isUnofficial() ? 'tracker.show' : 'official.show';
       $part->load('events','history','subparts','parents');
       $urlpattern = '#https?:\/\/(?:www\.)?[a-zA-Z0-9@:%._\+~\#=-]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[a-zA-Z0-9()@:%_\+.~\#?&\/=-]*)#u';
 
       foreach ($part->events as $e) {
         $e->comment = preg_replace($urlpattern, '<a href="$0">$0</a>', $e->comment);
       }
-      return view($view, [
+      return view('part.show', [
         'part' => $part, 
       ]);
     }

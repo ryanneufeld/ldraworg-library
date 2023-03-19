@@ -38,8 +38,8 @@ class RouteServiceProvider extends ServiceProvider
           Route::middleware('web')
               ->group(base_path('routes/web.php'));
       });
-      Route::pattern('officialpart', '[a-z0-9_/-]+(\.dat|\.png)');
-      Route::pattern('unofficialpart', '[a-z0-9_/-]+(\.dat|\.png)');
+      Route::pattern('officialpart', '[a-z0-9_/-]+\.(dat|png)');
+      Route::pattern('unofficialpart', '[a-z0-9_/-]+\.(dat|png)');
       Route::bind('officialpart', function ($value) {
         return Part::official()->where('filename', $value)->firstOrFail();
       });
