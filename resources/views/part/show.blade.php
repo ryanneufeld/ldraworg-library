@@ -73,6 +73,9 @@
   <x-part.table title="{{ucfirst($lib)}} parent parts" :parts="$part->parents()->official()->get()" />
     <x-part.table title="{{ucfirst($lib)}} subparts" :parts="$part->subparts()->official()->get()" />
   @endif    
+  @if($part->isUnofficial())
+    <x-event.list title="File events" :events="$part->events" />
+  @endif
     <x-menu.part-detail :part="$part" />
     <x-part.attribution :copyuser="$part->user" :editusers="$part->editHistoryUsers()" />
     <x-part.3dmodal id="{{$part->id}}" />
