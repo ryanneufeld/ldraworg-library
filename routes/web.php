@@ -11,30 +11,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupportFilesController;
 
-use App\Models\Part;
-
-use App\LDraw\LibraryOperations;
-
 Route::redirect('/', '/tracker');
 
 Route::get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
 Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
 Route::get('/ptreleases', [SupportFilesController::class, 'ptreleases'])->name('ptreleases');
 
-
-/*
-// Only enable this route for testing
-Route::get('/user-233', function () {
-  Auth::logout();
-  Auth::login(\App\Models\User::find(233));
-  return response()->redirectTo('/', 302);
-});
-*/
-
-Route::get('/ldbi/{part}/parts', function (Part $part) {
-  \App\LDraw\WebGL::WebGLPart($part, $parts, true, $part->isUnofficial());
-  return response(json_encode($parts));
-});
+Route::get('/ldbi/{part}/parts', [PartController::class, 'webgl']);
 
 Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::view('/', 'tracker.main')->name('main');
@@ -71,20 +54,6 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::get('/{part}', [PartController::class, 'show'])->name('show');
 });
 
-/*
-Route::get('/dailydigest', function () {  
-  $yesterday = date_create('2023-01-12');
-  $today = date_add(clone $yesterday, new \DateInterval('P1D'));
-
-  $user = App\Models\User::findByName('Philo');
-
-  $events = App\Models\PartEvent::whereBetween('created_at', [$yesterday, $today])
-    ->whereIn('part_id', $user->notification_parts->pluck('id'))->get();
-
-  return new App\Mail\DailyDigest($yesterday, $events);
-});
-*/
-
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
   Route::resource('users', UserController::class);
 });
@@ -109,4 +78,13 @@ Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
 
 Route::get('/library/official/{officialpart}', [PartController::class, 'download'])->name('official.download');
 Route::get('/library/unofficial/{unofficialpart}', [PartController::class, 'download'])->name('unofficial.download');
+
+/*
+// Only enable this route for testing
+Route::get('/login-user-233', function () {
+  Auth::logout();
+  Auth::login(\App\Models\User::find(233));
+  return response()->redirectTo('/', 302);
+});
+*/
 

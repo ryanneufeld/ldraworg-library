@@ -39,7 +39,7 @@ class UnofficialPartCount extends Component
      */
     public function render()
     {
-      $this->summary = Part::whereRelation('release','short','unof')->pluck('vote_sort')->countBy()->all();
+      $this->summary = Part::unofficial()->pluck('vote_sort')->countBy()->all();
       return view('components.part.unofficial-part-count');
     }
 }

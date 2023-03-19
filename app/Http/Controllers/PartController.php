@@ -4,18 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
 use App\Models\User;
 use App\Models\Part;
 use App\Models\PartType;
 use App\Models\PartEvent;
-use App\Models\PartHelp;
 use App\Models\PartCategory;
 
-use App\LDraw\FileUtils;
 use App\LDraw\LibraryOperations;
+use App\LDraw\WebGL;
 
 use App\Http\Requests\PartSubmitRequest;
 use App\Http\Requests\PartHeaderEditRequest;
@@ -33,38 +31,45 @@ class PartController extends Controller
      */
     public function index(Request $request)
     {
-      if ($request->route()->getName() == 'official.index') {
-        $parts = Part::official()->lazy();
-        return view('official.list',['parts' => $parts]);
+      $unofficial = $request->route()->getName() == 'tracker.index';
+      $input = $request->all();
+      
+      $subset = [1 => 'Certified', 2 => 'Needs Admin Review', 3 => 'Needs More Votes', 4 => 'Uncertified Subfiles', 5 => 'Hold'];
+      $users = User::whereHas('parts', function (Builder $query) use ($unofficial) {
+        if ($unofficial) {
+          $query->unofficial();
+        }
+        else {
+          $query->official();
+        }
+      })->orderBy('name')->pluck('name', 'id')->all();
+      $part_types = PartType::pluck('name', 'id')->all();
+
+      if ($unofficial) {
+        $parts = Part::unofficial();
       }
       else {
-        $input = $request->all();
-      
-        $subset = [1 => 'Certified', 2 => 'Needs Admin Review', 3 => 'Needs More Votes', 4 => 'Uncertified Subfiles', 5 => 'Hold'];
-        $users = User::whereHas('parts', function (Builder $query) {
-          $query->unofficial();
-        })->orderBy('name')->pluck('name', 'id')->all();
-        $part_types = PartType::pluck('name', 'id')->all();
-        $parts = Part::unofficial();
-        
-        if (isset($input['subset']) && array_key_exists($input['subset'], $subset))
-          $parts = $parts->where('vote_sort', $input['subset']);
-        if (isset($input['user_id']) && array_key_exists($input['user_id'], $users))
-          $parts = $parts->where('user_id', $input['user_id']);
-        if (isset($input['part_type_id']) && array_key_exists($input['part_type_id'], $part_types))
-          $parts = $parts->where('part_type_id', $input['part_type_id']);
-        $parts = $parts->orderBy('vote_sort')->
-          orderBy('part_type_id')->
-          orderBy('filename')->
-          lazy();
-  
-        return view('tracker.list',[
-          'parts' => $parts,
-          'subset' => $subset,
-          'users' => $users,
-          'part_types' => $part_types,
-        ]);  
+        $parts = Part::official();
       }
+
+      if ($unofficial && isset($input['subset']) && array_key_exists($input['subset'], $subset))
+        $parts = $parts->where('vote_sort', $input['subset']);
+      if (isset($input['user_id']) && array_key_exists($input['user_id'], $users))
+        $parts = $parts->where('user_id', $input['user_id']);
+      if (isset($input['part_type_id']) && array_key_exists($input['part_type_id'], $part_types))
+        $parts = $parts->where('part_type_id', $input['part_type_id']);
+      $parts = $parts->orderBy('vote_sort')->
+        orderBy('part_type_id')->
+        orderBy('filename')->
+        lazy();
+
+      return view('part.list',[
+        'unofficial' => $unofficial,
+        'parts' => $parts,
+        'subset' => $subset,
+        'users' => $users,
+        'part_types' => $part_types,
+      ]);  
     }
 
     /**
@@ -243,5 +248,10 @@ class PartController extends Controller
       $part->move($newname, $newtype);
       PartEvent::createFromType('rename', Auth::user(), $part, "part $oldname was renamed to {$part->name()}");
       return redirect()->route('tracker.show', [$part])->with('status','Move successful');
+    }
+
+    public function webgl(Part $part) {
+      WebGL::WebGLPart($part, $parts, true, $part->isUnofficial());
+      return response(json_encode($parts));    
     }
 }
