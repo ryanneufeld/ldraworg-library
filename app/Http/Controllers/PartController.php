@@ -209,7 +209,6 @@ class PartController extends Controller
     public function destroy(Part $part)
     {
       $this->authorize('delete', $part);
-//      Storage::disk('library')->move('unofficial/' . $part->filename, 'backups/' . $part->filename . 'deleted');
       $part->delete();
     }
     
