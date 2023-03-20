@@ -25,7 +25,7 @@
         <td>{{$user->name}}</td>
         <td>{{implode(', ', $user->getRoleNames()->all())}}</td>
         <td>{{$user->license->name}}</td>
-        <td><a class="ui button" href="{{route('admin.users.edit', $user)}}">Edit</a>
+        <td><a class="ui button" href="{{route('admin.users.edit', $user)}}">Edit</a></td>
       </tr>
     @endforeach
     </tbody>

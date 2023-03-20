@@ -30,7 +30,11 @@
   </td>
   <td>
     @if($part->description == 'Missing')
-    &nbsp;
+     @can('part.edit.number')
+     <a class="ui button" href="{{route('tracker.updatemissing', $part->id)}}">Update</a>
+     @else
+      &nbsp;
+     @endcan 
     @elseif($part->isUnofficial())
     <x-part.status :vote="$part->vote_summary" status_text="1" />
     @else

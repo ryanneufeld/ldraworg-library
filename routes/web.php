@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\PartController;
 use App\Http\Controllers\VoteController;
@@ -36,6 +37,10 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->put('/{part}/move', [PartController::class, 'domove'])->name('domove');
 
   Route::middleware(['auth'])->get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
+  Route::middleware(['auth'])->get('/{part}/updatesubparts', [PartController::class, 'updatesubparts'])->name('updatesubparts');
+
+  Route::middleware(['auth'])->get('/{missingpart}/updatemissing', [PartController::class, 'updatemissing'])->name('updatemissing');
+  Route::middleware(['auth'])->put('/{missingpart}/updatemissing', [PartController::class, 'doupdatemissing'])->name('doupdatemissing');
 
   Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'domove'])->name('destroy');
 

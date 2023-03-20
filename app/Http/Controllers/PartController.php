@@ -252,4 +252,30 @@ class PartController extends Controller
       WebGL::WebGLPart($part, $parts, true, $part->isUnofficial());
       return response(json_encode($parts));    
     }
+
+    public function updatesubparts (Part $part) {
+      $this->authorize('update', $part);
+      $part->updateSubparts(true);
+      return redirect()->route('tracker.show', [$part])->with('status','Part dependencies updated');
+    }
+
+    public function updatemissing (Part $part) {
+      $this->authorize('update', $part);
+      return view('part.updatemissing', ['part' => $part]);
+    }
+
+    public function doupdatemissing (Part $part, Request $request) {
+      $this->authorize('update', $part);
+      $validated = $request->validate([
+        'part_id' => 'required|in:' . $part->id,
+        'new_part_id' => 'required|exists:parts,id',
+      ]);
+      $new = Part::find($validated['new_part_id']);
+      foreach($part->parents as $p) {
+        $p->body->body = str_replace($part->name(), $new->name(), $p->body->body);
+        $p->body->save();
+        $p->updateSubparts(true);
+      }
+      return redirect()->route('tracker.show', $new)->with('status','Missing part updated');
+    }
 }

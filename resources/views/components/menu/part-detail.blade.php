@@ -23,6 +23,7 @@
       @endif
       @can('part.edit.header')
         <a class="item" title="Regenerate Part Image" href="{{route('tracker.updateimage', $part->id)}}">Regenerate Image</a>
+        <a class="item" title="Update subparts" href="{{route('tracker.updatesubparts', $part->id)}}">Update Subparts</a>
       @endcan  
       @can('part.edit.number')
         <a class="item" title="Renumber part" href="{{route('tracker.move', $part->id)}}">Renumber</a>
