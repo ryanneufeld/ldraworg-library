@@ -193,7 +193,7 @@ class PartController extends Controller
       $part->refreshHeader();
       
       // Post an event
-      PartEvent::createFromType('edit', Auth::user(), $part);
+      PartEvent::createFromType('edit', Auth::user(), $part, $data['editcomment'] ?? null);
       Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
       UpdateZip::dispatch($part);
 
