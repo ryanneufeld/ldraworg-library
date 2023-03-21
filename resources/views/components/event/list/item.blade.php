@@ -42,7 +42,7 @@
         </div>
       </div>
       <div class="partfeed extra text">
-<pre>{!! $event->comment !!}</pre>
+        {!! $event->comment !!}
       </div>
     </div>
   </div>

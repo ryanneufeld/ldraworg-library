@@ -68,6 +68,7 @@ body {
 }
 
 pre {
+  overflow-x: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -75,12 +76,15 @@ pre {
 .ui.feed > .event > .content .partevent.summary {
   font-size: 0.91em;
   font-weight: 600;
+  max-width: 80%;
 }
 
 .pattern.segment {
    height: 100%;
 }
 
-.ui.feed > .event > .content .extra.text {
-  max-width: 95%;
+.ui.feed .event .content .partfeed.extra.text {
+  overflow-x: auto;
+  word-wrap: break-word;
+  max-width: 80%;
 }
