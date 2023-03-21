@@ -17,8 +17,8 @@ use App\LDraw\WebGL;
 
 use App\Http\Requests\PartSubmitRequest;
 use App\Http\Requests\PartHeaderEditRequest;
-
-use App\Rules\MoveName;
+use App\Http\Requests\PartMoveRequest;
+use App\Http\Requests\PartMissingUpdateRequest;
 
 use App\Jobs\UpdateZip;
 
@@ -81,6 +81,8 @@ class PartController extends Controller
     public function show(Part $part)
     {
       $part->load('events','history','subparts','parents');
+      $part->events->load('part_event_type', 'user', 'part', 'vote_type');
+      $part->user->load('license');
       $urlpattern = '#https?:\/\/(?:www\.)?[a-zA-Z0-9@:%._\+~\#=-]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[a-zA-Z0-9()@:%_\+.~\#?&\/=-]*)#u';
 
       foreach ($part->events as $e) {
@@ -129,7 +131,7 @@ class PartController extends Controller
     public function store(PartSubmitRequest $request)
     {
       $this->authorize('create', Part::class);
-      $filedata = $request->safe()->all();
+      $filedata = $request->validated();
       $user = User::find($filedata['user_id']);
       $pt = PartType::find($filedata['part_type_id']);
       $parts = LibraryOperations::addFiles($filedata['partfile'], $user, $pt, $filedata['comment'] ?? null);
@@ -172,7 +174,7 @@ class PartController extends Controller
     public function doeditheader(PartHeaderEditRequest $request, Part $part)
     {
       $this->authorize('update', $part);
-      $data = $request->safe()->all();
+      $data = $request->validated();
       
       if (!empty($data['description'])) {
         $part->description = $data['description'];
@@ -233,13 +235,9 @@ class PartController extends Controller
       return view('tracker.move', ['part' => $part]);
     }
 
-    public function domove(Part $part, Request $request) {    
+    public function domove(Part $part, PartMoveRequest $request) {    
       $this->authorize('update', $part);
-      $validated = $request->validate([
-        'part_id' => 'required|in:' . $part->id,
-        'part_type_id' => 'required|exists:part_types,id',
-        'newname' => [new MoveName],
-      ]);
+      $validated = $request->validated();
       $oldname = $part->name();
       $newtype = PartType::find($validated['part_type_id']);
       $newname = pathinfo($validated['newname'], PATHINFO_FILENAME) . '.' . $newtype->format;
@@ -264,12 +262,9 @@ class PartController extends Controller
       return view('part.updatemissing', ['part' => $part]);
     }
 
-    public function doupdatemissing (Part $part, Request $request) {
+    public function doupdatemissing (Part $part, PartMissingUpdateRequest $request) {
       $this->authorize('update', $part);
-      $validated = $request->validate([
-        'part_id' => 'required|in:' . $part->id,
-        'new_part_id' => 'required|exists:parts,id',
-      ]);
+      $validated = $request->validated();
       $new = Part::find($validated['new_part_id']);
       foreach($part->parents as $p) {
         $p->body->body = str_replace($part->name(), $new->name(), $p->body->body);

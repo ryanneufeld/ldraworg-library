@@ -32,6 +32,8 @@ class User extends Authenticatable
         'part_license_id'
     ];
 
+    protected $with = ['license'];
+
     /**
      * The attributes that should be hidden for arrays.
      *

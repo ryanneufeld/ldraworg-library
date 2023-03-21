@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
+use App\Http\Requests\VoteRequest;
 use App\Models\Vote;
-use App\Models\VoteType;
 use App\Models\Part;
 use App\Models\PartEvent;
 use App\Models\PartEventType;
@@ -31,7 +30,7 @@ class VoteController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Part $part, Request $request)
+    public function store(Part $part, VoteRequest $request)
     {
       $this->authorize('create', [Vote::class, $part]);
       return $this->postVote($part, null, $request);
@@ -56,19 +55,15 @@ class VoteController extends Controller
      * @param  \App\Models\Vote  $vote
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Vote $vote)
+    public function update(VoteRequest $request, Vote $vote)
     {
       $this->authorize('update', $vote);
 
       return $this->postVote($vote->part, $vote, $request);
    }
     
-    protected function postVote(Part $part, Vote $vote = null, Request $request) {
-      $vts = array_merge(VoteType::all()->pluck('code')->all(),['N','M']);
-      $validated = $request->validate([
-          'vote_type' => ['required' , Rule::in($vts)],
-          'comment' => 'required_if:vote_type,M,H|nullable|string',
-      ]);
+    protected function postVote(Part $part, Vote $vote = null, VoteRequest $request) {
+      $validated = $request->validated();
 
       if ($validated['vote_type'] == 'N') {
         return $this->destroy($request, $vote);
@@ -101,7 +96,7 @@ class VoteController extends Controller
       $event->release()->associate(PartRelease::unofficial());
       $event->save();
 
-      return redirect()->route('tracker.show', [$part])->with('status','Vote succesfully posted');
+      return redirect()->route('tracker.show', $part)->with('status','Vote succesfully posted');
       
     }
     /**
@@ -125,6 +120,6 @@ class VoteController extends Controller
        'part_release_id' => PartRelease::unofficial()->id
       ]);
 
-      return redirect()->route('tracker.show', $part->id);
+      return redirect()->route('tracker.show', $part)->with('status','Vote succesfully canceled');;
     }
 }

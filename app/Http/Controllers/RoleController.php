@@ -8,6 +8,8 @@ use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
+use App\Http\Requests\RoleStoreRequest;
+
 class RoleController extends Controller
 {
     /**
@@ -39,12 +41,9 @@ class RoleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(RoleStoreRequest $request)
     {
-      $validated = $request->validate([
-        'name' => ['required', 'string', Rule::unique('roles')],
-        'permissions.*' => 'nullable|exists:permissions,name',
-      ]);
+      $validated = $request->validated();
       $role = Role::create(['name' => $validated['name']]);
       $role->syncPermissions($validated['permissions']);
       return redirect()->route('admin.roles.index')
@@ -70,12 +69,9 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Role $role)
+    public function update(RoleStoreRequest $request, Role $role)
     {
-      $validated = $request->validate([
-        'name' => ['required', 'string', Rule::unique('roles')->ignore($role->id)],
-        'permissions.*' => 'nullable|exists:permissions,name',
-      ]);
+      $validated = $request->validated();
       $role->syncPermissions($validated['permissions']);
       return redirect()->route('admin.roles.index')
                       ->with('success','Role updated successfully');                        

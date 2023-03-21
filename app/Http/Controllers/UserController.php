@@ -7,6 +7,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+use App\Http\Requests\UserCreateRequest;
+use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Jobs\UpdateMybbUser;
@@ -40,11 +42,9 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create(UserCreateRequest $request)
     {
-      $validated = $request->validate([
-        'forum_user_id' => 'required|integer',
-      ]);  
+      $validated = $request->validated();  
       $roles = Role::pluck('name','name')->all();
       $user = DB::connection('mybb')->table('mybb_users')
         ->select('uid', 'username', 'loginname', 'email')
@@ -58,15 +58,9 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UserStoreRequest $request)
     {
-        $validated = $request->validate([
-          'realname' => ['required', 'string', Rule::unique('users')],
-          'name' => ['required', 'string', Rule::unique('users')],
-          'email' => ['required', 'email', Rule::unique('users')],
-          'roles' => 'required',
-          'part_license_id' => 'required|exists:part_licenses,id'
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
           'name' => $validated['name'],
@@ -115,15 +109,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $user)
+    public function update(UserStoreRequest $request, User $user)
     {
-        $validated = $request->validate([
-          'realname' => ['required', 'string', Rule::unique('users')->ignore($user->id)],
-          'name' => ['required', 'string', Rule::unique('users')->ignore($user->id)],
-          'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-          'roles' => 'required',
-          'part_license_id' => 'required|exists:part_licenses,id'
-        ]);
+        $validated = $request->validated();
 
         $user->fill([
           'name' => $validated['name'],

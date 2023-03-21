@@ -21,7 +21,7 @@ class LoginMybbUser
      */
     public function handle(Request $request, Closure $next)
     {
-      if (is_null($request->user())) {
+      if (!Auth::check()) {
         // Get the mybb login data from the mybbuser cookie
         if ($mybb = $request->cookies->get('mybbuser')) {
           $mybb = explode("_", $mybb);
