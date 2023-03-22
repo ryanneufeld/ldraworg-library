@@ -33,7 +33,7 @@
     </div>  
   </form>
   @isset($results)
-      <x-part.table title="Matched {{$results['uparts']->count()}} Unofficial Parts" unofficial=1 :parts="$results['uparts']" none=""/>
-      <x-part.table title="Matched {{$results['oparts']->count()}} Official Parts" unofficial=0 :parts="$results['oparts']" none=""/>
+      <x-part.table title="Matched {{$results['uparts']->count()}} Unofficial Parts" :parts="$results['uparts']" none=""/>
+      <x-part.table title="Matched {{$results['oparts']->count()}} Official Parts" :parts="$results['oparts']" none=""/>
   @endisset  
 </x-layout.main>
