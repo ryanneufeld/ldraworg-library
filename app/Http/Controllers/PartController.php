@@ -87,10 +87,12 @@ class PartController extends Controller
       $urlpattern = '#https?:\/\/(?:www\.)?[a-zA-Z0-9@:%._\+~\#=-]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[a-zA-Z0-9()@:%_\+.~\#?&\/=-]*)#u';
 
       foreach ($part->events as $e) {
-        $e->comment = FileUtils::dos2unix($e->comment);
-        $e->comment = preg_replace('#\n{3,}#us', "\n\n", $e->comment);
-        $e->comment = preg_replace($urlpattern, '<a href="$0">$0</a>', $e->comment);
-        $e->comment = nl2br($e->comment);
+        if(!is_null($e->comment)) {
+          $e->comment = FileUtils::dos2unix($e->comment);
+          $e->comment = preg_replace('#\n{3,}#us', "\n\n", $e->comment);
+          $e->comment = preg_replace($urlpattern, '<a href="$0">$0</a>', $e->comment);
+          $e->comment = nl2br($e->comment);
+        }  
       }
       return view('part.show', [
         'part' => $part, 
