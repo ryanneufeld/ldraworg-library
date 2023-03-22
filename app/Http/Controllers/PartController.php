@@ -217,7 +217,25 @@ class PartController extends Controller
     public function destroy(Part $part)
     {
       $this->authorize('delete', $part);
+      if ($part->parents->count() > 0) back();
+      foreach($part->history as $h) {
+        $h->delete();
+      }
+      foreach($part->votes as $h) {
+        $h->delete();
+      }
+      foreach($part->events as $h) {
+        $h->delete();
+      }
+      foreach($part->help as $h) {
+        $h->delete();
+      }
+      $part->body->delete();
+      $part->keywords()->sync([]);
+      $part->subparts()->sync([]);
+      $part->notification_users()->sync([]);
       $part->delete();
+      $part->forceDelete();
     }
     
     public function weekly(Request $request) {

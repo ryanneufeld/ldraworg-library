@@ -42,7 +42,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->get('/{missingpart}/updatemissing', [PartController::class, 'updatemissing'])->name('updatemissing');
   Route::middleware(['auth'])->put('/{missingpart}/updatemissing', [PartController::class, 'doupdatemissing'])->name('doupdatemissing');
 
-  Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'domove'])->name('destroy');
+  Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'destroy'])->withTrashed()->name('destroy');
 
   Route::get('/search', [SearchController::class, 'partsearch'])->name('search');
   Route::get('/suffixsearch', [SearchController::class, 'suffixsearch'])->name('suffixsearch');
