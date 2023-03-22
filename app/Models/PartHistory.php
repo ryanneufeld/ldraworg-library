@@ -17,7 +17,7 @@ class PartHistory extends Model
       'part_id',
     ];
 
-//    protected $with = ['user'];
+    protected $with = ['user'];
     
     public function user()
     {
