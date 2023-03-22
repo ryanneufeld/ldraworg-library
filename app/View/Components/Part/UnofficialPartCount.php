@@ -29,6 +29,7 @@ class UnofficialPartCount extends Component
      */
     public function __construct(bool $small = true)
     {
+      $this->summary = Part::unofficial()->pluck('vote_sort')->countBy()->all();
       $this->small = $small;
     }
 
@@ -39,7 +40,6 @@ class UnofficialPartCount extends Component
      */
     public function render()
     {
-      $this->summary = Part::unofficial()->pluck('vote_sort')->countBy()->all();
       return view('components.part.unofficial-part-count');
     }
 }
