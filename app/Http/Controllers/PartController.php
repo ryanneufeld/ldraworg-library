@@ -84,6 +84,7 @@ class PartController extends Controller
       $part->load('events','history','subparts','parents');
       $part->events->load('part_event_type', 'user', 'part', 'vote_type');
       $part->user->load('license');
+      $part->votes->load('user','type');
       $urlpattern = '#https?:\/\/(?:www\.)?[a-zA-Z0-9@:%._\+~\#=-]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[a-zA-Z0-9()@:%_\+.~\#?&\/=-]*)#u';
 
       foreach ($part->events as $e) {
@@ -208,6 +209,9 @@ class PartController extends Controller
       return redirect()->route('tracker.show', [$part])->with('status','Header update successful');
     }
 
+    public function delete(Part $part) {
+      return view('part.delete', compact('part'));
+    }
     /**
      * Remove the specified resource from storage.
      *
@@ -217,25 +221,9 @@ class PartController extends Controller
     public function destroy(Part $part)
     {
       $this->authorize('delete', $part);
-      if ($part->parents->count() > 0) back();
-      foreach($part->history as $h) {
-        $h->delete();
-      }
-      foreach($part->votes as $h) {
-        $h->delete();
-      }
-      foreach($part->events as $h) {
-        $h->delete();
-      }
-      foreach($part->help as $h) {
-        $h->delete();
-      }
-      $part->body->delete();
-      $part->keywords()->sync([]);
-      $part->subparts()->sync([]);
-      $part->notification_users()->sync([]);
+      if ($part->parents->count() > 0) return back();
       $part->delete();
-      $part->forceDelete();
+      return redirect()->route('tracker.activity');
     }
     
     public function weekly(Request $request) {

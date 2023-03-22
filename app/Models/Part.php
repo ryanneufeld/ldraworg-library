@@ -32,7 +32,7 @@ use RuntimeException;
 
 class Part extends Model
 {
-    use SoftDeletes, HasFactory;
+    use HasFactory;
 
     protected $fillable = [
       'user_id',
