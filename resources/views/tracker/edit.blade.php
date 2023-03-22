@@ -30,10 +30,7 @@
       <label for="type">0 !LDRAW_ORG</label>
       <input type="text" name="type" readonly value="{{$part->type->type}}">
     </div>  
-    <div class="six wide field">
-      <label for="qual_type">&nbsp;</label>
-      <x-form.select class="ui clearable dropdown" name="part_type_qualifier_id" :options="\App\Models\PartTypeQualifier::pluck('type', 'id')"  placeholder="Qualifier" selected="{{old('part_type_qualifier_id') ?? $part->part_type_qualifier_id}}" />
-    </div>  
+    <x-form.select class="clearable" width="six" label="Type Qualifier" name="part_type_qualifier_id" :options="\App\Models\PartTypeQualifier::pluck('type', 'id')"  placeholder="Qualifier" selected="{{old('part_type_qualifier_id') ?? $part->part_type_qualifier_id}}" />
   </div>
   <div class="field info">
     <label for="license">0 !LICENSE</label>
@@ -47,10 +44,7 @@
     <label for="bfc">0 BFC CERTIFY</label>
     <input type="text" name="bfc" readonly value="{{$part->bfc ?? ''}}">
   </div>
-  <div class="field">
-    <label for="part_category_id">0 !CATEGORY (Note: A !CATEGORY meta will be added only if this differs from the first word in the description)</label>
-    <x-form.select class="ui clearable dropdown" name="part_category_id" :options="\App\Models\PartCategory::pluck('category', 'id')"  placeholder="Category" selected="{{old('part_category_id') ?? $part->part_category_id}}" />
-  </div>
+  <x-form.select class="clearable" label="0 !CATEGORY (Note: A !CATEGORY meta will be added only if this differs from the first word in the description)" name="part_category_id" :options="\App\Models\PartCategory::pluck('category', 'id')"  placeholder="Category" selected="{{old('part_category_id') ?? $part->part_category_id}}" />
   <div class="field">
     <label for="keywords">0 !KEYWORDS (Note: Do not include 0 !KEYWORDS; the number of keyword lines and keyword order will not be preserved)</label>
     <textarea name="keywords">{{old('keywords') ?? $part->keywords()->orderBy('keyword')->get()->implode('keyword', ", ")}}</textarea>
