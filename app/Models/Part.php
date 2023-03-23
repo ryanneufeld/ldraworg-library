@@ -63,11 +63,6 @@ class Part extends Model
       static::addGlobalScope('missing', function (Builder $builder) {
         $builder->where('description', '<>', 'Missing');
       });
-/*
-      static::saving(function ($part) {
-        $part->header = $part->getHeaderText();
-      });
-*/
     }
 
     public function user() {
@@ -282,7 +277,7 @@ class Part extends Model
       }
     }
 
-    // Returns a collection of the user who have edited this part
+    // Returns a collection of the users who have edited this part
     public function editHistoryUsers() {
       $id = $this->id;
       $users = User::whereNotIn('name', ['OrionP', 'cwdee', 'sbliss', 'PTadmin'])->whereHas('part_histories', function (Builder $query) use ($id) {
@@ -430,9 +425,7 @@ class Part extends Model
 
       $help = $withoutMeta === true ? explode("\n", $text) : FileUtils::getHelp($text);
 
-      foreach ($this->help as $h) {
-        $h->delete();
-      }
+      $this->help()->delete();
       
       if (!empty($help)) {
         $order = 0;
@@ -461,9 +454,8 @@ class Part extends Model
 
     public function setHistory(string $text): void {
       $history = FileUtils::getHistory(FileUtils::dos2unix($text), true);
-      foreach ($this->history as $hist) {
-        $hist->delete();
-      }
+
+      $this->history()->delete();
       
       if (!empty($history)) {
         foreach ($history as $hist) {
@@ -573,8 +565,6 @@ class Part extends Model
       $this->refreshHeader();
       $this->updateSubparts(true);
       $this->save();
-      //if ($headerOnly) $text = FileUtils::setHeader($this->get(), $text);
-      //$this->put($text);
     }
   
     // Note: this function assumes that the part text has been cleaned and validated

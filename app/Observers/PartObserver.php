@@ -2,7 +2,10 @@
 
 namespace App\Observers;
 
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Part;
+use App\Models\PartEvent;
 
 class PartObserver
 {
@@ -27,6 +30,7 @@ class PartObserver
      */
     public function deleting(Part $part): void
     {
+      Storage::disk('local')->put('deleted/library/' . $part->filename . '.' . time(), $part->get());
       $part->history()->delete();
       $part->votes()->delete();
       $part->events()->delete();
@@ -35,20 +39,13 @@ class PartObserver
       $part->keywords()->sync([]);
       $part->subparts()->sync([]);
       $part->notification_users()->sync([]);
-    }
 
-    /**
-     * Handle the Part "restored" event.
-     */
-    public function restored(Part $part): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Part "force deleting" event.
-     */
-    public function forceDeleting(Part $part): void
-    {
+      PartEvent::create([
+        'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'delete')->id,
+        'user_id' => Auth::user()->id,
+        'part_release_id' => \App\Models\PartRelease::unofficial()->id,
+        'deleted_filename' => $part->filename,
+        'deleted_description' => $part->description,
+      ]);
     }
 }

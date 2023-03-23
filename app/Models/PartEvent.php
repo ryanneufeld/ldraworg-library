@@ -23,6 +23,9 @@ class PartEvent extends Model
       'part_release_id',
       'part_event_type_id',
       'comment',
+      'deleted_filename',
+      'deleted_description',
+      'moved_from_filename',
     ];
 
     protected $casts = [
