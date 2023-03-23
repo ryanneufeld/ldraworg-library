@@ -1,5 +1,5 @@
 @props(['event', 'type' => 'feed'])
-@if(!is_null($event->comment) && !in_array($event->part_event_type->slug, ['comment', 'release', 'delete']) && $type == 'table')
+@if(!is_null($event->comment) && !in_array($event->part_event_type->slug, ['comment', 'release', 'delete', 'rename']) && $type == 'table')
 <i class="icons">
 @endif
 <i title="{{$event->part_event_type->name}}" @class([
@@ -18,7 +18,7 @@
   'big' => $type == 'table',
   'icon',
 ])></i>
-@if(!is_null($event->comment) && !in_array($event->part_event_type->slug, ['comment', 'release', 'delete']) && $type == 'table')
+@if(!is_null($event->comment) && !in_array($event->part_event_type->slug, ['comment', 'release', 'delete', 'rename']) && $type == 'table')
 <i @class(['small' => $type == 'table', 'blue bottom left corner comment icon'])></i>
 </i>
 @endif
