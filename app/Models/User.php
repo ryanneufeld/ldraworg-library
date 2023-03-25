@@ -84,6 +84,10 @@ class User extends Authenticatable
       return $this->belongsToMany(Part::class, 'user_part_notifications', 'user_id', 'part_id');
     }
     
+    public function togglePartNotification(Part $part): void {
+      $this->notification_parts()->toggle([$part->id]);
+    }
+
     // Find by user or real name
     public static function findByName($name, $rname = '') {
       if (!empty($rname)) {

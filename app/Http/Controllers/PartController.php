@@ -285,4 +285,5 @@ class PartController extends Controller
       }
       return redirect()->route('tracker.show', $new)->with('status','Missing part updated');
     }
+
 }

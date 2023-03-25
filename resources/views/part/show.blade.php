@@ -14,6 +14,37 @@
       </span>
     </div>
     <div>
+      @if ($part->isUnofficial() && Auth::check())
+        <a href="{{route('tracker.notification.toggle', [Auth::user(), $part])}}" @class([
+          'ui',
+          'yellow' => Auth::user()->notification_parts->contains($part->id),
+          'labeled icon button',
+        ])>
+          <i class="bell icon"></i>
+            {{Auth::user()->notification_parts->contains($part->id) ? 'Tracking' : 'Track'}}
+        </a>
+        @can('part.flag.delete')
+          <a href="{{route('tracker.flag.delete', $part)}}" @class([
+            'ui',
+            'red' => $part->delete_flag,
+            'labeled icon button',
+          ])>
+            <i class="flag icon"></i>
+              {{$part->delete_flag ? 'Flagged' : 'Flag'}} for Deletion
+          </a>    
+        @else
+          <div @class([
+            'ui',
+            'red' => $part->delete_flag,
+            'labeled icon button',
+          ])>
+            <i class="flag icon"></i>
+              {{$part->delete_flag ? 'Flagged' : 'Flag'}} for Deletion
+          </div>       
+        @endcan    
+      @endif
+    </div>
+    <div>
       @isset ($part->unofficial_part_id)
         <a href="{{ route('tracker.show', $part->unofficial_part_id) }}">View unofficial version of part</a>
       @endisset

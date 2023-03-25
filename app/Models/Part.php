@@ -52,6 +52,7 @@ class Part extends Model
 
     protected $casts = [
       'vote_summary' => AsArrayObject::class,
+      'delete_flag' => 'boolean',
     ];
 
     /**
@@ -696,4 +697,18 @@ class Part extends Model
       }
     }
 
+    public function deleteRelationships(): void {
+      $this->history()->delete();
+      $this->votes()->delete();
+      $this->events()->delete();
+      $this->help()->delete();
+      $this->body->delete();
+      $this->keywords()->sync([]);
+      $this->subparts()->sync([]);
+      $this->notification_users()->sync([]);
+    }
+
+    public function putDeletedBackup(): void {
+      Storage::disk('local')->put('deleted/library/' . $this->filename . '.' . time(), $this->get());
+    }
 }

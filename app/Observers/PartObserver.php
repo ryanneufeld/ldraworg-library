@@ -10,36 +10,12 @@ use App\Models\PartEvent;
 class PartObserver
 {
     /**
-     * Handle the Part "created" event.
-     */
-    public function created(Part $part): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Part "updated" event.
-     */
-    public function updated(Part $part): void
-    {
-        //
-    }
-
-    /**
-     * Handle the Part "deleted" event.
+     * Handle the Part "deleting" event.
      */
     public function deleting(Part $part): void
     {
-      Storage::disk('local')->put('deleted/library/' . $part->filename . '.' . time(), $part->get());
-      $part->history()->delete();
-      $part->votes()->delete();
-      $part->events()->delete();
-      $part->help()->delete();
-      $part->body->delete();
-      $part->keywords()->sync([]);
-      $part->subparts()->sync([]);
-      $part->notification_users()->sync([]);
-
+      $part->putDeletedBackup();
+      $part->deleteRelationships();
       PartEvent::create([
         'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'delete')->id,
         'user_id' => Auth::user()->id,

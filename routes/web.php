@@ -12,6 +12,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserNotificationController;
+use App\Http\Controllers\PartDeleteFlagController;
 
 Route::redirect('/', '/tracker');
 
@@ -24,24 +26,28 @@ Route::get('/ldbi/{part}/parts', [PartController::class, 'webgl']);
 Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::view('/', 'tracker.main')->name('main');
 
-  Route::middleware(['auth'])->get('/submit', [PartController::class, 'create'])->name('submit');
-  Route::middleware(['auth'])->post('/submit', [PartController::class, 'store'])->name('store');
+  Route::middleware(['auth', 'currentlic'])->get('/submit', [PartController::class, 'create'])->name('submit');
+  Route::middleware(['auth', 'currentlic'])->post('/submit', [PartController::class, 'store'])->name('store');
 
   Route::get('/list', [PartController::class, 'index'])->name('index');
   Route::get('/weekly', [PartController::class, 'weekly'])->name('weekly');
 
-  Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
-  Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
+  Route::middleware(['auth', 'currentlic'])->get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
+  Route::middleware(['auth', 'currentlic'])->put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
 
-  Route::middleware(['auth'])->get('/{part}/move', [PartController::class, 'move'])->name('move');
-  Route::middleware(['auth'])->put('/{part}/move', [PartController::class, 'domove'])->name('domove');
+  Route::middleware(['auth', 'currentlic'])->get('/{part}/move', [PartController::class, 'move'])->name('move');
+  Route::middleware(['auth', 'currentlic'])->put('/{part}/move', [PartController::class, 'domove'])->name('domove');
 
   Route::middleware(['auth'])->get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
   Route::middleware(['auth'])->get('/{part}/updatesubparts', [PartController::class, 'updatesubparts'])->name('updatesubparts');
 
-  Route::middleware(['auth'])->get('/{missingpart}/updatemissing', [PartController::class, 'updatemissing'])->name('updatemissing');
-  Route::middleware(['auth'])->put('/{missingpart}/updatemissing', [PartController::class, 'doupdatemissing'])->name('doupdatemissing');
+  Route::middleware(['auth'])->get('notification/user/{user}/part/{part}', [UserNotificationController::class, 'store'])->name('notification.toggle');
 
+  Route::middleware(['auth', 'currentlic'])->get('/{missingpart}/updatemissing', [PartController::class, 'updatemissing'])->name('updatemissing');
+  Route::middleware(['auth', 'currentlic'])->put('/{missingpart}/updatemissing', [PartController::class, 'doupdatemissing'])->name('doupdatemissing');
+
+  Route::middleware(['auth'])->get('/{part}/delete-flag', [PartDeleteFlagController::class, 'store'])->name('flag.delete');
+  
   Route::middleware(['auth'])->get('/{part}/delete', [PartController::class, 'delete'])->withTrashed()->name('delete');
   Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'destroy'])->withTrashed()->name('destroy');
 
@@ -52,6 +58,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->get('/vote/{vote}/edit', [VoteController::class, 'edit'])->name('vote.edit');
   Route::middleware(['auth'])->post('/{part}/vote', [VoteController::class, 'store'])->name('vote.store');
   Route::middleware(['auth'])->put('/vote/{vote}', [VoteController::class, 'update'])->name('vote.update');
+
+  Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
 
   Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
 

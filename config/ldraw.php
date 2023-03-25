@@ -83,5 +83,7 @@ return [
       'height' => '75',
     ],
   ],      
-  'defaultlic' => 'CC_BY_2',
+  'license' => [
+    'default' => 'CC_BY_4',
+  ],
 ];  
