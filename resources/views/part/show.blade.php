@@ -33,14 +33,12 @@
               {{$part->delete_flag ? 'Flagged' : 'Flag'}} for Deletion
           </a>    
         @else
-          <div @class([
-            'ui',
-            'red' => $part->delete_flag,
-            'labeled icon button',
-          ])>
+          @if($part->delete_flag)
+          <div class="ui red labeled icon button">
             <i class="flag icon"></i>
               {{$part->delete_flag ? 'Flagged' : 'Flag'}} for Deletion
-          </div>       
+          </div>
+          @endif       
         @endcan    
       @endif
     </div>
