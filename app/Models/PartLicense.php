@@ -25,6 +25,6 @@ class PartLicense extends Model
     }
 
     public static function defaultLicense() {
-      return self::firstWhere('name', config('ldraw.defaultlic'));
+      return self::firstWhere('name', config('ldraw.license.default'));
     }      
 }
