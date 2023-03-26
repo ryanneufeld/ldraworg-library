@@ -14,6 +14,7 @@ use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserNotificationController;
 use App\Http\Controllers\PartDeleteFlagController;
+use App\Http\Controllers\CaConfirmController;
 
 Route::redirect('/', '/tracker');
 
@@ -32,24 +33,27 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::get('/list', [PartController::class, 'index'])->name('index');
   Route::get('/weekly', [PartController::class, 'weekly'])->name('weekly');
 
-  Route::middleware(['auth', 'currentlic'])->get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
-  Route::middleware(['auth', 'currentlic'])->put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
+  Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
+  Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
 
-  Route::middleware(['auth', 'currentlic'])->get('/{part}/move', [PartController::class, 'move'])->name('move');
-  Route::middleware(['auth', 'currentlic'])->put('/{part}/move', [PartController::class, 'domove'])->name('domove');
+  Route::middleware(['auth'])->get('/{part}/move', [PartController::class, 'move'])->name('move');
+  Route::middleware(['auth'])->put('/{part}/move', [PartController::class, 'domove'])->name('domove');
 
   Route::middleware(['auth'])->get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
   Route::middleware(['auth'])->get('/{part}/updatesubparts', [PartController::class, 'updatesubparts'])->name('updatesubparts');
 
-  Route::middleware(['auth'])->get('notification/user/{user}/part/{part}', [UserNotificationController::class, 'store'])->name('notification.toggle');
+  Route::middleware(['auth'])->get('notification/part/{part}', [UserNotificationController::class, 'store'])->name('notification.toggle');
 
-  Route::middleware(['auth', 'currentlic'])->get('/{missingpart}/updatemissing', [PartController::class, 'updatemissing'])->name('updatemissing');
-  Route::middleware(['auth', 'currentlic'])->put('/{missingpart}/updatemissing', [PartController::class, 'doupdatemissing'])->name('doupdatemissing');
+  Route::middleware(['auth'])->get('/{missingpart}/updatemissing', [PartController::class, 'updatemissing'])->name('updatemissing');
+  Route::middleware(['auth'])->put('/{missingpart}/updatemissing', [PartController::class, 'doupdatemissing'])->name('doupdatemissing');
 
   Route::middleware(['auth'])->get('/{part}/delete-flag', [PartDeleteFlagController::class, 'store'])->name('flag.delete');
-  
+
   Route::middleware(['auth'])->get('/{part}/delete', [PartController::class, 'delete'])->withTrashed()->name('delete');
   Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'destroy'])->withTrashed()->name('destroy');
+
+  Route::middleware(['auth'])->get('/confirmCA', [CaConfirmController::class, 'edit'])->name('confirmCA.show');
+  Route::middleware(['auth'])->put('/confirmCA', [CaConfirmController::class, 'update'])->name('confirmCA.store');
 
   Route::get('/search', [SearchController::class, 'partsearch'])->name('search');
   Route::get('/suffixsearch', [SearchController::class, 'suffixsearch'])->name('suffixsearch');
@@ -58,8 +62,6 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->get('/vote/{vote}/edit', [VoteController::class, 'edit'])->name('vote.edit');
   Route::middleware(['auth'])->post('/{part}/vote', [VoteController::class, 'store'])->name('vote.store');
   Route::middleware(['auth'])->put('/vote/{vote}', [VoteController::class, 'update'])->name('vote.update');
-
-  Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
 
   Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
 
@@ -97,10 +99,10 @@ Route::get('/library/unofficial/{unofficialpart}', [PartController::class, 'down
 
 /*
 // Only enable this route for testing
-Route::get('/login-user-233', function () {
+Route::get('/login-user-291', function () {
   Auth::logout();
-  Auth::login(\App\Models\User::find(233));
-  return response()->redirectTo('/', 302);
+  Auth::login(\App\Models\User::find(291));
+  return back();
 });
 */
 

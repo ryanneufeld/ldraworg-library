@@ -408,7 +408,7 @@ class Part extends Model
           "0 Name: " . $oldPart->name() . "\n" .
           Auth::user()->toString() . "\n" .
           $newPart->typeString() . "\n" . 
-          $newPart->license->toString() . "\n\n" .
+          Auth::user()->license->toString() . "\n\n" .
           "0 BFC CERTIFY CCW\n\n" .
           "0 1 16 0 0 0 1 0 0 0 1 0 0 0 1 " . $newPart->name(); 
         
@@ -515,7 +515,7 @@ class Part extends Model
         'cmdline' => $cmdline === false ? NULL : $cmdline,
         'bfc' => $bfc === false ? NULL : $bfc['certwinding'],
       ]);
-      if (is_null($this->part_license_id)) $this->part_license_id = 1;
+      if (is_null($this->part_license_id)) PartLicense::defaultLicense()->id;
 
       $this->save();
       $this->refresh();
@@ -575,7 +575,7 @@ class Part extends Model
         $fill = [
           'user_id' => $user->id,
           'part_release_id' => $rel->id ?? PartRelease::unofficial()->id,
-          'part_license_id' => PartLicense::defaultLicense()->id,
+          'part_license_id' => $user->license->id,
           'filename' => $pt->folder . File::basename($path),
           'description' => $pt->name . ' ' . File::basename($path),
           'part_type_id' => $pt->id,
