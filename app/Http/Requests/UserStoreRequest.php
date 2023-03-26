@@ -23,10 +23,10 @@ class UserStoreRequest extends FormRequest
     public function rules(): array
     {
       if (empty($this->route('user'))) {
-        $unique = Rule::unique('users')->ignore($this->route('user')->id);
+        $unique = Rule::unique('users');
       }
       else {
-        $unique = Rule::unique('users');
+        $unique = Rule::unique('users')->ignore($this->route('user')->id);
       }
       return [
         'realname' => ['required', 'string', $unique],
