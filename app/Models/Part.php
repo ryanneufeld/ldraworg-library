@@ -53,6 +53,7 @@ class Part extends Model
     protected $casts = [
       'vote_summary' => AsArrayObject::class,
       'delete_flag' => 'boolean',
+      'minor_edit_flag' => 'boolean'
     ];
 
     /**
