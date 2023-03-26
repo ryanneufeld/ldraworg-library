@@ -112,13 +112,21 @@ class UserController extends Controller
     public function update(UserStoreRequest $request, User $user)
     {
         $validated = $request->validated();
-
         $user->fill([
           'name' => $validated['name'],
           'realname' => $validated['realname'],
           'email' => $validated['email'],
           'part_license_id' => $validated['part_license_id'],
         ]);
+        foreach($user->parts as $part) {
+          $oldheader = $part->header;
+          $part->updateLicense();
+          $part->refreshHeader();
+          if ($oldheader != $part->header) {
+            $part->minor_edit_flag = true;
+            $part->save();
+          }
+        }
         $user->assignRole($validated['roles']);
         $user->syncRoles($validated['roles']);
         $user->save();
