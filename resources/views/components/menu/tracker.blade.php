@@ -79,6 +79,7 @@
       <a class="item" href="{{route('tracker.search')}}">Part Search</a>
       <a class="item" href="{{route('tracker.suffixsearch')}}">Pattern/Shortcut Part Summary</a> 
       <a class="item" href="{{asset('library/unofficial/ldrawunf.zip')}}">Download All Unofficial Files</a>
+      <a class="item" href="{{route('tracker.next-release')}}">Parts in Next Update</a>
     </div>
   </div>
   <div class="right menu">

@@ -15,6 +15,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserNotificationController;
 use App\Http\Controllers\PartDeleteFlagController;
 use App\Http\Controllers\CaConfirmController;
+use App\Http\Controllers\PartUpdateController;
 
 Route::redirect('/', '/tracker');
 
@@ -65,6 +66,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
 
+  Route::get('/next-release', [App\Http\Controllers\NonAdminReleaseController::class, 'index'])->name('next-release');
+
   Route::middleware(['auth'])->match(['get', 'post'], '/release/create/{step?}', [ReleaseController::class, 'create'])->name('release.create');
   
   Route::get('/{unofficialpart}', [PartController::class, 'show'])->name('show.filename');
@@ -80,8 +83,8 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
   Route::get('/', [DashboardController::class, 'index'])->name('index');
 });
 
-Route::get('/updates', [ReleaseController::class, 'index'])->name('release.index');
-Route::get('/updates/view{release:short}', [ReleaseController::class, 'view'])->name('release.view');
+Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
+Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view'])->name('part-update.view');
 
 Route::redirect('/search', '/tracker/search');
 
