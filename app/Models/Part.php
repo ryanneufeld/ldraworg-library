@@ -516,7 +516,9 @@ class Part extends Model
         'cmdline' => $cmdline === false ? NULL : $cmdline,
         'bfc' => $bfc === false ? NULL : $bfc['certwinding'],
       ]);
-      if (is_null($this->part_license_id)) PartLicense::defaultLicense()->id;
+      if (is_null($this->part_license_id)) {
+        $this->part_license_id = PartLicense::defaultLicense()->id;
+      }
 
       $this->save();
       $this->refresh();
