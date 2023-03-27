@@ -1,8 +1,8 @@
 <x-layout.main>
   <p>
-    These are the parts that currently qualify for the next release. While the
+    These are the parts that currently qualify for the next update. While the
     parts on this list will generally be released in the next update, some of them 
-    may be manually help back by the the Library Admin for various other reasons
+    may be manually held back by the the Library Admin for various other reasons.
   </p>  
   <x-part.table :parts="$parts" title="Unofficial Parts" />
   <x-part.table :parts="$minor_edits" title="Official Parts With Header Edits" />
