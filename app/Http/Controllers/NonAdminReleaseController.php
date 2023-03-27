@@ -11,7 +11,7 @@ class NonAdminReleaseController extends Controller
   public function index() {
     $parts = Part::unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
     $minor_edits = Part::official()->whereNull('unofficial_part_id')->where('minor_edit_flag', true)->orderBy('filename')->lazy();
-    $parts->reject(function (Part $part) {
+    $parts = $parts->reject(function (Part $part) {
       if (!$part->releasable()) {
         return true;
       }
