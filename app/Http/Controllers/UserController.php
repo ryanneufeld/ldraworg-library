@@ -12,6 +12,7 @@ use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Jobs\UpdateMybbUser;
+use App\Jobs\UserChangePartUpdate;
 
 class UserController extends Controller
 {
@@ -112,24 +113,19 @@ class UserController extends Controller
     public function update(UserStoreRequest $request, User $user)
     {
         $validated = $request->validated();
+        $oldname = $user->name;
+        $oldrn = $user->realname;
+        $oldlic = $user->license->id;
         $user->fill([
           'name' => $validated['name'],
           'realname' => $validated['realname'],
           'email' => $validated['email'],
           'part_license_id' => $validated['part_license_id'],
         ]);
-        foreach($user->parts as $part) {
-          $oldheader = $part->header;
-          $part->updateLicense();
-          $part->refreshHeader();
-          if ($oldheader != $part->header) {
-            $part->minor_edit_flag = true;
-            $part->save();
-          }
-        }
         $user->assignRole($validated['roles']);
         $user->syncRoles($validated['roles']);
         $user->save();
+        UserChangePartUpdate::dispatch($user);
         UpdateMybbUser::dispatch($user);
         return redirect()->route('admin.users.index')
                         ->with('success','User updated successfully');                        

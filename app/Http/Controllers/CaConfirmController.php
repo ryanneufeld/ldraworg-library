@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Redis\Connections\PhpRedisClusterConnection;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\UserChangePartUpdate;
 
 class CaConfirmController extends Controller
 {
@@ -16,15 +16,7 @@ class CaConfirmController extends Controller
     $user = Auth::user();
     $user->license()->associate(\App\Models\PartLicense::defaultLicense());
     $user->save();
-    foreach($user->parts as $part) {
-      $oldlid = $part->license->id;
-      $part->updateLicense();
-      if ($oldlid != $part->license->id) {
-        $part->refreshHeader();
-        $part->minor_edit_flag = true;
-        $part->save();  
-      }
-    }
+    UserChangePartUpdate::dispatch($user);
     $redirect = session('ca_route_redirect');
     return redirect(route($redirect));
   }
