@@ -15,7 +15,7 @@
     </div>
     <div>
       @if ($part->isUnofficial() && Auth::check())
-        <a href="{{route('tracker.notification.toggle', [Auth::user(), $part])}}" @class([
+        <a href="{{route('tracker.notification.toggle', $part)}}" @class([
           'ui',
           'yellow' => Auth::user()->notification_parts->contains($part->id),
           'labeled icon button',
