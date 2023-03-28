@@ -19,7 +19,7 @@
        <div class="ui list">
        <div class="item">
          <div class="header">
-           <a href="{{route('release.view', $release)}}">Preview Parts in Update</a>
+           <a href="{{route('part-update.view', $release)}}">Preview Parts in Update</a>
          </div>
          <div class="description">
            (graphics-intensive page)
