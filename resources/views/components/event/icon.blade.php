@@ -2,7 +2,8 @@
 @if(!is_null($event->comment) && !in_array($event->part_event_type->slug, ['comment', 'release', 'delete', 'rename']) && $type == 'table')
 <i class="icons">
 @endif
-<i title="{{$event->part_event_type->name}}" @class([
+<i title=" @if($event->part_event_type->slug == 'review') {{$event->part_event_type->name}}: {{$event->vote_type->name ?? 'Vote Cancel'}} @else {{$event->part_event_type->name}} @endif "
+  @class([
   'red' => $event->vote_type_code == 'H', 
   'green' => $event->vote_type_code == 'C',
   'olive' => $event->vote_type_code == 'T' || $event->vote_type_code == 'A',
