@@ -15,22 +15,6 @@ use App\LDraw\LibraryOperations;
 
 class ReleaseController extends Controller
 {
-  public function index(Request $request)
-  {
-    if ($request->has('latest')) {
-      $releases = PartRelease::current();
-    }
-    else {
-      $releases = PartRelease::where('short', '<>', 'unof')->latest()->get();
-    }
-    return view('tracker.release.index', ['releases' => $releases , 'latest' => $request->has('latest')]);
-  }
-
-  public function view(PartRelease $release, Request $request)
-  {
-    return view('tracker.release.view', ['release' => $release]);
-  }
-
   public function create(Request $request, $step = null) {
     $this->authorize('create', PartRelease::class);
     set_time_limit(0);
