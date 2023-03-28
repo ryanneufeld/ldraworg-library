@@ -35,7 +35,7 @@ class PartController extends Controller
       $unofficial = $request->route()->getName() == 'tracker.index';
       $input = $request->all();
       
-      $subset = [1 => 'Certified', 2 => 'Needs Admin Review', 3 => 'Needs More Votes', 4 => 'Uncertified Subfiles', 5 => 'Hold'];
+      $subset = [1 => 'Certified', 2 => 'Needs Admin Review', 3 => 'Needs More Votes', 4 => 'Uncertified Subfiles', 5 => 'Hold', 6 => '2 Certify Votes'];
       $users = User::whereHas('parts', function (Builder $query) use ($unofficial) {
         if ($unofficial) {
           $query->unofficial();
@@ -53,8 +53,17 @@ class PartController extends Controller
         $parts = Part::official();
       }
 
-      if ($unofficial && isset($input['subset']) && array_key_exists($input['subset'], $subset))
-        $parts = $parts->where('vote_sort', $input['subset']);
+      if ($unofficial && isset($input['subset']) && array_key_exists($input['subset'], $subset)) {
+        if ($input['subset'] == 6) {
+          $parts->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
+            $q->where('vote_type_code', 'C');
+          }, '>=', 2);
+        }
+        else {
+          $parts = $parts->where('vote_sort', $input['subset']);
+        }
+      }
+        
       if (isset($input['user_id']) && array_key_exists($input['user_id'], $users))
         $parts = $parts->where('user_id', $input['user_id']);
       if (isset($input['part_type_id']) && array_key_exists($input['part_type_id'], $part_types))
