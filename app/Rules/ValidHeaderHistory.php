@@ -68,7 +68,8 @@ class ValidHeaderHistory implements DataAwareRule, ValidationRule
         $hist .= $h->toString() . "\n";
       }
       $hist = rtrim($hist);
-      if ((!empty($hist) && empty($value)) || strpos(FileUtils::dos2unix(rtrim($value)), $hist) === false && empty($this->data['editcomment'])) 
+      //dd(!empty($hist) , empty($value), strpos(FileUtils::dos2unix(rtrim($value)), $hist) === false, empty($this->data['editcomment']));
+      if (((!empty($hist) && empty($value)) || strpos(FileUtils::dos2unix(rtrim($value)), $hist) === false) && empty($this->data['editcomment'])) 
         $fail('partcheck.history.alter')->translate();
     }
 }
