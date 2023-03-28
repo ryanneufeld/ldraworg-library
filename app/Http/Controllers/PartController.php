@@ -35,7 +35,7 @@ class PartController extends Controller
       $unofficial = $request->route()->getName() == 'tracker.index';
       $input = $request->all();
       
-      $subset = [1 => 'Certified', 2 => 'Needs Admin Review', 3 => 'Needs More Votes', 4 => 'Uncertified Subfiles', 5 => 'Hold', 6 => '2 Certify Votes'];
+      $subset = [1 => 'Certified', 2 => 'Needs Admin Review', 3 => 'Needs More Votes', 4 => 'Uncertified Subfiles', 5 => 'Hold', 6 => '2 (or more) Certify Votes', 7 => '1 Certify Vote'];
       $users = User::whereHas('parts', function (Builder $query) use ($unofficial) {
         if ($unofficial) {
           $query->unofficial();
@@ -58,6 +58,11 @@ class PartController extends Controller
           $parts->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
             $q->where('vote_type_code', 'C');
           }, '>=', 2);
+        }
+        elseif ($input['subset'] == 7) {
+          $parts->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
+            $q->where('vote_type_code', 'C');
+          }, '=', 1);
         }
         else {
           $parts = $parts->where('vote_sort', $input['subset']);
