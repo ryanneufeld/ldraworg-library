@@ -12,7 +12,7 @@ use App\Models\PartEvent;
 use App\Models\PartHistory;
 use App\Models\User;
 
-class Release {
+class PartUpdate {
   public static function releaseParts(array $ids, User $user) {
     $next = PartRelease::next();
     $sdisk = config('ldraw.staging_dir.disk');

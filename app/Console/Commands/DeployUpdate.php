@@ -27,13 +27,5 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-      /*
-      Permission::create(['name' => 'part.flag.delete']);
-      foreach(Part::whereNotNull('deleted_at')->get() as $part) {
-        $part->load('body');
-        $part->deleteRelationships();
-        $part->deleteQuietly();
-      }
-      */
     }
 }

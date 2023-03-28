@@ -10,7 +10,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-use App\Models\PartRelease;
 use App\LDraw\ZipFiles;
 
 class MakeReleaseZip implements ShouldQueue, ShouldBeUnique
