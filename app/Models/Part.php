@@ -28,6 +28,7 @@ use App\Jobs\RenderFile;
 use App\Jobs\UpdateZip;
 
 use App\LDraw\FileUtils;
+use Illuminate\Database\Eloquent\Collection;
 use RuntimeException;
 
 class Part extends Model
@@ -292,9 +293,13 @@ class Part extends Model
       // Already official
       if (!$this->isUnofficial()) return true;
       
+      
       if ($this->vote_sort == 1) {
+        if ($this->vote_summary['S'] != 0) {
+          return false;
+        }
         // Part, Shortcut, or part fix
-        if ($this->type->type == "Part" || $this->type->type == "Shortcut" || !is_null($this->official_part_id)) {
+        elseif ($this->type->type == "Part" || $this->type->type == "Shortcut" || !is_null($this->official_part_id)) {
           return true;
         }
         // Has a releasable part in the part chain
@@ -304,7 +309,9 @@ class Part extends Model
           }
         }
       }
-      return false;
+      else {
+        return false;
+      }
     }
   
     public function refreshHeader(): void {
@@ -321,6 +328,50 @@ class Part extends Model
       // Nothing yet...
     }
     
+    public function updateVoteData(): void {
+      if (!$this->isUnofficial()) return;
+      $data = array_merge(['A' => 0, 'C' =>0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
+      $data['F'] = $this->official_part_id !== null;
+      $data['S'] = 0;
+
+      // Check subparts for certification
+      foreach ($this->subparts as $subpart) {
+        if ($subpart->vote_sort != 1) $data['S']++;
+      }
+      
+      $old_sort = $this->vote_sort;
+      
+      // Held
+      if ($data['H'] != 0) {
+        $this->vote_sort = 5;
+      }
+      // Needs votes      
+      elseif ($data['C'] + $data['A'] < 2) {
+        $this->vote_sort = 3;
+      }  
+      // Awaiting Admin      
+      elseif ($data['A'] == 0 && $data['C'] >= 2) {
+        $this->vote_sort = 2;
+      }
+      // Certified      
+      elseif ((($data['A'] > 0) && (($data['C'] + $data['A']) > 2)) || ($data['T'] > 0)) {
+        $this->vote_sort = 1;
+      }
+      
+      $this->vote_summary = $data;
+
+      $this->saveQuietly();
+      
+      if ($old_sort != $this->vote_sort) {
+        foreach ($this->parents()->unofficial()->get() as $p) {
+          $p->updateVoteData();
+        }  
+        foreach ($this->subfiles()->unofficial()->get() as $p) {
+          $p->updateVoteData();
+        }  
+      }
+    }
+
     public function updateVoteSummary(bool $forceUpdate = false): void {
       if (!$this->isUnofficial()) return;
       $data = array_merge(['A' => 0, 'C' =>0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
@@ -343,18 +394,18 @@ class Part extends Model
       elseif ($vote['S'] != 0) {
         $this->vote_sort = 4;
       }
-      // Certified      
-      elseif ((($vote['A'] > 0) && (($vote['C'] + $vote['A']) >= 2)) || ($vote['T'] > 0)) {
-        $this->vote_sort = 1;
-      }
-      // Awaiting Admin      
-      elseif (($vote['C'] + $vote['A']) >= 2) {
-        $this->vote_sort = 2;
-      }
       // Needs votes      
-      else {
+      elseif (($vote['C'] + $vote['A'] < 2) && $vote['T'] == 0) {
         $this->vote_sort = 3;
       }  
+      // Awaiting Admin      
+      elseif ($vote['T'] == 0 && $vote['A'] == 0 && $vote['C'] >= 2) {
+        $this->vote_sort = 2;
+      }
+      // Certified      
+      elseif ((($vote['A'] > 0) && (($vote['C'] + $vote['A']) > 2)) || ($vote['T'] > 0)) {
+        $this->vote_sort = 1;
+      }
       $this->saveQuietly();
       if ($forceUpdate || ($old_sort == 1 && $this->vote_sort != 1) || ($old_sort != 1 && $this->vote_sort == 1)) {
         foreach ($this->parents()->unofficial()->get() as $p) {
@@ -713,5 +764,33 @@ class Part extends Model
 
     public function putDeletedBackup(): void {
       Storage::disk('local')->put('deleted/library/' . $this->filename . '.' . time(), $this->get());
+    }
+
+    public static function search (string $search, string $scope, bool $unofficial = false): Collection {
+      //Pull the terms out of the search string
+      $pattern = '#([^\s"]+)|"([^"]*)"#u';
+      preg_match_all($pattern, $search, $matches, PREG_SET_ORDER);
+
+      $query = $unofficial ? Part::unofficial() : Part::official() ;
+      foreach($matches as $m) {
+        $term = $m[count($m)-1];
+        switch ($scope) {
+          case 'description':
+            $query->where(function($q) use ($term) {
+              $q->orWhere('filename', 'LIKE', "%$term%")->orWhere('description', 'LIKE', "%$term%");
+            });
+            break;
+          case 'filename':
+          case 'header':
+            $query->where($scope, 'LIKE', "%$term%");
+            break;
+          case 'file':
+            $query->where(function($q) use ($term) {
+              $q->orWhere('header', 'LIKE', "%$term%")->orWhereRelation('body', 'body', 'LIKE', "%$term%");
+            });
+            break;
+        }
+      }
+      return $query->orderBy('filename')->get();
     }
 }

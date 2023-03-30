@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\LDraw\LibrarySearch;
+use App\Models\Part;
+use App\Http\Resources\PartSearchResource;
 
 class SearchController extends Controller
 {
@@ -12,13 +14,17 @@ class SearchController extends Controller
     $input = $request->all();
     if (!empty($input['s']) && is_string($input['s'])) {
       $scope = in_array($input['scope'] ?? '', ['filename', 'description', 'header', 'file'], true) ? $input['scope'] : 'header';
+      $oparts = Part::search($input['s'], $scope);
+      $uparts = Part::search($input['s'], $scope, true);
+      $json_limit = config('ldraw.search.quicksearch.limit');
       if ($request->expectsJson()) {
-        $search = LibrarySearch::partSearch($scope, $input['s'], true);
-        return response()->json($search);
+        return ['results' => [
+          'oparts' => ['name' => "Official\nParts", 'results' => PartSearchResource::collection($oparts->slice(0, $json_limit))],
+          'uparts' => ['name' => "Unofficial\nParts", 'results' => PartSearchResource::collection($uparts->slice(0, $json_limit))],
+        ]];
       }
       else {
-        $search = LibrarySearch::partSearch($scope, $input['s']);
-        return view('tracker.search', $search);
+        return view('tracker.search', ['results' => ['oparts' => $oparts, 'uparts' => $uparts]]);
       }  
     }
     else {

@@ -86,4 +86,9 @@ return [
   'license' => [
     'default' => 'CC_BY_4',
   ],
+  'search' => [
+    'quicksearch' => [
+      'limit' => 7,
+    ],
+  ],
 ];  
