@@ -14,7 +14,7 @@
   Surround a phrase with double-quotes to search for that phrase (e.g. <em>"blue shirt"</em> will find all files containing <em>blue shirt</em>).<br/>
   Quoted and unquoted search words may be combined (e.g. <em>"blue shirt" jacket</em> will find files containing <em>blue shirt</em> and <em>jacket</em>).
   </p>
-  <form class="ui form" name="search" action="{{route('tracker.search')}}" method="get">
+  <form class="ui form" name="search" action="{{route('search.part')}}" method="get">
     <div class="field">
       <label>Search terms:</label>
       <div class="ui action input">

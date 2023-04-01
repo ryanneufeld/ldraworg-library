@@ -76,15 +76,15 @@
     Tools<i class="dropdown icon"></i>
     <div class="menu">
       <a class="item" href="{{route('dashboard.index')}}">User Dashboard</a> 
-      <a class="item" href="{{route('tracker.search')}}">Part Search</a>
-      <a class="item" href="{{route('tracker.suffixsearch')}}">Pattern/Shortcut Part Summary</a> 
+      <a class="item" href="{{route('search.part')}}">Part Search</a>
+      <a class="item" href="{{route('search.suffix')}}">Pattern/Shortcut Part Summary</a> 
       <a class="item" href="{{asset('library/unofficial/ldrawunf.zip')}}">Download All Unofficial Files</a>
       <a class="item" href="{{route('tracker.next-release')}}">Parts in Next Update</a>
     </div>
   </div>
   <div class="right menu">
     <div class="item">
-      <form id="pt_search_comp" action="{{route('tracker.search')}}" method="get" name="pt_search_comp">
+      <form id="pt_search_comp" action="{{route('search.part')}}" method="get" name="pt_search_comp">
       <div class="ui right aligned scrolling category search ptsearch">
       <div class="ui transparent icon input">
         <input class="prompt" name="s" type="text" placeholder="Quick Search">

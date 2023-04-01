@@ -144,18 +144,66 @@ class Part extends Model
       return $this->release->short == 'unof';
     }
 
+    public function scopeSearchPart ($query, string $search, string $scope) {
+      //Pull the terms out of the search string
+      $pattern = '#([^\s"]+)|"([^"]*)"#u';
+      preg_match_all($pattern, $search, $matches, PREG_SET_ORDER);
+
+      foreach($matches as $m) {
+        $term = $m[count($m)-1];
+        switch ($scope) {
+          case 'description':
+            $query->where(function($q) use ($term) {
+              $q->orWhere('filename', 'LIKE', "%$term%")->orWhere('description', 'LIKE', "%$term%");
+            });
+            break;
+          case 'filename':
+          case 'header':
+            $query->where($scope, 'LIKE', "%$term%");
+            break;
+          case 'file':
+            $query->where(function($q) use ($term) {
+              $q->orWhere('header', 'LIKE', "%$term%")->orWhereRelation('body', 'body', 'LIKE', "%$term%");
+            });
+            break;
+          default:  
+            $query->where('header', 'LIKE', "%$term%");
+            break;
+        }
+      }
+      return $query;
+    }
+
+    public function scopePatterns($query, $basepart) {
+      return $query->where(function($q) use ($basepart) {
+        $q->where('filename', 'like', "parts/{$basepart}p__.dat")->orWhere('filename', 'like', "parts/{$basepart}p___.dat");
+      });
+    }
+
+    public function scopeComposites($query, $basepart) {
+      return $query->where(function($q) use ($basepart) {
+        $q->where('filename', 'like', "parts/{$basepart}c__.dat")->orWhere('filename', 'like', "parts/{$basepart}c___.dat");
+      });
+    }
+
+    public function scopeStickerShortcuts($query, $basepart) {
+      return $query->where(function($q) use ($basepart) {
+        $q->where('filename', 'like', "parts/{$basepart}d__.dat")->orWhere('filename', 'like', "parts/{$basepart}d___.dat");
+      });
+    }
+
     public function hasPatterns(): bool {
       $number = basename($this->filename);
-      return self::where('filename', 'like', "{$number}p??%.dat")->count() > 0;
+      return self::where('filename', 'like', "{$number}p__%.dat")->count() > 0;
     }
 
     public function hasComposites(): bool {
       $number = basename($this->filename);
-      return self::where('filename', 'like', "{$number}c??%.dat")->count() > 0;
+      return self::where('filename', 'like', "{$number}c__%.dat")->count() > 0;
     }
     public function hasStickerShortcuts(): bool {
       $number = basename($this->filename);
-      return self::where('filename', 'like', "{$number}d??%.dat")->count() > 0;
+      return self::where('filename', 'like', "{$number}d__%.dat")->count() > 0;
     }
 
     public function basePart(): string {
@@ -766,31 +814,4 @@ class Part extends Model
       Storage::disk('local')->put('deleted/library/' . $this->filename . '.' . time(), $this->get());
     }
 
-    public static function search (string $search, string $scope, bool $unofficial = false): Collection {
-      //Pull the terms out of the search string
-      $pattern = '#([^\s"]+)|"([^"]*)"#u';
-      preg_match_all($pattern, $search, $matches, PREG_SET_ORDER);
-
-      $query = $unofficial ? Part::unofficial() : Part::official() ;
-      foreach($matches as $m) {
-        $term = $m[count($m)-1];
-        switch ($scope) {
-          case 'description':
-            $query->where(function($q) use ($term) {
-              $q->orWhere('filename', 'LIKE', "%$term%")->orWhere('description', 'LIKE', "%$term%");
-            });
-            break;
-          case 'filename':
-          case 'header':
-            $query->where($scope, 'LIKE', "%$term%");
-            break;
-          case 'file':
-            $query->where(function($q) use ($term) {
-              $q->orWhere('header', 'LIKE', "%$term%")->orWhereRelation('body', 'body', 'LIKE', "%$term%");
-            });
-            break;
-        }
-      }
-      return $query->orderBy('filename')->get();
-    }
 }

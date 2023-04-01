@@ -1,6 +1,6 @@
 <x-layout.main>
   <h3 class="ui header">Pattern/Composite/Sticker Shortcut Search</h3> 
-  <form class="ui form" name="summary" action="{{route('tracker.suffixsearch')}}" method="get">
+  <form class="ui form" name="summary" action="{{route('search.suffix')}}" method="get">
   <div class="field">
     <label>Search Scope:</label>
     <select class="ui compact dropdown" name="scope">
@@ -17,33 +17,41 @@
     </div>
   </div>
   </form>
-  @isset($results)
-    @isset($results['basepart'])
-    @php($type = ['p'=>'Pattern','c' => 'Composite', 'd' => 'Sticker Shortcut'])
-    <div class="ui large header">{{$type[request()->input('scope')]}} Part Reference for {{basename($results['basepart']->filename)}}</div>
+  @isset($basepart)
+    <div class="ui large header">
+      {{$scope}} Reference for {{basename($basepart->filename)}}
+    </div>
 
-    <div @class(['ui', 'official' => !$results['basepart']->isUnofficial(), 'unofficial' => $results['basepart']->isUnofficial(), 'right floated center aligned compact segment'])>
-      @if($results['basepart']->isUnofficial())
-        <a class="ui image" href="{{route('tracker.show', $results['basepart'])}}">
-        <img src="{{asset('images/library/unofficial/' . substr($results['basepart']->filename, 0, -4) . '.png')}}" title='Base part image' alt='Base part image'></a>
+    <div @class(['ui', 'official' => !$basepart->isUnofficial(), 'unofficial' => $basepart->isUnofficial(), 'right floated center aligned compact segment'])>
+      @if($basepart->isUnofficial())
+        <a class="ui image" href="{{route('tracker.show', $basepart)}}">
+        <img src="{{asset('images/library/unofficial/' . substr($basepart->filename, 0, -4) . '.png')}}" title='Base part image' alt='Base part image'></a>
       @else
-        <a class="ui small image" href="{{route('official.show', $results['basepart'])}}">
-        <img src="{{asset('images/library/official/' . substr($results['basepart']->filename, 0, -4) . '.png')}}" title='Base part image' alt='Base part image'></a>
+        <a class="ui small image" href="{{route('official.show', $basepart)}}">
+        <img src="{{asset('images/library/official/' . substr($basepart->filename, 0, -4) . '.png')}}" title='Base part image' alt='Base part image'></a>
       @endif  
     </div>
 
     <p>
-    This page is a summary of all the {{strtolower($type[request()->input('scope')])}} versions of part {{basename($results['basepart']->filename)}}, ({{basename($results['basepart']->description)}})<br />
+    This page is a summary of all the {{strtolower($scope)}} versions of part {{basename($basepart->filename)}}, ({{$basepart->description}})<br />
     The background colour indicates the part status :<br />
     <span class="official blank-box">&nbsp;</span> Official - included in the original LDraw package or an official LDraw parts update - follow link or click image for details<br />
     <span class="unofficial blank-box">&nbsp;</span> Unofficial - submitted to this Parts Tracker and under review - follow link or click image for details<br />
     <span class="obsolete blank-box">&nbsp;</span> Obsoleted - code not available for administrative reasons<br />
-    The range assignments, shown as subheadings, are designed to group together related {{strtolower($type[request()->input('scope')])}}s for
-    parts with many {{strtolower($type[request()->input('scope')])}} versions. The rigour with which these have been applied has increased as
-    more {{strtolower($type[request()->input('scope')])}} parts have been authored. Code assignment in the early days of LDraw was more haphazard.
-    For backward compatibility, older {{strtolower($type[request()->input('scope')])}} parts with codes that do not match the current usage have not
+    The range assignments, shown as subheadings, are designed to group together related {{strtolower($scope)}}s for
+    parts with many {{strtolower($scope)}} versions. The rigour with which these have been applied has increased as
+    more {{strtolower($scope)}} parts have been authored. Code assignment in the early days of LDraw was more haphazard.
+    For backward compatibility, older {{strtolower($scope)}} parts with codes that do not match the current usage have not
     been re-numbered.</p>
     <div class="ui clearing divider"></div>
+    <div class="ui eight column padded doubling grid">
+      @forelse($parts as $part)
+        <div class="column"><x-part.suffixitem :part="$part" /></div>
+      @empty
+        <h4 class="ui header">No {{strtolower($scope)}}s found</h4>
+      @endforelse
+    </div>  
+{{--    
     @forelse($results['parts'] as $code)
     <h4 class="ui header">{{$code['description']}}</h3>
     <div class="ui eight column padded doubling grid">
@@ -80,8 +88,7 @@
     @empty
       <h4 class="ui header">No {{strtolower($type[request()->input('scope')])}}s found</h4>
     @endforelse
-    @else
-    <h4 class="ui header">Part {{request()->input('s')}} not found</h4>
-    @endisset
-  @endisset  
+  @endisset
+--}}
+  @endisset    
 </x-layout.main>

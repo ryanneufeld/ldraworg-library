@@ -25,7 +25,7 @@ $( function() {
       $(this).search({
         preserveHTML : false,  
         apiSettings: {
-          url: '/tracker/search?s={query}',
+          url: '/api/search/quicksearch?s={query}',
         },
         minCharacters: 3,
         type: 'category'

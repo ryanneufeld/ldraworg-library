@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PartController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\PartEventController;
-use App\Http\Controllers\SearchController;
+use App\Http\Controllers\Search\PartSearchController;
+use App\Http\Controllers\Search\SuffixSearchController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
@@ -56,8 +57,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->get('/confirmCA', [CaConfirmController::class, 'edit'])->name('confirmCA.show');
   Route::middleware(['auth'])->put('/confirmCA', [CaConfirmController::class, 'update'])->name('confirmCA.store');
 
-  Route::get('/search', [SearchController::class, 'partsearch'])->name('search');
-  Route::get('/suffixsearch', [SearchController::class, 'suffixsearch'])->name('suffixsearch');
+  Route::redirect('/search', '/search/part');
+  Route::redirect('/suffixsearch', '/search/suffix');
 
   Route::middleware(['auth'])->get('/{part}/vote/create', [VoteController::class, 'create'])->name('vote.create');
   Route::middleware(['auth'])->get('/vote/{vote}/edit', [VoteController::class, 'edit'])->name('vote.edit');
@@ -86,10 +87,13 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
 Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
 Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view'])->name('part-update.view');
 
-Route::redirect('/search', '/tracker/search');
+Route::redirect('/search', '/search/part');
+Route::get('/search/part', [PartSearchController::class, 'index'])->name('search.part');
+Route::get('/search/suffix', [SuffixSearchController::class, 'index'])->name('search.suffix');
 
 Route::prefix('official')->name('official.')->group(function () {
-  Route::redirect('/search', '/tracker/search');
+  Route::redirect('/search', '/search/part');
+  Route::redirect('/suffixsearch', '/search/suffix');
   Route::get('/list', [PartController::class, 'index'])->name('index');
   Route::get('/{officialpart}', [PartController::class, 'show'])->name('show.filename');
   Route::get('/{part}', [PartController::class, 'show'])->name('show');
@@ -100,12 +104,12 @@ Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
 Route::get('/library/official/{officialpart}', [PartController::class, 'download'])->name('official.download');
 Route::get('/library/unofficial/{unofficialpart}', [PartController::class, 'download'])->name('unofficial.download');
 
-/*
+
 // Only enable this route for testing
 Route::get('/login-user-291', function () {
   Auth::logout();
   Auth::login(\App\Models\User::find(291));
   return back();
 });
-*/
+
 
