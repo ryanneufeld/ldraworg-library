@@ -9,10 +9,11 @@ use App\Models\Part;
 class SuffixSearchController extends Controller
 {
     public function index(Request $request) {
-        $input = $request->all();
-        if (!empty($input['s']) && is_string($input['s']) && !empty($input['scope']) && in_array($input['scope'], ['p','c','d'])) {
-          if (strpos($input['s'], '.dat') === false) $input['s'] .= '.dat';
-          $basepart = Part::findOfficialByName($input['s'], true) ?? Part::findUnofficialByName($input['s'], true);
+      $input = $request->all();
+      if (!empty($input['s']) && is_string($input['s']) && !empty($input['scope']) && in_array($input['scope'], ['p','c','d'])) {
+        if (strpos($input['s'], '.dat') === false) $input['s'] .= '.dat';
+        $basepart = Part::findOfficialByName($input['s'], true) ?? Part::findUnofficialByName($input['s'], true);
+        if (!empty($basepart)) {
           $fn = pathinfo($basepart->filename, PATHINFO_FILENAME);
           switch($input['scope']) {
             case 'p':
@@ -29,10 +30,8 @@ class SuffixSearchController extends Controller
               break;
           }
           return view('search.suffix', ['parts' => $parts, 'basepart' => $basepart, 'scope' => $scope]);
-        }
-        else {
-          return view('search.suffix');        
-        }
-        
+        } 
+      }
+      return view('search.suffix');        
     }  
 }

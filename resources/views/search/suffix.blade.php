@@ -50,45 +50,8 @@
       @empty
         <h4 class="ui header">No {{strtolower($scope)}}s found</h4>
       @endforelse
-    </div>  
-{{--    
-    @forelse($results['parts'] as $code)
-    <h4 class="ui header">{{$code['description']}}</h3>
-    <div class="ui eight column padded doubling grid">
-      @foreach($code['parts'] as $part)
-      @empty($part)
-      <div class="column"></div>
-      @else
-      <div class="column">
-        <div @class(['ui',
-          'obsolete' => stripos($part->description, "obsolete") !== false,      
-          'official' => !$part->isUnofficial() && stripos($part->description, "obsolete") === false, 
-          'unofficial' => $part->isUnofficial() && stripos($part->description, "obsolete") === false, 
-          'pattern center aligned segment'])>
-        @if(stripos($part->description, "obsolete") !== false)
-          Obsolete file<br/><br/>
-          {{basename($part->filename, '.dat')}}
-        @elseif($part->isUnofficial())
-          <a class="ui image" href="{{route('tracker.show', $part)}}">
-            <img src="{{asset('images/library/unofficial/' . substr($part->filename, 0, -4) . '.png')}}" title="{{$part->description}}" alt="{{$part->description}}" border="0" />
-          </a><br />
-          <a href="{{route('tracker.show', $part)}}">{{basename($part->filename, '.dat')}}</a><br/>
-          <x-part.status :vote="$part->vote_summary" status_text="0" />
-        @else
-          <a class="ui image" href="{{route('official.show', $part)}}">
-            <img src="{{asset('images/library/official/' . substr($part->filename, 0, -4) . '.png')}}" title="{{$part->description}}" alt="{{$part->description}}" border="0" />
-          </a><br />
-          <a href="{{route('official.show', $part)}}">{{basename($part->filename, '.dat')}}</a>
-        @endif  
-        </div>
-      </div>
-      @endempty
-      @endforeach
     </div>
-    @empty
-      <h4 class="ui header">No {{strtolower($type[request()->input('scope')])}}s found</h4>
-    @endforelse
-  @endisset
---}}
+  @else
+  <h4 class="ui header">Part not found</h4>
   @endisset    
 </x-layout.main>
