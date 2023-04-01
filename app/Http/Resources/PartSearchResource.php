@@ -19,12 +19,12 @@ class PartSearchResource extends JsonResource
      *
      * @return array<int|string, mixed>
      */
-    public function toArray(Request $request): array
+    public function toArray(Request $request)
     {
         return [
             'title' => $this->name(),
             'description' => $this->description,
-            'url' => route('tracker.show', $this->id),  
+            'url' => $this->isUnofficial() ? route('tracker.show', $this->id) : route('official.show', $this->id),  
         ];
     }
 }
