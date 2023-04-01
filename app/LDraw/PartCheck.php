@@ -87,7 +87,7 @@ class PartCheck {
 
   public static function checkCategory($file = '') {
     $cat = FileUtils::getCategory($file);
-    return $cat !== false && in_array($cat['category'], MetaData::getCategories(), true);
+    return $cat !== false && in_array($cat['category'], config('ldraw.categories'), true);
   }
 
 }

@@ -16,7 +16,7 @@ class PartCategorySeeder extends Seeder
      */
     public function run()
     {
-      $categories = MetaData::getCategories();
+      $categories = config('ldraw.categories');
       foreach ($categories as $category) {
         PartCategory::create(['category' => $category]);
       }
