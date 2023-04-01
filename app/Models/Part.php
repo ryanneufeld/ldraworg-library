@@ -357,9 +357,7 @@ class Part extends Model
           }
         }
       }
-      else {
-        return false;
-      }
+      return false;
     }
   
     public function refreshHeader(): void {
