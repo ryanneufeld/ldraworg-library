@@ -1,5 +1,5 @@
 <x-layout.main>
-  <form class="ui form" action="{{route('tracker.doupdatemissing', $part)}}" method="post">
+  <form class="ui form" action="{{route('tracker.missing.update', $part)}}" method="post">
     @csrf
     @method('PUT')
     <input type="hidden" name="part_id" value="{{$part->id}}">

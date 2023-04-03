@@ -31,7 +31,7 @@
   <td>
     @if($part->description == 'Missing')
      @can('part.edit.number')
-     <a class="ui button" href="{{route('tracker.updatemissing', $part->id)}}">Update</a>
+     <a class="ui button" href="{{route('tracker.missing.edit', $part->id)}}">Update</a>
      @else
       &nbsp;
      @endcan 

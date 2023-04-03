@@ -17,6 +17,8 @@ use App\Http\Controllers\UserNotificationController;
 use App\Http\Controllers\PartDeleteFlagController;
 use App\Http\Controllers\CaConfirmController;
 use App\Http\Controllers\PartUpdateController;
+use App\Http\Controllers\PartMoveController;
+use App\Http\Controllers\PartMissingController;
 
 Route::redirect('/', '/tracker');
 
@@ -38,16 +40,16 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
   Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
 
-  Route::middleware(['auth'])->get('/{part}/move', [PartController::class, 'move'])->name('move');
-  Route::middleware(['auth'])->put('/{part}/move', [PartController::class, 'domove'])->name('domove');
+  Route::middleware(['auth'])->get('/{part}/move', [PartMoveController::class, 'edit'])->name('move.edit');
+  Route::middleware(['auth'])->put('/{part}/move', [PartMoveController::class, 'update'])->name('move.update');
 
   Route::middleware(['auth'])->get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
   Route::middleware(['auth'])->get('/{part}/updatesubparts', [PartController::class, 'updatesubparts'])->name('updatesubparts');
 
   Route::middleware(['auth'])->get('notification/part/{part}', [UserNotificationController::class, 'store'])->name('notification.toggle');
 
-  Route::middleware(['auth'])->get('/{missingpart}/updatemissing', [PartController::class, 'updatemissing'])->name('updatemissing');
-  Route::middleware(['auth'])->put('/{missingpart}/updatemissing', [PartController::class, 'doupdatemissing'])->name('doupdatemissing');
+  Route::middleware(['auth'])->get('/{missingpart}/updatemissing', [PartMissingController::class, 'edit'])->name('missing.edit');
+  Route::middleware(['auth'])->put('/{missingpart}/updatemissing', [PartMissingController::class, 'update'])->name('missing.update');
 
   Route::middleware(['auth'])->get('/{part}/delete-flag', [PartDeleteFlagController::class, 'store'])->name('flag.delete');
 

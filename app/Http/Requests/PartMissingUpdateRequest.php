@@ -22,7 +22,7 @@ class PartMissingUpdateRequest extends FormRequest
     public function rules(): array
     {
       return [
-        'part_id' => 'required|in:' . $this->part->id,
+        'part_id' => 'required|in:' . $this->missingpart->id,
         'new_part_id' => 'required|exists:parts,id',
       ];
     }

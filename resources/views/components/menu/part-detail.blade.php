@@ -26,7 +26,7 @@
         <a class="item" title="Update subparts" href="{{route('tracker.updatesubparts', $part)}}">Update Subparts</a>
       @endcan  
       @can('part.edit.number')
-        <a class="item" title="Renumber part" href="{{route('tracker.move', $part)}}">Renumber</a>
+        <a class="item" title="Renumber part" href="{{route('tracker.move.edit', $part)}}">Renumber</a>
       @endcan
       @if($part->isUnofficial())
       @can('part.delete')

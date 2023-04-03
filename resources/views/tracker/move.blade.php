@@ -3,7 +3,7 @@
   @if(!$part->isUnofficial() && !is_null($part->unofficial_part_id))
     An update to this part is already on the Parts Tracker. Please use the normal submit process
   @else  
-  <form class="ui form" action="{{route('tracker.domove', $part)}}" method="post">
+  <form class="ui form" action="{{route('tracker.move.update', $part)}}" method="post">
     @csrf
     @method('PUT')
     <input type="hidden" name="part_id" value="{{$part->id}}">

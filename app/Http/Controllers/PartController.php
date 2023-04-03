@@ -18,8 +18,6 @@ use App\LDraw\FileUtils;
 
 use App\Http\Requests\PartSubmitRequest;
 use App\Http\Requests\PartHeaderEditRequest;
-use App\Http\Requests\PartMoveRequest;
-use App\Http\Requests\PartMissingUpdateRequest;
 
 use App\Jobs\UpdateZip;
 
@@ -76,7 +74,7 @@ class PartController extends Controller
       $parts = $parts->orderBy('vote_sort')->
         orderBy('part_type_id')->
         orderBy('filename')->
-        lazy();
+        cursor();
 
       return view('part.list',[
         'unofficial' => $unofficial,
@@ -256,22 +254,6 @@ class PartController extends Controller
       return view('tracker.weekly', ['parts' => $parts->get()]);
     }
     
-    public function move(Part $part) {    
-      $this->authorize('update', $part);
-      return view('tracker.move', ['part' => $part]);
-    }
-
-    public function domove(Part $part, PartMoveRequest $request) {    
-      $this->authorize('update', $part);
-      $validated = $request->validated();
-      $oldname = $part->name();
-      $newtype = PartType::find($validated['part_type_id']);
-      $newname = pathinfo($validated['newname'], PATHINFO_FILENAME) . '.' . $newtype->format;
-      $part->move($newname, $newtype);
-      PartEvent::createFromType('rename', Auth::user(), $part, "part $oldname was renamed to {$part->name()}");
-      return redirect()->route('tracker.show', [$part])->with('status','Move successful');
-    }
-
     public function webgl(Part $part) {
       WebGL::WebGLPart($part, $parts, true, $part->isUnofficial());
       return response(json_encode($parts));    
@@ -282,22 +264,4 @@ class PartController extends Controller
       $part->updateSubparts(true);
       return redirect()->route('tracker.show', [$part])->with('status','Part dependencies updated');
     }
-
-    public function updatemissing (Part $part) {
-      $this->authorize('update', $part);
-      return view('part.updatemissing', ['part' => $part]);
-    }
-
-    public function doupdatemissing (Part $part, PartMissingUpdateRequest $request) {
-      $this->authorize('update', $part);
-      $validated = $request->validated();
-      $new = Part::find($validated['new_part_id']);
-      foreach($part->parents as $p) {
-        $p->body->body = str_replace($part->name(), $new->name(), $p->body->body);
-        $p->body->save();
-        $p->updateSubparts(true);
-      }
-      return redirect()->route('tracker.show', $new)->with('status','Missing part updated');
-    }
-
 }

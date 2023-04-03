@@ -508,13 +508,20 @@ class Part extends Model
           $newPart->typeString() . "\n" . 
           Auth::user()->license->toString() . "\n\n" .
           "0 BFC CERTIFY CCW\n\n" .
-          "0 1 16 0 0 0 1 0 0 0 1 0 0 0 1 " . $newPart->name(); 
+          "1 16 0 0 0 1 0 0 0 1 0 0 0 1 " . $newPart->name(); 
         
         $p->fillFromText($text);
+        $p->official_part_id = $oldPart->id;
         $p->save();
         $p->updateImage();
-        PartEvent::createFromType('submit', Auth::user(), $p, null, null, null, true);
-        UpdateZip::dispatch($p);
+        PartEvent::create([
+          'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'submit')->id,
+          'user_id' => Auth::user()->id,
+          'comment' => "part {$oldPart->name()} moved to {$newPart->name()}",
+          'part_release_id' => \App\Models\PartRelease::unofficial()->id,
+          'part_id' => $p->id,
+        ]);
+      UpdateZip::dispatch($p);
         return $p;
       }
     }
@@ -730,6 +737,7 @@ class Part extends Model
           if (empty(trim($subpart))) continue;
           $osubp = self::findOfficialByName($subpart, true);
           $usubp = self::findUnofficialByName($subpart, true);
+          
           if (isset($usubp) && $this->isUnofficial() && $this->id <> $usubp->id) {
             $sids[] = $usubp->id;
           }  
@@ -786,14 +794,29 @@ class Part extends Model
           $upart->fillFromText($this->get(), false, PartRelease::unofficial());
           if (!is_null($newType)) $upart->type()->associate($newType);
           $upart->filename = $newName;
-          PartHistory::create(['user_id' => Auth::user()->id, 'comment' => 'Moved from' . $oldname]);
-          $upart->refreshHeader();
+          PartHistory::create([
+            'user_id' => Auth::user()->id,
+            'part_id' => $upart->id,
+            'comment' => 'Moved from ' . $oldnamestr,
+          ]);
           $upart->save();
+          $upart->refresh();
+          $upart->refreshHeader();
           $upart->updateImage();
+          PartEvent::create([
+            'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'submit')->id,
+            'user_id' => Auth::user()->id,
+            'comment' => "part $oldnamestr was moved to {$upart->name()}",
+            'part_release_id' => \App\Models\PartRelease::unofficial()->id,
+            'part_id' => $upart->id,
+          ]);
           UpdateZip::dispatch($upart);
         }
-        if ($this->type->folder == 'parts/') 
-          self::createMovedTo($this, $upart);
+        if ($this->type->folder == 'parts/') {
+          $mpart = self::createMovedTo($this, $upart);
+          $this->unofficial_part_id = $mpart->id;
+          $this->save();
+        }     
       }
     }
 
@@ -806,6 +829,16 @@ class Part extends Model
       $this->keywords()->sync([]);
       $this->subparts()->sync([]);
       $this->notification_users()->sync([]);
+      if (!is_null($this->unofficial_part_id)) {
+        $p = self::find($this->unofficial_part_id);
+        $p->official_part_id = null;
+        $p->save();
+      }
+      if (!is_null($this->official_part_id)) {
+        $p = self::find($this->official_part_id);
+        $p->unofficial_part_id = null;
+        $p->save();
+      }
     }
 
     public function putDeletedBackup(): void {
