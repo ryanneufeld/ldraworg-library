@@ -36,7 +36,7 @@ class LoginMybbUser
           $usr = Auth::getProvider()->retrieveByCredentials(['forum_user_id' => $u->uid]);
           if (!isset($usr->id)) return $next($request);
           // Log the mybb user in since checking the mybb db every time is slow
-          Auth::login($usr, true);
+          Auth::login($usr, $remember = true);
         }
       }
       return $next($request);
