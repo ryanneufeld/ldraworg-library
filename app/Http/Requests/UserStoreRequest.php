@@ -29,6 +29,7 @@ class UserStoreRequest extends FormRequest
         $unique = Rule::unique('users')->ignore($this->route('user')->id);
       }
       return [
+        'forum_user_id' => empty($this->route('user')) ? 'required|integer' : '',
         'realname' => ['required', 'string', $unique],
         'name' => ['required', 'string', $unique],
         'email' => ['required', 'email',$unique],

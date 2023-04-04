@@ -68,7 +68,7 @@ class UserController extends Controller
           'realname' => $validated['realname'],
           'email' => $validated['email'],
           'password' => bcrypt(Str::random(40)),
-          'forum_user_id' => $request->input('forum_user_id'),
+          'forum_user_id' => $validated['forum_user_id'],
           'part_license_id' => $validated['part_license_id'],
         ]);
         $user->assignRole($validated['roles']);
@@ -113,9 +113,6 @@ class UserController extends Controller
     public function update(UserStoreRequest $request, User $user)
     {
         $validated = $request->validated();
-        $oldname = $user->name;
-        $oldrn = $user->realname;
-        $oldlic = $user->license->id;
         $user->fill([
           'name' => $validated['name'],
           'realname' => $validated['realname'],

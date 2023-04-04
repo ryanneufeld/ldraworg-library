@@ -29,7 +29,8 @@ class User extends Authenticatable
         'email',
         'realname',
         'password',
-        'part_license_id'
+        'part_license_id',
+        'forum_user_id',
     ];
 
     protected $with = ['license'];
