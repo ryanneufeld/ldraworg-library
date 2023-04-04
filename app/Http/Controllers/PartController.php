@@ -224,6 +224,7 @@ class PartController extends Controller
     public function delete(Part $part) {
       return view('part.delete', compact('part'));
     }
+    
     /**
      * Remove the specified resource from storage.
      *

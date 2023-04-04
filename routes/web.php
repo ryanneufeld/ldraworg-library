@@ -19,6 +19,7 @@ use App\Http\Controllers\CaConfirmController;
 use App\Http\Controllers\PartUpdateController;
 use App\Http\Controllers\PartMoveController;
 use App\Http\Controllers\PartMissingController;
+use App\Http\Controllers\PartDownloadController;
 
 Route::redirect('/', '/tracker');
 
@@ -105,15 +106,17 @@ Route::prefix('official')->name('official.')->group(function () {
 
 Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
 
-Route::get('/library/official/{officialpart}', [PartController::class, 'download'])->name('official.download');
-Route::get('/library/unofficial/{unofficialpart}', [PartController::class, 'download'])->name('unofficial.download');
+Route::get('/library/official/{officialpart}', [PartDownloadController::class, 'show'])->name('official.download');
+Route::get('/library/unofficial/{unofficialpart}', [PartDownloadController::class, 'show'])->name('unofficial.download');
 
 
 // Only enable this route for testing
+/*
 Route::get('/login-user-291', function () {
   Auth::logout();
   Auth::login(\App\Models\User::find(291));
   return back();
 });
+*/
 
 
