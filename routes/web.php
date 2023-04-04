@@ -48,10 +48,12 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::middleware(['auth'])->get('notification/part/{part}', [UserNotificationController::class, 'store'])->name('notification.toggle');
 
+  Route::middleware(['auth'])->get('/missing', [PartMissingController::class, 'index'])->name('missing.index');
   Route::middleware(['auth'])->get('/{missingpart}/updatemissing', [PartMissingController::class, 'edit'])->name('missing.edit');
   Route::middleware(['auth'])->put('/{missingpart}/updatemissing', [PartMissingController::class, 'update'])->name('missing.update');
 
   Route::middleware(['auth'])->get('/{part}/delete-flag', [PartDeleteFlagController::class, 'store'])->name('flag.delete');
+  Route::middleware(['auth'])->get('/delete-flags', [PartDeleteFlagController::class, 'index'])->name('flag.index');
 
   Route::middleware(['auth'])->get('/{part}/delete', [PartController::class, 'delete'])->withTrashed()->name('delete');
   Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'destroy'])->withTrashed()->name('destroy');

@@ -8,6 +8,10 @@ use App\Models\Part;
 
 class PartMissingController extends Controller
 {
+    public function index(Request $request) {  
+        return view('part.missingindex', ['parts' => Part::withoutGlobalScope('missing')->unofficial()->where('description', 'Missing')->whereHas('parents')->get()]);
+    }
+
     public function edit (Part $part) {
         $this->authorize('update', $part);
         return view('part.updatemissing', ['part' => $part]);
