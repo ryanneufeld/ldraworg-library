@@ -27,5 +27,11 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        Part::each(function(part $p) {
+            if ($p->minor_edit_flag) {
+                $p->minor_edit_data = ['license' => 'CC BY 2.0 to CC BY 4.0'];
+                $p->save();
+            }
+        });
     }
 }
