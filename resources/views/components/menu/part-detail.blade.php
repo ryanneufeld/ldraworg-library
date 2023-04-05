@@ -12,6 +12,9 @@
   <a class="item" title="Review/Comment" href="{{ $part->votes()->firstWhere('user_id', Auth::user()->id) ? route('tracker.vote.edit', $part->votes()->firstWhere('user_id', Auth::user()->id)) : route('tracker.vote.create',$part->id) }}">Review/Comment</a>
   @endif
   @endauth
+  @if($part->hasPatterns() || $part->hasComposites() || $part->hasStickerShortcuts())
+  <a class="item" title="View Patterns/Shortcuts" href="{{route('search.suffix', ['s' => $part->basepart()])}}">View Patterns/Shortcuts</a>
+  @endif
   @canany(['part.edit.header','part.own.edit.header','part.edit.number','part.delete'])
   <div class="ui dropdown item">
     Admin Actions<i class="dropdown icon"></i>

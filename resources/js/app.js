@@ -5,7 +5,7 @@ $( function() {
 	$('.search.dropdown').dropdown();
 	$('.ui.accordion').accordion();
 	$('table.sortable').tablesort();
-
+	$('.suffixmenu .item').tab();
 	$('.ui.menu > .ui.dropdown').dropdown({on: 'hover', });
 
 	$('.ui.sitesearch').each(

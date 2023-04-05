@@ -136,12 +136,10 @@ class Part extends Model
         return $query->whereRelation('release', 'short', 'unof');
     }
 
-    public function isTexmap(): bool {
-      return $this->type->format == 'png';
-    }
-
-    public function isUnofficial(): bool {
-      return $this->release->short == 'unof';
+    public function scopeUserSubmits($query, User $user) {
+      return $query->whereHas('events', function (Builder $query) use ($user) {
+        $query->whereRelation('part_event_type', 'slug', 'submit')->where('user_id', $user->id);
+      });
     }
 
     public function scopeSearchPart ($query, string $search, string $scope) {
@@ -192,18 +190,32 @@ class Part extends Model
       });
     }
 
+    public function isTexmap(): bool {
+      return $this->type->format == 'png';
+    }
+
+    public function isUnofficial(): bool {
+      return $this->release->short == 'unof';
+    }
+
     public function hasPatterns(): bool {
-      $number = basename($this->filename);
-      return self::where('filename', 'like', "{$number}p__%.dat")->count() > 0;
+      $basepart = $this->basePart();
+      return self::where(function($q) use ($basepart) {
+        $q->where('filename', 'like', "parts/{$basepart}p__.dat")->orWhere('filename', 'like', "parts/{$basepart}p___.dat");
+      })->count() > 0;
     }
 
     public function hasComposites(): bool {
-      $number = basename($this->filename);
-      return self::where('filename', 'like', "{$number}c__%.dat")->count() > 0;
+      $basepart = $this->basePart();
+      return self::where(function($q) use ($basepart) {
+        $q->where('filename', 'like', "parts/{$basepart}c__.dat")->orWhere('filename', 'like', "parts/{$basepart}c___.dat");
+      })->count() > 0;
     }
     public function hasStickerShortcuts(): bool {
-      $number = basename($this->filename);
-      return self::where('filename', 'like', "{$number}d__%.dat")->count() > 0;
+      $basepart = $this->basePart();
+      return self::where(function($q) use ($basepart) {
+        $q->where('filename', 'like', "parts/{$basepart}d__.dat")->orWhere('filename', 'like', "parts/{$basepart}d___.dat");
+      })->count() > 0;
     }
 
     public function basePart(): string {
