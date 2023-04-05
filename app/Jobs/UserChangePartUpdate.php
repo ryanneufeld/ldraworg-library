@@ -36,7 +36,7 @@ class UserChangePartUpdate implements ShouldQueue
         $part->updateLicense();
         $part->refreshHeader();
         if ($oldheader != $part->header) {
-          $part->minor_edit_flag = true;
+          $part->minor_edit_data['license'] = 'CC BY 2.0 to CC BY 4.0';
           $part->save();
         }
       }  
