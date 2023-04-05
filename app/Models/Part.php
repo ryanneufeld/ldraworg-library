@@ -201,27 +201,27 @@ class Part extends Model
 
     public function hasPatterns(): bool {
       $basepart = $this->basePart();
-      return self::where(function($q) use ($basepart) {
+      return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
         $q->where('filename', 'like', "parts/{$basepart}p__.dat")->orWhere('filename', 'like', "parts/{$basepart}p___.dat");
       })->count() > 0;
     }
 
     public function hasComposites(): bool {
       $basepart = $this->basePart();
-      return self::where(function($q) use ($basepart) {
+      return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
         $q->where('filename', 'like', "parts/{$basepart}c__.dat")->orWhere('filename', 'like', "parts/{$basepart}c___.dat");
       })->count() > 0;
     }
     public function hasStickerShortcuts(): bool {
       $basepart = $this->basePart();
-      return self::where(function($q) use ($basepart) {
+      return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
         $q->where('filename', 'like', "parts/{$basepart}d__.dat")->orWhere('filename', 'like', "parts/{$basepart}d___.dat");
       })->count() > 0;
     }
 
     public function basePart(): string {
-      $number = pathinfo($this->filename, PATHINFO_FILENAME);
-      preg_match('#(\d+|\d+[a-z])(p|c|d|k|-)?(.*)?#u', $number, $matches);
+      $number = basename($this->filename);
+      preg_match('#^(\d+[a-z]?)(p[0-9a-z]{2,3}|c[0-9a-z]{2}|d[0-9a-z]{2}|k[0-9a-z]{2}|-f[0-9a-z])?\.(dat|png)#u', $number, $matches);
       return $matches[1] ?? '';
     }
     public function libFolder(): string {
