@@ -66,7 +66,7 @@
           {!! nl2br(htmlspecialchars(implode("\n", $warnings))) !!}
         @endif    
       </td>
-      <td><a href="{{route('tracker.editheader', $part)}}">Edit</a></td>
+      <td><a href="{{route('tracker.edit', $part)}}">Edit</a></td>
     </tr>      
   @if($loop->last)
   </tbody>  

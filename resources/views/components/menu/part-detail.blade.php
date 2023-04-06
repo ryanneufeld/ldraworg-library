@@ -21,7 +21,7 @@
     <div class="menu">
       @if($part->isUnofficial() && $part->type->format == 'dat')
       @canany(['part.edit.header','part.own.edit.header'])
-        <a class="item" title="Edit the file header" href="{{route('tracker.editheader', $part)}}">Edit Header</a>
+        <a class="item" title="Edit the file header" href="{{route('tracker.edit', $part)}}">Edit Header</a>
       @endcanany
       @endif
       @can('part.edit.header')

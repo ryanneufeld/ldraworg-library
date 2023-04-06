@@ -31,6 +31,7 @@ class PartHeaderEditRequest extends FormRequest
   {
     return [
       'description' => ['required', 'string', new ValidHeaderDescription],
+      'part_type_id' => 'nullable|exists:part_types,id',
       'part_type_qualifier_id' => 'nullable|exists:part_type_qualifiers,id',
       'help' => 'nullable|string',
       'keywords' => ['nullable','string', new ValidHeaderKeywords],

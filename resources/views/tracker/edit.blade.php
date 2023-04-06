@@ -10,7 +10,7 @@
     </ul>    
   </div>
 @endif
-<form class="ui form" name="headeredit" action="{{route('tracker.doeditheader', $part->id)}}" method="POST">
+<form class="ui form" name="headeredit" action="{{route('tracker.update', $part->id)}}" method="POST">
   @method('PUT')
   @csrf
   <div class="field">
@@ -26,10 +26,14 @@
     <input type="text" name="user" readonly value="{{$part->user->authorString()}}">
   </div>
   <div class="fields">
+    @if ($part->type->folder == 'parts/')
+    <x-form.select width="ten" label="Type" name="part_type_id" :options="\App\Models\PartType::where('folder', 'parts/')->pluck('type', 'id')" placeholder="Type" selected="{{old('part_type_id') ?? $part->part_type_id}}" />
+    @else
     <div class="ten wide field info">
       <label for="type">0 !LDRAW_ORG</label>
       <input type="text" name="type" readonly value="{{$part->type->type}}">
-    </div>  
+    </div>
+    @endif 
     <x-form.select class="clearable" width="six" label="Type Qualifier" name="part_type_qualifier_id" :options="\App\Models\PartTypeQualifier::pluck('type', 'id')"  placeholder="Qualifier" selected="{{old('part_type_qualifier_id') ?? $part->part_type_qualifier_id}}" />
   </div>
   <div class="field info">

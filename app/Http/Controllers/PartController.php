@@ -113,23 +113,6 @@ class PartController extends Controller
     }
 
     /**
-     * Stream download from database.
-     *
-     * @param  \App\Models\Part  $part
-     * @return \Illuminate\Http\Response
-     */
-
-    public function download(Part $part) {
-      if ($part->isTexmap()) {
-        $header = ['Content-Type' => 'image/png'];
-      }
-      else {
-        $header = ['Content-Type' => 'text/plain'];
-      }
-      return response()->streamDownload(function() use ($part) { echo $part->get(); }, basename($part->filename), $header);
-    }
-
-    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -164,23 +147,10 @@ class PartController extends Controller
      * @param  \App\Models\Part  $part
      * @return \Illuminate\Http\Response
      */
-    public function editheader(Part $part)
+    public function edit(Part $part)
     {
       $this->authorize('update', $part);
       return view('tracker.edit', ['part' => $part]);
-    }
-
-    /**
-     * Update the image of the part.
-     *
-     * @param  \App\Models\Part  $part
-     * @return \Illuminate\Http\Response
-     */
-    public function updateimage(Part $part)
-    {
-      $this->authorize('update', $part);
-      $part->updateImage();
-      return redirect()->route('tracker.show', [$part])->with('status','Part image update queued');
     }
 
     /**
@@ -190,7 +160,7 @@ class PartController extends Controller
      * @param  \App\Models\Part  $part
      * @return \Illuminate\Http\Response
      */
-    public function doeditheader(PartHeaderEditRequest $request, Part $part)
+    public function update(PartHeaderEditRequest $request, Part $part)
     {
       $this->authorize('update', $part);
       $data = $request->validated();
@@ -201,6 +171,9 @@ class PartController extends Controller
         if ($c = PartCategory::findByName($cat)) $part->part_category_id = $c->id;
       }
 
+      if (!empty($data['part_type_id'])) {
+        $part->part_type_id = $data['part_type_id'];
+      }
       $part->part_type_qualifier_id = $data['part_type_qualifier_id'] ?? null;
       empty($data['help']) ? $part->setHelp('', true) : $part->setHelp($data['help'], true);
       empty($data['keywords']) ? $part->setKeywords('', true) : $part->setKeywords($data['keywords'], true);
@@ -238,7 +211,20 @@ class PartController extends Controller
       $part->delete();
       return redirect()->route('tracker.activity');
     }
-    
+
+    /**
+     * Update the image of the part.
+     *
+     * @param  \App\Models\Part  $part
+     * @return \Illuminate\Http\Response
+     */
+    public function updateimage(Part $part)
+    {
+      $this->authorize('update', $part);
+      $part->updateImage();
+      return redirect()->route('tracker.show', [$part])->with('status','Part image update queued');
+    }
+
     public function weekly(Request $request) {
       
       $parts = Part::with('type')->unofficial()->

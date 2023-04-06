@@ -38,8 +38,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::get('/list', [PartController::class, 'index'])->name('index');
   Route::get('/weekly', [PartController::class, 'weekly'])->name('weekly');
 
-  Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'editheader'])->name('editheader');
-  Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'doeditheader'])->name('doeditheader');
+  Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'edit'])->name('edit');
+  Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'update'])->name('update');
 
   Route::middleware(['auth'])->get('/{part}/move', [PartMoveController::class, 'edit'])->name('move.edit');
   Route::middleware(['auth'])->put('/{part}/move', [PartMoveController::class, 'update'])->name('move.update');
