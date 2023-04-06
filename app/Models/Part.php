@@ -858,4 +858,18 @@ class Part extends Model
       Storage::disk('local')->put('deleted/library/' . $this->filename . '.' . time(), $this->get());
     }
 
+    public function dependencies(Collection $parts, bool $unOfficialPriority = false): void {
+      if(!$parts->contains($this)) {
+        $parts->add($this);
+      }
+      foreach ($this->subparts as $spart) {
+        if ($unOfficialPriority && !$spart->isUnofficial() && !is_null($spart->unofficial_part_id)) {
+          Part::find($spart->unofficial_part_id)->dependencies($parts, $unOfficialPriority);
+        }
+        else {
+          $spart->dependencies($parts, $unOfficialPriority);
+        }
+      }
+    }
+  
 }

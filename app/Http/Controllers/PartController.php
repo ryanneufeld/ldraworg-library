@@ -13,7 +13,6 @@ use App\Models\PartEvent;
 use App\Models\PartCategory;
 
 use App\LDraw\LibraryOperations;
-use App\LDraw\WebGL;
 use App\LDraw\FileUtils;
 
 use App\Http\Requests\PartSubmitRequest;
@@ -241,11 +240,6 @@ class PartController extends Controller
       return view('tracker.weekly', ['parts' => $parts->get()]);
     }
     
-    public function webgl(Part $part) {
-      WebGL::WebGLPart($part, $parts, true, $part->isUnofficial());
-      return response(json_encode($parts));    
-    }
-
     public function updatesubparts (Part $part) {
       $this->authorize('update', $part);
       $part->updateSubparts(true);

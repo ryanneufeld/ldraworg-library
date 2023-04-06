@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Search\QuickSearchController;
-
+use App\Http\Controllers\PartWebGLController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,4 +15,5 @@ use App\Http\Controllers\Search\QuickSearchController;
 |
 */
 Route::get('/search/quicksearch', [QuickSearchController::class, 'index'])->name('search.quicksearch');
+Route::get('/{part}/ldbi', [PartWebGLController::class, 'show'])->name('part.ldbi');
 

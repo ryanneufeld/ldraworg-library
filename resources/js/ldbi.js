@@ -32,9 +32,9 @@ var menuClick = function(e) {
   $('.ui.ldbi.modal').modal('show');
   if (!scene) {
     // pre-fetch the paths to the subfiles used to speed up loading
-    var posting = $.get( '/ldbi/' + part_id + '/parts')
+    var posting = $.get( '/api/' + part_id + '/ldbi')
       .done(function( response ) {
-        part_paths = JSON.parse(response);
+        part_paths = response;
         scene = new LDrawOrg.Model(canvas, partID, {idToUrl: idToUrl, idToTextureUrl: idToTextureUrl});
         window.addEventListener('resize', () => scene.onChange(), false);
     });
