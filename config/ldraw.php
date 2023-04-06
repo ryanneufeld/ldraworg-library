@@ -91,6 +91,12 @@ return [
   'license' => [
     'default' => 'CC_BY_4',
   ],
+  // These are groups for Part Author/Reviewer tags
+  'mybb-groups' => [
+    'Part Author' => 8,
+    'Part Reviewer' => 9,
+    'Library Admin' => 10,
+  ],
   'search' => [
     'quicksearch' => [
       'limit' => 7,
@@ -189,7 +195,7 @@ return [
     'Wing',
     'Znap',
   ],
-  'pattern_codes' => [
+  'pattern-codes' => [
     '0' => 'General/Miscellaneous and Town',
     '1' => 'Town, including Paradisa',
     '2' => 'Town, including Paradisa',

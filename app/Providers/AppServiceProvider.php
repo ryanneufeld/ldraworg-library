@@ -28,6 +28,7 @@ class AppServiceProvider extends ServiceProvider
       if ($this->app->environment('local')) {
         Mail::alwaysTo('orion@ldraw.org');
       }
+      Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
       //Model::preventLazyLoading(! $this->app->isProduction());
     }
 }

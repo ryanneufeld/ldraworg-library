@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserStoreRequest;
 use App\Models\User;
+use App\Models\MybbUser;
 use Spatie\Permission\Models\Role;
 use App\Jobs\UpdateMybbUser;
 use App\Jobs\UserChangePartUpdate;
@@ -47,9 +48,7 @@ class UserController extends Controller
     {
       $validated = $request->validated();  
       $roles = Role::pluck('name','name')->all();
-      $user = DB::connection('mybb')->table('mybb_users')
-        ->select('uid', 'username', 'loginname', 'email')
-        ->where('uid', $validated['forum_user_id'])->first();
+      $user = MybbUser::find($validated['forum_user_id']);
       return view('admin.users.create', ['roles' => $roles, 'user' => $user]);
     }
 
@@ -71,7 +70,6 @@ class UserController extends Controller
           'forum_user_id' => $validated['forum_user_id'],
           'part_license_id' => $validated['part_license_id'],
         ]);
-        $user->assignRole($validated['roles']);
         $user->syncRoles($validated['roles']);
         $user->save();
         UpdateMybbUser::dispatch($user);
@@ -119,7 +117,6 @@ class UserController extends Controller
           'email' => $validated['email'],
           'part_license_id' => $validated['part_license_id'],
         ]);
-        $user->assignRole($validated['roles']);
         $user->syncRoles($validated['roles']);
         $user->save();
         UserChangePartUpdate::dispatch($user);

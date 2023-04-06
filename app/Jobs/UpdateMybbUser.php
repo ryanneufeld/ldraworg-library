@@ -8,9 +8,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-use Illuminate\Support\Facades\DB;
-
 use App\Models\User;
+use App\Models\MybbUser;
 
 class UpdateMybbUser implements ShouldQueue
 {
@@ -35,10 +34,20 @@ class UpdateMybbUser implements ShouldQueue
      */
     public function handle()
     {
-      DB::connection('mybb')->table('mybb_users')->where('uid', $this->user->forum_user_id)->update([
-        'username' => $this->user->realname,
-        'email' => $this->user->email,
-        'loginname' => $this->user->name,
-      ]);
+      $mybb = MybbUser::find($this->user->forum_user_id);
+      $mybb->username = $this->user->realname;
+      $mybb->email = $this->user->email;
+      $mybb->loginname = $this->user->name;
+      $mybb_groups = empty($mybb->additionalgroups) ? [] : explode(',', $mybb->additionalgroups);
+      foreach(config('ldraw.mybb-groups') as $role => $group) {
+        if ($this->user->hasRole($role) && !in_array($group, $mybb_groups)) {
+          $mybb_groups[] = $group;
+        }
+        elseif(!$this->user->hasRole($role) && in_array($group, $mybb_groups)) {
+          $mybb_groups = array_values(array_filter($mybb_groups, fn ($m) => $m != $group));
+        }
+      }
+      $mybb->additionalgroups = implode(',', $mybb_groups);
+      $mybb->save();
     }
 }

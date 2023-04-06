@@ -6,8 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-
+use App\Models\MybbUser;
 use App\Models\User;
 
 class LoginMybbUser
@@ -28,13 +27,11 @@ class LoginMybbUser
           // The cookie should be in the format <uid>_<loginkey>
           if (!is_array($mybb) || count($mybb) !== 2 || !is_numeric($mybb[0])) $next($request);
           // Look up the mybb user in the database
-          $u = DB::connection('mybb')->table('mybb_users')
-                ->select('uid')
-                ->where('uid', $mybb[0])->where('loginkey', $mybb[1])->first();
+          $u = MybbUser::where('uid', $mybb[0])->where('loginkey', $mybb[1])->first();
           if (empty($u)) return $next($request);
           // Check if the logged in user matches a user in the library db
-          $usr = Auth::getProvider()->retrieveByCredentials(['forum_user_id' => $u->uid]);
-          if (!isset($usr->id)) return $next($request);
+          $usr = User::firstWhere('forum_user_id', $u->uid);
+          if (empty($usr)) return $next($request);
           // Log the mybb user in since checking the mybb db every time is slow
           Auth::login($usr, $remember = true);
         }
