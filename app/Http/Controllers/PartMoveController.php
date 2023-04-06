@@ -20,6 +20,7 @@ class PartMoveController extends Controller
         $validated = $request->validated();
         $oldname = $part->name();
         $newtype = PartType::find($validated['part_type_id']);
+        if (empty($newtype) || $newtype->folder == $part->type->folder) $newtype = clone $part->type;
         $newname = pathinfo($validated['newname'], PATHINFO_FILENAME) . '.' . $newtype->format;
         $part->move($newname, $newtype);
         if ($part->isUnofficial()) {
