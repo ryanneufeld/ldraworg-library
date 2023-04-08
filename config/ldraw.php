@@ -28,7 +28,7 @@ return [
     'dir' => [
       'render' => [
         'disk' => 'local',
-        'path' => 'render',
+        'path' => 'tmp',
       ],
       'image' => [
         'official' => [

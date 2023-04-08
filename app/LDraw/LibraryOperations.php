@@ -4,6 +4,7 @@ namespace App\LDraw;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Builder;
 
 
@@ -112,7 +113,7 @@ class LibraryOperations {
 
   public static function makeMPD(Part $part, bool $unOfficialPriority = false): string {
     $parts = new Collection;
-    self::dependencies($part, $parts, $unOfficialPriority);
+    $part->dependencies($parts, $unOfficialPriority);
     $parts = $parts->diff(new Collection([$part]));
     if ($part->isTexmap()) {
       $model = $part->getFileText();
@@ -129,40 +130,6 @@ class LibraryOperations {
       }  
     }
     return $model;
-  }
-
-  public static function dependencies(Part $part, Collection $parts, bool $unOfficialPriority = false): void {
-    if(!$parts->contains($part)) {
-      $parts->add($part);
-    }
-    foreach ($part->subparts as $spart) {
-      if ($unOfficialPriority && !$spart->isUnofficial() && !is_null($spart->unofficial_part_id)) {
-        self::dependencies(Part::find($spart->unofficial_part_id), $parts, $unOfficialPriority);
-      }
-      else {
-        self::dependencies($spart, $parts, $unOfficialPriority);
-      }
-    }
-  }
-  
-  public static function baselineComplete() {
-    $zip = new \ZipArchive;
-    $zip->open(storage_path('app/library/updates/completeBase.zip'), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-    $zip->addFromString('test.txt', 'test');
-    $zip->close();
-    Part::official()->chunk(500, function (Collection $parts) use ($zip) {
-      $zip->open(storage_path('app/library/updates/completeBase.zip'));
-      foreach($parts as $part) {
-        $zip->addFromString('ldraw/' . $part->filename, $part->get());
-      }
-      $zip->close();
-    });
-    $zip->open(storage_path('app/library/updates/completeBase.zip'));
-    foreach (Storage::disk('library')->allFiles('official') as $filename) {
-      $zip->addFromString('ldraw/' . str_replace('official/', '', $filename), Storage::disk('library')->get($filename));
-    }
-    $zip->deleteName('test.txt');
-    $zip->close();
   }
 
   public static function checkOrCreateStandardDirs(string $disk, string $path): void {
@@ -192,7 +159,12 @@ class LibraryOperations {
     self::checkOrCreateStandardDirs($unofficialimagedisk, $unofficialimagepath);
 
     $file = $renderpath . '/' . basename($part->filename);
-    Storage::disk($renderdisk)->put($file, $part->get());
+    $contents = $part->get();
+    // Fix an LDView quirk with non-part folder parts
+    if (!$part->isTexmap() && $part->type->folder != 'parts/') {
+      $contents = str_replace(['Unofficial_Subpart', 'Unofficial_Primitive', 'Unofficial_8_Primitive', 'Unofficial_48_Primitive'], 'Unofficial_Part', $contents);
+    }
+    Storage::disk($renderdisk)->put($file, $contents);
     $filepath = Storage::disk($renderdisk)->path($file);
     if ($part->isTexmap()) {
       $tw = config('ldraw.image.thumb.width');
@@ -226,7 +198,7 @@ class LibraryOperations {
       self::checkOrCreateStandardDirs($renderdisk, "$renderpath/ldraw");
 
       $parts = new Collection;
-      LibraryOperations::dependencies($part, $parts, $part->isUnofficial());
+      $part->dependencies($parts, $part->isUnofficial());
       $parts = $parts->diff(new Collection([$part]));
       foreach ($parts as $p) {
         Storage::disk($renderdisk)->put($renderpath . '/ldraw/' . $p->filename, $p->get());
@@ -247,24 +219,25 @@ class LibraryOperations {
       $thumb_size = "-SaveWidth=" . config('ldraw.image.thumb.width') . " -SaveHeight=" . config('ldraw.image.thumb.height');
       $thumbfile = substr($pngfile, 0, -4) . '_thumb.png';
       
-      $cmds = '';
+      $cmds = ['[General]'];
       foreach(config('ldraw.ldview.commands') as $command => $value) {
-        $cmds .= " -$command=$value";
+        $cmds[] = "$command=$value";
       }  
       
       if (array_key_exists($part->basePart(), config('ldraw.ldview.alt-camera'))) {
         $ac = config('ldraw.ldview.alt-camera');
-        $cmds .= " -DefaultLatLong=" . $ac[$part->basePart()];
+        $cmds[] = " -DefaultLatLong=" . $ac[$part->basePart()];
       }
-
-      $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir $cmds $normal_size -SaveSnapshot=$pngfile";
+      Storage::disk($renderdisk)->put("$renderpath/ldview.ini", implode("\n", $cmds));
+      $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir -IniFile=$renderfullpath/ldview.ini $normal_size -SaveSnapshot=$pngfile";
       exec($ldviewcmd);
       exec("optipng $pngfile");
-      $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir $cmds $thumb_size -SaveSnapshot=$thumbfile";
+      $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir -IniFile=$renderfullpath/ldview.ini $thumb_size -SaveSnapshot=$thumbfile";
       exec($ldviewcmd);
       exec("optipng $thumbfile");
       Storage::disk($renderdisk)->deleteDirectory("$renderpath/ldraw");
       Storage::disk($renderdisk)->delete($file);
+      Storage::disk($renderdisk)->delete("$renderpath/ldview.ini");
     }
   }
   
