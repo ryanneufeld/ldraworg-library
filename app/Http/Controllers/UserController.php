@@ -85,7 +85,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return view('users.show',compact('user'));
+        return view('users.show', compact('user'));
     }
 
     /**
@@ -98,7 +98,7 @@ class UserController extends Controller
     {
         $roles = Role::pluck('name','name')->all();
         $userRole = $user->roles->pluck('name','name')->all();
-        return view('admin.users.edit',compact('user','roles','userRole'));
+        return view('admin.users.edit', compact('user','roles','userRole'));
     }
 
     /**
@@ -111,6 +111,16 @@ class UserController extends Controller
     public function update(UserStoreRequest $request, User $user)
     {
         $validated = $request->validated();
+        $olddata = [];
+        if ($validated['name'] != $user->name) {
+            $olddata['name'] = $user->name;
+        }
+        if ($validated['realname'] != $user->realname) {
+            $olddata['realname'] = $user->realname;
+        }
+        if ($validated['part_license_id'] != $user->part_license_id) {
+            $olddata['part_license_id'] = $user->part_license_id;
+        }
         $user->fill([
           'name' => $validated['name'],
           'realname' => $validated['realname'],
@@ -119,7 +129,9 @@ class UserController extends Controller
         ]);
         $user->syncRoles($validated['roles']);
         $user->save();
-        UserChangePartUpdate::dispatch($user);
+        if (!empty($olddata)) {
+            UserChangePartUpdate::dispatch($user, $olddata);
+        }
         UpdateMybbUser::dispatch($user);
         return redirect()->route('admin.users.index')
                         ->with('success','User updated successfully');                        

@@ -16,8 +16,8 @@
 
 
 <form method="POST" action="{{route('admin.users.update', $user)}}" class="ui form">
-@csrf
-@method('PATCH')
+  @csrf
+  @method('PATCH')
   <div class="field">
     <label for="realname">Real Name:</label>
     <input name="realname" type="text" value="{{$user->realname}}" placeholder="Real Name">
@@ -34,18 +34,11 @@
     <label for="roles">Roles:</label>
     <select name="roles[]" multiple="" class="ui dropdown">
     @foreach ($roles as $role)
-      <option value="{{ $role }}" @selected(isset($userRole[$role]))>{{ $role }}</option>
+      <option value="{{$role}}" @selected($user->hasRole($role))>{{$role}}</option>
     @endforeach
     </select>
   </div>
-  <div class="field">
-    <label for="license">License:</label>
-    <select name="part_license_id" class="ui dropdown">
-    @foreach (\App\Models\PartLicense::all() as $lic)
-      <option value="{{ $lic->id }}" @selected($user->part_license_id == $lic->id)>{{ $lic->name }}</option>
-    @endforeach
-    </select>
-  </div>
+  <x-form.select label="License:" name="part_license_id" :options="\App\Models\PartLicense::pluck('name', 'id')" selected="{{$user->part_license_id ?? ''}}" />
   <button type="submit" class="ui button">Submit</button>
 </form>
 

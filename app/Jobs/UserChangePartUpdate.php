@@ -15,12 +15,14 @@ class UserChangePartUpdate implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public User $user;
+    public array $olddata;
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user)
+    public function __construct(User $user, array $olddata)
     {
       $this->user = $user;
+      $this->olddata = $olddata;
     }
 
     /**
@@ -28,17 +30,31 @@ class UserChangePartUpdate implements ShouldQueue
      */
     public function handle(): void
     {
-      $parts = \App\Models\Part::orWhere('user_id', $this->user->id)->orWhereHas('history', function ($q) {
-        $q->where('user_id', $this->user->id);
+      $parts = \App\Models\Part::where(function($query) {
+        $query->orWhere('user_id', $this->user->id)->orWhereHas('history', function ($q) {
+          $q->where('user_id', $this->user->id);
+        });
       })->get();
-      foreach($parts as $part) {
-        $oldheader = $part->header;
-        $part->updateLicense();
-        $part->refreshHeader();
-        if ($oldheader != $part->header) {
-          $part->minor_edit_data['license'] = 'CC BY 2.0 to CC BY 4.0';
-          $part->save();
+      foreach($parts as $p) {
+        if ($p->isUnofficial()) {
+          return;
         }
-      }  
+        $oldLic = $p->part_license_id;
+        $p->updateLicense();
+        if (isset($this->olddata['name']) ||
+            $p->part_license_id != $oldLic || 
+            ($p->user_id == $this->user->id && isset($this->olddata['realname']))) {
+          if ($p->part_license_id != $oldLic) {
+            $p->minor_edit_data['license'] = \App\Models\PartLicense::find($oldLic)->name . " to " . $p->license->name;
+          }
+          if ($p->user_id == $this->user->id && isset($this->olddata['realname'])) {
+            $p->minor_edit_data['realname'] = $this->olddata['realname'] . " to " . $this->user->realname;
+          }
+          if (isset($this->olddata['name'])) {
+            $p->minor_edit_data['name'] = $this->olddata['name'] . " to " . $this->user->name;
+          }
+          $p->refreshHeader();
+        }
+      }
     }
 }

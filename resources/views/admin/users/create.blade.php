@@ -17,7 +17,6 @@
 
 <form method="POST" action="{{route('admin.users.store')}}" class="ui form">
   @csrf
-  <input type="hidden" name="forum_user_id" value="{{$user->uid}}">
   <div class="field">
     <label for="realname">Real Name:</label>
     <input name="realname" type="text" value="{{$user->username}}" placeholder="Real Name">
@@ -38,14 +37,7 @@
     @endforeach
     </select>
   </div>
-  <div class="field">
-    <label for="license">License:</label>
-    <select name="part_license_id" class="ui dropdown">
-    @foreach (\App\Models\PartLicense::all() as $lic)
-      <option value="{{ $lic->id }}" @selected($lic->id  == \App\Models\PartLicense::defaultLicense()->id)>{{ $lic->name }}</option>
-    @endforeach
-    </select>
-  </div>
+  <x-form.select label="License:" name="part_license_id" :options="\App\Models\PartLicense::pluck('name', 'id')" selected="{{\App\Models\PartLicense::default()->id}}" />
   <button type="submit" class="ui button">Submit</button>
 </form>
 
