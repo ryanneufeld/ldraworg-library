@@ -38,6 +38,6 @@ class RenderFile implements ShouldQueue
       if (!empty($this->batch()->id) && $this->batch()->cancelled()) {
          return;
       }
-      LibraryOperations::renderPart($this->part);
+      $this->part->render();
     }
 }

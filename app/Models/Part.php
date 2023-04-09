@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
+use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\User;
 use App\Models\PartCategory;
@@ -28,8 +29,7 @@ use App\Jobs\RenderFile;
 use App\Jobs\UpdateZip;
 
 use App\LDraw\FileUtils;
-use Illuminate\Database\Eloquent\Collection;
-use RuntimeException;
+use App\LDraw\LibraryOperations;
 
 class Part extends Model
 {
@@ -869,6 +869,163 @@ class Part extends Model
         else {
           $spart->dependencies($parts, $unOfficialPriority);
         }
+      }
+    }
+    
+    public function releasePart(PartRelease $release): void {
+      if (!$this->isUnofficial()) {
+        return;
+      }
+      // Update release for event released parts
+      PartEvent::whereRelation('release', 'short', 'unof')->where('part_id', $this->id)->update(['part_release_id' => $release->id]);
+
+      // Post a release event     
+      PartEvent::create([
+        'part_event_type_id' => PartEventType::firstWhere('slug', 'release'),
+        'user_id' => Auth::user()->id,
+        'part_id' => $this->id,
+        'part_release_id' => $release->id,
+        'comment' =>'Release ' . $release->name
+      ]);
+
+      // Add history line
+      PartHistory::create(['user_id' => Auth::user()->id, 'part_id' => $part->id, 'comment' => 'Official Update ' . $release->name]);
+      
+      $this->votes->delete();
+      $this->notification_users()->sync([]);
+      $this->delete_flag = false;
+      $this->minor_edit_data = null;
+
+      $this->refreshHeader();
+
+      if (!is_null($this->official_part_id)) {
+        $opart = Part::find($part->official_part_id);
+        $contents = $part->get();
+        // Update the official part
+        if ($opart->isTexmap()) {
+          $opart->body->body = $contents;
+          $opart->body->save();
+          $opart->history()->delete();
+          foreach($this->history()->latest()->get() as $h) {
+            PartHistory::create(['created_at' => $h->created_at, 'user_id' => $h->user_id, 'part_id' => $opart->id, 'comment' => $h->comment]);
+          }
+        } 
+        else {
+          $opart->fillFromText($text, false, $release);
+        }
+        $opart->unofficial_part_id = null;
+        $opart->save();
+
+        // Update events with official part id
+        PartEvent::where('part_release_id', $release->id)->where('part_id', $this->id)->update(['part_id' => $opart->id]);
+
+        $this->delete();
+      }
+      else {
+        $this->release()->associate($release);
+        $this->notification_users()->sync([]);
+        $this->vote_sort = 1;
+        $this->vote_summary = null;
+        $this->uncertified_subpart_count = 0;
+        $this->refreshHeader();
+      }
+    }
+
+    public function render(): void {
+      $renderdisk = config('ldraw.ldview.dir.render.disk');
+      $renderpath = config('ldraw.ldview.dir.render.path');
+      $renderfullpath = realpath(config("filesystems.disks.$renderdisk.root") . '/' . $renderpath);
+      $officialimagedisk = config('ldraw.ldview.dir.image.official.disk');
+      $officialimagepath = config('ldraw.ldview.dir.image.official.path');
+      $officialimagefullpath = realpath(config("filesystems.disks.$officialimagedisk.root") . '/' . $officialimagepath);
+      $unofficialimagedisk = config('ldraw.ldview.dir.image.unofficial.disk');
+      $unofficialimagepath = config('ldraw.ldview.dir.image.unofficial.path');
+      $unofficialimagefullpath = realpath(config("filesystems.disks.$unofficialimagedisk.root") . '/' . $unofficialimagepath);
+  
+      // Image saving will fail if these directories do not exist
+      LibraryOperations::checkOrCreateStandardDirs($officialimagedisk, $officialimagepath);
+      LibraryOperations::checkOrCreateStandardDirs($unofficialimagedisk, $unofficialimagepath);
+  
+      $file = $renderpath . '/' . basename($this->filename);
+      $contents = $this->get();
+      // Fix an LDView quirk with non-part folder parts
+      if (!$this->isTexmap() && $this->type->folder != 'parts/') {
+        $contents = str_replace(['Unofficial_Subpart', 'Unofficial_Primitive', 'Unofficial_8_Primitive', 'Unofficial_48_Primitive'], 'Unofficial_Part', $contents);
+      }
+      Storage::disk($renderdisk)->put($file, $contents);
+      $filepath = Storage::disk($renderdisk)->path($file);
+      if ($this->isTexmap()) {
+        $tw = config('ldraw.image.thumb.width');
+        $th = config('ldraw.image.thumb.height');
+        if ($this->isUnofficial()) {
+          $thumbpngfile = $unofficialimagefullpath . '/' . substr($this->filename, 0, -4) . '_thumb.png';        
+        }
+        else {
+          $thumbpngfile = $officialimagefullpath . '/' . substr($this->filename, 0, -4) . '_thumb.png';        
+        }
+        list($width, $height) = getimagesize($filepath);
+        $r = $width / $height;
+        if ($tw/$th > $r) {
+            $newwidth = $th*$r;
+        } else {
+            $newwidth = $tw;
+        }
+        $png = imagecreatefrompng($filepath);
+        imagealphablending($png, false);
+        $png = imagescale($png, $newwidth);
+        imagesavealpha($png, true);
+        imagepng($png, $thumbpngfile);
+        exec("optipng $filepath");
+        exec("optipng $thumbpngfile");
+        $this->body->body = base64_encode(Storage::disk($renderdisk)->get($file));
+        $this->body->save();
+        Storage::disk($renderdisk)->delete($file);
+      }
+      else {
+        // LDview requires a p and a parts directory even if empty
+        LibraryOperations::checkOrCreateStandardDirs($renderdisk, "$renderpath/ldraw");
+  
+        $parts = new Collection;
+        $this->dependencies($parts, $this->isUnofficial());
+        $parts = $parts->diff(new Collection([$this]));
+        foreach ($parts as $p) {
+          Storage::disk($renderdisk)->put($renderpath . '/ldraw/' . $p->filename, $p->get());
+        }
+  
+        if ($this->isUnofficial()) {
+          $pngfile = $unofficialimagefullpath . '/' . substr($this->filename, 0, -4) . '.png';
+        }
+        else {
+          $pngfile = $officialimagefullpath . '/' . substr($this->filename, 0, -4) . '.png';
+        }
+        
+        $ldrawdir = $renderfullpath . '/ldraw';
+        $ldconfig = realpath(config('filesystems.disks.library.root') . '/official/LDConfig.ldr');
+        $ldview = config('ldraw.ldview.path');
+  
+        $normal_size = "-SaveWidth=" . config('ldraw.image.normal.width') . " -SaveHeight=" . config('ldraw.image.normal.height');
+        $thumb_size = "-SaveWidth=" . config('ldraw.image.thumb.width') . " -SaveHeight=" . config('ldraw.image.thumb.height');
+        $thumbfile = substr($pngfile, 0, -4) . '_thumb.png';
+        
+        $cmds = ['[General]'];
+        foreach(config('ldraw.ldview.commands') as $command => $value) {
+          $cmds[] = "$command=$value";
+        }  
+        
+        if (array_key_exists($this->basePart(), config('ldraw.ldview.alt-camera'))) {
+          $ac = config('ldraw.ldview.alt-camera');
+          $cmds[] = " -DefaultLatLong=" . $ac[$this->basePart()];
+        }
+        Storage::disk($renderdisk)->put("$renderpath/ldview.ini", implode("\n", $cmds));
+        $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir -IniFile=$renderfullpath/ldview.ini $normal_size -SaveSnapshot=$pngfile";
+        exec($ldviewcmd);
+        exec("optipng $pngfile");
+        $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir -IniFile=$renderfullpath/ldview.ini $thumb_size -SaveSnapshot=$thumbfile";
+        exec($ldviewcmd);
+        exec("optipng $thumbfile");
+        Storage::disk($renderdisk)->deleteDirectory("$renderpath/ldraw");
+        Storage::disk($renderdisk)->delete($file);
+        Storage::disk($renderdisk)->delete("$renderpath/ldview.ini");
       }
     }
   
