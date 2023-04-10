@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\User;
 use App\Models\Part;
@@ -135,8 +136,10 @@ class PartController extends Controller
       $filedata = $request->validated();
       $user = User::find($filedata['user_id']);
       $pt = PartType::find($filedata['part_type_id']);
-      $parts = LibraryOperations::addFiles($filedata['partfile'], $user, $pt, $filedata['comment'] ?? null);
-      $user->notification_parts()->syncWithoutDetaching($parts->pluck('id'));
+      $parts = new Collection;
+      foreach($filedata['partfile'] as $file) {
+        $parts->add(Part::updateOrCreateFromFile($file, $user, $pt, $filedata['comment'] ?? null));
+      }
       return view('tracker.postsubmit', ['parts' => $parts]);
     }
 

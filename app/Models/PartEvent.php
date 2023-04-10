@@ -26,6 +26,7 @@ class PartEvent extends Model
       'deleted_filename',
       'deleted_description',
       'moved_from_filename',
+      'initial_submit',
     ];
 
     protected $casts = [

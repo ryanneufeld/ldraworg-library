@@ -689,40 +689,42 @@ class Part extends Model
     }
   
     // Note: this function assumes that the part text has been cleaned and validated
-    public function fillFromFile(string $path, User $user = null, PartType $pt = null, PartRelease $rel = null): void {
-      if (File::extension($path) == 'png' && File::mimeType($path) == 'image/png') {
+    public function fillFromFile($file, User $user = null, PartType $pt = null, PartRelease $rel = null): void {
+      $filename = basename(strtolower($file->getClientOriginalName()));
+      $contents = $file->get();
+      $mimeType = $file->getMimeType();
+      if (pathinfo($filename, PATHINFO_EXTENSION) == '.png' && $mimeType == 'image/png') {
         if (is_null($user) || is_null($pt)) throw new \RuntimeException('User and PartType must be supplied for Texmap');
-        $fill = [
+        $this->fill([
           'user_id' => $user->id,
           'part_release_id' => $rel->id ?? PartRelease::unofficial()->id,
           'part_license_id' => $user->license->id,
-          'filename' => $pt->folder . File::basename($path),
-          'description' => $pt->name . ' ' . File::basename($path),
+          'filename' => $pt->folder . basename($filename),
+          'description' => $pt->name . ' ' . basename($filename),
           'part_type_id' => $pt->id,
-        ];
-        $this->fill($fill);
+        ]);
         $this->refreshHeader();
         if (is_null($this->body)) {
-          PartBody::create(['part_id' => $this->id, 'body' => base64_encode(File::get($path))]);
+          PartBody::create(['part_id' => $this->id, 'body' => base64_encode($contents)]);
         }
         else {
-          $this->body->body = base64_encode(File::get($path));
+          $this->body->body = base64_encode($contents);
           $this->body->save();
         }  
         //$this->put(File::get($path));
         $this->save();
       }
-      elseif (File::extension($path) == 'dat' && File::mimeType($path) == 'text/plain') {
-        $this->fillFromText(FileUtils::cleanFileText(File::get($path)), false, $rel);
+      elseif (pathinfo($filename, PATHINFO_EXTENSION) == '.dat' && $mimeType == 'text/plain') {
+        $this->fillFromText(FileUtils::cleanFileText($contents), false, $rel);
       }
       else {
         throw new \RuntimeException('Supplied file must be either a png image or dat text file');
       }
     }
     
-    public static function createFromFile(string $path, User $user = null, PartType $pt = null, PartRelease $rel = null): self {
+    public static function createFromFile($file, User $user = null, PartType $pt = null, PartRelease $rel = null): self {
       $part = new self;
-      $part->fillFromFile($path, $user , $pt, $rel);
+      $part->fillFromFile($file, $user , $pt, $rel);
       return $part;
     }
     
@@ -899,8 +901,8 @@ class Part extends Model
       $this->refreshHeader();
 
       if (!is_null($this->official_part_id)) {
-        $opart = Part::find($part->official_part_id);
-        $contents = $part->get();
+        $opart = Part::find($this->official_part_id);
+        $contents = $this->get();
         // Update the official part
         if ($opart->isTexmap()) {
           $opart->body->body = $contents;
@@ -911,7 +913,7 @@ class Part extends Model
           }
         } 
         else {
-          $opart->fillFromText($text, false, $release);
+          $opart->fillFromText($contents, false, $release);
         }
         $opart->unofficial_part_id = null;
         $opart->save();
@@ -1028,5 +1030,80 @@ class Part extends Model
         Storage::disk($renderdisk)->delete("$renderpath/ldview.ini");
       }
     }
-  
+
+    public static function updateOrCreateFromFile($file, User $user, PartType $pt, string $comment = null): self {
+      $filename = basename(strtolower($file->getClientOriginalName()));
+      $contents = $file->get();
+      $upart = Part::findUnofficialByName($pt->folder . $filename);
+      $opart = Part::findOfficialByName($pt->folder . $filename);
+      $mpart = Part::findUnofficialByName($filename, true);
+      // Unofficial file exists
+      if (isset($upart)) {
+        $init_submit = false;
+        if ($upart->isTexmap()) {
+          if ($upart->description == 'Missing') {
+            $upart->fillFromFile($file, $user, $pt, PartRelease::unofficial());
+          }
+          else {
+            // If the submitter is not the author and has not edited the file before, add a history line
+            if ($upart->user_id <> $user->id && empty($upart->history()->whereFirst('user_id', $user->id)))
+              PartHistory::create(['user_id' => $user->id, 'part_id' => $upart->id, 'comment' => 'edited']);
+            if (is_null($upart->body)) {
+              PartBody::create(['part_id' => $upart->id, 'body' => base64_encode($contents)]);
+            }
+            else {
+              $upart->body->body = base64_encode($contents);
+              $upart->body->save();
+            }            
+            $upart->put($contents);
+          }
+        }
+        else {
+          // Update existing part
+          $contents = FileUtils::cleanFileText($contents, true, true);
+          $upart->fillFromText($contents, false, PartRelease::unofficial());
+        }
+        $upart->votes()->delete();
+        $upart->refresh();
+      }
+      // Create a new part
+      else {
+        $init_submit = true;
+        $upart = Part::createFromFile($file, $user, $pt, PartRelease::unofficial());
+      }
+      
+      $upart->updateSubparts(true);
+      $upart->updateImage(true);
+      $upart->saveHeader();
+      if (!empty($mpart) && $mpart->description == 'Missing' && $mpart->filename != $upart->filename) {
+        $mpart->parents()->each(function (Part $part) { 
+          $part->updateSubparts(true);
+          $part->updateImage(true); 
+        });
+      }
+      if (!empty($opart)) {
+        $upart->official_part_id = $opart->id;
+        $upart->save();
+        $opart->unofficial_part_id = $upart->id;
+        $opart->save();
+        Part::unofficial()->whereHas('subparts', function (Builder $query) use ($opart) {
+          return $query->where('id', $opart->id);
+        })->each(function (Part $part) {
+          $part->updateSubparts(true);
+        });
+      }
+      $user->notification_parts()->syncWithoutDetaching([$upart->id]);
+      PartEvent::create([
+        'part_event_type_id' => PartEventType::firstWhere('slug', 'submit')->id,
+        'user_id' => $user->id,
+        'part_id' => $upart->id,
+        'part_release_id' => PartRelease::unofficial()->id,
+        'comment' => $comment,
+        'initial_submit' => $init_submit,
+      ]);        
+
+      UpdateZip::dispatch($upart);
+      
+      return $upart;
+    }
 }
