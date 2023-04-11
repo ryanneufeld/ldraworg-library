@@ -120,7 +120,7 @@ class PartEventSeeder extends Seeder
         }
       }
 
-      $parts = Part::with('events')->whereRelation('type','format','png')->whereRelation('release','short','unof')->where('description', '<>', 'Missing')->lazy();
+      $parts = Part::with('events')->whereRelation('type','format','png')->whereRelation('release','short','unof')->lazy();
       foreach ($parts as $part) {
         $uid = $part->events()->where('part_event_type_id', 2)->oldest()->first()->user_id;
         $part->user_id = $uid;

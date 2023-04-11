@@ -1,9 +1,7 @@
 @props(['part'])
-<tr @class(['red'=> $part->description == 'Missing'])>
+<tr>
   <td class="center aligned">
-    @if($part->description == 'Missing')
-    &nbsp;
-    @elseif($part->isUnofficial())
+    @if($part->isUnofficial())
     <img class="ui centered image" src="{{asset('images/library/unofficial/' . substr($part->filename, 0, -4) . '_thumb.png')}}" alt='part thumb image' title="part_thumb">
     @else
     <img class="ui centered image" src="{{asset('images/library/official/' . substr($part->filename, 0, -4) . '_thumb.png')}}" alt='part thumb image' title="part_thumb">
@@ -11,31 +9,21 @@
   </td>
   <td>{{ $part->filename }}</td>
   <td>
-    @if($part->description == 'Missing')
-    Missing 
-    @elseif($part->isUnofficial())
+    @if($part->isUnofficial())
     <a href="{{ route('tracker.show',$part->id) }}">{{ $part->description }}</a>
     @else
     <a href="{{ route('official.show',$part->id) }}">{{ $part->description }}</a>
     @endif
   </td>
   <td class="center aligned">
-    @if($part->description == 'Missing')
-    &nbsp;
-    @elseif($part->isUnofficial())
+    @if($part->isUnofficial())
     <a href="{{route('unofficial.download', $part->filename)}}">[DAT]</a>
     @else
     <a href="{{route('official.download', $part->filename)}}">[DAT]</a>
     @endif
   </td>
   <td>
-    @if($part->description == 'Missing')
-     @can('part.edit.number')
-     <a class="ui button" href="{{route('tracker.missing.edit', $part->id)}}">Update</a>
-     @else
-      &nbsp;
-     @endcan 
-    @elseif($part->isUnofficial())
+    @if($part->isUnofficial())
     <x-part.status :vote="$part->vote_summary" status_text="1" />
     @else
       @isset ($part->unofficial_part_id)

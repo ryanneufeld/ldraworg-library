@@ -27,20 +27,12 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $parts = Part::whereNotNull('minor_edit_data')->get();
-        foreach($parts as $p) {
-            if ($p->isUnofficial()) {
-                $p->minor_edit_data = null;
-            }
-            else {
-                $p->minor_edit_data = ['license' => 'CC_BY_2 to CC_BY_4'];
-            }
-            $p->save();
-        }
-        /*
-        Part::whereNotIn('part_type_id', [1,6])->each(function(part $p) {
-            \App\Jobs\RenderFile::dispatch($p);
-        });
-        */
+      \App\Jobs\UpdateUncertifiedSubparts::dispatch();
+      /*
+      foreach (Part::where('description', 'Missing') as $p) {
+        $p->deleteRelationships();
+        $p->deleteSilently();
+      }
+      */
     }
 }

@@ -8,7 +8,7 @@ use App\Http\Controllers\VoteController;
 use App\Http\Controllers\PartEventController;
 use App\Http\Controllers\Search\PartSearchController;
 use App\Http\Controllers\Search\SuffixSearchController;
-use App\Http\Controllers\ReleaseController;
+use App\Http\Controllers\PartReleaseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupportFilesController;
@@ -18,7 +18,6 @@ use App\Http\Controllers\PartDeleteFlagController;
 use App\Http\Controllers\CaConfirmController;
 use App\Http\Controllers\PartUpdateController;
 use App\Http\Controllers\PartMoveController;
-use App\Http\Controllers\PartMissingController;
 use App\Http\Controllers\PartDownloadController;
 
 Route::redirect('/', '/tracker');
@@ -49,10 +48,6 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::middleware(['auth'])->get('notification/part/{part}', [UserNotificationController::class, 'store'])->name('notification.toggle');
 
-  Route::middleware(['auth'])->get('/missing', [PartMissingController::class, 'index'])->name('missing.index');
-  Route::middleware(['auth'])->get('/{missingpart}/updatemissing', [PartMissingController::class, 'edit'])->name('missing.edit');
-  Route::middleware(['auth'])->put('/{missingpart}/updatemissing', [PartMissingController::class, 'update'])->name('missing.update');
-
   Route::middleware(['auth'])->get('/{part}/delete-flag', [PartDeleteFlagController::class, 'store'])->name('flag.delete');
   Route::middleware(['auth'])->get('/delete-flags', [PartDeleteFlagController::class, 'index'])->name('flag.index');
 
@@ -74,7 +69,9 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::get('/next-release', [App\Http\Controllers\NonAdminReleaseController::class, 'index'])->name('next-release');
 
-  Route::middleware(['auth'])->match(['get', 'post'], '/release/create/{step?}', [ReleaseController::class, 'create'])->name('release.create');
+  Route::middleware(['can:release.create'])->get('/release/create/step1', [PartReleaseController::class, 'createStep1'])->name('release.create.step1');
+  Route::middleware(['can:release.create'])->post('/release/create/step2', [PartReleaseController::class, 'createStep2'])->name('release.create.step2');
+  Route::middleware(['can:release.create'])->post('/release/create/step3', [PartReleaseController::class, 'createStep3'])->name('release.create.step3');
   
   Route::get('/{unofficialpart}', [PartController::class, 'show'])->name('show.filename');
   Route::get('/{part}', [PartController::class, 'show'])->name('show');

@@ -56,6 +56,7 @@ class Part extends Model
       'delete_flag' => 'boolean',
       'minor_edit_flag' => 'boolean',
       'minor_edit_data' => AsArrayObject::class,
+      'missing_parts' => AsArrayObject::class,
     ];
 
     /**
@@ -63,11 +64,6 @@ class Part extends Model
      *
      * @return void
      */
-    protected static function booted() {
-      static::addGlobalScope('missing', function (Builder $builder) {
-        $builder->where('description', '<>', 'Missing');
-      });
-    }
 
     public function user() {
         return $this->belongsTo(User::class, 'user_id', 'id');
@@ -304,7 +300,6 @@ class Part extends Model
     }
         
     public function get(): string {
-      if ($this->description == 'Missing') return '';
       if ($this->isTexmap()) {
         return base64_decode($this->body->body);
       }
@@ -317,13 +312,13 @@ class Part extends Model
       $filename = str_replace('\\', '/', $name);
       if ($withoutFolder) {
         if (pathinfo($name, PATHINFO_EXTENSION) == 'png') $filename = "textures/$filename";
-        return self::withoutGlobalScope('missing')->unofficial()->where(function(Builder $query) use ($filename) {
+        return self::unofficial()->where(function(Builder $query) use ($filename) {
             $query->where('filename', "p/$filename")
             ->orWhere('filename', "parts/$filename");
         })->first();
       }
       else {
-        return self::withoutGlobalScope('missing')->unofficial()->where('filename', $filename)->first();
+        return self::unofficial()->where('filename', $filename)->first();
       }
     }
 
@@ -331,13 +326,13 @@ class Part extends Model
       $filename = str_replace('\\', '/', $name);
       if ($withoutFolder) {
         if (pathinfo($name, PATHINFO_EXTENSION) == 'png') $filename = "textures/$filename";
-        return self::withoutGlobalScope('missing')->official()->where(function(Builder $query) use ($filename) {
+        return self::official()->where(function(Builder $query) use ($filename) {
             $query->where('filename', "p/$filename")
             ->orWhere('filename', "parts/$filename");
         })->first();
       }
       else {
-        return self::withoutGlobalScope('missing')->official()->where('filename', $filename)->first();
+        return self::official()->where('filename', $filename)->first();
       }
     }
 
@@ -484,26 +479,6 @@ class Part extends Model
       $this->saveQuietly();
       // Report own certification status back to caller
       $this->updateVoteSummary($forceUpdate);
-    }
-
-    public static function createMissing(string $file): self {
-      $folder = pathinfo($file, PATHINFO_DIRNAME);
-      if ($folder == '.') $folder = '';
-      if (pathinfo($file, PATHINFO_EXTENSION) == 'png') $folder = "textures/$folder";
-      $pt = PartType::where(function(Builder $query) use ($folder) {
-        $query->where('folder', "parts/$folder")
-        ->orWhere('folder', "p/$folder");
-      })->first();
-      return self::create([
-        'user_id' => User::findByName('unknown')->id,
-        'part_release_id' => PartRelease::unofficial()->id,
-        'part_license_id' => PartLicense::defaultLicense()->id,
-        'filename' => $pt->folder . str_replace('\\', '/', basename($file)),
-        'description' => 'Missing',
-        'part_type_id' => $pt->id,
-        'header' => '',
-        'vote_sort' => '5',
-      ]);       
     }
 
     public static function createMovedTo(Part $oldPart, Part $newPart): ?self {
@@ -747,6 +722,7 @@ class Part extends Model
       $file = $this->get();
       $refs = FileUtils::getSubparts($file);
       $sids = [];
+      $missing_parts = [];
       foreach(['subparts','textures'] as $type) {
         foreach($refs[$type] as $subpart) {
           if (empty(trim($subpart))) continue;
@@ -760,12 +736,13 @@ class Part extends Model
             $sids[] = $osubp->id;
           }
           elseif (!isset($usubp) && $this->isUnofficial()) {
-            $upart = self::createMissing($subpart);
-            $sids[] = $upart->id;
+            $missing_parts[] = $subpart;
           }    
         }  
       }  
       $this->subparts()->sync($sids);
+      $this->missing_parts = empty($missing_parts) ? null : array_unique($missing_parts);
+      $this->save();
       if ($updateUncertified) $this->updateUncertifiedSubpartCount();
     }
 
@@ -793,6 +770,10 @@ class Part extends Model
           $p->body->save();
           $p->updateSubparts(true);
         }
+        Part::unofficial()->whereJsonContains('missing_parts', str_replace(['p/textures/', 'parts/textures/', 'p/', 'parts/'], '', $this->filename))->each(function($p) {
+          $p->updateSubparts(true);
+          $p->updateImage(true);
+        });
         UpdateZip::dispatch($this, $oldname);
       }
       else {
@@ -1036,27 +1017,21 @@ class Part extends Model
       $contents = $file->get();
       $upart = Part::findUnofficialByName($pt->folder . $filename);
       $opart = Part::findOfficialByName($pt->folder . $filename);
-      $mpart = Part::findUnofficialByName($filename, true);
       // Unofficial file exists
       if (isset($upart)) {
         $init_submit = false;
         if ($upart->isTexmap()) {
-          if ($upart->description == 'Missing') {
-            $upart->fillFromFile($file, $user, $pt, PartRelease::unofficial());
+          // If the submitter is not the author and has not edited the file before, add a history line
+          if ($upart->user_id <> $user->id && empty($upart->history()->whereFirst('user_id', $user->id)))
+            PartHistory::create(['user_id' => $user->id, 'part_id' => $upart->id, 'comment' => 'edited']);
+          if (is_null($upart->body)) {
+            PartBody::create(['part_id' => $upart->id, 'body' => base64_encode($contents)]);
           }
           else {
-            // If the submitter is not the author and has not edited the file before, add a history line
-            if ($upart->user_id <> $user->id && empty($upart->history()->whereFirst('user_id', $user->id)))
-              PartHistory::create(['user_id' => $user->id, 'part_id' => $upart->id, 'comment' => 'edited']);
-            if (is_null($upart->body)) {
-              PartBody::create(['part_id' => $upart->id, 'body' => base64_encode($contents)]);
-            }
-            else {
-              $upart->body->body = base64_encode($contents);
-              $upart->body->save();
-            }            
-            $upart->put($contents);
-          }
+            $upart->body->body = base64_encode($contents);
+            $upart->body->save();
+          }            
+          $upart->put($contents);
         }
         else {
           // Update existing part
@@ -1075,12 +1050,10 @@ class Part extends Model
       $upart->updateSubparts(true);
       $upart->updateImage(true);
       $upart->saveHeader();
-      if (!empty($mpart) && $mpart->description == 'Missing' && $mpart->filename != $upart->filename) {
-        $mpart->parents()->each(function (Part $part) { 
-          $part->updateSubparts(true);
-          $part->updateImage(true); 
-        });
-      }
+      Part::unofficial()->whereJsonContains('missing_parts', str_replace(['p/textures/', 'parts/textures/', 'p/', 'parts/'], '', $upart->filename))->each(function($p) {
+        $p->updateSubparts(true);
+        $p->updateImage(true);
+      });
       if (!empty($opart)) {
         $upart->official_part_id = $opart->id;
         $upart->save();

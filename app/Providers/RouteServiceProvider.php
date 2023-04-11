@@ -46,9 +46,6 @@ class RouteServiceProvider extends ServiceProvider
       Route::bind('unofficialpart', function ($value) {
         return Part::unofficial()->where('filename', $value)->firstOrFail();
       });
-      Route::bind('missingpart', function ($value) {
-        return Part::withoutGlobalScope('missing')->unofficial()->where('description', 'Missing')->where('id', $value)->firstOrFail();
-      });
     }
 
     /**

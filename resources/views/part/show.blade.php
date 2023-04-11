@@ -96,8 +96,8 @@
   @endif
     <div class="ui clearing basic segment"></div>
   @if($part->isUnofficial())
-    <x-part.table title="{{ucfirst($lib)}} parent parts" :parts="$part->parents()->withoutGlobalScope('missing')->unofficial()->get()" />
-    <x-part.table title="{{ucfirst($lib)}} subparts" :parts="$part->subparts()->withoutGlobalScope('missing')->unofficial()->get()" />
+    <x-part.table title="{{ucfirst($lib)}} parent parts" :parts="$part->parents()->unofficial()->get()" />
+    <x-part.table title="{{ucfirst($lib)}} subparts" :parts="$part->subparts()->unofficial()->get()" :missing="$part->missing_parts" />
   @else
   <x-part.table title="{{ucfirst($lib)}} parent parts" :parts="$part->parents()->official()->get()" />
     <x-part.table title="{{ucfirst($lib)}} subparts" :parts="$part->subparts()->official()->get()" />
