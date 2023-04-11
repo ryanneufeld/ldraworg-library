@@ -27,12 +27,13 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-      \App\Jobs\UpdateUncertifiedSubparts::dispatch();
-      /*
-      foreach (Part::where('description', 'Missing') as $p) {
-        $p->deleteRelationships();
-        $p->deleteSilently();
+      
+      foreach (Part::where('description', 'Missing')->get() as $p) {
+        //$p->deleteRelationships();
+        $p->parents()->sync([]);
+        $p->deleteQuietly();
       }
-      */
+      
+      \App\Jobs\UpdateSubparts::dispatch();
     }
 }
