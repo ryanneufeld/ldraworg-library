@@ -693,7 +693,7 @@ class Part extends Model
       $filename = basename(strtolower($file->getClientOriginalName()));
       $contents = $file->get();
       $mimeType = $file->getMimeType();
-      if (pathinfo($filename, PATHINFO_EXTENSION) == '.png' && $mimeType == 'image/png') {
+      if (pathinfo($filename, PATHINFO_EXTENSION) == 'png' && $mimeType == 'image/png') {
         if (is_null($user) || is_null($pt)) throw new \RuntimeException('User and PartType must be supplied for Texmap');
         $this->fill([
           'user_id' => $user->id,
@@ -714,7 +714,7 @@ class Part extends Model
         //$this->put(File::get($path));
         $this->save();
       }
-      elseif (pathinfo($filename, PATHINFO_EXTENSION) == '.dat' && $mimeType == 'text/plain') {
+      elseif (pathinfo($filename, PATHINFO_EXTENSION) == 'dat' && $mimeType == 'text/plain') {
         $this->fillFromText(FileUtils::cleanFileText($contents), false, $rel);
       }
       else {
@@ -724,7 +724,7 @@ class Part extends Model
     
     public static function createFromFile($file, User $user = null, PartType $pt = null, PartRelease $rel = null): self {
       $part = new self;
-      $part->fillFromFile($file, $user , $pt, $rel);
+      $part->fillFromFile($file, $user, $pt, $rel);
       return $part;
     }
     
