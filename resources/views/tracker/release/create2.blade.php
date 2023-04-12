@@ -1,5 +1,5 @@
 <x-layout.main>
-  <form class="ui form" action="{{route('tracker.release.create', ['step' => 3])}}" method="post">
+  <form class="ui form" action="{{route('tracker.release.store')}}" method="post">
     @csrf
     @foreach($parts as $part)
       <input type="hidden" name="ids[]" value="{{$part->id}}">

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Part;
 
-use Illuminate\Http\Request;
 use App\Models\Part;
+use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Collection;
 
 class PartWebGLController extends Controller

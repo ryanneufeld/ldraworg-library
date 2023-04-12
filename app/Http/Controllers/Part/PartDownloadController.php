@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Part;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\Part;
 
 class PartDownloadController extends Controller

@@ -8,7 +8,7 @@
     </ul>    
   </div>
   @endif
-  <form class="ui form" enctype="multipart/form-data" action="{{route('tracker.release.create', ['step' => 2])}}" method="POST">
+  <form class="ui form" enctype="multipart/form-data" action="{{route('tracker.release.create2')}}" method="POST">
   @csrf
   @forelse ($parts as ['part' => $part, 'release' => $releasable, 'errors' => $errors, 'warnings' => $warnings])
   @if($loop->first)

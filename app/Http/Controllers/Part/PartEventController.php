@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Part;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 use App\Models\PartEvent;
-use App\Models\Part;
 
 class PartEventController extends Controller
 {

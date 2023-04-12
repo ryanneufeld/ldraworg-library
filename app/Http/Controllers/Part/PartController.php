@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Part;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,7 +13,7 @@ use App\Models\PartType;
 use App\Models\PartEvent;
 use App\Models\PartCategory;
 
-use App\LDraw\LibraryOperations;
+use App\Http\Controllers\Controller;
 use App\LDraw\FileUtils;
 
 use App\Http\Requests\PartSubmitRequest;

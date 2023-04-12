@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Search\QuickSearchController;
-use App\Http\Controllers\PartWebGLController;
+use App\Http\Controllers\Part\PartWebGLController;
 /*
 |--------------------------------------------------------------------------
 | API Routes

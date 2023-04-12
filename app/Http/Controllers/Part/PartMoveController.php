@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Part;
 
 use Illuminate\Support\Facades\Auth;
+
+use App\Http\Controllers\Controller;
 use App\Models\Part;
 use App\Models\PartType;
 use App\Models\PartEvent;
