@@ -95,7 +95,7 @@ class LDrawFileValidate {
       else {
         $setfound = false;
         foreach ($keywords as $word) {
-          if (mb_strtolower(strtok($word, " ")) == 'set') {
+          if (mb_strtolower(strtok($word, " ")) == 'set' || mb_strtolower($word) == 'cmf') {
             $setfound = true;
             break;
           } 
