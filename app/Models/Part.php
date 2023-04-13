@@ -855,7 +855,7 @@ class Part extends Model
       }
     }
     
-    public function releasePart(PartRelease $release): void {
+    public function releasePart(PartRelease $release, User $user): void {
       if (!$this->isUnofficial()) {
         return;
       }
@@ -864,21 +864,16 @@ class Part extends Model
 
       // Post a release event     
       PartEvent::create([
-        'part_event_type_id' => PartEventType::firstWhere('slug', 'release'),
-        'user_id' => Auth::user()->id,
+        'part_event_type_id' => PartEventType::firstWhere('slug', 'release')->id,
+        'user_id' => $user->id,
         'part_id' => $this->id,
         'part_release_id' => $release->id,
         'comment' =>'Release ' . $release->name
       ]);
 
       // Add history line
-      PartHistory::create(['user_id' => Auth::user()->id, 'part_id' => $part->id, 'comment' => 'Official Update ' . $release->name]);
+      PartHistory::create(['user_id' => $user->id, 'part_id' => $this->id, 'comment' => 'Official Update ' . $release->name]);
       
-      $this->votes->delete();
-      $this->notification_users()->sync([]);
-      $this->delete_flag = false;
-      $this->minor_edit_data = null;
-
       $this->refreshHeader();
 
       if (!is_null($this->official_part_id)) {
@@ -901,15 +896,11 @@ class Part extends Model
 
         // Update events with official part id
         PartEvent::where('part_release_id', $release->id)->where('part_id', $this->id)->update(['part_id' => $opart->id]);
-
-        $this->delete();
+        $this->deleteRelationships();
+        $this->deleteQuietly();
       }
       else {
         $this->release()->associate($release);
-        $this->notification_users()->sync([]);
-        $this->vote_sort = 1;
-        $this->vote_summary = null;
-        $this->uncertified_subpart_count = 0;
         $this->refreshHeader();
       }
     }

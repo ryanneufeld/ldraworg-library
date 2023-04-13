@@ -42,8 +42,10 @@ class UpdateSubparts implements ShouldQueue, ShouldBeUnique
          return;
       }
       $u = $this->updateuncert;
-      Part::lazy()->each(function (Part $part) use ($u) {
-        $part->updateSubparts($u);
+      Part::chunk(500, function ($parts) use ($u) {
+        foreach($parts as $part) {
+          $part->updateSubparts($u);
+        }
       });
     }
 }

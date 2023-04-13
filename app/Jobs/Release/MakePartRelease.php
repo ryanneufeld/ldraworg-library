@@ -10,7 +10,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-use App\LDraw\PartUpdate;
 use App\Models\User;
 
 class MakePartRelease implements ShouldQueue, ShouldBeUnique
@@ -41,6 +40,6 @@ class MakePartRelease implements ShouldQueue, ShouldBeUnique
      */
     public function handle()
     {
-      PartUpdate::releaseParts($this->ids, $this->user);
+      \App\Models\PartRelease::createRelease(\App\Models\Part::whereIn('id', $this->ids)->get(), $this->user);
     }
 }

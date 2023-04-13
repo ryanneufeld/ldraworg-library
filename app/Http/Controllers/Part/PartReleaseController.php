@@ -67,16 +67,15 @@ class PartReleaseController extends Controller
       LibraryOperations::getAllParentIds($part, $unf_render_list, true);
     }  
     $unf_render_list = array_diff($unf_render_list, $data['ids']);
-/*
+
     Bus::batch([[
       new \App\Jobs\Release\MakePartRelease($data['ids'], Auth::user()),
-      new \App\Jobs\Release\MakeReleaseZip,
       new \App\Jobs\UpdateSubparts(false),
       new \App\Jobs\UpdateUncertifiedSubparts(true),
       new \App\Jobs\Release\PostReleaseCleanup($unf_render_list),
     ]])->then(function ($batch) {
     })->dispatch();
-*/    
+    
     return redirect()->route('tracker.activity');
   }
   

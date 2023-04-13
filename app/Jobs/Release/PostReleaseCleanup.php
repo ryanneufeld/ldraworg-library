@@ -46,6 +46,19 @@ class PostReleaseCleanup implements ShouldQueue, ShouldBeUnique
         return;
       }
 
+      // Zero/null out vote and flag data
+      Part::official()->update([
+        'uncertified_subpart_count' => 0, 
+        'vote_summary' => null, 
+        'vote_sort' => 1, 
+        'delete_flag' => 0, 
+        'minor_edit_data' => null,
+        'missing_parts' => null]);
+      Part::official()->each(function (Part $p) {
+        $p->votes()->delete();
+        $p->notification_users()->sync([]);
+      });
+
       // Regenerate the images of affected parts
       foreach(Part::where('part_release_id', PartRelease::current()->id)->lazy() as $part) {
         if (!in_array($part->id, $this->ids)) $this->ids[] = $part->id;
