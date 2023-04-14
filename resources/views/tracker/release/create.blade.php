@@ -30,7 +30,7 @@
       'green' => $releasable,
     ])>
       <td>
-        <div @class(['disabled' => !$releasable, 'field'])>
+        <div class="field">
           <div class="ui toggle checkbox">
             <input type="checkbox" name="ids[]" value="{{$part->id}}" class="hidden" @checked($releasable)>
           </div>
