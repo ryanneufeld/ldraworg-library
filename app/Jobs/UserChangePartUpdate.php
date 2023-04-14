@@ -41,18 +41,20 @@ class UserChangePartUpdate implements ShouldQueue
         }
         $oldLic = $p->part_license_id;
         $p->updateLicense();
+        $md = $p->minor_edit_data;
         if (isset($this->olddata['name']) ||
             $p->part_license_id != $oldLic || 
             ($p->user_id == $this->user->id && isset($this->olddata['realname']))) {
           if ($p->part_license_id != $oldLic) {
-            $p->minor_edit_data['license'] = \App\Models\PartLicense::find($oldLic)->name . " to " . $p->license->name;
+            $md['license'] = \App\Models\PartLicense::find($oldLic)->name . " to " . $p->license->name;
           }
           if ($p->user_id == $this->user->id && isset($this->olddata['realname'])) {
-            $p->minor_edit_data['realname'] = $this->olddata['realname'] . " to " . $this->user->realname;
+            $md['realname'] = $this->olddata['realname'] . " to " . $this->user->realname;
           }
           if (isset($this->olddata['name'])) {
-            $p->minor_edit_data['name'] = $this->olddata['name'] . " to " . $this->user->name;
+            $md['name'] = $this->olddata['name'] . " to " . $this->user->name;
           }
+          $p->minor_edit_data = $md;
           $p->refreshHeader();
         }
       }

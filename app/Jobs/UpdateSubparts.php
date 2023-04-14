@@ -42,7 +42,7 @@ class UpdateSubparts implements ShouldQueue, ShouldBeUnique
          return;
       }
       $u = $this->updateuncert;
-      Part::chunk(500, function ($parts) use ($u) {
+      Part::chunk(100, function ($parts) use ($u) {
         foreach($parts as $part) {
           $part->updateSubparts($u);
         }
