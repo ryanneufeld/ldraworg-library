@@ -25,7 +25,7 @@
           @break
           @case('review')
             @empty($event->vote_type_code)
-              cancelled thier vote.
+              cancelled their vote.
             @else
               posted a vote of {{$event->vote_type->name}}.
             @endempty
