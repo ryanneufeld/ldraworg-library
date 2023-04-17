@@ -72,7 +72,6 @@ class PartReleaseController extends Controller
     Bus::batch([[
       new \App\Jobs\Release\MakePartRelease($data['ids'], Auth::user()),
       new \App\Jobs\UpdateSubparts,
-      new \App\Jobs\UpdateUncertifiedSubparts(true),
       new \App\Jobs\Release\PostReleaseCleanup($parts),
     ]])->then(function ($batch) {
     })->dispatch();
