@@ -738,7 +738,7 @@ class Part extends Model
           foreach ($subs as &$sub) {
             $sub = str_replace('\\', '/', trim(mb_strtolower($sub)));
             if (pathinfo($sub, PATHINFO_EXTENSION) == "png") {
-              $sub = "texture/$sub";
+              $sub = "textures/$sub";
             }
             $q->orWhere('filename', "parts/$sub")->orWhere('filename', "p/$sub");
           }
