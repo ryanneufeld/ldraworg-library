@@ -1,6 +1,6 @@
 @props(['parts', 'title' => '', 'hsize' => 'medium', 'none' => 'None', 'missing' => []])
 <div class="ui {{$hsize}} header">{{$title}}</div>
-@if ($parts->count() || !is_null($missing))
+@if ($parts->count() || !empty(array_filter($missing)))
 <table class="ui celled table">
   <thead>
     <tr>

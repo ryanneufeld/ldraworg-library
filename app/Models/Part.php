@@ -752,14 +752,14 @@ class Part extends Model
         }
         $missing_parts = [];
         foreach ($subs as $sub) {
-          if ($parts->whereIn('filename', ["parts/$sub", "p/$sub"])->count() == 0) {
+          if (!empty(rtrim($sub)) && $parts->whereIn('filename', ["parts/$sub", "p/$sub"])->count() == 0) {
             $missing_parts[] = $sub;
           }
         }  
       }
       //dd($missing_parts);
       $this->subparts()->sync($sids);
-      $this->missing_parts = empty($missing_parts) ? null : array_unique($missing_parts);
+      $this->missing_parts = empty(array_filter($missing_parts)) ? null : array_unique($missing_parts);
       $this->save();
       if ($updateUncertified) $this->updateUncertifiedSubpartCount();
     }
