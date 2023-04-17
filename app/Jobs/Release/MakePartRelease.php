@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\User;
 
@@ -16,20 +17,20 @@ class MakePartRelease implements ShouldQueue, ShouldBeUnique
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $ids;
+    protected Collection $parts;
     protected User $user;
 
-    public $uniqueFor = 3600;
-    public $timeout = 3600;
+    public $uniqueFor = 1800;
+    public $timeout = 1800;
     
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Array $ids, User $user)
+    public function __construct(Collection $parts, User $user)
     {
-      $this->ids = $ids;
+      $this->parts = $parts;
       $this->user = $user;
     }
 
@@ -40,6 +41,6 @@ class MakePartRelease implements ShouldQueue, ShouldBeUnique
      */
     public function handle()
     {
-      \App\Models\PartRelease::createRelease(\App\Models\Part::whereIn('id', $this->ids)->get(), $this->user);
+      \App\Models\PartRelease::createRelease($this->parts, $this->user);
     }
 }

@@ -59,7 +59,7 @@ class PartRelease extends Model
       }
 
       // create release
-      $release = PartRelease::create(['name' => $name, 'short' => $short, 'part_data' => self::getReleaseData($parts)]);
+      $release = PartRelease::create(['name' => $name, 'short' => $short, 'part_data' => self::getReleaseData($parts->pluck('id')->all())]);
 
       $sdisk = config('ldraw.staging_dir.disk');
       $spath = config('ldraw.staging_dir.path');
@@ -70,7 +70,7 @@ class PartRelease extends Model
       $partslist = [];
       foreach ($parts as $part) {
         // Update parts list for new parts
-        if (!is_null($part->official_part_id) && $part->type->folder == 'parts/') {
+        if (is_null($part->official_part_id) && $part->type->folder == 'parts/') {
           $partslist[] = [$part->description, $part->filename];
           $f = substr($part->filename, 0, -4);
           if ($part->isTexmap()) {
@@ -90,15 +90,14 @@ class PartRelease extends Model
       $release->makeZip();  
     }
 
-    protected static function getReleaseData(Collection $parts): array {
-      //$parts = $parts->toQuery();
+    protected static function getReleaseData(array $ids): array {
       $data = [];
-      $data['total_files'] = $parts->count();
-      $data['new_files'] = $parts->where('official_part_id', null)->count();
+      $data['total_files'] = Part::whereIn('id', $ids)->count();
+      $data['new_files'] = Part::whereIn('id', $ids)->whereNull('official_part_id')->count();
       $data['new_types'] = [];
       foreach (PartType::all() as $type) {
         if ($type->type == "Part") {
-          $count = $parts->toQuery()->where('official_part_id', null)->where(function (Builder $query) use ($type) {
+          $count = Part::whereIn('id', $ids)->whereNull('official_part_id')->where(function (Builder $query) use ($type) {
             $query->orWhere('part_type_id', $type->id)->orWhere('part_type_id', PartType::firstWhere('type', 'Shortcut')->id);
           })->count();
         }
@@ -106,17 +105,17 @@ class PartRelease extends Model
           continue;
         }
         else {
-          $count = $parts->where('official_part_id', null)->where('part_type_id', $type->id)->count();
+          $count = Part::whereIn('id', $ids)->whereNull('official_part_id')->where('part_type_id', $type->id)->count();
         } 
         if ($count > 0) $data['new_types'][] = ['name' => $type->name, 'count' => $count];
       }
       $data['moved_parts'] = [];
-      foreach ($parts->toQuery()->whereRelation('category', 'category', 'Moved')->get() as $part) {
+      foreach (Part::whereIn('id', $ids)->whereRelation('category', 'category', 'Moved')->get() as $part) {
         $data['moved_parts'][] = ['name' => $part->name(),  'movedto' => $part->description]; 
       }
       $data['fixes'] = [];
       $data['rename'] = [];
-      foreach ($parts->toQuery()->where('official_part_id', '<>', null)->whereRelation('category', 'category', '<>', 'Moved')->get() as $part) {
+      foreach (Part::whereIn('id', $ids)->whereNotNull('official_part_id')->whereRelation('category', 'category', '<>', 'Moved')->get() as $part) {
         $op = Part::find($part->official_part_id);
         if ($part->description != $op->description) {
           $data['rename'][] = ['name' => $part->name(), 'decription' => $part->description, 'old_description' => $op->description];
