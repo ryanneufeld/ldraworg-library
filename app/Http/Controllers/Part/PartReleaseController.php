@@ -63,16 +63,17 @@ class PartReleaseController extends Controller
   protected function store(PartReleaseCreateStep2Request $request) {
     $this->authorize('store', PartRelease::class);
     $data = $request->validated();
+    $parts = new \Illuminate\Database\Eloquent\Collection;
     foreach(Part::whereIn('id', $data['ids'])->lazy() as $part) {
-      LibraryOperations::getAllParentIds($part, $unf_render_list, true);
+      $part->allParents($parts, true);
     }  
-    $unf_render_list = array_diff($unf_render_list, $data['ids']);
+    $parts = $parts->diff(Part::whereIn('id', $data['ids']));
 
     Bus::batch([[
       new \App\Jobs\Release\MakePartRelease($data['ids'], Auth::user()),
-      new \App\Jobs\UpdateSubparts(false),
+      new \App\Jobs\UpdateSubparts,
       new \App\Jobs\UpdateUncertifiedSubparts(true),
-      new \App\Jobs\Release\PostReleaseCleanup($unf_render_list),
+      new \App\Jobs\Release\PostReleaseCleanup($parts),
     ]])->then(function ($batch) {
     })->dispatch();
     

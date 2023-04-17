@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Bus\Batchable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -12,14 +11,13 @@ use Illuminate\Queue\SerializesModels;
 
 use App\Models\Part;
 
-class UpdateSubparts implements ShouldQueue, ShouldBeUnique
+class UpdateSubparts implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $updateuncert;
+    protected bool $updateuncert;
 
-    public $uniqueFor = 3600;
-    public $timeout = 3600;
+    public $timeout = 900;
 
     /**
      * Create a new job instance.
@@ -38,14 +36,12 @@ class UpdateSubparts implements ShouldQueue, ShouldBeUnique
      */
     public function handle()
     {
+
       if (!empty($this->batch()->id) && $this->batch()->cancelled()) {
          return;
       }
-      $u = $this->updateuncert;
-      Part::chunk(100, function ($parts) use ($u) {
-        foreach($parts as $part) {
-          $part->updateSubparts($u);
-        }
-      });
+      foreach(Part::lazy() as $p) {
+        $p->updateSubparts($this->updateuncert);
+      }
     }
 }

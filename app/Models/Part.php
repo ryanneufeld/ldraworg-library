@@ -54,7 +54,6 @@ class Part extends Model
     protected $casts = [
       'vote_summary' => AsArrayObject::class,
       'delete_flag' => 'boolean',
-      'minor_edit_flag' => 'boolean',
       'minor_edit_data' => AsArrayObject::class,
       'missing_parts' => AsArrayObject::class,
     ];
@@ -131,6 +130,17 @@ class Part extends Model
 
     public function scopeUnofficial($query) {
         return $query->whereRelation('release', 'short', 'unof');
+    }
+
+    public function scopeFilenameWithoutFolder($query, string $filename) {
+      $filename = str_replace('\\', '/', $filename);
+      if (pathinfo($filename, PATHINFO_EXTENSION) == "png") {
+        $filename = "textures/$filename";
+      }
+
+      return $query->where(function ($q) use ($filename) {
+        $q->orWhere('filename', "p/$filename")->orWhere('filename', "parts/$filename");
+      });
     }
 
     public function scopeUserSubmits($query, User $user) {
@@ -309,31 +319,25 @@ class Part extends Model
     }
     
     public static function findUnofficialByName(string $name, bool $withoutFolder = false): ?self {
-      $filename = str_replace('\\', '/', $name);
+      $q = self::unofficial();
       if ($withoutFolder) {
-        if (pathinfo($name, PATHINFO_EXTENSION) == 'png') $filename = "textures/$filename";
-        return self::unofficial()->where(function(Builder $query) use ($filename) {
-            $query->where('filename', "p/$filename")
-            ->orWhere('filename', "parts/$filename");
-        })->first();
+        $q = $q->filenameWithoutFolder($name);
       }
       else {
-        return self::unofficial()->where('filename', $filename)->first();
+        $q = $q->where('filename', str_replace('\\', '/', $name));
       }
+      return $q->first();
     }
 
     public static function findOfficialByName(string $name, bool $withoutFolder = false): ?self {
-      $filename = str_replace('\\', '/', $name);
+      $q = self::official();
       if ($withoutFolder) {
-        if (pathinfo($name, PATHINFO_EXTENSION) == 'png') $filename = "textures/$filename";
-        return self::official()->where(function(Builder $query) use ($filename) {
-            $query->where('filename', "p/$filename")
-            ->orWhere('filename', "parts/$filename");
-        })->first();
+        $q = $q->filenameWithoutFolder($name);
       }
       else {
-        return self::official()->where('filename', $filename)->first();
+        $q = $q->where('filename', str_replace('\\', '/', $name));
       }
+      return $q->first();
     }
 
     // Returns a collection of the users who have edited this part
@@ -719,27 +723,41 @@ class Part extends Model
 
     public function updateSubparts($updateUncertified = false): void {
       if ($this->isTexmap()) return;
-      $file = $this->get();
-      $refs = FileUtils::getSubparts($file);
+
+      $file = $this->body->body;
+
+      $tex_pattern = '#^\s*0\s+!TEXMAP\s+(START|NEXT)\s+(PLANAR|CYLINDRICAL|SPHERICAL)\s+([-\.\d]+\s+){9,11}(?P<texture1>.*?\.png)(\s+GLOSSMAP\s+(?P<texture2>.*?\.png))?\s*$#um';
+      $part_pattern = '#^\s*(0\s+!\:\s+)?1\s+((0x)?\d+\s+){1}([-\.\d]+\s+){12}(?P<subpart>.*?\.dat)\s*$#um';
+      preg_match_all($part_pattern, $file, $subs);
+      preg_match_all($tex_pattern, $file, $tex);
+      $subs = array_merge($subs['subpart'] ?? [], $tex['texture1'] ?? [], $tex['texture2'] ?? []);
       $sids = [];
       $missing_parts = [];
-      foreach(['subparts','textures'] as $type) {
-        foreach($refs[$type] as $subpart) {
-          if (empty(trim($subpart))) continue;
-          $osubp = self::findOfficialByName($subpart, true);
-          $usubp = self::findUnofficialByName($subpart, true);
-          
-          if (isset($usubp) && $this->isUnofficial() && $this->id <> $usubp->id) {
-            $sids[] = $usubp->id;
-          }  
-          elseif (isset($osubp) && $this->id <> $osubp->id) { 
-            $sids[] = $osubp->id;
+      if (!empty($subs)) {
+        $parts = self::where(function ($q) use (&$subs) {
+          foreach ($subs as &$sub) {
+            $sub = str_replace('\\', '/', trim(mb_strtolower($sub)));
+            if (pathinfo($sub, PATHINFO_EXTENSION) == "png") {
+              $sub = "texture/$sub";
+            }
+            $q->orWhere('filename', "parts/$sub")->orWhere('filename', "p/$sub");
           }
-          elseif (!isset($usubp) && $this->isUnofficial()) {
-            $missing_parts[] = $subpart;
-          }    
+        })->get();
+        $sids = [];
+        foreach($parts as $part) {
+          if (($this->isUnofficial() && $part->id != $this->id) ||
+            (!$this->isUnofficial() && !$part->isUnofficial() && $part->id != $this->id)) {
+            $sids[] = $part->id;
+          }
+        }
+        $missing_parts = [];
+        foreach ($subs as $sub) {
+          if ($parts->whereIn('filename', ["parts/$sub", "p/$sub"])->count() == 0) {
+            $missing_parts[] = $sub;
+          }
         }  
-      }  
+      }
+      //dd($missing_parts);
       $this->subparts()->sync($sids);
       $this->missing_parts = empty($missing_parts) ? null : array_unique($missing_parts);
       $this->save();
@@ -854,7 +872,17 @@ class Part extends Model
         }
       }
     }
-    
+
+    public function allParents(Collection $parents, $unofficialOnly = false) {
+      foreach($this->parents as $parent) {
+        if ($unofficialOnly && !$parent->isUnofficial()) continue;
+        if (!$parents->contains($parent)) {
+          $parents->add($parent);
+        }
+        $parent->allParents($parents, $unofficialOnly);
+      }
+    }
+      
     public function releasePart(PartRelease $release, User $user): void {
       if (!$this->isUnofficial()) {
         return;

@@ -27,13 +27,11 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-      
-      foreach (Part::where('description', 'Missing')->get() as $p) {
-        //$p->deleteRelationships();
-        $p->parents()->sync([]);
-        $p->deleteQuietly();
+      /*
+      foreach(Part::lazy() as $p) {
+        echo "updating {$p->filename}\n";
+        $p->updateSubparts();
       }
-      
-      \App\Jobs\UpdateSubparts::dispatch();
+      */
     }
 }

@@ -11,7 +11,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-use App\Jobs\RenderFile;
 use App\Models\Part;
 use App\Models\PartRelease;
 use App\LDraw\LibraryOperations;
@@ -21,18 +20,18 @@ class PostReleaseCleanup implements ShouldQueue, ShouldBeUnique
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $uniqueFor = 3600;
-    public $timeout = 3600;
+    public $uniqueFor = 1800;
+    public $timeout = 1800;
 
-    protected $ids;
+    protected $parts;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(array $ids)
+    public function __construct(\Illuminate\Database\Eloquent\Collection $parts)
     {
-      $this->ids = $ids;
+      $this->parts = $parts;
     }
 
     /**
@@ -58,15 +57,23 @@ class PostReleaseCleanup implements ShouldQueue, ShouldBeUnique
         $p->votes()->delete();
         $p->notification_users()->sync([]);
       });
+      echo "Official Parts cleaned\n";
 
       // Regenerate the images of affected parts
       foreach(Part::where('part_release_id', PartRelease::current()->id)->lazy() as $part) {
-        if (!in_array($part->id, $this->ids)) $this->ids[] = $part->id;
-        LibraryOperations::getAllParentIds($part, $this->ids);
+        if (!$this->parts->contains($part)) {
+          $this->parts->add($part);
+        }
+        $part->allParents($this->parts, $part->isUnofficial());
       }
-      foreach($this->ids as $id) {
-        $this->batch()->add(new RenderFile(Part::find($id)));
+      echo "Parents Collected\n";
+
+      foreach($this->parts as $part) {
+        $this->batch()->add(new \App\Jobs\RenderFile($part));
       }
+
+      // Update uncertified cache
+      $this->batch()->add(new \App\Jobs\UpdateUncertifiedSubparts(true));
 
       // Save the new non-part files
       $sdisk = config('ldraw.staging_dir.disk');

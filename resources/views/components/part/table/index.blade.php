@@ -1,6 +1,6 @@
-@props(['parts', 'title' => '', 'hsize' => 'medium', 'none' => 'None', 'missing' => null])
+@props(['parts', 'title' => '', 'hsize' => 'medium', 'none' => 'None', 'missing' => []])
 <div class="ui {{$hsize}} header">{{$title}}</div>
-@if ($parts->count())
+@if ($parts->count() || !is_null($missing))
 <table class="ui celled table">
   <thead>
     <tr>
@@ -14,12 +14,10 @@
   <tbody>
     @foreach ($parts as $part)
       <x-part.table.row :part="$part" />
-    @endforeach  
-    @isset($missing)
-      @foreach ($missing as $m)
+    @endforeach 
+    @foreach ($missing as $m)
       <tr class="red"><td></td><td>{{$m}}</td><td>Missing</td><td></td><td></td></tr>
-      @endforeach
-    @endisset
+    @endforeach
   </tbody>
 </table>
 @else

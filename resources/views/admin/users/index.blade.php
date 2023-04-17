@@ -8,13 +8,14 @@
       </div>
     </div> 
   </form>
-  <table class="ui table">
+  <table class="ui sortable table">
     <thead>
       <tr>
         <th>Real Name</th>
         <th>User Name</th>
         <th>Roles</th>
         <th>License</th>
+        <th>Parts<th>
         <th>Action</th>
       </tr>
     </thead>
@@ -25,6 +26,7 @@
         <td>{{$user->name}}</td>
         <td>{{implode(', ', $user->getRoleNames()->all())}}</td>
         <td>{{$user->license->name}}</td>
+        <td>{{\App\Models\Part::where(function ($q) use ($user) { $q->whereRelation('history', 'user_id', $user->id)->orWhere('user_id', $user->id);})->count()}}</td>
         <td><a class="ui button" href="{{route('admin.users.edit', $user)}}">Edit</a></td>
       </tr>
     @endforeach
