@@ -59,7 +59,7 @@ class PartUpdateController extends Controller
           Storage::disk('library')->size("updates/complete.exe") . "\t" .
           Storage::disk('library')->checksum("updates/complete.exe") . "\n";
       }
-      if (Storage::disk('library')->exists("updates/lcad{$release->short}.zip")) {
+      if (Storage::disk('library')->exists("updates/complete.zip")) {
         $response .= "COMPLETE\t" . PartRelease::current()->name. "\t" . 
         date('Y-m-d', Storage::disk('library')->lastModified("updates/complete.zip")) . 
           "\tZIP\t" . 
