@@ -17,6 +17,7 @@
 
 <form method="POST" action="{{route('admin.users.store')}}" class="ui form">
   @csrf
+  <input type="hidden" name="forum_user_id" value="{{$user->uid}}">
   <div class="field">
     <label for="realname">Real Name:</label>
     <input name="realname" type="text" value="{{$user->username}}" placeholder="Real Name">
