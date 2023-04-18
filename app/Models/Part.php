@@ -613,7 +613,7 @@ class Part extends Model
         'bfc' => $bfc === false ? NULL : $bfc['certwinding'],
       ]);
       if (is_null($this->part_license_id)) {
-        $this->part_license_id = PartLicense::defaultLicense()->id;
+        $this->part_license_id = PartLicense::default()->id;
       }
 
       $this->save();

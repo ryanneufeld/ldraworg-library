@@ -14,7 +14,7 @@ class CaConfirmController extends Controller
 
   public function update() {
     $user = Auth::user();
-    $user->license()->associate(\App\Models\PartLicense::defaultLicense());
+    $user->license()->associate(\App\Models\PartLicense::default());
     $user->save();
     UserChangePartUpdate::dispatch($user);
     $redirect = session('ca_route_redirect');
