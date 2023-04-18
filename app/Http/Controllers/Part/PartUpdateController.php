@@ -114,7 +114,7 @@ class PartUpdateController extends Controller
         "<size>" . Storage::disk('library')->size("updates/complete.exe") . "</size>\t" .
         "<md5_fingerprint>" . Storage::disk('library')->checksum("updates/complete.exe") . "</md5_fingerprint></distribution>\n";
       }
-      if (Storage::disk('library')->exists("updates/lcad{$release->short}.zip")) {
+      if (Storage::disk('library')->exists("updates/complete.zip")) {
         $response .= "<distribution><release_type>COMPLETE</release_type><release_id>". PartRelease::current()->name . "</release_id>" . 
         "<release_date>" . date('Y-m-d', Storage::disk('library')->lastModified("updates/complete.zip")) . "</release_date>" .
         "<file_format>ZIP</file_format>" . 
