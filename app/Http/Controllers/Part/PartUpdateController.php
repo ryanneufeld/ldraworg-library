@@ -30,7 +30,7 @@ class PartUpdateController extends Controller
 
   public function ptreleases(Request $request) {
     $output = strtolower($request->query('output'));
-    $releases = $releases = PartRelease::where('short', '<>', 'unof')->where('short', '<>', 'original')->oldest()->get();
+    $releases = $releases = PartRelease::where('short', '!=', 'unof')->where('short', '!=', 'original')->oldest()->get();
     if ($output == 'tab') {
       $response = '';
       foreach ($releases as $release) {
@@ -53,7 +53,7 @@ class PartUpdateController extends Controller
       }
       if (Storage::disk('library')->exists("updates/complete.exe")) {
         $response .= "COMPLETE\t". PartRelease::current()->name ."\t" . 
-          date('Y-m-d', Storage::disk('library')->lastModified("updates/complete.exe")) . 
+          date_format(PartRelease::current()->created_at, 'Y-m-d') . 
           "\tARJ\t" . 
           Storage::disk('library')->url("updates/complete.exe") . "\t" . 
           Storage::disk('library')->size("updates/complete.exe") . "\t" .
@@ -61,7 +61,7 @@ class PartUpdateController extends Controller
       }
       if (Storage::disk('library')->exists("updates/complete.zip")) {
         $response .= "COMPLETE\t" . PartRelease::current()->name. "\t" . 
-        date('Y-m-d', Storage::disk('library')->lastModified("updates/complete.zip")) . 
+          date_format(PartRelease::current()->created_at, 'Y-m-d') . 
           "\tZIP\t" . 
           Storage::disk('library')->url("updates/complete.zip") . "\t" . 
           Storage::disk('library')->size("updates/complete.zip") . "\t" .
@@ -69,7 +69,7 @@ class PartUpdateController extends Controller
       }
       if (Storage::disk('library')->exists("updates/ldraw027.exe")) {
         $response .= "BASE\t0.27\t" . 
-        date('Y-m-d', Storage::disk('library')->lastModified("updates/ldraw027.exe")) . 
+          date('Y-m-d', Storage::disk('library')->lastModified("updates/ldraw027.exe")) . 
           "\tARJ\t" . 
           Storage::disk('library')->url("updates/ldraw027.exe") . "\t" . 
           Storage::disk('library')->size("updates/ldraw027.exe") . "\t" .
@@ -77,7 +77,7 @@ class PartUpdateController extends Controller
       }
       if (Storage::disk('library')->exists("updates/ldraw027.zip")) {
         $response .= "BASE\t0.27\t" . 
-        date('Y-m-d', Storage::disk('library')->lastModified("updates/complete.exe")) . 
+          date('Y-m-d', Storage::disk('library')->lastModified("updates/ldraw027.zip")) . 
           "\tZIP\t" . 
           Storage::disk('library')->url("updates/ldraw027.zip") . "\t" . 
           Storage::disk('library')->size("updates/ldraw027.zip") . "\t" .
@@ -108,7 +108,7 @@ class PartUpdateController extends Controller
       }
       if (Storage::disk('library')->exists("updates/complete.exe")) {
         $response .= "<distribution><release_type>COMPLETE</release_type><release_id>". PartRelease::current()->name . "</release_id>" . 
-        "<release_date>" . date('Y-m-d', Storage::disk('library')->lastModified("updates/complete.exe")) . "</release_date>" .
+        "<release_date>" . date_format(PartRelease::current()->created_at, 'Y-m-d') . "</release_date>" .
         "<file_format>ARJ</file_format>" . 
         "<url>" . Storage::disk('library')->url("updates/complete.exe") . "</url>\t" . 
         "<size>" . Storage::disk('library')->size("updates/complete.exe") . "</size>\t" .
@@ -116,7 +116,7 @@ class PartUpdateController extends Controller
       }
       if (Storage::disk('library')->exists("updates/complete.zip")) {
         $response .= "<distribution><release_type>COMPLETE</release_type><release_id>". PartRelease::current()->name . "</release_id>" . 
-        "<release_date>" . date('Y-m-d', Storage::disk('library')->lastModified("updates/complete.zip")) . "</release_date>" .
+        "<release_date>" . date_format(PartRelease::current()->created_at, 'Y-m-d') . "</release_date>" .
         "<file_format>ZIP</file_format>" . 
         "<url>" . Storage::disk('library')->url("updates/complete.zip") . "</url>\t" . 
         "<size>" . Storage::disk('library')->size("updates/complete.zip") . "</size>\t" .
