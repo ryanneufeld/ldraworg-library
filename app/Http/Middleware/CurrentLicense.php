@@ -16,7 +16,7 @@ class CurrentLicense
      */
     public function handle(Request $request, Closure $next): Response
     {
-      if (Auth::user()->license->id != \App\Models\PartLicense::defaultLicense()->id) {
+      if (Auth::user()->license->id != \App\Models\PartLicense::default()->id) {
         session(['ca_route_redirect' => $request->route()->getName()]);
         return redirect('tracker/confirmCA');
       }
