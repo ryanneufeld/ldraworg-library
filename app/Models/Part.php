@@ -314,7 +314,7 @@ class Part extends Model
         return base64_decode($this->body->body);
       }
       else {
-        return FileUtils::unix2dos(rtrim($this->header) . "\n\n" . $this->body->body);
+        return FileUtils::unix2dos(rtrim($this->header) . "\r\n\r\n" . $this->body->body);
       }
     }
     
