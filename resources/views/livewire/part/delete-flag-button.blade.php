@@ -1,4 +1,4 @@
-<button wire:click="$toggle('part.delete_flag')" @class([
+<button wire:click="toggleFlag" @class([
   'ui',
   'red' => $part->delete_flag,
   'labeled icon button',

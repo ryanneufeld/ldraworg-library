@@ -17,4 +17,10 @@ class DeleteFlagButton extends Component
     {
         return view('livewire.part.delete-flag-button');
     }
+
+    public function toggleFlag()
+    {
+        $this->part->delete_flag = !$this->part->delete_flag;
+        $this->part->save();
+    }
 }
