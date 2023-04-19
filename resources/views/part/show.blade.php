@@ -22,7 +22,7 @@
           @if($part->delete_flag)
           <div class="ui red labeled icon button">
             <i class="flag icon"></i>
-              {{$part->delete_flag ? 'Flagged' : 'Flag'}} for Deletion
+              Flagged for Deletion
           </div>
           @endif       
         @endcan    
