@@ -150,6 +150,7 @@ class Part extends Model
     }
 
     public function scopeSearchPart ($query, string $search, string $scope) {
+      if (!empty($search)) {
       //Pull the terms out of the search string
       $pattern = '#([^\s"]+)|"([^"]*)"#u';
       preg_match_all($pattern, $search, $matches, PREG_SET_ORDER);
@@ -175,6 +176,10 @@ class Part extends Model
             $query->where('header', 'LIKE', "%$term%");
             break;
         }
+      }
+      }
+      else {
+       $query->where('filename', '');
       }
       return $query;
     }

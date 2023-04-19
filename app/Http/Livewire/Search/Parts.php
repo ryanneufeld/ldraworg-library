@@ -7,7 +7,7 @@ use App\Models\Part;
 
 class Parts extends Component
 {
-    public $search;
+    public $search = '';
     public $scope = 'header';
     public $uparts;
     public $oparts;
@@ -29,10 +29,8 @@ class Parts extends Component
 
     public function search() {
         $this->scope = in_array($this->scope, ['filename', 'description', 'header', 'file'], true) ? $this->scope : 'header';
-        if (!empty($this->search)) {
             $parts = Part::searchPart($this->search, $this->scope)->orderBy('filename')->get();
             $this->uparts = $parts->where('release.short', 'unof');
             $this->oparts = $parts->where('release.short', '<>', 'unof');    
-        }
     }
 }

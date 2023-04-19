@@ -17,7 +17,7 @@
       </select>
     </div>  
   </form>
-  @if(!is_null($uparts) || !is_null($oparts))
+  @if(!empty($search) && (!is_null($uparts) || !is_null($oparts)))
       <x-part.table title="Matched {{$uparts->count() ?? 0}} Unofficial Parts" :parts="$uparts" none=""/>
       <x-part.table title="Matched {{$oparts->count() ?? 0}} Official Parts" :parts="$oparts" none=""/>
   @endif  
