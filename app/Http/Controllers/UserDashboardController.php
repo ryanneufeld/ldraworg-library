@@ -10,16 +10,14 @@ use App\Models\PartEventType;
 use App\Models\Part;
 use App\Models\Vote;
 
-class DashboardController extends Controller
+class UserDashboardController extends Controller
 {
   public function __construct() {
       $this->middleware('auth');
   }
 
   public function index() {
-    $submits = Part::whereHas('events', function (Builder $query) {
-        $query->whereRelation('part_event_type', 'slug', 'submit')->where('user_id', Auth::user()->id);
-      })->get();
+    $submits = Part::unofficial()->userSubmits(Auth::user())->get();
     $votes = Vote::where('user_id', Auth::user()->id)->get();
     return view('dashboard.index', ['submits' => $submits, 'votes' => $votes]);
   }

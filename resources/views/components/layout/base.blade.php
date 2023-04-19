@@ -9,6 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <link rel="shortcut icon" href="{{asset('/images/LDraw_Green_64x64.png')}}" type="image/x-icon">
     <link rel="preload" href="/assets/fomantic/themes/default/assets/fonts/icons.woff2" as="font" type="font/woff2" crossorigin="">
+    <livewire:styles />
     <link rel="stylesheet" type="text/css" href="/assets/fomantic/semantic.min.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/app.css">
     @if ($ldbi)
@@ -21,7 +22,8 @@
   <script src="/assets/js/jquery-3.5.1.min.js" type="text/javascript"></script> 
   <script src="/assets/fomantic/semantic.min.js" type="text/javascript"></script> 
   <script src="/assets/js/tablesort.js" type="text/javascript"></script> 
-  <script src="/assets/js/app.js" type="text/javascript"></script> 
+  <script src="/assets/js/app.js" type="text/javascript"></script>
+  <livewire:scripts />
   @if ($ldbi)
     <x-layout.ldbi-scripts />
   @endif    

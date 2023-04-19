@@ -15,23 +15,9 @@
     </div>
     <div>
       @if ($part->isUnofficial() && Auth::check())
-        <a href="{{route('tracker.notification.toggle', $part)}}" @class([
-          'ui',
-          'yellow' => Auth::user()->notification_parts->contains($part->id),
-          'labeled icon button',
-        ])>
-          <i class="bell icon"></i>
-            {{Auth::user()->notification_parts->contains($part->id) ? 'Tracking' : 'Track'}}
-        </a>
+          <livewire:part.track-button :part="$part" />
         @can('part.flag.delete')
-          <a href="{{route('tracker.flag.delete', $part)}}" @class([
-            'ui',
-            'red' => $part->delete_flag,
-            'labeled icon button',
-          ])>
-            <i class="flag icon"></i>
-              {{$part->delete_flag ? 'Flagged' : 'Flag'}} for Deletion
-          </a>    
+          <livewire:part.delete-flag-button :part="$part" />
         @else
           @if($part->delete_flag)
           <div class="ui red labeled icon button">

@@ -10,12 +10,6 @@ class SupportFiles {
     return implode("\n", PartCategory::all()->pluck('category')->all());
   }
 
-  public static function ptreleases($output, $type, $fields) {
-    if ($output != 'XML' && $output != 'TAB') $output = 'XML';
-    if (!in_array($type, ['ANY','ZIP','ARJ'])) $type = 'ANY';
-    $fields = explode('-', $fields);
-  }
-
   public static function libaryCsv(): string {
     $csv = "part_number,part_description,part_url,image_url\n";
     foreach (Part::whereRelation('type', 'folder', 'parts/')->lazy() as $part) {

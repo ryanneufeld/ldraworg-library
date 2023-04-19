@@ -8,12 +8,9 @@ use App\Http\Controllers\Part\PartEventController;
 use App\Http\Controllers\Search\PartSearchController;
 use App\Http\Controllers\Search\SuffixSearchController;
 use App\Http\Controllers\Part\PartReleaseController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UserNotificationController;
-use App\Http\Controllers\Part\PartDeleteFlagController;
 use App\Http\Controllers\CaConfirmController;
 use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartMoveController;
@@ -23,9 +20,6 @@ Route::redirect('/', '/tracker');
 
 Route::get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
 Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
-Route::get('/ptreleases', [SupportFilesController::class, 'ptreleases'])->name('ptreleases');
-
-Route::get('/ldbi/{part}/parts', [PartController::class, 'webgl']);
 
 Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::view('/', 'tracker.main')->name('main');
@@ -45,11 +39,6 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
   Route::middleware(['auth'])->get('/{part}/updatesubparts', [PartController::class, 'updatesubparts'])->name('updatesubparts');
 
-  Route::middleware(['auth'])->get('notification/part/{part}', [UserNotificationController::class, 'store'])->name('notification.toggle');
-
-  Route::middleware(['auth'])->get('/{part}/delete-flag', [PartDeleteFlagController::class, 'store'])->name('flag.delete');
-  Route::middleware(['auth'])->get('/delete-flags', [PartDeleteFlagController::class, 'index'])->name('flag.index');
-
   Route::middleware(['auth'])->get('/{part}/delete', [PartController::class, 'delete'])->withTrashed()->name('delete');
   Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'destroy'])->withTrashed()->name('destroy');
 
@@ -66,7 +55,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
 
-  Route::get('/next-release', [App\Http\Controllers\NonAdminReleaseController::class, 'index'])->name('next-release');
+  Route::get('/next-release', [\App\Http\Controllers\NonAdminReleaseController::class, 'index'])->name('next-release');
 
   Route::middleware(['can:release.create'])->get('/release/create', [PartReleaseController::class, 'create'])->name('release.create');
   Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');
@@ -82,7 +71,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 });
 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
-  Route::get('/', [DashboardController::class, 'index'])->name('index');
+  Route::get('/', [\App\Http\Controllers\UserDashboardController::class, 'index'])->name('index');
 });
 
 Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
