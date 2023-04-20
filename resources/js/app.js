@@ -7,7 +7,12 @@ $( function() {
 	$('table.sortable').tablesort();
 	$('.suffixmenu .item').tab();
 	$('.ui.menu > .ui.dropdown').dropdown({on: 'hover', });
-
+	$('#standard_calendar').calendar({
+		type: 'datetime',
+		formatter: {
+			datetime: 'YYYY-MM-DD HH:mm:ss'
+		}	  
+	});
 	$('.ui.sitesearch').each(
 		function (){
 		$(this).search({
