@@ -1,5 +1,5 @@
-@props(['title' => '', 'ldbi' => false])
-<x-layout.base title="{{$title}}" ldbi="{{$ldbi}}">
+@props(['title' => ''])
+<x-layout.base title="{{$title}}">
   <div class="ui container">
     <div class="basic segment">      
       @env('local')

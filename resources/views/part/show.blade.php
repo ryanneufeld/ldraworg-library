@@ -1,4 +1,7 @@
-<x-layout.main ldbi="1">
+<x-layout.main>
+  @push('css')
+  <link rel="stylesheet" type="text/css" href="/assets/css/ldbi.css">
+  @endpush
   @php($lib = str_replace('/', '', $part->libFolder()))
   <x-slot name="title">File Detail {{ $part->filename }}</x-slot>
   <x-menu.part-detail :part="$part" />
@@ -95,4 +98,9 @@
     <x-part.attribution :copyuser="$part->user" :editusers="$part->editHistoryUsers()" />
     <x-part.3dmodal id="{{$part->id}}" />
   </div>
+ 
+  @push('scripts')
+    <x-layout.ldbi-scripts />
+  @endpush
+
 </x-layout.main>

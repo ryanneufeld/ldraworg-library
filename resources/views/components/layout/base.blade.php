@@ -1,4 +1,4 @@
-@props(['title', 'ldbi' => false])
+@props(['title'])
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,9 +12,7 @@
     <livewire:styles />
     <link rel="stylesheet" type="text/css" href="/assets/fomantic/semantic.min.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/app.css">
-    @if ($ldbi)
-    <link rel="stylesheet" type="text/css" href="/assets/css/ldbi.css">
-    @endif    
+    @stack('css')
   </head>
   <body>
     {{ $slot ?? '' }}
@@ -23,9 +21,6 @@
   <script src="/assets/fomantic/semantic.min.js" type="text/javascript"></script> 
   <script src="/assets/js/tablesort.js" type="text/javascript"></script> 
   <script src="/assets/js/app.js" type="text/javascript"></script>
-  <livewire:scripts />
   @stack('scripts')
-  @if ($ldbi)
-    <x-layout.ldbi-scripts />
-  @endif    
+  <livewire:scripts />
 </html>
