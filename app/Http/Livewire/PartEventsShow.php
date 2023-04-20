@@ -13,11 +13,13 @@ class PartEventsShow extends Component
     public $order = 'latest';
     public $dt;
     public $unofficial = false;
+    public $types = [];
 
     protected $queryString= [
         'itemsPerPage' => ['except' => '20', 'as' => 'n'],
         'order' => ['except' => 'latest'],
         'dt' => ['except' => ''],
+        'types' => ['except' => []],
         'unofficial' => ['except' => false],
     ];
 
@@ -26,17 +28,19 @@ class PartEventsShow extends Component
         $this->resetPage();
     }
 
-    public function dtChanged()
-    {
-        $this->resetPage();
-    }
-
     public function render()
     {
-        $filtersActive = $this->itemsPerPage != '20' || $this->order != 'latest' || !empty($this->dt) || $this->unofficial;
+        $filtersActive = $this->itemsPerPage != '20' || $this->order != 'latest' || !empty($this->dt) || !empty($this->types) || $this->unofficial;
         $events = \App\Models\PartEvent::with(['part', 'user', 'part_event_type', 'release']);
         if (!empty($this->dt)) {
             $events->where('created_at', '>=', date_create($this->dt));
+        }
+        if (!empty($this->types)) {
+            $events->where(function ($q) {
+                foreach($this->types as $type) {
+                    $q->orWhere('part_event_type_id', $type);
+                }                    
+            });
         }
         if ($this->unofficial) {
             $events->whereRelation('release', 'short', 'unof');
@@ -47,6 +51,6 @@ class PartEventsShow extends Component
         else {
             $events->latest();
         }
-        return view('livewire.part-events-show', ['filtersActive' => $filtersActive, 'events' => $events->paginate($this->itemsPerPage)]);
+        return view('livewire.part-events-show', ['filtersActive' => $filtersActive, 'eventtypes' => \App\Models\PartEventType::all(), 'events' => $events->paginate($this->itemsPerPage)]);
     }
 }

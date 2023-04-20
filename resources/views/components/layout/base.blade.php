@@ -24,6 +24,7 @@
   <script src="/assets/js/tablesort.js" type="text/javascript"></script> 
   <script src="/assets/js/app.js" type="text/javascript"></script>
   <livewire:scripts />
+  @stack('scripts')
   @if ($ldbi)
     <x-layout.ldbi-scripts />
   @endif    
