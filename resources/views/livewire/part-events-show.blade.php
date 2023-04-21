@@ -1,15 +1,5 @@
 <div>
-<div class="ui tiny compact menu">
-    @if(!$events->onFirstPage())
-    <a class="item" wire:click="previousPage" wire:loading.attr="disabled">Prior</a>
-    @endif
-    @if($events->hasMorePages())
-    <a class="item" wire:click="nextPage" wire:loading.attr="disabled">Next</a>
-    @endif
-    @if(!$events->onFirstPage())
-    <a class="item" wire:click="gotoPage(1)" wire:loading.attr="disabled">Newest</a>
-    @endif
-    </div>
+    {{ $events->links('livewire.paginate-menu') }}
     <div class="ui accordion">
         <div class="title">
           <i class="dropdown icon"></i>
@@ -61,18 +51,8 @@
         </form>
         </div>
     </div>    
-    <x-event.table :events="$events" />   
-    <div class="ui tiny compact menu">
-    @if(!$events->onFirstPage())
-    <a class="item" wire:click="previousPage" wire:loading.attr="disabled">Prior</a>
-    @endif
-    @if($events->hasMorePages())
-    <a class="item" wire:click="nextPage" wire:loading.attr="disabled">Next</a>
-    @endif
-    @if(!$events->onFirstPage())
-    <a class="item" wire:click="gotoPage(1)" wire:loading.attr="disabled">Newest</a>
-    @endif
-    </div>
+    <x-event.table :events="$events" />
+    {{ $events->links('livewire.paginate-menu') }}
     @push('scripts')
     <script>
         $( function() {
