@@ -15,7 +15,6 @@ class PartEventController extends Controller
      */
     public function index()
     {
-      $events = PartEvent::with(['part', 'user', 'part_event_type'])->latest()->simplePaginate(20);
-      return view('tracker.activity',['events' => $events]);
+      return view('tracker.activity');
     }
 }

@@ -8,22 +8,8 @@
         <div @class(['active' => $filtersActive , 'content'])>
         <form class="ui equal width form" wire:submit.prevent="dtChange">
             <div class="fields">
-                <div wire:ignore class="field">
-                    <label>Items per page</label>
-                    <select class="ui selection dropdown" id="itemsPerPage">
-                        @foreach($pageItems as $item)
-                            <option value="{{$item}}" @selected($item == $itemsPerPage)>{{$item}}</option>
-                        @endforeach    
-                   </select>
-                </div>
-                <div wire:ignore class="field">
-                    <label>Event Type</label>
-                    <select class="ui clearable selection dropdown" multiple id="parteventtype">
-                        @foreach($eventtypes as $eventtype)
-                            <option value="{{$eventtype->id}}" @selected(in_array($eventtype->id, $types)) >{{$eventtype->name}}</option>
-                        @endforeach    
-                    </select>
-                </div>
+                <x-form.select wire:ignore name="itemsPerPage" id="itemsPerPage" label="Parts Per Page" :options="$pageItems" selected="{{$itemsPerPage}}" />
+                <x-form.select wire:ignore name="types" id="types" class="clearable" label="Event Type" placeholder="Event Type" :options="$eventtypeItems" :selected="$types" multiple/>
                 <div wire:ignore class="field">
                     <label>Start Date/Time</label>
                     <div class="ui calendar" id="standard_calendar">
@@ -33,14 +19,7 @@
                         </div>
                     </div>
                 </div>      
-                <div wire:ignore class="field">
-                    <label>Order</label>
-                    <select class="ui selection dropdown" id="order">
-                        @foreach($orderItems as $value => $item)
-                            <option value="{{$value}}" @selected($value == $order)>{{$item}}</option>
-                        @endforeach    
-                    </select>
-                </div>
+                <x-form.select wire:ignore name="order" id="order" label="Order" :options="$orderItems" selected="{{$order}}" />
                 <div class="field">
                     <div class="ui checkbox">
                         <input type="checkbox" wire:model="unofficial" tabindex="0" class="hidden">
@@ -66,20 +45,6 @@
                 },
                 disableMinute: true	  
             });
-            $('#parteventtype').on('change', function (e) {
-                var data = $('#parteventtype').val();
-                @this.set('types', data);
-            });
-            $('#order').on('change', function (e) {
-                var data = $('#order option:selected').val();
-                @this.set('order', data);
-            });
-            
-            $('#itemsPerPage').on('change', function (e) {
-                var data = $('#itemsPerPage option:selected').val();
-                @this.set('itemsPerPage', data);
-            });
-            
             $('#dt').on('change', function (e) {
                 var data = $('#dt').val();
                 @this.set('dt', data);

@@ -31,17 +31,19 @@ class PartEventsShow extends Component
     public function render()
     {
         $filtersActive = $this->itemsPerPage != '20' || $this->order != 'latest' || !empty($this->dt) || !empty($this->types) || $this->unofficial;
-        $pageItems = [20, 40, 80, 100];
+        $pageItems = [20 => '20', 40 => '40', 80 => '80', 100 => '100'];
         $orderItems = ['latest' => 'Newest First', 'oldest' => 'Oldest First'];
-
+        $eventtypeItems = \App\Models\PartEventType::pluck('name','id')->all();
         $events = \App\Models\PartEvent::with(['part', 'user', 'part_event_type', 'release']);
         if (!empty($this->dt)) {
             $events->where('created_at', '>=', date_create($this->dt));
         }
         if (!empty($this->types)) {
-            $events->where(function ($q) {
-                foreach($this->types as $type) {
-                    $q->orWhere('part_event_type_id', $type);
+            $events->where(function ($q) use ($eventtypeItems) {
+                foreach($this->types as $type)  {
+                    if (array_key_exists($type, $eventtypeItems)) {
+                        $q->orWhere('part_event_type_id', $type);
+                    }
                 }                    
             });
         }
@@ -58,7 +60,8 @@ class PartEventsShow extends Component
             'filtersActive' => $filtersActive, 
             'pageItems' => $pageItems,
             'orderItems' => $orderItems,
-            'eventtypes' => \App\Models\PartEventType::all(), 'events' => $events->paginate($this->itemsPerPage)
+            'eventtypeItems' => $eventtypeItems, 
+            'events' => $events->paginate($this->itemsPerPage)
         ]);
     }
 }
