@@ -16,11 +16,11 @@
   </head>
   <body>
     {{ $slot ?? '' }}
+    <script src="/assets/js/jquery-3.5.1.min.js" type="text/javascript"></script> 
+    <script src="/assets/fomantic/semantic.min.js" type="text/javascript"></script> 
+    <script src="/assets/js/tablesort.js" type="text/javascript"></script> 
+    <script src="/assets/js/app.js" type="text/javascript"></script>
+    @stack('scripts')
+    <livewire:scripts />
   </body>
-  <script src="/assets/js/jquery-3.5.1.min.js" type="text/javascript"></script> 
-  <script src="/assets/fomantic/semantic.min.js" type="text/javascript"></script> 
-  <script src="/assets/js/tablesort.js" type="text/javascript"></script> 
-  <script src="/assets/js/app.js" type="text/javascript"></script>
-  @stack('scripts')
-  <livewire:scripts />
 </html>

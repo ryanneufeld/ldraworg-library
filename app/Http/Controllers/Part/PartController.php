@@ -31,57 +31,9 @@ class PartController extends Controller
     public function index(Request $request)
     {
       $unofficial = $request->route()->getName() == 'tracker.index';
-      $input = $request->all();
-      
-      $subset = [1 => 'Certified', 2 => 'Needs Admin Review', 3 => 'Needs More Votes', 4 => 'Uncertified Subfiles', 5 => 'Hold', 6 => '2 (or more) Certify Votes', 7 => '1 Certify Vote'];
-      $users = User::whereHas('parts', function (Builder $query) use ($unofficial) {
-        if ($unofficial) {
-          $query->unofficial();
-        }
-        else {
-          $query->official();
-        }
-      })->orderBy('name')->pluck('name', 'id')->all();
-      $part_types = PartType::pluck('name', 'id')->all();
-
-      if ($unofficial) {
-        $parts = Part::unofficial();
-      }
-      else {
-        $parts = Part::official();
-      }
-
-      if ($unofficial && isset($input['subset']) && array_key_exists($input['subset'], $subset)) {
-        if ($input['subset'] == 6) {
-          $parts->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
-            $q->where('vote_type_code', 'C');
-          }, '>=', 2);
-        }
-        elseif ($input['subset'] == 7) {
-          $parts->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
-            $q->where('vote_type_code', 'C');
-          }, '=', 1);
-        }
-        else {
-          $parts = $parts->where('vote_sort', $input['subset']);
-        }
-      }
-        
-      if (isset($input['user_id']) && array_key_exists($input['user_id'], $users))
-        $parts = $parts->where('user_id', $input['user_id']);
-      if (isset($input['part_type_id']) && array_key_exists($input['part_type_id'], $part_types))
-        $parts = $parts->where('part_type_id', $input['part_type_id']);
-      $parts = $parts->orderBy('vote_sort')->
-        orderBy('part_type_id')->
-        orderBy('filename')->
-        cursor();
 
       return view('part.list',[
         'unofficial' => $unofficial,
-        'parts' => $parts,
-        'subset' => $subset,
-        'users' => $users,
-        'part_types' => $part_types,
       ]);  
     }
 
@@ -241,10 +193,10 @@ class PartController extends Controller
           $query->orWhereRelation('type', 'type', 'Part')->orWhereRelation('type', 'type', 'Shortcut');
         });
       if ($request->has('order') && $request->input('order') == 'asc') {
-        $parts = $parts->oldest();
+        $parts->oldest();
       } 
       else {
-        $parts = $parts->latest();
+        $parts->latest();
       }
       return view('tracker.weekly', ['parts' => $parts->get()]);
     }

@@ -103,6 +103,21 @@ return [
     ],
   ],
   
+  'part_types' => [
+    'Part' => ['name' => 'Part', 'folder' => 'parts/', 'format' => 'dat'],
+    'Subpart' => ['name' => 'Subpart', 'folder' => 'parts/s/', 'format' => 'dat'],
+    'Primitive' => ['name' => 'Primitive', 'folder' => 'p/', 'format' => 'dat'],
+    '8_Primitive' => ['name' => '8 Segment Primitive', 'folder' => 'p/8/', 'format' => 'dat'],
+    '48_Primitive' => ['name' => '48 Segment Primitive', 'folder' => 'p/48/', 'format' => 'dat'],
+    'Shortcut' => ['name' => 'Shortcut', 'folder' => 'parts/', 'format' => 'dat'],
+    'Helper' => ['name' => 'Helper', 'folder' => 'parts/h/', 'format' => 'dat'],
+    'Texmap' => ['name' => 'TEXMAP Image', 'folder' => 'parts/textures/', 'format' => 'png'],
+    'Subpart_Texmap' => ['name' => 'Subpart TEXMAP Image', 'folder' => 'parts/textures/s/', 'format' => 'png'],
+    'Primitive_Texmap' => ['name' => 'Primitive TEXMAP Image', 'folder' => 'p/textures/', 'format' => 'png'],
+    '8_Primitive_Texmap' => ['name' => '8 Segment Primitive TEXMAP Image', 'folder' => 'p/textures/8/', 'format' => 'png'],
+    '48_Primitive_Texmap' => ['name' => '48 Segment Primitive TEXMAP Image', 'folder' => 'p/textures/48/', 'format' => 'png'],  
+  ],
+  
   // Valid part categories
   'categories' => [
     'Animal',
