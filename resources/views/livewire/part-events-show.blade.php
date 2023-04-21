@@ -21,17 +21,16 @@
                 <div wire:ignore class="field">
                     <label>Items per page</label>
                     <select class="ui selection dropdown" id="itemsPerPage">
-                        <option value="20">20</option>
-                        <option value="40">40</option>
-                        <option value="80">80</option>
-                        <option value="100">100</option>
-                    </select>
+                        @foreach($pageItems as $item)
+                            <option value="{{$item}}" @selected($item == $itemsPerPage)>{{$item}}</option>
+                        @endforeach    
+                   </select>
                 </div>
                 <div wire:ignore class="field">
                     <label>Event Type</label>
                     <select class="ui clearable selection dropdown" multiple id="parteventtype">
                         @foreach($eventtypes as $eventtype)
-                            <option value="{{$eventtype->id}}">{{$eventtype->name}}</option>
+                            <option value="{{$eventtype->id}}" @selected(in_array($eventtype->id, $types)) >{{$eventtype->name}}</option>
                         @endforeach    
                     </select>
                 </div>
@@ -47,8 +46,9 @@
                 <div wire:ignore class="field">
                     <label>Order</label>
                     <select class="ui selection dropdown" id="order">
-                        <option value="latest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
+                        @foreach($orderItems as $value => $item)
+                            <option value="{{$value}}" @selected($value == $order)>{{$item}}</option>
+                        @endforeach    
                     </select>
                 </div>
                 <div class="field">
@@ -80,6 +80,7 @@
             $('.ui.accordion').accordion();
             $('#standard_calendar').calendar({
                 type: 'datetime',
+                initialDate: @js($dt),
                 formatter: {
                     datetime: 'YYYY-MM-DD HH:mm:ss'
                 },
@@ -93,10 +94,12 @@
                 var data = $('#order option:selected').val();
                 @this.set('order', data);
             });
+            
             $('#itemsPerPage').on('change', function (e) {
                 var data = $('#itemsPerPage option:selected').val();
                 @this.set('itemsPerPage', data);
             });
+            
             $('#dt').on('change', function (e) {
                 var data = $('#dt').val();
                 @this.set('dt', data);

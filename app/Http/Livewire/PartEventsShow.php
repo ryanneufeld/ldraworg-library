@@ -11,7 +11,7 @@ class PartEventsShow extends Component
 
     public $itemsPerPage = '20';
     public $order = 'latest';
-    public $dt;
+    public $dt = '';
     public $unofficial = false;
     public $types = [];
 
@@ -31,6 +31,9 @@ class PartEventsShow extends Component
     public function render()
     {
         $filtersActive = $this->itemsPerPage != '20' || $this->order != 'latest' || !empty($this->dt) || !empty($this->types) || $this->unofficial;
+        $pageItems = [20, 40, 80, 100];
+        $orderItems = ['latest' => 'Newest First', 'oldest' => 'Oldest First'];
+
         $events = \App\Models\PartEvent::with(['part', 'user', 'part_event_type', 'release']);
         if (!empty($this->dt)) {
             $events->where('created_at', '>=', date_create($this->dt));
@@ -51,6 +54,11 @@ class PartEventsShow extends Component
         else {
             $events->latest();
         }
-        return view('livewire.part-events-show', ['filtersActive' => $filtersActive, 'eventtypes' => \App\Models\PartEventType::all(), 'events' => $events->paginate($this->itemsPerPage)]);
+        return view('livewire.part-events-show', [
+            'filtersActive' => $filtersActive, 
+            'pageItems' => $pageItems,
+            'orderItems' => $orderItems,
+            'eventtypes' => \App\Models\PartEventType::all(), 'events' => $events->paginate($this->itemsPerPage)
+        ]);
     }
 }
