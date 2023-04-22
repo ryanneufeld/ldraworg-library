@@ -47,6 +47,7 @@ class LDrawFileValidate {
     $desc = FileUtils::getDescription($text);
 
     $results = [];
+    $lastword = mb_substr($desc, mb_strrpos($desc, ' ') + 1);
     if (!PartCheck::checkDescription($text)) {
       $results[] = __('partcheck.description.missing');
     }
@@ -54,10 +55,8 @@ class LDrawFileValidate {
       $results[] = __('partcheck.description.invalidchars');
     }
     elseif ($inPartFolder && 
-      ((substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p') && 
-       (mb_substr($desc, mb_strrpos($desc, ' ') + 1) != 'Pattern' && 
-        mb_substr($desc, mb_strrpos($desc, ' ') + 1) != '(Obsolete)' &&
-        mb_substr($desc, mb_strrpos($desc, ' ') + 1) != 'Work)'))) {
+      (substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p') && 
+      in_array($lastword, ['Pattern', '(Obsolete)', 'Worl)'])) {
       $results[] = __('partcheck.description.patternword');
     }  
     return $results;    
