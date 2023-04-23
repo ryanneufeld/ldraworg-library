@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 use App\Http\Requests\VoteRequest;
 use App\Models\Vote;
@@ -69,32 +70,23 @@ class VoteController extends Controller
         return $this->destroy($request, $vote);
       }
 
-      $event = new PartEvent(['comment' => $validated['comment'] ?? null]);
+      $event = ['comment' => $validated['comment'] ?? null];
       
       if ($validated['vote_type'] == 'M') {
-        $event->part_event_type()->associate(PartEventType::firstWhere('slug','comment'));
+        $event['part_event_type_id'] = PartEventType::firstWhere('slug','comment')->id;
       }
       else {
-        if (isset($vote)) {
-          $vote->vote_type_code = $validated['vote_type'];
-          $vote->save();
-        }
-        else {
-          $vote = Vote::create([
-            'part_id' => $part->id,
-            'user_id' => $request->user()->id,
-            'vote_type_code' => $validated['vote_type'],
-          ]);
-        }
-        $event->vote_type()->associate($validated['vote_type']);
-        $event->part_event_type()->associate(PartEventType::firstWhere('slug','review'));
+        Auth::user()->castVote($part, \App\Models\VoteType::firstWhere('code', $validated['vote_type']));
+        $event['vote_type_code'] = $validated['vote_type'];
+        $event['part_event_type_id'] = PartEventType::firstWhere('slug','review')->id;
         $part->updateVoteSummary();
       }
-      $request->user()->notification_parts()->syncWithoutDetaching([$part->id]);
-      $event->user()->associate($request->user());
-      $event->part()->associate($part);
-      $event->release()->associate(PartRelease::unofficial());
-      $event->save();
+
+      Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
+      $event['user_id'] = Auth::user()->id;
+      $event['part_id'] = $part->id;
+      $event['part_release_id'] = PartRelease::unofficial()->id;
+      PartEvent::create($event);
 
       return redirect()->route('tracker.show', $part)->with('status','Vote succesfully posted');
       
@@ -108,18 +100,18 @@ class VoteController extends Controller
     public function destroy(Request $request, Vote $vote)
     {
       $this->authorize('delete', $vote);
-      $part = $vote->part;
-      $vote->delete();
-      $part->updateVoteSummary();
+
+      $pid = $vote->part->id;
+      Auth::user()->cancelVote($vote->part);
 
       PartEvent::create([
        'comment' => $request->input('comment') ?? null,
-       'user_id' => $request->user()->id,
-       'part_id' => $part->id,
+       'user_id' => Auth::user()->id,
+       'part_id' => $pid,
        'part_event_type_id' => PartEventType::firstWhere('slug','review')->id,
        'part_release_id' => PartRelease::unofficial()->id
       ]);
 
-      return redirect()->route('tracker.show', $part)->with('status','Vote succesfully canceled');;
+      return redirect()->route('tracker.show', $pid)->with('status','Vote succesfully canceled');;
     }
 }

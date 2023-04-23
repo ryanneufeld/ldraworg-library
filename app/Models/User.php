@@ -6,7 +6,6 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB;
 
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Part;
@@ -130,4 +129,26 @@ class User extends Authenticatable
     public function toString() {
       return "0 Author: " . $this->authorString();
     }
+
+    public function castVote(Part $part, VoteType $votetype): void {
+      $vote = $this->votes()->firstWhere('part_id', $part->id);
+      if (!empty($vote)) {
+        $vote->vote_type_code = $votetype->code;
+        $vote->save();
+      }
+      else {
+        $vote = Vote::create([
+          'part_id' => $part->id,
+          'user_id' => $this->id,
+          'vote_type_code' => $votetype->code,
+        ]);
+      }
+      $part->updateVoteSummary();
+    }
+
+    public function cancelVote(Part $part): void {
+      $this->votes()->where('part_id', $part->id)->delete();
+      $part->updateVoteSummary();
+    }
+
 }

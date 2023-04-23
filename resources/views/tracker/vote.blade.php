@@ -22,10 +22,6 @@
   <div class="ui horizontally fitted basic segment">
     <div>
       <strong>File:</strong> {{ $vote->part->filename ?? $part->filename }}
-      <a href="http://www.ldraw.org/library/tracker/ref/reviewinfo">
-        <i class="circular help small blue inverted link icon"></i>
-        Help!  What is this page?
-      </a>
     </div>
     @canany('part.vote.certify', 'part.vote.hold', 'part.vote.admincertify', 'part.vote.fastrack')
     <div><strong>Your Current Review:</strong> <span class="{{$vote->type->short ?? 'none'}}-text">{{ $vote->type->name ?? 'None' }}</span></div>

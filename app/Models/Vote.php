@@ -30,16 +30,4 @@ class Vote extends Model
     {
         return $this->belongsTo(VoteType::class, 'vote_type_code', 'code');
     }
-    
-    public function updatePartSubpartCount() {
-      $this->part->load('parents');
-      if ($this->part->parents()->exists()) {
-        foreach($this->part->parents as $part) {
-          $part->updateUncertifiedSubpartsCache();
-        }
-      }
-      else {
-        $this->part->updateUncertifiedSubpartsCache();
-      }  
-    }  
 }
