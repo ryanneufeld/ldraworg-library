@@ -156,7 +156,12 @@ class Part extends Model
       preg_match_all($pattern, $search, $matches, PREG_SET_ORDER);
 
       foreach($matches as $m) {
-        $term = $m[count($m)-1];
+        $char = '\\';
+        $term = str_replace(
+          [$char, '%', '_'],
+          [$char.$char, $char.'%', $char.'_'],
+          $m[count($m)-1]
+        );
         switch ($scope) {
           case 'description':
             $query->where(function($q) use ($term) {
@@ -499,7 +504,7 @@ class Part extends Model
       else {
         $p = new self;
         $text =
-          "0 ~Moved To " . $newPart->name() . "\n" .
+          "0 ~Moved To " . str_replace(['.dat', '.png'], '', $newPart->name()) . "\n" .
           "0 Name: " . $oldPart->name() . "\n" .
           Auth::user()->toString() . "\n" .
           $newPart->typeString() . "\n" . 
