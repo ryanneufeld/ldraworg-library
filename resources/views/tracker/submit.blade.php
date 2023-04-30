@@ -33,7 +33,7 @@
 
     <div class="eight wide field">
       <div class="ui file action input">
-        <input id="partfile" type="file" name="partfile[]" tabindex="18" {{-- accept="application/x-ldraw,image/png,text/plain,.dat,.png" --}} multiple="multiple">
+        <input id="partfile" type="file" name="partfile[]" tabindex="18" multiple="multiple">
         <label for="partfile" class="ui button">
           <i class="upload icon"></i>
         </label>
@@ -57,15 +57,11 @@
     @endcan
 
     @can('part.submit.proxy')
-    <div class="six wide field">
+    <div class="eight wide field">
       <label for="user_id">Author of file(s)</label>
-      <select name="user_id">
-      @foreach(\App\Models\User::pluck('name', 'id') as $id => $name)
-        @if (Auth::user()->id == $id)
-          <option value="{{$id}}" selected>{{$name}}</option>
-        @else
-          <option value="{{$id}}">{{$name}}</option>
-        @endif
+      <select class="ui clearable dropdown" name="user_id">
+      @foreach(\App\Models\User::orderBy('realname')->get() as $user)
+        <option value="{{$user->id}}" @selected(Auth::user()->id == $user->id)>{{$user->realname}} [{{$user->name}}]</option>
       @endforeach
       </select>
     </div>
