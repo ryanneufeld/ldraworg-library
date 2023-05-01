@@ -3,10 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Rules\ValidLDrawFile;
-use App\Rules\FileReplace;
-use App\Rules\FileOfficial;
-use App\Rules\ProxySubmit;
 
 class PartSubmitRequest extends FormRequest
 {
@@ -31,13 +27,14 @@ class PartSubmitRequest extends FormRequest
     return [
       'part_type_id' => 'required|exists:part_types,id',
       'comment' => 'nullable|string',
-      'user_id' => ['required', 'exists:users,id', new ProxySubmit],
+      'user_id' => ['required', 'exists:users,id', new \App\Rules\ProxySubmit],
       'partfile' => 'required',
       'partfile.*' => [
         'file', 
-        new ValidLDrawFile,
-        new FileReplace,
-        new FileOfficial,
+        new \App\Rules\LDrawFile,
+        new \App\Rules\LDrawHeader,
+        new \App\Rules\FileReplace,
+        new \App\Rules\FileOfficial,
       ],
     ];
   }

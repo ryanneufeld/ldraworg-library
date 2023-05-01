@@ -2,92 +2,197 @@
 
 namespace App\LDraw;
 
-use App\LDraw\FileUtils;
-use App\LDraw\MetaData;
-
-use App\Models\User;
 use App\Models\PartType;
+use App\Models\User;
 
-class PartCheck {
-  public static function validLine($line) {
+class PartCheck
+{
+  /**
+   * validLine
+   *
+   * @param string $line
+   * 
+   * @return bool
+   */
+  public static function validLine(string $line): bool
+  {
     $line = trim(preg_replace('#\h{2,}#u', ' ', $line));
-    if (empty($line)) return true;
-    if (!array_key_exists($line[0], FileUtils::$line_patterns)) return false;
-    return preg_match(FileUtils::$line_patterns[$line[0]], $line, $matches) > 0;
- }
+    if (empty($line)) {
+      return true;
+    }
+    if (is_null(config('ldraw.patterns.line_type_' . $line[0]))) {
+      return false;
+    }
 
-  public static function checkDescription($file = '') {
+    return preg_match(config('ldraw.patterns.line_type_' . $line[0]), $line, $matches) > 0;
+  }
+
+  /**
+   * checkDescription
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkDescription(string $file): bool
+  {
     return FileUtils::getDescription($file) !== false;
   }
 
-  public static function checkLibraryApprovedDescription($file = '') {
+  /**
+   * checkLibraryApprovedDescription
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkLibraryApprovedDescription(string $file): bool
+  {
     $desc = FileUtils::getDescription($file);
-    return $desc !== false && preg_match('#^[\x20-\x7E\p{Latin}\p{Han}\p{Hiragana}\p{Katakana}\pS]+$#', $desc, $matches);
+
+    return $desc !== false && preg_match(config('ldraw.patterns.library_approved_description'), $desc, $matches);
   }
 
-  public static function checkName($file = '') {
+  /**
+   * checkName
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkName(string $file): bool
+  {
     return FileUtils::getName($file) !== false;
   }
 
-  public static function checkLibraryApprovedName($file = '') {
+  /**
+   * checkLibraryApprovedName
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkLibraryApprovedName(string $file): bool
+  {
     $name = FileUtils::getName($file);
-    return $name !== false && preg_match('#^[a-z0-9_-]+(\.dat|\.png)$#', $name, $matches);
+
+    return $name !== false && preg_match(config('ldraw.patterns.library_approved_name'), $name, $matches);
   }
 
-  public static function checkNameAndPartType($file = '') {
+  /**
+   * checkNameAndPartType
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkNameAndPartType(string $file): bool
+  {
     $name = FileUtils::getName($file);
-    $name = str_replace('\\','/', $name);
-    
+    $name = str_replace('\\', '/', $name);
     $type = FileUtils::getPartType($file);
-
+    $pt = PartType::firstWhere('type', $type['type'] ?? '');
     // Automatic fail if no Name:, LDRAW_ORG line, or DAT file has TEXTURE type
-    if ($name === false || $type === false || stripos('Texture', $type['type']) !== false) return false;
+    if ($name === false || $type === false || empty($pt) || $pt->format == 'png') {
+      return false;
+    }
 
     // Construct the name implied by the part type
-    $pt = PartType::firstWhere('type', $type['type']);
-    $folder = $pt->folder;
-    if (strpos($folder, 'p/') !== false) {
-      $f = substr($folder, strpos($folder, 'p/') + 2);
-    }
-    else {
-      $f = substr($folder, strpos($folder, 'parts/') + 6);
-    }
-    $aname = $f . basename($name);
-    
+    $aname = str_replace(['p/', 'parts/'], '', $pt->folder . basename($name));
+
     return $name === $aname;
   }
 
-  public static function checkAuthor($file = '') {
+  /**
+   * checkAuthor
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkAuthor(string $file): bool
+  {
     return FileUtils::getAuthor($file) !== false;
   }
 
-  public static function checkAuthorInUsers($file = '') {
+  /**
+   * checkAuthorInUsers
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkAuthorInUsers(string $file): bool
+  {
     $author = FileUtils::getAuthor($file);
-    return $author !== false && !empty(User::firstWhere('name',$author['user']) ?? User::firstWhere('realname',$author['realname']));
+
+    return $author !== false && ! empty(User::firstWhere('name', $author['user']) ?? User::firstWhere('realname', $author['realname']));
   }
 
-  public static function checkPartType($file = '') {
+  /**
+   * checkPartType
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkPartType(string $file): bool
+  {
     return FileUtils::getPartType($file) !== false;
   }
 
-  public static function checkLicense($file = '') {
+  /**
+   * checkLicense
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkLicense(string $file): bool
+  {
     return FileUtils::getLicense($file) !== false;
   }
 
-  public static function checkLibraryApprovedLicense($file = '') {
+  /**
+   * checkLibraryApprovedLicense
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkLibraryApprovedLicense(string $file): bool
+  {
     $license = FileUtils::getLicense($file);
-    $liblic = array_flip(MetaData::getLibraryLicenses());
-    return $license !== false && isset($liblic[$license]) && $liblic[$license] !== 'NonCA';
+    $liblic = \App\Models\PartLicense::firstWhere('text', $license);
+
+    return $license !== false && ! empty($liblic) && $liblic->name !== 'NonCA';
   }
 
-  public static function checkLibraryBFCCertify($file = '') {
+  /**
+   * checkLibraryBFCCertify
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkLibraryBFCCertify(string $file): bool
+  {
     $bfc = FileUtils::getBFC($file);
-    return $bfc !== false && !empty($bfc['certwinding'] && $bfc['certwinding'] === 'CCW');
+
+    return $bfc !== false && ! empty($bfc['certwinding'] && $bfc['certwinding'] === 'CCW');
   }
 
-  public static function checkCategory($file = '') {
+  /**
+   * checkCategory
+   *
+   * @param string $file
+   * 
+   * @return bool
+   */
+  public static function checkCategory(string $file): bool
+  {
     $cat = FileUtils::getCategory($file);
+
     return $cat !== false && in_array($cat['category'], config('ldraw.categories'), true);
   }
-
 }

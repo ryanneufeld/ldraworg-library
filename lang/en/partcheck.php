@@ -4,6 +4,7 @@ return [
   'fileformat' => 'The file :attribute is invalid (:value)',
   'missing' => 'Invalid/missing :attribute line',
   'folder' => 'Selected destination (:folder) is invalid for :attribute line (:value)',
+  'bfc' => 'All parts must be BFC CERTIFY CCW',
   'line' =>
   [
     'invalid' => 'Line :value invalid',
@@ -52,7 +53,7 @@ return [
   'history' =>
   [
     'invalid' => 'Invalid history line(s)',
-    'author' => 'History dated :date has an author (:value) who is not registered with the Parts Tracker',
+    'author' => 'History has an author who is not registered with the Parts Tracker',
     'removed' => 'History lines cannot be removed via header edit',
     'alter' => 'All changes to existing history must be documented with a comment',
     'eventmismatch' => 'Users with submit events but no !HISTORY line, :users',
