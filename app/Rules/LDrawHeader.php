@@ -41,7 +41,7 @@ class LDrawHeader implements DataAwareRule, ValidationRule
     {
         // PNG file have no header.
         if ($value->getMimetype() == 'text/plain') {
-            $text = FileUtils::cleanFileText($value->get(), false, true);
+            $text = FileUtils::cleanFileText($value->get());
         } else {
             return;
         }
@@ -51,10 +51,8 @@ class LDrawHeader implements DataAwareRule, ValidationRule
             'description' => PartCheck::checkDescription($text),
             'name' => PartCheck::checkName($text),
             'author' => PartCheck::checkAuthor($text),
-            'type' => PartCheck::checkPartType($text),
+            'ldraw_org' => PartCheck::checkPartType($text),
             'license' => PartCheck::checkLicense($text),
-            'BFC' => FileUtils::getBFC($text),
-            'category' => FileUtils::getCategory($text),
         ];
         $exit = false;
         foreach ($missing as $meta => $status) {
@@ -71,20 +69,22 @@ class LDrawHeader implements DataAwareRule, ValidationRule
         $pt = PartType::firstWhere('type', $type['type']);
         $name = str_replace('\\', '/', FileUtils::getName($text));
         $desc = FileUtils::getDescription($text);
-        $isPattern = $pt->folder == 'parts/' && ((substr($name, strrpos($name, '.dat') - 3, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'p' || substr($name, strrpos($name, '.dat') - 2, 1) == 'd'));
 
         // Description Checks
         if (! PartCheck::checkLibraryApprovedDescription($text)) {
             $fail('partcheck.description.invalidchars')->translate();
         }
-        if ($isPattern && 
-            (mb_substr($desc, mb_strrpos($desc, ' ') + 1) != 'Pattern' && mb_strpos($desc, 'Pattern (Obsolete)') === false || mb_strpos($desc, 'Pattern (Needs Work)' === false))) {
+
+        $isPattern = preg_match('#^[a-z0-9_-]+?p[a-z0-9]{2,3}\.dat$#i', $name, $matches);
+        $hasPatternText = preg_match('#^.*?\sPattern(\s\((Obsolete|Needs Work)\))?$#ui', $desc, $matches);
+        if ($pt->folder == 'parts/' && $isPattern && !$hasPatternText) {
             $fail('partcheck.description.patternword')->translate();
         }
         // Note: Name: checks are done in the LDrawFile rule
         // Author checks
+        $author = FileUtils::getAuthor($text);
         if (! PartCheck::checkAuthorInUsers($text)) {
-            $fail('partcheck.author.registered')->translate();
+            $fail('partcheck.author.registered')->translate(['value' => $author['realname']]);
         }
 
         // !LDRAW_ORG Part type checks
@@ -105,28 +105,27 @@ class LDrawHeader implements DataAwareRule, ValidationRule
         if (!empty($type['qual'])) {
             $pq = \App\Models\PartTypeQualifier::firstWhere('type', $type['qual']);
             switch ($pq->type) {
-                case 'Physical_Color':
-                    $fail('partcheck.type.phycolor');
+                case 'Physical_Colour':
+                    $fail('partcheck.type.phycolor')->translate();
                     break;
                 case 'Alias':
                     if ($pt->type != 'Shortcut' && $pt->type != 'Part') {
-                        $fail('partcheck.type.alias');
+                        $fail('partcheck.type.alias')->translate();
                     }
                     if ($dtag != '=') {
-                        $fail('partcheck.type.aliasdesc');
+                        $fail('partcheck.type.aliasdesc')->translate();
                     }
                     break;
                 case 'Flexible_Section':
                     if ($pt->type != 'Part') {
-                        $fail('partcheck.type.alias');
+                        $fail('partcheck.type.flex')->translate();
                     }
                     if (! preg_match('#^[a-z0-9_-]+?k[a-z0-9]{2}(p[a-z0-9]{2,3})?\.dat#', $name, $matches)) {
-                        $fail('partcheck.type.aliasdesc');
+                        $fail('partcheck.type.flexname')->translate();
                     }
                     break;
             }
         }
-    
         // !LICENSE checks
         if (! PartCheck::checkLibraryApprovedLicense($text)) {
             $fail('partcheck.license.approved')->translate();
@@ -140,13 +139,14 @@ class LDrawHeader implements DataAwareRule, ValidationRule
         if (($pt->type == 'Part' || $pt->type == 'Shortcut') && !PartCheck::checkCategory($text)) {
             $fail('partcheck.category.invalid')->translate(['value' => $cat['category']]);
         } elseif ($cat['category'] == 'Moved' && ($desc == false || $desc[0] != '~')) {
-            $fail('partcheck.category.movedto');
+            $fail('partcheck.category.movedto')->translate();
         }
         // Keyword Check
         $keywords = FileUtils::getKeywords($text);
-        if ($isPattern) {
+        $isPatternOrSticker = preg_match('#^[a-z0-9_-]+?[pd][a-z0-9]{2,3}\.dat$#i', $name, $matches);
+        if ($pt->folder == 'parts/' && $isPatternOrSticker) {
           if (empty($keywords)) {
-            $fail('partcheck.keywords');
+            $fail('partcheck.keywords')->translate();
           } else {
             $setfound = false;
             foreach ($keywords as $word) {
@@ -156,20 +156,20 @@ class LDrawHeader implements DataAwareRule, ValidationRule
               }
             }
             if (! $setfound) {
-                $fail('partcheck.keywords');
+                $fail('partcheck.keywords')->translate();
             }
           }
         }
         // Check History
         $history = FileUtils::getHistory($text, true);
         $hcount = $history === false ? 0 : count($history);
-        if ($hcount != mb_substr_count($text, '!HISTORY')) {
-          $fail('partcheck.history.invalid');
+        if ($hcount != mb_substr_count($value->get(), '!HISTORY')) {
+          $fail('partcheck.history.invalid')->translate();
         }
         if (! empty($history)) {
           foreach ($history as $hist) {
             if ($hist['user'] == -1) {
-                $fail('partcheck.history.author');
+                $fail('partcheck.history.author')->translate();
             }
           }
         }

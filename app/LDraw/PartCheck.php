@@ -164,7 +164,6 @@ class PartCheck
   {
     $license = FileUtils::getLicense($file);
     $liblic = \App\Models\PartLicense::firstWhere('text', $license);
-
     return $license !== false && ! empty($liblic) && $liblic->name !== 'NonCA';
   }
 

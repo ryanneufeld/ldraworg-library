@@ -322,10 +322,10 @@ class FileUtils
       //preg_match optional pattern bug workaround
       $matches = array_merge(['user2' => '', 'realname' => '', 'user' => ''], $matches);
       if (empty(trim($matches['user2'])) && empty(trim($matches['realname'])) && empty(trim($matches['user']))) {
-      return false;
+        return false;
       }
       if (empty($matches['realname'])) {
-      $matches['user'] = $matches['user2'];
+        $matches['user'] = $matches['user2'];
       }
 
       return ['realname' => $matches['realname'], 'user' => $matches['user']];

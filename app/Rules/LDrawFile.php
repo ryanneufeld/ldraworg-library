@@ -40,7 +40,6 @@ class LDrawFile implements DataAwareRule, ValidationRule
     {
         $fileext = strtolower($value->getClientOriginalExtension());
         $filemime = $value->getMimetype();
-        dump($filemime);
         //Check valid file format
         if (!in_array($fileext, ['dat', 'png'])) {
             $fail('partcheck.fileformat')->translate(['attribute' => 'extension', 'value' => $fileext]);
