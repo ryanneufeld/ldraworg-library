@@ -51,16 +51,17 @@ class ValidHeaderHistory implements DataAwareRule, ValidationRule
           $fail('partcheck.history.invalid')->translate();
           return;
         }  
-      }
-      
-      $history = FileUtils::getHistory($value, true);
-      if (! empty($history)) {
-        foreach ($history as $hist) {
-          if ($hist['user'] == -1) {
-              $fail('partcheck.history.author')->translate();
+
+        $history = FileUtils::getHistory($value, true);
+        if (! empty($history)) {
+          foreach ($history as $hist) {
+            if ($hist['user'] == -1) {
+                $fail('partcheck.history.author')->translate();
+            }
           }
         }
       }
+      
 
       $part = request()->part;
 
