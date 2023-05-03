@@ -30,7 +30,7 @@ class ValidHeaderHistory implements DataAwareRule, ValidationRule
      *
      * @param  array<string, mixed>  $data
      */
-    public function setData(array $data): static
+    public function setData($data)
     {
         $this->data = $data;
  
@@ -52,13 +52,14 @@ class ValidHeaderHistory implements DataAwareRule, ValidationRule
           return;
         }  
       }
-
-      $errors = LDrawFileValidate::ValidHistory($value);
-      if (!empty($errors)) {
-        foreach($errors as $e) {
-          $fail($e);
+      
+      $history = FileUtils::getHistory($value, true);
+      if (! empty($history)) {
+        foreach ($history as $hist) {
+          if ($hist['user'] == -1) {
+              $fail('partcheck.history.author')->translate();
+          }
         }
-        return;
       }
 
       $part = request()->part;
@@ -68,7 +69,6 @@ class ValidHeaderHistory implements DataAwareRule, ValidationRule
         $hist .= $h->toString() . "\n";
       }
       $hist = rtrim($hist);
-      //dd(!empty($hist) , empty($value), strpos(FileUtils::dos2unix(rtrim($value)), $hist) === false, empty($this->data['editcomment']));
       if (((!empty($hist) && empty($value)) || strpos(FileUtils::dos2unix(rtrim($value)), $hist) === false) && empty($this->data['editcomment'])) 
         $fail('partcheck.history.alter')->translate();
     }

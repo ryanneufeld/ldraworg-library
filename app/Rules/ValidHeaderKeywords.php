@@ -30,7 +30,7 @@ class ValidHeaderKeywords implements DataAwareRule, ValidationRule
      *
      * @param  array<string, mixed>  $data
      */
-    public function setData(array $data): static
+    public function setData($data)
     {
         $this->data = $data;
  
@@ -45,7 +45,24 @@ class ValidHeaderKeywords implements DataAwareRule, ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
       $text = "0 {$this->data['description']}\n0 !KEYWORDS $value";
-      $error = LDrawFileValidate::ValidKeywords($text);
-      if (!empty($error)) $fail($error[0]);
+      // Keyword Check
+      $keywords = FileUtils::getKeywords($text);
+      $isPatternOrSticker = preg_match('#^[a-z0-9_-]+?[pd][a-z0-9]{2,3}\.dat$#i', request()->part->name(), $matches);
+      if (request()->part->type->folder == 'parts/' && $isPatternOrSticker) {
+        if (empty($keywords)) {
+          $fail('partcheck.keywords')->translate();
+        } else {
+          $setfound = false;
+          foreach ($keywords as $word) {
+            if (mb_strtolower(explode(' ', trim($word))[0]) == 'set' || mb_strtolower($word) == 'cmf') {
+              $setfound = true;
+              break;
+            }
+          }
+          if (! $setfound) {
+              $fail('partcheck.keywords')->translate();
+          }
+        }
+      }
     }
 }

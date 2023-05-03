@@ -29,7 +29,7 @@ class ValidHeaderCategory implements DataAwareRule, ValidationRule
      *
      * @param  array<string, mixed>  $data
      */
-    public function setData(array $data): static
+    public function setData($data)
     {
         $this->data = $data;
  
