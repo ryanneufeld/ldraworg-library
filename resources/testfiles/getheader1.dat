@@ -1,0 +1,24 @@
+0 Brick  1 x  2 x  5 with SW Han Solo Carbonite Pattern
+0 Name: 2454aps5.dat
+0 Author: Thomas Burger [grapeape]
+0 !LDRAW_ORG Part UPDATE 2023-01
+0 !LICENSE Licensed under CC BY 2.0 and CC BY 4.0 : see CAreadme.txt
+
+0 BFC CERTIFY CW
+
+0 !KEYWORDS Bespin, Boba Fett, Cloud City, cold sleep, deep freeze, Set 7144
+0 !KEYWORDS Slave 1, Star Wars, suspended animation
+
+0 !CMDLINE -c0
+
+0 !HISTORY 2003-08-01 [PTadmin] Official Update 2003-02
+0 !HISTORY 2007-05-10 [PTadmin] Header formatted for Contributor Agreement
+0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
+0 !HISTORY 2008-07-07 [nielsk] Made BFC compliant (2006-01-09)
+0 !HISTORY 2009-05-02 [PTadmin] Official Update 2009-01
+0 !HISTORY 2013-05-12 [MagFors] Changed colour 383 to 80 (printed silver)
+0 !HISTORY 2013-05-28 [MagFors] Complete rewrite
+0 !HISTORY 2013-07-21 [PTadmin] Official Update 2013-01
+0 !HISTORY 2020-09-04 [PTadmin] Renamed from 2454ps5
+0 !HISTORY 2020-12-29 [PTadmin] Official Update 2020-03
+0 !HISTORY 2020-12-29 [tcobbs] Added TEXMAP version

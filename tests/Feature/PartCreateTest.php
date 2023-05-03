@@ -68,7 +68,7 @@ class PartCreateTest extends TestCase
 
     public static function fileProvider(): array
     {
-        $values = str_replace("\r",'', file_get_contents(dirname(dirname(__DIR__)) . "/storage/app/testfiles/test_file.dat"));
+        $values = str_replace("\r",'', file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/test_file.dat"));
         $values = explode("###\n", $values);
         $results = [];
         for($i = 0; $i < count($values); $i += 3) {
@@ -94,7 +94,7 @@ class PartCreateTest extends TestCase
 
     public static function headerProvider(): array
     {
-        $values = str_replace("\r",'', file_get_contents(dirname(dirname(__DIR__)) . "/storage/app/testfiles/test_header.dat"));
+        $values = str_replace("\r",'', file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/test_header.dat"));
         $values = explode("###\n", $values);
         $results = [];
         for($i = 0; $i < count($values); $i += 3) {
@@ -119,7 +119,7 @@ class PartCreateTest extends TestCase
 
     public static function validfileProvider(): array
     {
-        $values = str_replace("\r",'', file_get_contents(dirname(dirname(__DIR__)) . "/storage/app/testfiles/test_valid_file.dat"));
+        $values = str_replace("\r",'', file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/test_valid_file.dat"));
         $values = explode("###\n", $values);
         $results = [];
         for($i = 0; $i < count($values); $i += 2) {

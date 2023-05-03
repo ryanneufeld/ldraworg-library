@@ -383,22 +383,30 @@ class FileUtilsTest extends TestCase
 
     public function test_formatText(): void
     {
-        $this->assertSame(Storage::get('testfiles/cleanheader2.dat'), FileUtils::formatText(Storage::get('testfiles/cleanheader1.dat')));
+        $expectedfile = file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/cleanheader2.dat");
+        $testfile = file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/cleanheader1.dat");
+        $this->assertSame($expectedfile, FileUtils::formatText($testfile));
     }    
 
     public function test_getHeader(): void
     {
-        $this->assertSame(Storage::get('testfiles/getheader1.dat'), FileUtils::getHeader(Storage::get('testfiles/cleanheader2.dat')));
+        $expectedfile = file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/getheader1.dat");
+        $testfile = file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/cleanheader2.dat");
+        $this->assertSame($expectedfile, FileUtils::getHeader($testfile));
     }    
 
     public function test_setHeader(): void
     {
-        $this->assertSame(Storage::get('testfiles/cleanheader2.dat'), FileUtils::setHeader(Storage::get('testfiles/cleanheader2.dat'), Storage::get('testfiles/getheader1.dat')));
+        $expectedfile = file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/cleanheader2.dat");
+        $testfile = file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/getheader1.dat");
+        $this->assertSame($expectedfile, FileUtils::setHeader($expectedfile, $testfile));
     }    
 
     public function test_cleanFileText(): void
     {
-        $this->assertSame(Storage::get('testfiles/cleanheader3.dat'), FileUtils::cleanFileText(Storage::get('testfiles/cleanheader1.dat'), true));
+        $expectedfile = file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/cleanheader3.dat");
+        $testfile = file_get_contents(dirname(dirname(__DIR__)) . "/resources/testfiles/cleanheader2.dat");
+        $this->assertSame($expectedfile, FileUtils::cleanFileText($testfile, true));
     }    
 
 }
