@@ -1,4 +1,4 @@
-@props(['options', 'label', 'selected' => null, 'placeholder' => null, 'width' => null])
+@props(['options', 'label', 'selected' => null, 'placeholder' => null, 'width' => null, 'defer' => false])
 @empty($attributes->get('wire:ignore'))
 <div @class(["$width wide" => !is_null($width), 'field'])>
 @else
@@ -27,7 +27,7 @@
       @else
         var data = $(@js('#' . $attributes->get('id'))).val(); 
       @endempty
-      @this.set(@js($attributes->get('id')), data);   
+      @this.set(@js($attributes->get('id')), data, @js($defer));   
     });
   });
   </script>
