@@ -1,5 +1,5 @@
 <div>
-  <form class="ui form" wire:submit.prevent="search">
+  <form class="ui form" wire:submit.prevent="render">
     <div class="field">
       <label>Search terms:</label>
       <div class="ui action input">
@@ -17,8 +17,16 @@
       </select>
     </div>  
   </form>
-  @if(!empty($search) && (!is_null($uparts) || !is_null($oparts)))
-      <x-part.table title="Matched {{$uparts->count() ?? 0}} Unofficial Parts" :parts="$uparts" none=""/>
-      <x-part.table title="Matched {{$oparts->count() ?? 0}} Official Parts" :parts="$oparts" none=""/>
+  @if(!empty($search))
+    @if(!is_null($uparts))
+      <div class="ui medium header">Matched {{$ucount ?? 0}} Unofficial Parts</div>
+      {{ $uparts->links('livewire.paginate-menu') }}
+      <x-part.table :parts="$uparts" none=""/>
+    @endif
+    @if(!is_null($oparts))   
+      <div class="ui medium header">Matched {{$ocount ?? 0}} Official Parts</div>
+      {{ $oparts->links('livewire.paginate-menu') }}
+      <x-part.table :parts="$oparts" none=""/>
+    @endif    
   @endif  
 </div>
