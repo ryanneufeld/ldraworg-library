@@ -1,8 +1,26 @@
 <x-layout.main>
+  @php($lib = str_replace('/', '', $part->libFolder()))
+  @push('meta')
+  <meta name="description" content="{{$part->description}}">
+
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="https://library.ldraw.org/tracker/31242">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="File Detail parts/14769ptz.dat">
+  <meta property="og:description" content="{{$part->description}}">
+  <meta property="og:image" content="{{$part->isTexmap() ? route($lib . '.download', $part->filename) : asset('images/library/' . $lib . '/' . substr($part->filename, 0, -4) . '.png')}}">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="library.ldraw.org">
+  <meta property="twitter:url" content="https://library.ldraw.org/tracker/31242">
+  <meta name="twitter:title" content="File Detail parts/14769ptz.dat">
+  <meta name="twitter:description" content="{{$part->description}}">
+  <meta name="twitter:image" content="{{$part->isTexmap() ? route($lib . '.download', $part->filename) : asset('images/library/' . $lib . '/' . substr($part->filename, 0, -4) . '.png')}}">
+  @endpush
   @push('css')
   <link rel="stylesheet" type="text/css" href="/assets/css/ldbi.css">
   @endpush
-  @php($lib = str_replace('/', '', $part->libFolder()))
   <x-slot name="title">File Detail {{ $part->filename }}</x-slot>
   <x-menu.part-detail :part="$part" />
   @if(session('status'))
