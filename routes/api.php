@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Part\LatestPartsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Search\QuickSearchController;
 use App\Http\Controllers\Part\PartWebGLController;
@@ -15,4 +16,5 @@ use App\Http\Controllers\Part\PartWebGLController;
 */
 Route::get('/search/quicksearch', [QuickSearchController::class, 'index'])->name('search.quicksearch');
 Route::get('/{part}/ldbi', [PartWebGLController::class, 'show'])->name('part.ldbi');
+Route::get('/tracker/latest-parts', [LatestPartsController::class, 'index'])->name('part.latest');
 
