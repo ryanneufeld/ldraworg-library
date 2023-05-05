@@ -1,15 +1,14 @@
 <div>
-    {{ $events->links('livewire.paginate-menu') }}
     <div class="ui accordion">
         <div class="title">
           <i class="dropdown icon"></i>
           Filters
         </div>
         <div @class(['active' => $filtersActive , 'content'])>
-        <form class="ui equal width form" wire:submit.prevent="dtChange">
-            <div class="fields">
-                <x-form.select wire:ignore name="itemsPerPage" id="itemsPerPage" label="Parts Per Page" :options="$pageItems" selected="{{$itemsPerPage}}" />
-                <x-form.select wire:ignore name="types" id="types" class="clearable" label="Event Type" placeholder="Event Type" :options="$eventtypeItems" :selected="$types" multiple/>
+        <div class="ui form">
+            <div class="equal width fields">
+                <x-form.select-page-items wire:ignore name="itemsPerPage" id="itemsPerPage" :options="[20,40,80,100]" selected="{{$itemsPerPage}}" />
+                <x-form.select-event-type wire:ignore name="types" id="types" :selected="$types" multiple/>
                 <div wire:ignore class="field">
                     <label>Start Date/Time</label>
                     <div class="ui calendar" id="standard_calendar">
@@ -27,9 +26,10 @@
                     </div>
                 </div> 
             </div>  
-        </form>
+        </div>
         </div>
     </div>    
+    {{ $events->links('livewire.paginate-menu') }}
     <x-event.table :events="$events" />
     {{ $events->links('livewire.paginate-menu') }}
     @push('scripts')

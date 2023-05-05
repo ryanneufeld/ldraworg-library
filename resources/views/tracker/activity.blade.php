@@ -5,6 +5,6 @@
     <x-part.unofficial-part-count />
   </div>
 
-  <h3 class="ui header">Parts Tracker Activity Log</h3>
+  <h2 class="ui header">Parts Tracker Activity Log</h2>
   <livewire:part-events-show />
 </x-layout.main>

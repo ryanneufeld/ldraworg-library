@@ -7,7 +7,7 @@
   <label for={{$attributes->get('name')}}>{{$label}}</label>
   <select {{$attributes->merge(['class' => 'ui dropdown'])}}>
     @isset($placeholder)
-    <option value="">{{$placeholder}}</option>
+      <option value="">{{$placeholder}}</option>
     @endisset
     @foreach($options as $value => $text)
       @empty($attributes->get('multiple'))
