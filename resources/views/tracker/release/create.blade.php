@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.tracker>
   @if ($errors->any())
   <div class="ui error message">
     <ul class="ui list">
@@ -83,4 +83,4 @@
   None
   @endforelse
   </form>
-</x-layout.main>
+</x-layout.tracker>

@@ -1,5 +1,8 @@
-<x-layout.main>
+<x-layout.tracker>
   <x-slot name="title">Delete {{$part->filename}}</x-slot>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="Delete Part" />
+  </x-slot>    
   <h3 class="ui header">Delete {{$part->filename}}</h3>
   <form class="ui form" action="{{route('tracker.destroy', $part)}}" method="post">
     @csrf
@@ -9,4 +12,4 @@
       <button class="ui button" type="submit">Yes</button><button class="ui button" onclick="window.history.go(-1); return false;">Back</button>
     </div>
   </form>
-</x-layout.main>
+</x-layout.tracker>

@@ -1,4 +1,7 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="Part Detail" />
+  </x-slot>    
   @php($lib = str_replace('/', '', $part->libFolder()))
   @push('meta')
   <meta name="description" content="{{$part->description}}">
@@ -21,7 +24,7 @@
   @push('css')
   <link rel="stylesheet" type="text/css" href="/assets/css/ldbi.css">
   @endpush
-  <x-slot name="title">File Detail {{ $part->filename }}</x-slot>
+  <x-slot:title>File Detail {{ $part->filename }}</x-slot>
   <x-menu.part-detail :part="$part" />
   @if(session('status'))
   <div class="ui message success">
@@ -121,4 +124,4 @@
     <x-layout.ldbi-scripts />
   @endpush
 
-</x-layout.main>
+</x-layout.tracker>

@@ -1,4 +1,8 @@
-<x-layout.main>
+<x-layout.trackr>
+  <x-slot:title>Parts Search</x-slot>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="Part Search" />
+  </x-slot>    
   <h3 class="ui header">LDraw.org Library Search</h3>
   <p>
   Enter separate words to search for files containing all the words (e.g. <em>blue shirt</em> will find all files containing <em>blue</em> and <em>shirt</em>).<br/>
@@ -6,4 +10,4 @@
   Quoted and unquoted search words may be combined (e.g. <em>"blue shirt" jacket</em> will find files containing <em>blue shirt</em> and <em>jacket</em>).
   </p>
   <livewire:search.parts />
-</x-layout.main>
+</x-layout.tracker>

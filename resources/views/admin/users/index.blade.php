@@ -1,4 +1,7 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot name="title">
+    User List
+  </x-slot>
   <form class="ui form" action="{{route('admin.users.create')}}" method="GET">
     <div class="field">
       <label>Add Forum User:</label>
@@ -32,4 +35,4 @@
     @endforeach
     </tbody>
   </table>
-</x-layout.main>
+</x-layout.tracker>

@@ -1,5 +1,9 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot:title>{{$unofficial ? 'Unofficial' : 'Official'}} Part List</x-slot>
   <x-slot name="title">{{$unofficial ? 'Unofficial' : 'Official'}} Part List</x-slot>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="{{$unofficial ? 'Unofficial' : 'Official'}} Part List" />
+  </x-slot>    
   @if($unofficial)
   <div class="ui right floated right aligned basic segment">
     Server Time: {{date('Y-m-d H:i:s')}}<br/>
@@ -9,4 +13,4 @@
   <h2 class="ui header">{{$unofficial ? 'Unofficial' : 'Official'}} Part List</h2>
   <div class="ui hidden clearing basic divider"></div>
   <livewire:parts-show unofficial="{{$unofficial}}"/>
-</x-layout.main>
+</x-layout.tracker>

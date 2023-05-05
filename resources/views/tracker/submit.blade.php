@@ -1,4 +1,8 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot:title>Parts Tracker File Submit Form</x-slot>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="Submit" />
+  </x-slot>    
   <div class="ui large header">Parts Tracker File Submit Form</div>
 
   <p>
@@ -98,5 +102,5 @@
   <p>
   Uploaded files should appear almost immediately in the Parts Tracker list.
   </p>
-</x-layout.main>
+</x-layout.tracker>
 

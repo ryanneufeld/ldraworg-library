@@ -1,5 +1,9 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot:title>New Parts Tracker Submissions by Week</x-slot>
   <h3 class="ui header">New Parts Tracker Submissions by Week</h3>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="Weekly Parts" />
+  </x-slot>    
   <form class="ui form" name="weekly" action="{{route('tracker.weekly')}}" metohd="POST">
     <div class="ui inline field">
       <label for="order">Display Order:</label>
@@ -39,4 +43,4 @@
       </table>
     @endif
   @endforeach  
-</x-layout.main>
+</x-layout.tracker>

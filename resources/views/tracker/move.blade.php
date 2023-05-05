@@ -1,4 +1,8 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot:title>Move Part</x-slot>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="Move Part" />
+  </x-slot>    
 
   @if(!$part->isUnofficial() && !is_null($part->unofficial_part_id))
     An update to this part is already on the Parts Tracker. Please use the normal submit process
@@ -25,4 +29,4 @@
     </div>
   </form>
   @endif
-</x-layout.main>
+</x-layout.tracker>

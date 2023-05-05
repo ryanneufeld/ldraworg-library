@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.tracker>
   <h3 class="ui header">{{$release->name}} New Parts Preview</h3>
   @isset($release->part_list) 
     @foreach($release->part_list as list($description, $filename))
@@ -8,4 +8,4 @@
   @else
     No parts in this release or preview has not been generated for this release
   @endisset
-</x-layout.main>
+</x-layout.tracker>

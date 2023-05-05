@@ -1,4 +1,8 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot:title>Part Header Edit</x-slot>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="Header Edit" />
+  </x-slot>    
 <h3 class="ui header">{{$part->name()}} Header Edit</h3>
 <p> Fields in blue are shown for information only and are not editable.</p>
 @if ($errors->any())
@@ -75,4 +79,4 @@
   </div>
 <button class="ui button" type="submit" tabindex="20">Submit</button>
 </form>
-</x-layout.main>
+</x-layout.tracker>

@@ -1,5 +1,8 @@
-<x-layout.main>
+<x-layout.tracker>
 <x-slot name="title">Part Review Form</x-slot>
+<x-slot:breadcrumbs>
+  <x-breadcrumb-item class="active" item="Vote" />
+</x-slot>    
 
 @if ($errors->any())
 <div class="ui error message">
@@ -62,4 +65,4 @@
   </div>
   <button class="ui button" type="submit" tabindex="20">Submit</button><button class="ui button" onclick="window.history.go(-1); return false;" tabindex="21">Back</button>
 </form>
-</x-layout.main>
+</x-layout.tracker>

@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.base>
   <x-slot name="title">{{Auth::user()->name}}'s Dashboard</x-slot>
   <h3 class="ui header">{{Auth::user()->name}}'s Dashboard</h3>
   <div class="ui two column grid">
@@ -38,4 +38,4 @@
       </div>      
     </div>
   </div>
-</x-layout.main>
+</x-layout.base>

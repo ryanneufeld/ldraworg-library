@@ -1,5 +1,5 @@
-<x-layout.main>
-  <x-slot name="title">
+<x-layout.tracker>
+  <x-slot:title>
     Parts Tracker Main
   </x-slot>
     <p>
@@ -68,4 +68,4 @@
     </div>
   </div>
 
-</x-layout.main>
+</x-layout.tracker>

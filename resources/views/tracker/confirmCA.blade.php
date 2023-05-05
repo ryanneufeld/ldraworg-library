@@ -1,4 +1,5 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot:title>Confirm Current CA</x-slot>
   <p>
     Our records indicate that you have not confirmed the current Contributer's Agreement.
     Prior to allowing you to submit or edit any parts, you must read and affirm the current
@@ -26,4 +27,4 @@
       <button class="ui button">I agree</button>
     </div>  
   </form>    
-</x-layout.main>
+</x-layout.tracker>

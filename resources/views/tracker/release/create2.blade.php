@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.tracker>
   <form class="ui form" action="{{route('tracker.release.store')}}" method="post">
     @csrf
     @foreach($parts as $part)
@@ -17,4 +17,4 @@
     </div>  
     <button class="ui button" type="submit">Submit</button>
   </form>    
-</x-layout.main>
+</x-layout.tracker>

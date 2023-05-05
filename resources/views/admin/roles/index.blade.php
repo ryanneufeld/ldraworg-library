@@ -1,4 +1,7 @@
-<x-layout.main>
+<x-layout.base>
+  <x-slot name="title">
+    Role List
+  </x-slot>
   <form class="ui form" action="{{route('admin.roles.create')}}" method="GET">
     <div class="field">
       <button class="ui button" type="submit">Create Role</button>
@@ -20,4 +23,4 @@
     @endforeach
     </tbody>
   </table>
-</x-layout.main>
+</x-layout.base>

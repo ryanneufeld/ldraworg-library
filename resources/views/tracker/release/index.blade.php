@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.tracker>
   @if($latest)
     <x-release.table :release="$releases"/>   
   @else  
@@ -11,4 +11,4 @@
       <br>
     @endforeach
   @endif  
-</x-layout.main>
+</x-layout.tracker>

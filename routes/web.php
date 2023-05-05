@@ -16,7 +16,7 @@ use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartMoveController;
 use App\Http\Controllers\Part\PartDownloadController;
 
-Route::redirect('/', '/tracker');
+Route::view('/', 'index')->name('index');
 
 Route::get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
 Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
@@ -61,6 +61,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');
   Route::middleware(['can:release.store'])->post('/release/store', [PartReleaseController::class, 'store'])->name('release.store');
   
+  Route::get('/{part}/lw', \App\Http\Livewire\Part\Show::class);
+
   Route::get('/{unofficialpart}', [PartController::class, 'show'])->name('show.filename');
   Route::get('/{part}', [PartController::class, 'show'])->name('show');
 });

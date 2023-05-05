@@ -1,4 +1,4 @@
-<x-layout.main>
+<x-layout.base>
   <x-slot name="title">
     Edit Role
   </x-slot>
@@ -33,4 +33,4 @@
   <button type="submit" class="ui button">Submit</button>
 </form>
 
-</x-layout.main>
+</x-layout.base>

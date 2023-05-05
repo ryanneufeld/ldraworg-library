@@ -1,4 +1,8 @@
-<x-layout.main>
+<x-layout.tracker>
+  <x-slot:title>Pattern/Composite/Sticker Shortcut Search</x-slot>
+  <x-slot:breadcrumbs>
+    <x-breadcrumb-item class="active" item="Pattern Search" />
+  </x-slot>    
   <h3 class="ui header">Pattern/Composite/Sticker Shortcut Search</h3> 
   <form class="ui form" name="summary" action="{{route('search.suffix')}}" method="get">
   <div class="field">
@@ -66,4 +70,4 @@
   @else
   <h4 class="ui header">Part not found</h4>
   @endisset    
-</x-layout.main>
+</x-layout.tracker>
