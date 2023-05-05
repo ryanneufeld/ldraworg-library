@@ -1,15 +1,15 @@
 <div>
-  <form class="ui form" wire:submit.prevent="render">
+  <div class="ui form">
     <div class="field">
       <label>Search terms:</label>
-      <div class="ui action input">
-        <input type="text" wire:model.defer="search">
-        <button class="ui button">Go</button>
-      </div>
+      <input type="text" wire:model="search">
     </div>
-    <x-form.select wire:ignore name="scope" id="scope" label="Search Scope:" width="four" :options="$scopeItems" selected="{{$scope}}" defer /> 
-    <x-part.filter-bar items="user,parttype"/>
-  </form>
+    <x-form.select wire:ignore name="scope" id="scope" label="Search Scope:" :options="$scopeOptions" selected="{{$scope}}"/> 
+    <div class="equal width fields">
+      <x-form.select-user wire:ignore name="user_id" id="user_id" selected="{{$user_id}}" />
+      <x-form.select-part-type wire:ignore name="part_types" id="part_types" :selected="$part_types" multiple />
+    </div>  
+  </div>
   @if(!empty($search))
     @if(!is_null($uparts))
       <div class="ui medium header">Matched {{$ucount ?? 0}} Unofficial Parts</div>

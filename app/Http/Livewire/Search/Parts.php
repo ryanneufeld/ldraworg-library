@@ -29,14 +29,14 @@ class Parts extends Component
 
     public function render()
     {
-        $scopeItems = [
+        $scopeOptions = [
             'filename' => 'Filename only',
             'description' => 'Filename and description',
             'header' => 'File header',
             'file' => 'Entire file'
         ];
 
-        $scope = array_key_exists($this->scope, $scopeItems) ? $this->scope : 'header';
+        $scope = array_key_exists($this->scope, $scopeOptions) ? $this->scope : 'header';
         $uparts = Part::unofficial();
         $oparts = Part::official();
         if (!empty($this->user_id)) {
@@ -54,7 +54,7 @@ class Parts extends Component
         $ocount = $oparts->count();
         $uparts = $uparts->orderBy('filename')->paginate('50', ['*'], 'unofficialPage');
         $oparts = $oparts->orderBy('filename')->paginate('50', ['*'], 'officialPage');
-        return view('livewire.search.parts', compact('ucount','ocount','uparts', 'oparts','scope','scopeItems'));
+        return view('livewire.search.parts', compact('ucount','ocount','uparts', 'oparts','scope','scopeOptions'));
     }
 
 }
