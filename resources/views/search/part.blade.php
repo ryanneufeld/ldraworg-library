@@ -1,4 +1,4 @@
-<x-layout.trackr>
+<x-layout.tracker>
   <x-slot:title>Parts Search</x-slot>
   <x-slot:breadcrumbs>
     <x-breadcrumb-item class="active" item="Part Search" />
