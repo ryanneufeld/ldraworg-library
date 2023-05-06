@@ -31,7 +31,9 @@
       
       <div class="ui clearing basic segment logos">
         <a href="https://www.ldraw.org"><img id="main-logo" class="ui left floated image" src="{{asset('/images/banners/main.png')}}"></a>
-        <img class="ui right floated image" src="{{asset('/images/banners/tracker-trimmed.png')}}">
+        @isset($rightlogo)
+        <img class="ui right floated image" src="{{$rightlogo}}">
+        @endisset
       </div>
       {{$menu ?? ''}}
       <div class="ui hidden fitted clearing divider"></div>
