@@ -14,11 +14,13 @@ class Parts extends Component
     public $scope = 'header';
     public $user_id = '';
     public $part_types = [];
+    public $exclude_user = false;
 
     protected $queryString= [
         'search' => ['except' => '', 'as' => 's'],
         'scope' => ['except' => 'header'],
         'user_id' => ['except' => ''],
+        'exclude_user' => ['except' => false],
         'part_types' => ['except' => []],
     ];
 
@@ -40,8 +42,9 @@ class Parts extends Component
         $uparts = Part::unofficial();
         $oparts = Part::official();
         if (!empty($this->user_id)) {
-            $uparts->where('user_id', $this->user_id);
-            $oparts->where('user_id', $this->user_id);
+            $opr = $this->exclude_user ? '!=' : '=';
+            $uparts->where('user_id', $opr, $this->user_id);
+            $oparts->where('user_id', $opr, $this->user_id);
         }
         if (!empty($this->part_types)) {
             $uparts->whereIn('part_type_id', $this->part_types);
