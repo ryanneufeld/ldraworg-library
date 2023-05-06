@@ -54,7 +54,7 @@ class ValidHeaderKeywords implements DataAwareRule, ValidationRule
         } else {
           $setfound = false;
           foreach ($keywords as $word) {
-            if (mb_strtolower(explode(' ', trim($word))[0]) == 'set' || mb_strtolower($word) == 'cmf') {
+            if (mb_strtolower(explode(' ', trim($word))[0]) == 'set' || mb_strtolower($word) == 'cmf' || mb_strtolower($word) == 'build-a-minifigure') {
               $setfound = true;
               break;
             }

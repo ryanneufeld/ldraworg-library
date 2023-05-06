@@ -49,7 +49,7 @@ return [
     'invalid' => ':value is not a valid category',
     'movedto' => 'Moved to part description must begin with "~"',
   ],
-  'keywords' => 'Pattern parts and sticker shortcuts must have a "Set <setnumber>" or "CMF" keyword',
+  'keywords' => 'Pattern parts and sticker shortcuts must have a "Set <setnumber>", "CMF", or "Build-A-Minifigure" keyword',
   'history' =>
   [
     'invalid' => 'Invalid history line(s)',
