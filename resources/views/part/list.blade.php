@@ -12,5 +12,5 @@
   @endif
   <h2 class="ui header">{{$unofficial ? 'Unofficial' : 'Official'}} Part List</h2>
   <div class="ui hidden clearing basic divider"></div>
-  <livewire:parts-show unofficial="{{$unofficial}}"/>
+  <livewire:part.part-list unofficial="{{$unofficial}}"/>
 </x-layout.tracker>

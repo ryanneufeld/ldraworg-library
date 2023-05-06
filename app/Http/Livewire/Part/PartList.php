@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Http\Livewire\Part;
 
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class PartsShow extends Component
+class PartList extends Component
 {
     use WithPagination;
 
@@ -82,7 +82,7 @@ class PartsShow extends Component
             $parts->whereIn('part_type_id', $this->part_types);
         }
 
-        return view('livewire.parts-show', [
+        return view('livewire.part.part-list', [
             'statusOptions' => $statusOptions,
             'parts' => $parts->orderby('vote_sort')->orderBy('part_type_id')->orderBy('filename')->paginate($this->itemsPerPage)
         ]);
