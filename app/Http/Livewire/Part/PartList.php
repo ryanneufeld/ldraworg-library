@@ -14,11 +14,13 @@ class PartList extends Component
     public $status = '';
     public $user_id = '';
     public $part_types = [];
+    public $exclude_user = false;
 
     protected $queryString= [
         'itemsPerPage' => ['except' => '500', 'as' => 'n'],
         'status' => ['except' => ''],
         'user_id' => ['except' => ''],
+        'exclude_user' => ['except' => false],
         'part_types' => ['except' => []],
     ];
 
@@ -76,7 +78,12 @@ class PartList extends Component
             }
         }
         if (!empty($this->user_id)) {
-            $parts->where('user_id', $this->user_id);
+            if ($this->exclude_user) {
+                $parts->where('user_id', '!=', $this->user_id);
+            } else {
+                $parts->where('user_id', $this->user_id);
+            }
+            
         }
         if (!empty($this->part_types)) {
             $parts->whereIn('part_type_id', $this->part_types);
