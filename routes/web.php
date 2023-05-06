@@ -92,6 +92,8 @@ Route::prefix('official')->name('official.')->group(function () {
 });
 
 Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
+Route::redirect('/omr', 'https://omr.ldraw.org')->name('omr');
+Route::redirect('/documentation', 'https://www.ldraw.org/docs-main.html')->name('doc');
 
 Route::get('/library/official/{officialpart}', [PartDownloadController::class, 'show'])->name('official.download');
 Route::get('/library/unofficial/{unofficialpart}', [PartDownloadController::class, 'show'])->name('unofficial.download');

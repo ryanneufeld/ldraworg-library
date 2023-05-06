@@ -1,5 +1,14 @@
 <div class="ui stackable menu">
-  <a class="item" href="{{route('index')}}">Library Main</a> 
+  <div class="ui dropdown item">
+    Library
+    <i class="dropdown icon"></i>
+    <div class="menu">
+      <a class="item" href="{{route('tracker.main')}}">Main</a>
+      <a class="item" href="{{route('part-update.index', ['latest'])}}">Latest Update</a>
+      <a class="item" href="{{route('part-update.index')}}">Update Archive</a>
+      <a class="item" href="{{route('omr')}}">OMR</a>
+    </div>
+  </div>    
   <a class="item" href="{{route('tracker.main')}}">Parts Tracker</a> 
   @can('create', App\Models\Part::class)
   <a class="item" href="{{route('tracker.submit')}}">Submit</a>
@@ -17,7 +26,7 @@
   </div>
 --}}  
   <div class="ui dropdown item">
-    <a href="https://www.ldraw.org/docs-main.html">Documentation</a>
+    <a href="{{route('doc')}}">Documentation</a>
     <i class="dropdown icon"></i>
     <div class="menu">
       <div class="ui dropdown item">
