@@ -6,7 +6,7 @@
       </div>
       @if ($unofficial)
       <div class="column">
-          <x-form.select wire:ignore name="status" id="status" class="clearable" label="Status" placeholder="Status" :options="$statusOptions" selected="{{$status}}" />
+          <x-form.select-part-status wire:ignore name="status" id="status" selected="{{$status}}" />
       </div>
       @endif
       <div class="column">

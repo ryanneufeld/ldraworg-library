@@ -149,6 +149,35 @@ class Part extends Model
       });
     }
 
+    public function scopePartStatus($query, string $status) {
+      switch ($status) {
+        case 'certified':
+          $query->where('vote_sort', 1);
+          break; 
+        case 'adminreview':
+          $query->where('vote_sort', 2);
+          break; 
+        case 'memberreview':
+          $query->where('vote_sort', 3);
+          break; 
+        case 'needsubfile':
+          $query->where('vote_sort', 4);
+          break; 
+        case 'held':
+          $query->where('vote_sort', 5);
+          break; 
+        case '2certvotes':
+          $query->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
+              $q->where('vote_type_code', 'C');
+          }, '>=', 2);
+          break; 
+        case '1certvote':
+          $query->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
+              $q->where('vote_type_code', 'C');
+          }, '=', 1);
+          break;
+      } 
+    }
     public function scopeSearchPart ($query, string $search, string $scope) {
       if (!empty($search)) {
       //Pull the terms out of the search string

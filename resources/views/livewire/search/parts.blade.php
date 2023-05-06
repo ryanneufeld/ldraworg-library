@@ -5,7 +5,7 @@
       <input type="text" wire:model="search">
     </div>
     <x-form.select wire:ignore name="scope" id="scope" label="Search Scope:" :options="$scopeOptions" selected="{{$scope}}"/> 
-    <div class="ui two column stackable grid">
+    <div class="ui three column stackable grid">
       <div class="column">
         <x-form.select-user wire:ignore name="user_id" id="user_id" selected="{{$user_id}}" />
         <div class="field">
@@ -14,6 +14,9 @@
               <label>Exclude</label>
           </div>
         </div>
+      </div>
+      <div class="column">
+        <x-form.select-part-status wire:ignore name="status" id="status" label="Status (Unofficial Only)" selected="{{$status}}" />
       </div>
       <div class="column">
         <x-form.select-part-type wire:ignore name="part_types" id="part_types" :selected="$part_types" multiple />

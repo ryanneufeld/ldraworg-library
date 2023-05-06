@@ -13,6 +13,7 @@ class Parts extends Component
     public $search = '';
     public $scope = 'header';
     public $user_id = '';
+    public $status = '';
     public $part_types = [];
     public $exclude_user = false;
 
@@ -21,6 +22,7 @@ class Parts extends Component
         'scope' => ['except' => 'header'],
         'user_id' => ['except' => ''],
         'exclude_user' => ['except' => false],
+        'status' => ['except' => ''],
         'part_types' => ['except' => []],
     ];
 
@@ -45,6 +47,9 @@ class Parts extends Component
             $opr = $this->exclude_user ? '!=' : '=';
             $uparts->where('user_id', $opr, $this->user_id);
             $oparts->where('user_id', $opr, $this->user_id);
+        }
+        if (!empty($this->status)) {
+            $uparts->partStatus($this->status);
         }
         if (!empty($this->part_types)) {
             $uparts->whereIn('part_type_id', $this->part_types);
