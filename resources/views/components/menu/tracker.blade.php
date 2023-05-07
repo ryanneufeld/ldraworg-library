@@ -16,15 +16,16 @@
   <a class="item" href="{{route('tracker.index')}}">Parts List</a> 
   <a class="item" href="{{route('tracker.activity')}}">Activity</a> 
   <a class="item" href="{{route('tracker.weekly')}}">Weekly New Parts</a>
-{{--   
+  @if(!empty($summaries))
   <div class="ui dropdown item">
     Review Summaries<i class="dropdown icon"></i>
     <div class="menu">
-      <a class="item" href="">Placeholder</a> 
-      <a class="item" href="">Placeholder</a>
+      @foreach($summaries as $summary)
+      <a class="item" href="{{route('track.summary', $summary)}}">{{$summary->header}}</a> 
+      @endforeach
     </div>
   </div>
---}}  
+  @endif
   <div class="ui dropdown item">
     <a href="{{route('doc')}}">Documentation</a>
     <i class="dropdown icon"></i>
