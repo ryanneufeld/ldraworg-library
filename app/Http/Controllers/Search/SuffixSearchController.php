@@ -12,15 +12,18 @@ class SuffixSearchController extends Controller
       $input = $request->all();
       if (!empty($input['s']) && is_string($input['s'])) {
         if (strpos($input['s'], '.dat') === false) $input['s'] .= '.dat';
-        $basepart = Part::findOfficialByName($input['s'], true) ?? Part::findUnofficialByName($input['s'], true);
+        $bp = $input['s'];
+        $basepart = Part::findOfficialByName($bp, true) ?? Part::findUnofficialByName($bp, true);
         if (!empty($basepart)) {
           $fn = pathinfo($basepart->filename, PATHINFO_FILENAME);
-          return view('search.suffix', [
-            'patterns' => Part::patterns($fn)->orderBy('filename')->get(),
-            'composites' => Part::composites($fn)->orderBy('filename')->get(),
-            'stickers' => Part::stickerShortcuts($fn)->orderBy('filename')->get(), 
-            'basepart' => $basepart]);
-        } 
+        } else {
+          preg_match(config('ldraw.patterns.basepart'), $bp, $matches);
+          $fn = $matches[1] ?? '';
+        }
+        $patterns = Part::patterns($fn)->orderBy('filename')->get();
+        $composites = Part::composites($fn)->orderBy('filename')->get();
+        $stickers = Part::stickerShortcuts($fn)->orderBy('filename')->get();
+        return view('search.suffix', compact('patterns','composites','stickers','basepart','fn'));
       }
       return view('search.suffix');        
     }  

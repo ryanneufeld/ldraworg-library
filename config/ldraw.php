@@ -121,6 +121,7 @@ return [
     'description' => '#^\h*0\h+(?P<description>.*)#u',
     'library_approved_description' => '#^[^\p{C}\p{Zl}\p{Zp}]+$#u',
     'name' => '#^\h*0\h+Name:\h+(?P<name>.*?)\s*$#um',
+    'basepart' => '#^([uts]?\d+[a-z]?)(p[0-9a-z]{2,3}|c[0-9a-z]{2}|d[0-9a-z]{2}|k[0-9a-z]{2}|-f[0-9a-z])?\.(dat|png)#u',
     'library_approved_name' => '#^[\\\\a-z0-9_-]+(\.dat|\.png)$#',
     'author' => '#^\h*0\h+Author:\h+((\[(?P<user2>[a-zA-Z0-9_.-]+)\])|(?P<realname>[^\[\]\r\n]+?)(\h+\[(?P<user>[a-zA-Z0-9_.-]+)\])?)\s*$#um',
     'type' => '#^\h*0\h+!LDRAW_ORG\h+(?P<unofficial>Unofficial_)?(?P<type>###PartTypes###)(\h+(?P<qual>###PartTypesQualifiers###))?(\h+((?P<releasetype>ORIGINAL|UPDATE)(\h+(?P<release>\d{4}-\d{2}))?))?\s*$#um',

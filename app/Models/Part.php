@@ -266,7 +266,7 @@ class Part extends Model
 
     public function basePart(): string {
       $number = basename($this->filename);
-      preg_match('#^([uts]?\d+[a-z]?)(p[0-9a-z]{2,3}|c[0-9a-z]{2}|d[0-9a-z]{2}|k[0-9a-z]{2}|-f[0-9a-z])?\.(dat|png)#u', $number, $matches);
+      preg_match(config('ldraw.patterns.baspart'), $number, $matches);
       return $matches[1] ?? '';
     }
     public function libFolder(): string {

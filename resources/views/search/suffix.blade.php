@@ -13,11 +13,11 @@
     </div>
   </div>
   </form>
-  @isset($basepart)
+  @if($composites->count() || $stickers->count() || $patterns->count())
     <div class="ui large header">
-      Pattern/Composite/Sticker Shortcut Reference for {{basename($basepart->filename)}}
+      Pattern/Composite/Sticker Shortcut Reference for {{$fn}}
     </div>
-
+    @if(!empty($basepart))
     <div @class(['ui', 'official' => !$basepart->isUnofficial(), 'unofficial' => $basepart->isUnofficial(), 'right floated center aligned compact segment'])>
       @if($basepart->isUnofficial())
         <a class="ui image" href="{{route('tracker.show', $basepart)}}">
@@ -27,9 +27,8 @@
         <img src="{{asset('images/library/official/' . substr($basepart->filename, 0, -4) . '.png')}}" title='Base part image' alt='Base part image'></a>
       @endif  
     </div>
-
+    @endif
     <p>
-    This page is a summary of all the pattern/composite versions of part {{basename($basepart->filename)}}, ({{$basepart->description}})<br />
     The background colour indicates the part status :<br />
     <span class="official blank-box">&nbsp;</span> Official - included in the original LDraw package or an official LDraw parts update - follow link or click image for details<br />
     <span class="unofficial blank-box">&nbsp;</span> Unofficial - submitted to this Parts Tracker and under review - follow link or click image for details<br />
@@ -69,5 +68,5 @@
       </div>
   @else
   <h4 class="ui header">Part not found</h4>
-  @endisset    
+  @endif    
 </x-layout.tracker>
