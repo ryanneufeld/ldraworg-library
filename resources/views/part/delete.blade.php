@@ -1,5 +1,5 @@
 <x-layout.tracker>
-  <x-slot name="title">Delete {{$part->filename}}</x-slot>
+  <x-slot:title>Delete {{$part->filename}}</x-slot>
   <x-slot:breadcrumbs>
     <x-breadcrumb-item class="active" item="Delete Part" />
   </x-slot>    

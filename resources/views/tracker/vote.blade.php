@@ -1,5 +1,5 @@
 <x-layout.tracker>
-<x-slot name="title">Part Review Form</x-slot>
+<x-slot:title>Part Review Form</x-slot>
 <x-slot:breadcrumbs>
   <x-breadcrumb-item class="active" item="Vote" />
 </x-slot>    

@@ -1,4 +1,5 @@
 <x-layout.tracker>
+  <x-slot:title>LDraw.org Library Updates</x-slot>
   @if($latest)
     <x-release.table :release="$releases"/>   
   @else  

@@ -1,4 +1,5 @@
 <x-layout.tracker>
+  <x-slot:title>{{$release->name}} New Parts Preview</x-slot>
   <h3 class="ui header">{{$release->name}} New Parts Preview</h3>
   @isset($release->part_list) 
     @foreach($release->part_list as list($description, $filename))
