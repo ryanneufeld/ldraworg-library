@@ -9,22 +9,13 @@ use App\Models\ReviewSummary;
 class ReviewSummaryController extends Controller
 {
     /**
-     * Create the controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->authorizeResource(ReviewSummary::class, 'summary');
-    }
-
-    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', [ReviewSummary::class]);
         $summaries = ReviewSummary::orderBy('order')->get();
         return view('admin.review-summaries.index', compact('summaries'));
     }
@@ -37,6 +28,7 @@ class ReviewSummaryController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', [ReviewSummary::class]);
         $data = $request->validate([
             'header' => 'required|string',
         ]);
@@ -68,18 +60,8 @@ class ReviewSummaryController extends Controller
      */
     public function edit(ReviewSummary $reviewSummary)
     {
+        $this->authorize('update', [ReviewSummary::class, $reviewSummary]);
         return view('admin.review-summaries.edit', ['summary' => $reviewSummary]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update( $request, ReviewSummary $summary)
-    {
     }
 
     /**
@@ -90,6 +72,7 @@ class ReviewSummaryController extends Controller
      */
     public function destroy(ReviewSummary $reviewSummary)
     {
+        $this->authorize('delete', [ReviewSummary::class, $reviewSummary]);
         $reviewSummary->items()->delete();
         $reviewSummary->delete();
         return redirect()->route('admin.review-summaries.index')->with('status','Delete Successful');
