@@ -7,7 +7,7 @@
                     @if(is_null($item->heading))
                         {{$item->part->filename}} - {{$item->part->description}}
                     @else
-                        Heading: {{$item->heading}}
+                        Heading: {{$item->heading == '' ? 'Blank' : $item->heading}}
                     @endif
                     <button class="ui button" wire:click="removeItem({{ $item->id }})">Remove</button>
                 </div>        

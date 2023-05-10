@@ -25,15 +25,13 @@ class ReviewSummaryEdit extends Component
     }
 
     public function addHeading() {
-        if(!empty($this->newHeading)) {
-            ReviewSummaryItem::create([
-                'heading' => $this->newHeading,
-                'order' => $this->summary->items()->orderBy('order', 'DESC')->first()->order ?? 1,
-                'review_summary_id' => $this->summary->id
-            ]);
-            $this->summary->refresh();
-            $this->newHeading = null;
-        }
+        ReviewSummaryItem::create([
+            'heading' => empty($this->newHeading) ? '' :  $this->newHeading,
+            'order' => $this->summary->items()->orderBy('order', 'DESC')->first()->order ?? 1,
+            'review_summary_id' => $this->summary->id
+        ]);
+        $this->summary->refresh();
+        $this->newHeading = null;
     }
 
     public function removeItem(ReviewSummaryItem $item) {

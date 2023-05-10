@@ -10,7 +10,11 @@
     @foreach($summary->items()->with('part')->orderBy('order')->get() as $item)
         @if(!is_null($item->heading))
             </div>
-            <h4 class="ui horizontal divider header">{{$item->heading}}</h4>
+            @empty($item->heading)
+                <div class="ui horizontal divider"></div>
+            @else
+                <h4 class="ui horizontal divider header">{{$item->heading}}</h4>
+            @endempty
             <div class="ui eight column padded doubling grid">
         @else      
             <div class="column"><x-part.suffixitem :part="$item->part" /></div>
