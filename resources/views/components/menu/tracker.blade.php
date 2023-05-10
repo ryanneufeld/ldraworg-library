@@ -3,29 +3,19 @@
     Library
     <i class="dropdown icon"></i>
     <div class="menu">
-      <a class="item" href="{{route('tracker.main')}}">Main</a>
+      <a class="item" href="{{route('index')}}">Library Main</a>
+      <a class="item" href="{{route('tracker.main')}}">Parts Tracker</a>
       <a class="item" href="{{route('part-update.index', ['latest'])}}">Latest Update</a>
       <a class="item" href="{{route('part-update.index')}}">Update Archive</a>
       <a class="item" href="{{route('omr')}}">OMR</a>
     </div>
   </div>    
-  <a class="item" href="{{route('tracker.main')}}">Parts Tracker</a> 
   @can('create', App\Models\Part::class)
   <a class="item" href="{{route('tracker.submit')}}">Submit</a>
   @endcan
   <a class="item" href="{{route('tracker.index')}}">Parts List</a> 
   <a class="item" href="{{route('tracker.activity')}}">Activity</a> 
   <a class="item" href="{{route('tracker.weekly')}}">Weekly New Parts</a>
-  @if(!empty($summaries))
-  <div class="ui dropdown item">
-    Review Summaries<i class="dropdown icon"></i>
-    <div class="menu">
-      @foreach($summaries as $summary)
-      <a class="item" href="{{route('track.summary', $summary)}}">{{$summary->header}}</a> 
-      @endforeach
-    </div>
-  </div>
-  @endif
   <div class="ui dropdown item">
     <a href="{{route('doc')}}">Documentation</a>
     <i class="dropdown icon"></i>
@@ -89,6 +79,16 @@
       <a class="item" href="{{route('dashboard.index')}}">User Dashboard</a> 
       <a class="item" href="{{route('search.part')}}">Part Search</a>
       <a class="item" href="{{route('search.suffix')}}">Pattern/Shortcut Part Summary</a> 
+      @if(!empty($summaries))
+      <div class="ui dropdown item">
+        Review Summaries<i class="dropdown icon"></i>
+        <div class="menu">
+          @foreach($summaries as $summary)
+          <a class="item" href="{{route('tracker.summary', $summary)}}">{{$summary->header}}</a> 
+          @endforeach
+        </div>
+      </div>
+      @endif
       <a class="item" href="{{asset('library/unofficial/ldrawunf.zip')}}">Download All Unofficial Files</a>
       <a class="item" href="{{route('tracker.next-release')}}">Parts in Next Update</a>
     </div>

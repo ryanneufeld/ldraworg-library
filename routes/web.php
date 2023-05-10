@@ -29,6 +29,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::get('/list', [PartController::class, 'index'])->name('index');
   Route::get('/weekly', [PartController::class, 'weekly'])->name('weekly');
+  Route::get('/summary/{summary}', [\App\Http\Controllers\ReviewSummaryController::class, 'show'])->name('summary');
 
   Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'edit'])->name('edit');
   Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'update'])->name('update');
@@ -70,6 +71,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
   Route::resource('users', UserController::class);
   Route::resource('roles', RoleController::class);
+  Route::resource('review-summaries', \App\Http\Controllers\ReviewSummaryController::class)->except(['create', 'show']);
 });
 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
