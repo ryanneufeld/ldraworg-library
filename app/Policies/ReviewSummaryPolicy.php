@@ -19,7 +19,7 @@ class ReviewSummaryPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, ReviewSummary $reviewSummary): bool
+    public function view(User $user, ReviewSummary $summary): bool
     {
         return true;
     }

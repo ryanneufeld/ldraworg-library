@@ -15,7 +15,7 @@ class ReviewSummaryController extends Controller
      */
     public function __construct()
     {
-        $this->authorizeResource(ReviewSummary::class, 'review-summary');
+        $this->authorizeResource(ReviewSummary::class, 'summary');
     }
 
     /**
