@@ -29,6 +29,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::get('/list', [PartController::class, 'index'])->name('index');
   Route::get('/weekly', [PartController::class, 'weekly'])->name('weekly');
+  Route::get('/history', [\App\Http\Controllers\TrackerHistoryController::class, 'show'])->name('history');
   Route::get('/summary/{summary}', [\App\Http\Controllers\ReviewSummaryController::class, 'show'])->name('summary');
 
   Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'edit'])->name('edit');
