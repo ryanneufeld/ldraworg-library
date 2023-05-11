@@ -1,5 +1,5 @@
 $( function() {
-	$('.ui.sidebar').sidebar('attach events', '#menubutton', 'show');
+//	$('.ui.sidebar').sidebar('attach events', '#menubutton', 'show');
 	$('.ui.checkbox').checkbox();
 	$('.ui.dropdown').dropdown();
 	$('.search.dropdown').dropdown();
@@ -7,18 +7,6 @@ $( function() {
 	$('table.sortable').tablesort();
 	$('.suffixmenu .item').tab();
 	$('.ui.menu > .ui.dropdown').dropdown({on: 'hover', });
-	$('.ui.sitesearch').each(
-		function (){
-		$(this).search({
-			apiSettings: {
-			url: 'https://www.ldraw.org/common/php/unified_search.php?q={query}&sites=main'
-			},
-			minCharacters: 3,
-			type: 'category'
-		})
-		}
-	);
-
 	$('.ui.ptsearch').each(
 		function (){ 
       $(this).search({
@@ -31,11 +19,4 @@ $( function() {
       })
 		}
 	);
-
-	$('.feed.image').visibility(
-		{
-		type:'image'
-		}
-	);
-
 });
