@@ -42,7 +42,7 @@ var menuClick = function(e) {
   return false;  
 }
 
-$(document).ready( function() {
+$( function() {
   // Init the modal
   $('.ui.ldbi.modal').modal();
   
@@ -83,7 +83,7 @@ $(document).ready( function() {
     return false;
   });
 
-  $(".physical").click(function(){
+  $(".physical").on('click', function(e) {
     if (scene.loader.physicalRenderingAge > 0) {
       scene.setPhysicalRenderingAge(0);
     }
