@@ -13,7 +13,7 @@
     </div>
   </div>
   </form>
-  @if($composites->count() || $stickers->count() || $patterns->count())
+  @if((isset($composites) && $composites->count()) || (isset($stickers) && $stickers->count()) || (isset($patterns) && $patterns->count()))
     <div class="ui large header">
       Pattern/Composite/Sticker Shortcut Reference for {{$fn}}
     </div>
