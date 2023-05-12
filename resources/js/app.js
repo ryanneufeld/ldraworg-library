@@ -6,6 +6,7 @@ $( function() {
 	$('.ui.accordion').accordion();
 	$('table.sortable').tablesort();
 	$('.suffixmenu .item').tab();
+	$('.dashboardmenu .item').tab();
 	$('.ui.menu > .ui.dropdown').dropdown({on: 'hover', });
 	$('.ui.ptsearch').each(
 		function (){ 

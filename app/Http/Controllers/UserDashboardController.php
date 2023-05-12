@@ -17,9 +17,11 @@ class UserDashboardController extends Controller
   }
 
   public function index() {
-    $submits = Part::unofficial()->userSubmits(Auth::user())->get();
-    $votes = Vote::where('user_id', Auth::user()->id)->get();
-    return view('dashboard.index', ['submits' => $submits, 'votes' => $votes]);
+    $partSort = [['vote_sort','asc'],['type.folder', 'asc'],['description', 'asc']];
+    $submits = Part::unofficial()->userSubmits(Auth::user())->get()->sortBy($partSort);
+    $votes = Vote::with(['part'])->where('user_id', Auth::user()->id)->get()->sortBy([['vote_type_code','asc'],['part.type.folder', 'asc'],['part.description', 'asc']]);
+    $tracked = Auth::user()->notification_parts->sortBy($partSort);
+    return view('dashboard.index', compact('submits', 'votes', 'tracked'));
   }
   
 }
