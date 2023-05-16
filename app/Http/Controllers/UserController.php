@@ -34,7 +34,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::orderBy('realname')->get();
+        $users = User::withCount('parts')->orderBy('realname')->get();
 
         return view('admin.users.index',compact('users'));
     }

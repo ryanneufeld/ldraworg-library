@@ -29,7 +29,7 @@
         <td>{{$user->name}}</td>
         <td>{{implode(', ', $user->getRoleNames()->all())}}</td>
         <td>{{$user->license->name}}</td>
-        <td>{{\App\Models\Part::where(function ($q) use ($user) { $q->whereRelation('history', 'user_id', $user->id)->orWhere('user_id', $user->id);})->count()}}</td>
+        <td>{{$user->parts_count}}</td>
         <td><a class="ui button" href="{{route('admin.users.edit', $user)}}">Edit</a></td>
       </tr>
     @endforeach
