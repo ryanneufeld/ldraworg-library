@@ -3,7 +3,15 @@
   <x-slot:breadcrumbs>
     <x-breadcrumb-item class="active" item="Move Part" />
   </x-slot>    
-
+  @if ($errors->any())
+    <div class="ui error message">
+      <ul class="ui list">
+      @foreach($errors->all() as $errorfield)
+        <li>{{$errorfield}}</li>
+      @endforeach
+      </ul>    
+    </div>
+  @endif
   @if(!$part->isUnofficial() && !is_null($part->unofficial_part_id))
     An update to this part is already on the Parts Tracker. Please use the normal submit process
   @else  
