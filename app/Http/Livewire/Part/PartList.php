@@ -15,12 +15,14 @@ class PartList extends Component
     public $user_id = '';
     public $part_types = [];
     public $exclude_user = false;
+    public $exclude_reviews = false;
 
     protected $queryString= [
         'itemsPerPage' => ['except' => '500', 'as' => 'n'],
         'status' => ['except' => ''],
         'user_id' => ['except' => ''],
         'exclude_user' => ['except' => false],
+        'exclude_reviews' => ['except' => false],
         'part_types' => ['except' => []],
     ];
 
@@ -52,7 +54,11 @@ class PartList extends Component
         if (!empty($this->part_types)) {
             $parts->whereIn('part_type_id', $this->part_types);
         }
-
+        if (!empty($this->exclude_reviews)) {
+            $parts->whereDoesntHave('votes', function($q) {
+                $q->where('user_id', auth()->user()->id);
+            });
+        }
         return view('livewire.part.part-list', [
             'parts' => $parts->orderby('vote_sort')->orderBy('part_type_id')->orderBy('filename')->paginate($this->itemsPerPage)
         ]);
