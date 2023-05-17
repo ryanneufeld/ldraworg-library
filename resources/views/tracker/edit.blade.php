@@ -46,7 +46,7 @@
   </div>
   <div class="field">
     <label for="help">0 !HELP (Note: Do not include 0 !HELP; each line will be a separate help line)</label>
-    <textarea>{{old('help') ?? $part->help()->orderBy('order')->get()->implode('text', "\n")}}</textarea>
+    <textarea name="help">{{old('help') ?? $part->help()->orderBy('order')->get()->implode('text', "\n")}}</textarea>
   </div>
   <div class="field info">
     <label for="bfc">0 BFC CERTIFY</label>
