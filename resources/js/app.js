@@ -1,3 +1,8 @@
+import $ from './jquery-3.5.1.min.js';
+window.$ = window.jQuery = $;
+require('../semantic/dist/semantic.js');
+require('./tablesort.js');
+
 let cal_options = {
 	type: 'datetime',
 	formatter: {
@@ -9,8 +14,6 @@ let cal_options = {
 let fomantic_init = function() {
 	$('.ui.checkbox').checkbox();
 	$('.dropdown').dropdown();
-//	$('.search.dropdown').dropdown();
-//	$('.clearable.dropdown').dropdown();
 	$('.ui.accordion').accordion();
 	$('table.sortable').tablesort();
 	$('.ui.calendar').calendar(cal_options);

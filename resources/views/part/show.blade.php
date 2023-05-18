@@ -22,7 +22,7 @@
   <meta name="twitter:image" content="{{$part->isTexmap() ? route($lib . '.download', $part->filename) : asset('images/library/' . $lib . '/' . substr($part->filename, 0, -4) . '.png')}}">
   @endpush
   @push('css')
-  <link rel="stylesheet" type="text/css" href="/assets/css/ldbi.css">
+  <link rel="stylesheet" type="text/css" href="{{ mix('assets/css/ldbi.css') }}">
   @endpush
   <x-slot:title>File Detail {{ $part->filename }}</x-slot>
   <x-menu.part-detail :part="$part" />
