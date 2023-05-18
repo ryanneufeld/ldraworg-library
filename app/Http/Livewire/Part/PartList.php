@@ -59,6 +59,8 @@ class PartList extends Component
                 $q->where('user_id', auth()->user()->id);
             });
         }
+
+        $this->dispatchBrowserEvent('jquery');
         return view('livewire.part.part-list', [
             'parts' => $parts->orderby('vote_sort')->orderBy('part_type_id')->orderBy('filename')->paginate($this->itemsPerPage)
         ]);

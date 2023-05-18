@@ -62,6 +62,7 @@ class Parts extends Component
         $ocount = $oparts->count();
         $uparts = $uparts->orderBy('filename')->paginate('50', ['*'], 'unofficialPage');
         $oparts = $oparts->orderBy('filename')->paginate('50', ['*'], 'officialPage');
+        $this->dispatchBrowserEvent('jquery');
         return view('livewire.search.parts', compact('ucount','ocount','uparts', 'oparts','scope','scopeOptions'));
     }
 

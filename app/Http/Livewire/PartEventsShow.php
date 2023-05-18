@@ -39,7 +39,7 @@ class PartEventsShow extends Component
         }
 
         if (!empty($this->types)) {
-            $events->whereIn('event_type_id', $this->types);
+            $events->whereIn('part_event_type_id', array_values($this->types));
         }
 
         if ($this->unofficial) {
@@ -51,7 +51,7 @@ class PartEventsShow extends Component
         } else {
             $events->latest();
         }
-
+        $this->dispatchBrowserEvent('jquery');
         return view('livewire.part-events-show', [
             'filtersActive' => $filtersActive, 
             'orderItems' => $orderItems,
