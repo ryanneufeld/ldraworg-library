@@ -1,4 +1,4 @@
-import $ from './jquery-3.5.1.min.js';
+import $ from 'jquery';
 window.$ = window.jQuery = $;
 require('../semantic/dist/semantic.js');
 require('./tablesort.js');
@@ -11,6 +11,15 @@ let cal_options = {
 	disableMinute: true,
 };
 
+let quick_search_options = {
+	preserveHTML : false,  
+	apiSettings: {
+		url: '/api/search/quicksearch?s={query}',
+	},
+	minCharacters: 3,
+	type: 'category',
+};
+
 let fomantic_init = function() {
 	$('.ui.checkbox').checkbox();
 	$('.dropdown').dropdown();
@@ -20,18 +29,7 @@ let fomantic_init = function() {
 	$('.suffixmenu .item').tab();
 	$('.dashboardmenu .item').tab();
 	$('.ui.menu > .ui.dropdown').dropdown({on: 'hover', });
-	$('.ui.ptsearch').each(
-		function (){ 
-		$(this).search({
-		preserveHTML : false,  
-		apiSettings: {
-			url: '/api/search/quicksearch?s={query}',
-		},
-		minCharacters: 3,
-		type: 'category'
-		})
-		}
-	);
+	$('.ui.ptsearch').search(quick_search_options);
 };
 
 document.addEventListener('DOMContentLoaded', fomantic_init, false);
