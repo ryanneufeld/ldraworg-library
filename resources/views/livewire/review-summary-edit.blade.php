@@ -15,7 +15,7 @@
         @endforeach
     </div>
     <form class="ui form" id="part" wire:submit.prevent="addItem">
-        <x-form.select-unofficial-part name="newPartId" wire.model="newPartId" label="Add Part" withDescription actionInput formId="part" buttonLabel="Add" selected="{{$newPartId}}"/>
+        <x-form.select-unofficial-part name="newPartId" wire:model="newPartId" label="Add Part" withDescription actionInput formId="part" buttonLabel="Add" selected="{{$newPartId}}"/>
     </form>    
     <form class="ui form" id="heading" wire:submit.prevent="addHeading">
         <div class="ui field">

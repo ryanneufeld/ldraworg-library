@@ -55,6 +55,7 @@ class ReviewSummaryEdit extends Component
 
     public function render()
     {
+        $this->dispatchBrowserEvent('jquery');
         return view('livewire.review-summary-edit');
     }
 }
