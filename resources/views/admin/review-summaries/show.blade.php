@@ -11,7 +11,7 @@
         @if(!is_null($item->heading))
             </div>
             @empty($item->heading)
-                <div class="ui horizontal divider"></div>
+                <div class="ui divider"></div>
             @else
                 <h4 class="ui horizontal divider header">{{$item->heading}}</h4>
             @endempty
