@@ -1,10 +1,10 @@
-@props(['part'])
+@props(['part', 'showobsolete' => false])
 <div @class(['ui',
-'obsolete' => stripos($part->description, "obsolete") !== false,      
-'official' => !$part->isUnofficial() && stripos($part->description, "obsolete") === false, 
-'unofficial' => $part->isUnofficial() && stripos($part->description, "obsolete") === false, 
+'obsolete' => stripos($part->description, "obsolete") !== false && !$showobsolete,      
+'official' => !$part->isUnofficial() && (stripos($part->description, "obsolete") === false || $showobsolete), 
+'unofficial' => $part->isUnofficial() && (stripos($part->description, "obsolete") === false || $showobsolete), 
 'pattern center aligned segment'])>
-@if(stripos($part->description, "obsolete") !== false)
+@if(stripos($part->description, "obsolete") !== false && !$showobsolete)
 Obsolete file<br/><br/>
 {{basename($part->filename, '.dat')}}
 @elseif($part->isUnofficial())

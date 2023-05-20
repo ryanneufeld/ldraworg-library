@@ -17,7 +17,7 @@
             @endempty
             <div class="ui eight column padded doubling grid">
         @else      
-            <div class="column"><x-part.suffixitem :part="$item->part" /></div>
+            <div class="column"><x-part.suffixitem :part="$item->part" showobsolete/></div>
         @endif
     @endforeach
     </div>            
