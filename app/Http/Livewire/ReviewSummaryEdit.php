@@ -41,7 +41,7 @@ class ReviewSummaryEdit extends Component
             foreach($lines as $line) {
                 $line = trim($line);
                 if ($line[0] == '/') {
-                    $heading = explode(" ", $line, 2)[1];
+                    $heading = explode(" ", $line, 2)[1] ?? '';
                     ReviewSummaryItem::create([
                         'heading' => empty($heading) ? '' :  $heading,
                         'order' => $this->summary->items()->orderBy('order', 'DESC')->first()->order + 1 ?? 1,
