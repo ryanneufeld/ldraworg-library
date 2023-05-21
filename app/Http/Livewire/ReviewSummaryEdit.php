@@ -15,9 +15,10 @@ class ReviewSummaryEdit extends Component
 
     public function addItem() {
         if(!empty($this->newPartId)) {
+            $order = $this->summary->items()->orderBy('order', 'DESC')->first()->order ?? 0;
             ReviewSummaryItem::create([
                 'part_id' => $this->newPartId,
-                'order' => $this->summary->items()->orderBy('order', 'DESC')->first()->order + 1 ?? 1,
+                'order' => $order + 1,
                 'review_summary_id' => $this->summary->id
             ]);
             $this->summary->refresh();
@@ -26,9 +27,10 @@ class ReviewSummaryEdit extends Component
     }
 
     public function addHeading() {
+        $order = $this->summary->items()->orderBy('order', 'DESC')->first()->order ?? 0;
         ReviewSummaryItem::create([
             'heading' => empty($this->newHeading) ? '' :  $this->newHeading,
-            'order' => $this->summary->items()->orderBy('order', 'DESC')->first()->order + 1 ?? 1,
+            'order' => $order + 1,
             'review_summary_id' => $this->summary->id
         ]);
         $this->summary->refresh();
@@ -40,11 +42,12 @@ class ReviewSummaryEdit extends Component
             $lines = explode("\n", $this->manualEntry);
             foreach($lines as $line) {
                 $line = trim($line);
+                $order = $this->summary->items()->orderBy('order', 'DESC')->first()->order ?? 0;
                 if ($line[0] == '/') {
                     $heading = explode(" ", $line, 2)[1] ?? '';
                     ReviewSummaryItem::create([
                         'heading' => empty($heading) ? '' :  $heading,
-                        'order' => $this->summary->items()->orderBy('order', 'DESC')->first()->order + 1 ?? 1,
+                        'order' => $order + 1,
                         'review_summary_id' => $this->summary->id
                     ]);            
                 } else {
@@ -52,14 +55,15 @@ class ReviewSummaryEdit extends Component
                     if (!empty($part)) {
                         ReviewSummaryItem::create([
                             'part_id' => $part->id,
-                            'order' => $this->summary->items()->orderBy('order', 'DESC')->first()->order + 1 ?? 1,
+                            'order' => $order + 1,
                             'review_summary_id' => $this->summary->id
                         ]);            
                     }
                 }
+                $this->summary->refresh();
             }
         }
-        $this->summary->refresh();
+        
         $this->manualEntry = null;
     }
     public function removeItem(ReviewSummaryItem $item) {
