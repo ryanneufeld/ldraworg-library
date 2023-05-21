@@ -26,4 +26,11 @@
             </div>
         </div>    
     </form>    
+    <form class="ui form" id="manual" wire:submit.prevent="processManualEntry">
+        <div class="ui field">
+            <label>Manual Entry (These will be appended to the end of the current list)</label>
+            <textarea wire:model="manualEntry"></textarea>
+            <button form="manual" class="ui button">Add</button>
+        </div>    
+    </form>    
 </div>
