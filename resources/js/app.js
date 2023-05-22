@@ -1,12 +1,14 @@
 import $ from 'jquery';
 window.$ = window.jQuery = $;
 //require('../semantic/dist/semantic.js');
-require('../semantic/dist/components/checkbox.js')
-require('../semantic/dist/components/dropdown.js')
-require('../semantic/dist/components/accordion.js')
-require('../semantic/dist/components/calendar.js')
-require('../semantic/dist/components/tab.js')
-require('../semantic/dist/components/search.js')
+require('../semantic/dist/components/checkbox.js');
+require('../semantic/dist/components/dropdown.js');
+require('../semantic/dist/components/accordion.js');
+require('../semantic/dist/components/calendar.js');
+require('../semantic/dist/components/tab.js');
+require('../semantic/dist/components/search.js');
+require('../semantic/dist/components/transition.js');
+require('../semantic/dist/components/visibility.js');
 require('./tablesort.js');
 
 let cal_options = {
