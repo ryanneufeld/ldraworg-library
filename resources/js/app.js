@@ -7,6 +7,7 @@ require('../semantic/dist/components/accordion.js');
 require('../semantic/dist/components/calendar.js');
 require('../semantic/dist/components/tab.js');
 require('../semantic/dist/components/search.js');
+require('../semantic/dist/components/api.js');
 require('../semantic/dist/components/transition.js');
 require('../semantic/dist/components/visibility.js');
 require('./tablesort.js');
