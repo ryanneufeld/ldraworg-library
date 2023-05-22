@@ -1,6 +1,12 @@
 import $ from 'jquery';
 window.$ = window.jQuery = $;
-require('../semantic/dist/semantic.js');
+//require('../semantic/dist/semantic.js');
+require('../semantic/dist/components/checkbox.js')
+require('../semantic/dist/components/dropdown.js')
+require('../semantic/dist/components/accordion.js')
+require('../semantic/dist/components/calendar.js')
+require('../semantic/dist/components/tab.js')
+require('../semantic/dist/components/search.js')
 require('./tablesort.js');
 
 let cal_options = {
@@ -28,6 +34,7 @@ let fomantic_init = function() {
 	$('.ui.calendar').calendar(cal_options);
 	$('.suffixmenu .item').tab();
 	$('.dashboardmenu .item').tab();
+	$('.summarymenu .item').tab();
 	$('.ui.menu > .ui.dropdown').dropdown({on: 'hover', });
 	$('.ui.ptsearch').search(quick_search_options);
 };
