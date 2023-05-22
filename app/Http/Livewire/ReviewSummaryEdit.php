@@ -39,9 +39,13 @@ class ReviewSummaryEdit extends Component
 
     public function processManualEntry() {
         if(!empty($this->manualEntry)) {
+            $this->summary->items()->delete();
             $lines = explode("\n", $this->manualEntry);
             foreach($lines as $line) {
                 $line = trim($line);
+                if (empty($line)) {
+                    continue;
+                }
                 $order = $this->summary->items()->orderBy('order', 'DESC')->first()->order ?? 0;
                 if ($line[0] == '/') {
                     $heading = explode(" ", $line, 2)[1] ?? '';
@@ -60,12 +64,11 @@ class ReviewSummaryEdit extends Component
                         ]);            
                     }
                 }
-                $this->summary->refresh();
             }
-        }
-        
-        $this->manualEntry = null;
+            $this->summary->refresh();
+        }        
     }
+
     public function removeItem(ReviewSummaryItem $item) {
         $item->delete();
         //Rerack the order
@@ -87,6 +90,7 @@ class ReviewSummaryEdit extends Component
 
     public function render()
     {
+        $this->manualEntry = $this->summary->toString();
         $this->dispatchBrowserEvent('jquery');
         return view('livewire.review-summary-edit');
     }

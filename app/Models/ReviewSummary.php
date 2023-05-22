@@ -13,7 +13,19 @@ class ReviewSummary extends Model
         'order',
     ];
     
-    public function items() {
-        return $this->hasMany(ReviewSummaryItem::class, 'review_summary_id', 'id');
+    protected $with = ['items'];
+
+    public function items() 
+    {
+        return $this->hasMany(ReviewSummaryItem::class, 'review_summary_id', 'id')->orderBy('order');
+    }
+
+    public function toString(): string 
+    {
+        $text = '';
+        foreach ($this->items()->with('part')->orderBy('order')->get() as $item) {
+            $text .= "{$item->toString()}\n";
+        }
+        return $text;
     }
 }
