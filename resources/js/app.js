@@ -1,6 +1,6 @@
 import $ from 'jquery';
 window.$ = window.jQuery = $;
-//require('../semantic/dist/semantic.js');
+
 require('../semantic/dist/components/api.js');
 require('../semantic/dist/components/transition.js');
 require('../semantic/dist/components/visibility.js');
