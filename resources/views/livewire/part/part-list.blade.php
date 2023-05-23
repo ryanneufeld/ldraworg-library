@@ -21,7 +21,7 @@
       <div class="column">
         <x-form.select-part-type name="part_types" wire:model="part_types" :selected="$part_types" multiple />
       </div>
-      @if ($unofficial)
+      @if ($unofficial && Auth::check())
       <div class="column">
         <br>
         <div class="field">
