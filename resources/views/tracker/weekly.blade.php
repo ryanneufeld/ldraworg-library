@@ -3,7 +3,7 @@
   <h3 class="ui header">New Parts Tracker Submissions by Week</h3>
   <x-slot:breadcrumbs>
     <x-breadcrumb-item class="active" item="Weekly Parts" />
-  </x-slot>    
+  </x-slot> 
   <form class="ui form" name="weekly" action="{{route('tracker.weekly')}}" metohd="POST">
     <div class="ui inline field">
       <label for="order">Display Order:</label>
@@ -16,31 +16,8 @@
       </div>
     </div>
   </form>
-  @php($yearweek = 0)
-  @foreach ($parts as $part)
-    @if (date("oW", strtotime($part->created_at)) != $yearweek)
-      @php($yearweek = date("oW", strtotime($part->created_at)))
-      @if (!$loop->first)
-        </tbody>
-      </table>
-      @endif
-      <h3 class="ui block header">New parts of the week of {{date("F j, Y", strtotime('monday this week', strtotime($part->created_at)))}}</h3>
-      <table class="ui celled striped table">
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Part</th>
-            <th>Description</th>
-            <th>DAT</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-    @endif
-          <x-part.table.row :part="$part" />
-    @if ($loop->last)
-        </tbody>
-      </table>
-    @endif
+  @foreach ($parts as $date => $pts)
+    <h3 class="ui block header">New parts of the week of {{date("F j, Y", strtotime($date))}}</h3>
+    <x-part.table :parts="$pts" />
   @endforeach  
 </x-layout.tracker>

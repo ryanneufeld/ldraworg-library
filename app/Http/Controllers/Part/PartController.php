@@ -184,22 +184,6 @@ class PartController extends Controller
       $part->updateImage();
       return redirect()->route('tracker.show', [$part])->with('status','Part image update queued');
     }
-
-    public function weekly(Request $request) {
-      
-      $parts = Part::with('type')->unofficial()->
-        where('official_part_id', null)->
-        where(function (Builder $query) {
-          $query->orWhereRelation('type', 'type', 'Part')->orWhereRelation('type', 'type', 'Shortcut');
-        });
-      if ($request->has('order') && $request->input('order') == 'asc') {
-        $parts->oldest();
-      } 
-      else {
-        $parts->latest();
-      }
-      return view('tracker.weekly', ['parts' => $parts->get()]);
-    }
     
     public function updatesubparts (Part $part) {
       $this->authorize('update', $part);
