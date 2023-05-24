@@ -43,7 +43,7 @@ class Parts extends Component
         $scope = array_key_exists($this->scope, $scopeOptions) ? $this->scope : 'header';
         $uparts = Part::unofficial();
         $oparts = Part::official();
-        if (!empty($this->user_id)) {
+        if (!empty($this->user_id) && is_numeric($this->user_id)) {
             $opr = $this->exclude_user ? '!=' : '=';
             $uparts->where('user_id', $opr, $this->user_id);
             $oparts->where('user_id', $opr, $this->user_id);
@@ -51,9 +51,10 @@ class Parts extends Component
         if (!empty($this->status)) {
             $uparts->partStatus($this->status);
         }
-        if (!empty($this->part_types)) {
-            $uparts->whereIn('part_type_id', $this->part_types);
-            $oparts->whereIn('part_type_id', $this->part_types);
+        $types = array_filter($this->part_types, 'is_numeric');
+        if (!empty($types)) {
+            $uparts->whereIn('part_type_id', $types);
+            $oparts->whereIn('part_type_id', $types);
         }
         $uparts->searchPart($this->search, $this->scope);
         $oparts->searchPart($this->search, $this->scope);

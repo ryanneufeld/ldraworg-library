@@ -43,7 +43,7 @@ class PartList extends Component
         if ($this->unofficial && !empty($this->status)) {
             $parts->partStatus($this->status);
         }
-        if (!empty($this->user_id)) {
+        if (!empty($this->user_id) && is_numeric($this->user_id)) {
             if ($this->exclude_user) {
                 $parts->where('user_id', '!=', $this->user_id);
             } else {
@@ -51,10 +51,11 @@ class PartList extends Component
             }
             
         }
-        if (!empty($this->part_types)) {
-            $parts->whereIn('part_type_id', $this->part_types);
+        $types = array_filter($this->part_types, 'is_numeric');
+        if (!empty($types)) {
+            $parts->whereIn('part_type_id', $types);
         }
-        if (!empty($this->exclude_reviews)) {
+        if ($this->unofficial && !empty($this->exclude_reviews)) {
             $parts->whereDoesntHave('votes', function($q) {
                 $q->where('user_id', auth()->user()->id);
             });
