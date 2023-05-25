@@ -33,12 +33,13 @@ class PartEventsShow extends Component
         $filtersActive = $this->itemsPerPage != '20' || $this->order != 'latest' || !empty($this->dt) || !empty($this->types) || $this->unofficial;
         $orderItems = ['latest' => 'Newest First', 'oldest' => 'Oldest First'];
         $dt = empty($this->dt) ? null : date_create($this->dt);
+        //dd($dt);
         $types = array_filter($this->types, 'is_numeric');
         $events = \App\Models\PartEvent::with(['part', 'user', 'part_event_type', 'release'])->
-            when(!empty($dt), function ($q, $dt) {
+            when(!empty($dt), function ($q) use ($dt) {
                 $q->where('created_at', '>=', $dt);
             })->
-            when(!empty($types), function ($q, $types) {
+            when(!empty($types), function ($q) use ($types) {
                 $q->whereIn('part_event_type_id', array_values($types));
             })->
             when($this->unofficial, function ($q) {
