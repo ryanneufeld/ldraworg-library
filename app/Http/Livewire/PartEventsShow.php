@@ -11,7 +11,7 @@ class PartEventsShow extends Component
 
     public $itemsPerPage = '20';
     public $order = 'latest';
-    public $dt = '';
+    public $dt;
     public $unofficial = false;
     public $types = [];
 
@@ -32,30 +32,25 @@ class PartEventsShow extends Component
     {
         $filtersActive = $this->itemsPerPage != '20' || $this->order != 'latest' || !empty($this->dt) || !empty($this->types) || $this->unofficial;
         $orderItems = ['latest' => 'Newest First', 'oldest' => 'Oldest First'];
-        $events = \App\Models\PartEvent::with(['part', 'user', 'part_event_type', 'release']);
-        $dt = date_create($this->dt);
-        if (!empty($dt)) {
-            $events->where('created_at', '>=', $dt);
-        }
+        $dt = empty($this->dt) ? null : date_create($this->dt);
         $types = array_filter($this->types, 'is_numeric');
-        if (!empty($types)) {
-            $events->whereIn('part_event_type_id', array_values($types));
-        }
-
-        if ($this->unofficial) {
-            $events->whereRelation('release', 'short', 'unof');
-        }
-
-        if ($this->order == 'oldest') {
-            $events->oldest();
-        } else {
-            $events->latest();
-        }
+        $events = \App\Models\PartEvent::with(['part', 'user', 'part_event_type', 'release'])->
+            when(!empty($dt), function ($q, $dt) {
+                $q->where('created_at', '>=', $dt);
+            })->
+            when(!empty($types), function ($q, $types) {
+                $q->whereIn('part_event_type_id', array_values($types));
+            })->
+            when($this->unofficial, function ($q) {
+                $q->whereRelation('release', 'short', 'unof');
+            })->
+            when($this->order == 'oldest', function ($q) {
+                $q->oldest();
+            },
+            function($q) {
+                $q->latest();
+            })->paginate($this->itemsPerPage);
         $this->dispatchBrowserEvent('jquery');
-        return view('livewire.part-events-show', [
-            'filtersActive' => $filtersActive, 
-            'orderItems' => $orderItems,
-            'events' => $events->paginate($this->itemsPerPage)
-        ]);
+        return view('livewire.part-events-show', compact('filtersActive','orderItems','events'));
     }
 }
