@@ -664,7 +664,8 @@ class Part extends Model
         else {
           $this->body->body = $body;
           $this->body->save();
-        }  
+        }
+        $this->save();  
       } 
         
       $this->keywords()->sync([]);
@@ -697,10 +698,10 @@ class Part extends Model
           $order++;
         }
       }
-
+      $this->save();
+      $this->refresh();
       $this->refreshHeader();
       $this->updateSubparts(true);
-      $this->save();
     }
   
     // Note: this function assumes that the part text has been cleaned and validated
