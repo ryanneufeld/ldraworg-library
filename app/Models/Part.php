@@ -117,7 +117,7 @@ class Part extends Model
     }
 
     public function help() {
-      return $this->hasMany(PartHelp::class, 'part_id', 'id');
+      return $this->hasMany(PartHelp::class, 'part_id', 'id')->orderBy('order');
     }
 
     public function body() {
@@ -650,10 +650,8 @@ class Part extends Model
         'header' => FileUtils::getHeader($text),
         'cmdline' => $cmdline === false ? NULL : $cmdline,
         'bfc' => $bfc === false ? NULL : $bfc['certwinding'],
+        'part_license_id' => $user->license->id,
       ]);
-      if (is_null($this->part_license_id)) {
-        $this->part_license_id = PartLicense::default()->id;
-      }
 
       $this->save();
       $this->refresh();
@@ -700,7 +698,6 @@ class Part extends Model
         }
       }
 
-      $this->updateLicense();
       $this->refreshHeader();
       $this->updateSubparts(true);
       $this->save();
@@ -745,7 +742,7 @@ class Part extends Model
       $part->fillFromFile($file, $user, $pt, $rel);
       return $part;
     }
-    
+/*    
     public function updateLicense(): void {
       $users = $this->editHistoryUsers()->add($this->user);
       $lid = PartLicense::findByName('CC_BY_4')->id;
@@ -759,7 +756,7 @@ class Part extends Model
       $this->save();
       $this->refresh();
     }
-
+*/
     public function updateSubparts($updateUncertified = false): void {
       if ($this->isTexmap()) return;
 
@@ -1136,5 +1133,28 @@ class Part extends Model
       UpdateZip::dispatch($upart);
       
       return $upart;
+    }
+
+    public function diff(self $part2): string {
+      $lines = collect(explode("\n", $this->body->body))->filter(function (string $value) {
+        return !empty($value) && $value[0] != "0";
+      });
+      $lines2 = collect(explode("\n", $part2->body->body))->filter(function (string $value) {
+        return !empty($value) && $value[0] != "0";
+      });
+      $pattern = '#^([12345]) (\d+)#';
+      $delcolor   = ['1' => '36', '2' => '12', '3' => '36', '4' => '36', '5' => '12'];
+      $addcolor   = ['1' =>  '2', '2' => '10', '3' =>  '2', '4' =>  '2', '5' => '10'];
+      $matchcolor = ['1' => '15', '2' =>  '8', '3' => '15', '4' => '15', '5' =>  '8'];
+      $same = $lines->intersect($lines2)->transform(function (string $item) use ($pattern, $matchcolor) {
+        return preg_replace($pattern, '$1 '. $matchcolor[$item[0]], $item);
+      });
+      $added = $lines2->diff($lines)->transform(function (string $item) use ($pattern, $addcolor) {
+        return preg_replace($pattern, '$1 '. $addcolor[$item[0]], $item);
+      });
+      $removed = $lines->diff($lines2)->transform(function (string $item) use ($pattern, $delcolor) {
+        return preg_replace($pattern, '$1 '. $delcolor[$item[0]], $item);
+      });
+      return implode("\n", array_merge($same->toArray(), $added->toArray(), $removed->toArray()));
     }
 }

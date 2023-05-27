@@ -39,13 +39,13 @@ class UserChangePartUpdate implements ShouldQueue
         if ($p->isUnofficial()) {
           return;
         }
-        $oldLic = $p->part_license_id;
-        $p->updateLicense();
         $md = $p->minor_edit_data;
         if (isset($this->olddata['name']) ||
-            $p->part_license_id != $oldLic || 
+            $p->part_license_id != $this->user->license->id || 
             ($p->user_id == $this->user->id && isset($this->olddata['realname']))) {
-          if ($p->part_license_id != $oldLic) {
+          if ($p->part_license_id != $this->user->license->id) {
+            $oldLic = $p->part_license_id;
+            $p->part_license_id = $this->user->license->id;    
             $md['license'] = \App\Models\PartLicense::find($oldLic)->name . " to " . $p->license->name;
           }
           if ($p->user_id == $this->user->id && isset($this->olddata['realname'])) {
@@ -55,6 +55,8 @@ class UserChangePartUpdate implements ShouldQueue
             $md['name'] = $this->olddata['name'] . " to " . $this->user->name;
           }
           $p->minor_edit_data = $md;
+          $p->save();
+          $p->refresh();
           $p->refreshHeader();
         }
       }
