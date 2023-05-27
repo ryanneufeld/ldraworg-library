@@ -29,8 +29,8 @@
         </div>
         </div>
     </div>    
-    {{ $events->links('livewire.paginate-menu') }}
+    {{ $events->onEachSide(1)->links('livewire.paginate-menu') }}
     <x-event.table :events="$events" />
-    {{ $events->links('livewire.paginate-menu') }}
+    {{ $events->onEachSide(1)->links('livewire.paginate-menu') }}
      
 </div>

@@ -34,7 +34,7 @@
       @endif
     </div>
   </div>  
-  {{ $parts->links('livewire.paginate-menu') }}
+  {{ $parts->onEachSide(1)->links('livewire.paginate-menu') }}
   <x-part.table title="{{$unofficial ? 'Unofficial' : 'Official'}} Part List" :parts="$parts" />
-  {{ $parts->links('livewire.paginate-menu') }}
+  {{ $parts->onEachSide(1)->links('livewire.paginate-menu') }}
 </div>

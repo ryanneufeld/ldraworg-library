@@ -26,12 +26,12 @@
   @if(!empty($search))
     @if(!is_null($uparts))
       <div class="ui medium header">Matched {{$ucount ?? 0}} Unofficial Parts</div>
-      {{ $uparts->links('livewire.paginate-menu') }}
+      {{ $uparts->onEachSide(1)->links('livewire.paginate-menu') }}
       <x-part.table :parts="$uparts" none=""/>
     @endif
     @if(!is_null($oparts))   
       <div class="ui medium header">Matched {{$ocount ?? 0}} Official Parts</div>
-      {{ $oparts->links('livewire.paginate-menu') }}
+      {{ $oparts->onEachSide(1)->links('livewire.paginate-menu') }}
       <x-part.table :parts="$oparts" none=""/>
     @endif    
   @endif  
