@@ -24,6 +24,15 @@ return [
     'path' => 'tmp'
   ],
 
+  'rebrickable' => [
+    'rate_limit' => 1,
+    'retry_limit' => 2,
+    'api' => [
+      'url' => 'https://rebrickable.com/api/v3/lego',
+      'key' => env('REBRICKABLE_API_KEY'),
+    ], 
+  ],
+
   // LDView parameters and paths
   'ldview' => [
     'path' => realpath(resource_path('bin/ldview')),
@@ -156,7 +165,7 @@ return [
       '!HISTORY'  
     ],
     'body' => [
-      '!TEXTURE', 
+      '!TEXMAP', 
       '!:', 
       'BFC', 
       '//',

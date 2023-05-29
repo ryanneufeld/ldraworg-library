@@ -1,4 +1,5 @@
 <x-layout.tracker>
+  <x-slot:title>Create Release Step 1</x-slot>
   @if ($errors->any())
   <div class="ui error message">
     <ul class="ui list">

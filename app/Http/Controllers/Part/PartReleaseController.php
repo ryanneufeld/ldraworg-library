@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Part;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Http\UploadedFile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PartReleaseCreateStep1Request;
@@ -12,6 +13,7 @@ use App\Http\Requests\PartReleaseCreateStep2Request;
 use App\Models\Part;
 
 use App\LDraw\LDrawFileValidate;
+use App\LDraw\PartCheck;
 use App\LDraw\LibraryOperations;
 
 class PartReleaseController extends Controller
@@ -21,25 +23,37 @@ class PartReleaseController extends Controller
     $parts = Part::unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
     $results = [];
     foreach($parts as $part) {
-      $text = $part->isTexmap() ? $part->header : $part->get();
-      $errors = LDrawFileValidate::ValidName($text, basename($part->filename), $part->part_type_id);
-    
-      // These checks are only valid for non-texmaps
-      if (!$part->isTexmap()) {
-        $errors = array_merge($errors, LDrawFileValidate::ValidDescription($text));
-        $errors = array_merge($errors, LDrawFileValidate::ValidAuthor($text));
-        $errors = array_merge($errors, LDrawFileValidate::ValidPartType($text, $part->part_type_id));
-        $errors = array_merge($errors, LDrawFileValidate::ValidCategory($text));
-        $errors = array_merge($errors, LDrawFileValidate::ValidKeywords($text));
-        $errors = array_merge($errors, LDrawFileValidate::ValidHistory($text));
-        $errors = array_merge($errors, LDrawFileValidate::ValidLines($text));      
+//      $text = $part->isTexmap() ? $part->header : $part->get();
+      $mime = $part->isTexmap() ? 'image/png' : 'text/plain';
+      Storage::fake('local')->put($part->filename, $part->get());
+      $partfile = new UploadedFile(Storage::disk('local')->path($part->filename), $part->filename, $mime, null, true);
+      $errors = [];
+      if ($ferrors = PartCheck::checkFile($partfile)) {
+        foreach($ferrors as $error) {
+            if (array_key_exists('args', $error)) {
+              $errors[] = __($error['error'], $error['args']);
+            } else {
+              $errors[] = __($error['error']);;
+            }    
+        }    
       }
-      $warnings = LDrawFileValidate::historyEventsCrossCheck($part);      
+      if ($herrors = PartCheck::checkHeader($partfile, ['part_type_id' => $part->part_type_id])) {
+        foreach($herrors as $error) {
+            if (array_key_exists('args', $error)) {
+              $errors[] = __($error['error'], $error['args']);
+            } else {
+              $errors[] = __($error['error']);;
+            }    
+        }    
+      }
+
+      $warnings = PartCheck::historyEventsCrossCheck($part);
+
       if (isset($part->category) && $part->category->category == "Minifig") {
         $warnings[] = "Check Minifig category: {$part->category->category}";
       }
-      
-      $results[] = ['part' => $part, 'release' => empty($errors) && $part->releasable(), 'errors' => $errors, 'warnings' => $warnings];
+      $release = empty($errors) && $part->releasable();
+      $results[] = compact('part', 'release', 'errors', 'warnings');
     }
     return view('tracker.release.create', ['parts' => $results]);
   }

@@ -1,4 +1,5 @@
 <x-layout.tracker>
+  <x-slot:title>Create Release Step 2</x-slot>
   <form class="ui form" action="{{route('tracker.release.store')}}" method="post">
     @csrf
     @foreach($parts as $part)

@@ -38,6 +38,12 @@
       </span>
     </div>
     <div>
+      @isset ($part->unofficial_part_id)
+        <a class="ui labeled icon button" href="{{ route('tracker.show', $part->unofficial_part_id) }}"><i class="ui copy outline icon"></i>View unofficial version of part</a>
+      @endisset
+      @isset ($part->official_part_id)
+        <a class="ui labeled icon button" href="{{ route('official.show', $part->official_part_id) }}"><i class="ui copy outline icon"></i>View official version of part</a>
+      @endisset
       @if ($part->isUnofficial() && Auth::check())
           <livewire:part.track-button :part="$part" />
         @can('part.flag.delete')
@@ -52,14 +58,6 @@
         @endcan    
       @endif
     </div>
-    <div>
-      @isset ($part->unofficial_part_id)
-        <a class="ui labeled icon button" href="{{ route('tracker.show', $part->unofficial_part_id) }}"><i class="ui copy outline icon"></i>View unofficial version of part</a>
-      @endisset
-      @isset ($part->official_part_id)
-        <a class="ui labeled icon button" href="{{ route('official.show', $part->official_part_id) }}"><i class="ui copy outline icon"></i>View official version of part</a>
-      @endisset
-    </div>      
     <div class="ui right floated center aligned compact {{$lib}} detail-img segment">
       @if ($part->isTexmap())
       <a class="ui image" href="{{route("$lib.download", $part->filename)}}">

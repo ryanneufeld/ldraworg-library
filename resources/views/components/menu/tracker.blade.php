@@ -90,7 +90,7 @@
       </div>
       @endif
       <a class="item" href="{{asset('library/unofficial/ldrawunf.zip')}}">Download All Unofficial Files</a>
-      {{--<a class="item" href="{{route('tracker.next-release')}}">Parts in Next Update</a>--}}
+      <a class="item" href="{{route('tracker.next-release')}}">Parts in Next Update</a>
       <a class="item" href="{{route('tracker.history')}}">Parts Tracker History</a>
     </div>
   </div>

@@ -57,7 +57,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
   Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
 
-  Route::get('/next-release', [\App\Http\Controllers\NonAdminReleaseController::class, 'index'])->name('next-release');
+  Route::get('/next-release', [\App\Http\Controllers\Part\NonAdminReleaseController::class, 'index'])->name('next-release');
 
   Route::middleware(['can:release.create'])->get('/release/create', [PartReleaseController::class, 'create'])->name('release.create');
   Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');

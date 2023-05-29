@@ -268,7 +268,7 @@ Test is not a valid category
 0 !HISTORY 2007-05-07 [PTadmin] Header formatted for Contributor Agreement
 0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
 ###
-Pattern parts and sticker shortcuts must have a "Set <setnumber>" or "CMF" keyword
+Pattern parts and sticker shortcuts must have a "Set <setnumber>", "CMF", or "Build-A-Minifigure" keyword
 ###
 3001p01.dat
 ###
@@ -284,7 +284,7 @@ Pattern parts and sticker shortcuts must have a "Set <setnumber>" or "CMF" keywo
 0 !HISTORY 2007-05-07 [PTadmin] Header formatted for Contributor Agreement
 0 !HISTORY 2008-07-01 [PTadmin] Official Update 2008-01
 ###
-Pattern parts and sticker shortcuts must have a "Set <setnumber>" or "CMF" keyword
+Pattern parts and sticker shortcuts must have a "Set <setnumber>", "CMF", or "Build-A-Minifigure" keyword
 ###
 3001.dat
 ###
