@@ -727,7 +727,6 @@ class Part extends Model
           $this->body->body = base64_encode($contents);
           $this->body->save();
         }  
-        //$this->put(File::get($path));
         $this->save();
       }
       elseif (pathinfo($filename, PATHINFO_EXTENSION) == 'dat' && $mimeType == 'text/plain') {
@@ -743,21 +742,7 @@ class Part extends Model
       $part->fillFromFile($file, $user, $pt, $rel);
       return $part;
     }
-/*    
-    public function updateLicense(): void {
-      $users = $this->editHistoryUsers()->add($this->user);
-      $lid = PartLicense::findByName('CC_BY_4')->id;
-      foreach($users as $user) {
-        if ($user->license->id <> $lid) {
-          $lid = $user->license->id;
-          break;
-        }
-      }
-      $this->part_license_id = $lid;
-      $this->save();
-      $this->refresh();
-    }
-*/
+
     public function updateSubparts($updateUncertified = false): void {
       if ($this->isTexmap()) return;
 
@@ -1157,5 +1142,12 @@ class Part extends Model
         return preg_replace($pattern, '$1 '. $delcolor[$item[0]], $item);
       });
       return implode("\n", array_merge($same->toArray(), $added->toArray(), $removed->toArray()));
+    }
+
+    public function toUploadedFile(): \Illuminate\Http\UploadedFile
+    {
+      $mime = $this->isTexmap() ? 'image/png' : 'text/plain';
+      Storage::fake('local')->put($this->filename, $this->get());
+      return new \Illuminate\Http\UploadedFile(Storage::disk('local')->path($this->filename), $this->filename, $mime, null, true);
     }
 }

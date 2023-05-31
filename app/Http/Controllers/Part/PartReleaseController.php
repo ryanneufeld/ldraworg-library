@@ -23,12 +23,8 @@ class PartReleaseController extends Controller
     $parts = Part::unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
     $results = [];
     foreach($parts as $part) {
-//      $text = $part->isTexmap() ? $part->header : $part->get();
-      $mime = $part->isTexmap() ? 'image/png' : 'text/plain';
-      Storage::fake('local')->put($part->filename, $part->get());
-      $partfile = new UploadedFile(Storage::disk('local')->path($part->filename), $part->filename, $mime, null, true);
       $errors = [];
-      if ($ferrors = PartCheck::checkFile($partfile)) {
+      if ($ferrors = PartCheck::checkFile($part->toUploadedFile())) {
         foreach($ferrors as $error) {
             if (array_key_exists('args', $error)) {
               $errors[] = __($error['error'], $error['args']);
@@ -37,7 +33,7 @@ class PartReleaseController extends Controller
             }    
         }    
       }
-      if ($herrors = PartCheck::checkHeader($partfile, ['part_type_id' => $part->part_type_id])) {
+      if ($herrors = PartCheck::checkHeader($part->toUploadedFile(), ['part_type_id' => $part->part_type_id])) {
         foreach($herrors as $error) {
             if (array_key_exists('args', $error)) {
               $errors[] = __($error['error'], $error['args']);

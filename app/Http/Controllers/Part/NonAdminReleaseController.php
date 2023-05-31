@@ -16,12 +16,8 @@ class NonAdminReleaseController extends Controller
       if (!$part->releasable()) {
         return true;
       }
-      $text = $part->isTexmap() ? $part->header : $part->get();
-      $mime = $part->isTexmap() ? 'image/png' : 'text/plain';
-      Storage::fake('local')->put($part->filename, $text);
-      $partfile = new UploadedFile(Storage::disk('local')->path($part->filename), $part->filename, $mime, null, true);
-      $fileerrors = \App\LDraw\PartCheck::checkFile($partfile);
-      $headererrors = \App\LDraw\PartCheck::checkHeader($partfile, ['part_type_id' => $part->part_type_id]);
+      $fileerrors = \App\LDraw\PartCheck::checkFile($part->toUploadedFile());
+      $headererrors = \App\LDraw\PartCheck::checkHeader($part->toUploadedFile(), ['part_type_id' => $part->part_type_id]);
       return !is_null($fileerrors) || !is_null($headererrors);
     });
     return view('part.nextrelease', ['parts' => $parts, 'minor_edits' => $minor_edits]);

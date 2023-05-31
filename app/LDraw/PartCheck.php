@@ -199,7 +199,6 @@ class PartCheck
 
   public static function checkFile(\Illuminate\Http\UploadedFile $file): ?array
   {
-    //$errors = [];
     $fileext = strtolower($file->getClientOriginalExtension());
     $filemime = $file->getMimetype();
     //Check valid file format
@@ -243,7 +242,6 @@ class PartCheck
 
   public static function checkHeader(\Illuminate\Http\UploadedFile $file, array $data): ?array
   {
-    //$errors = [];
     // PNG file have no header.
     if ($file->getMimetype() == 'text/plain') {
         $text = FileUtils::cleanFileText($file->get());

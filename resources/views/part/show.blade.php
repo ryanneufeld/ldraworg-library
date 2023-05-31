@@ -75,7 +75,8 @@
 </code></pre>
   @if($part->isUnofficial())
     <div class="ui medium header">Status:</div>
-    <x-part.status :vote="$part->vote_summary" status_text="1" />
+    <x-part.status :vote="$part->vote_summary" status_text="1" /><br>
+    <x-part.part-check-message :$part />
     <div class="ui medium header">Reviewers' certifications:</div>
     @if ($part->votes->count())
     <table class="ui collapsing compact celled striped small table">
