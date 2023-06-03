@@ -5,16 +5,13 @@ namespace App\Http\Controllers\Part;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Http\UploadedFile;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PartReleaseCreateStep1Request;
 use App\Http\Requests\PartReleaseCreateStep2Request;
 use App\Models\Part;
 
-use App\LDraw\LDrawFileValidate;
 use App\LDraw\PartCheck;
-use App\LDraw\LibraryOperations;
 
 class PartReleaseController extends Controller
 {

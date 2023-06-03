@@ -7,7 +7,6 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 
 use App\LDraw\FileUtils;
-use App\LDraw\LDrawFileValidate;
 
 class ValidHeaderKeywords implements DataAwareRule, ValidationRule
 {

@@ -27,7 +27,7 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-      \Spatie\Permission\Models\Permission::create(['name' => 'admin.view-dashboard']);
+//      \Spatie\Permission\Models\Permission::create(['name' => 'admin.view-dashboard']);
     }
       
 
