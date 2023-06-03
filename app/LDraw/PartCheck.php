@@ -341,7 +341,7 @@ class PartCheck
     $cat = FileUtils::getCategory($text);
     if (($pt->type == 'Part' || $pt->type == 'Shortcut') && !PartCheck::checkCategory($text)) {
         $errors[] = ['error' => 'partcheck.category.invalid', 'args' => ['value' => $cat['category']]];
-    } elseif ($cat['category'] == 'Moved' && ($desc == false || $desc[0] != '~')) {
+    } elseif (($pt->type == 'Part' || $pt->type == 'Shortcut') && $cat['category'] == 'Moved' && ($desc == false || $desc[0] != '~')) {
         $errors[] = ['error' => 'partcheck.category.movedto'];
     }
     // Keyword Check
