@@ -9,5 +9,4 @@
     may be manually held back by the the Library Admin for various other reasons.
   </p>  
   <x-part.table :parts="$parts" title="Unofficial Parts" />
-  <x-part.table :parts="$minor_edits" title="Official Parts With Header Edits" />
 </x-layout.tracker>
