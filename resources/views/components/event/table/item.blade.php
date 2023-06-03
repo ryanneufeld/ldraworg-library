@@ -31,7 +31,7 @@
   <td>
     @isset($event->part)
       @if($event->part->isUnofficial())
-      <x-part.status :vote="$event->part->vote_summary" />
+      <x-part.status :part="$event->part"/>
       @else
       {{$event->release->name}} Release
       @endif

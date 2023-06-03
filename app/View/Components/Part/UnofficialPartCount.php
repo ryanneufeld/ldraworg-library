@@ -13,7 +13,7 @@ class UnofficialPartCount extends Component
      *
      * @var array
      */
-    public $summary = ['1' => 0, '2' => 0, '3' => 0, '4'=> 0, '5' => 0];
+    public $summary = ['1' => 0, '2' => 0, '3' => 0, '5' => 0];
  
     /**
      * Short stype or expanded.

@@ -19,7 +19,7 @@ class UpdateVoteData extends Seeder
     {
       // Update the cached vote count
       foreach (Part::whereRelation('release', 'short', 'unof')->lazy() as $part) {
-        $part->updateUncertifiedSubpartCount(true);
+        $part->updateVoteData(true);
       }
     }
 }    

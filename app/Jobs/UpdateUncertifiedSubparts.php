@@ -43,7 +43,7 @@ class UpdateUncertifiedSubparts implements ShouldQueue, ShouldBeUnique
       }
       $f = $this->force;
       Part::unofficial()->each(function (Part $part) use ($f) {
-        $part->updateUncertifiedSubpartCount($f);
+        $part->updateVoteData($f);
       });
     }
 }

@@ -35,9 +35,9 @@
     <span class="obsolete blank-box">&nbsp;</span> Obsoleted - code not available for administrative reasons<br />
     <div class="ui clearing divider"></div>
     <div class="ui top attached tabular menu suffixmenu">
-      <a class="item active" data-tab="patterns">Patterns</a>
-      <a class="item" data-tab="composites">Composites</a>
-      <a class="item" data-tab="sticker-shortcuts">Sticker Shortcuts</a>
+      <a class="item active" data-tab="patterns">Patterns <div class="ui label">{{$patterns->count()}}</div></a>
+      <a class="item" data-tab="composites">Composites <div class="ui label">{{$composites->count()}}</div></a>
+      <a class="item" data-tab="sticker-shortcuts">Sticker Shortcuts <div class="ui label">{{$stickers->count()}}</div></a>
     </div>
     <div class="ui bottom attached tab segment active" data-tab="patterns">
       <div class="ui eight column padded doubling grid">

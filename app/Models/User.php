@@ -143,12 +143,12 @@ class User extends Authenticatable
           'vote_type_code' => $votetype->code,
         ]);
       }
-      $part->updateVoteSummary();
+      $part->updateVoteData();
     }
 
     public function cancelVote(Part $part): void {
       $this->votes()->where('part_id', $part->id)->delete();
-      $part->updateVoteSummary();
+      $part->updateVoteData();
     }
 
 }

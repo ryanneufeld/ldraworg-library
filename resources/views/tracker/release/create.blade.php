@@ -49,7 +49,7 @@
             </div>
             <div class="content">
               @forelse($part->parents as $p)
-              {{$p->name()}} <a href="{{route('tracker.show', $p)}}">{{$p->description}}</a> <x-part.status :vote="$p->vote_summary" />
+              {{$p->name()}} <a href="{{route('tracker.show', $p)}}">{{$p->description}}</a> <x-part.status :part="$p" />
               @if (!$loop->last)
               <br>
               @endif

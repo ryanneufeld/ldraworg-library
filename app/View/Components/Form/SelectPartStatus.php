@@ -25,10 +25,7 @@ class SelectPartStatus extends Component
             'certified' => 'Certified', 
             'adminreview' => 'Needs Admin Review', 
             'memberreview' => 'Needs More Votes', 
-            'needsubfile' => 'Uncertified Subfiles', 
             'held' => 'Hold', 
-            '2certvotes' => '2 (or more) Certify Votes', 
-            '1certvote' => '1 Certify Vote'
         ];
         return view('components.form.select-part-status', compact('options'));
     }

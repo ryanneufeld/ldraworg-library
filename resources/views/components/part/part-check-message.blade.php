@@ -6,9 +6,9 @@
             This part is not releaseable
         </div>
         <ul class="ui list">
-            @if($part->vote_summary['S'] != 0)
+            @if($part->hasUncertifiedSubfiles())
                 <li>Uncertified subfiles</li>
-            @elseif(!$part->releasable())
+            @elseif(!$part->hasCertifiedParent() && $part->vote_sort == 1 && $part->type->folder != "parts/" && !is_null($part->official_part_id))
                 <li>No certified parents</li>
             @endif    
             @foreach($errors as $error)

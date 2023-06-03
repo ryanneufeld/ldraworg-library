@@ -160,22 +160,9 @@ class Part extends Model
         case 'memberreview':
           $query->where('vote_sort', 3);
           break; 
-        case 'needsubfile':
-          $query->where('vote_sort', 4);
-          break; 
         case 'held':
           $query->where('vote_sort', 5);
           break; 
-        case '2certvotes':
-          $query->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
-              $q->where('vote_type_code', 'C');
-          }, '>=', 2);
-          break; 
-        case '1certvote':
-          $query->where('vote_sort', '<>', 5)->where('vote_sort', '<>', 1)->whereHas('votes', function ($q) {
-              $q->where('vote_type_code', 'C');
-          }, '=', 1);
-          break;
       } 
     }
     public function scopeSearchPart ($query, string $search, string $scope) {
@@ -388,13 +375,40 @@ class Part extends Model
       return $users;
     }
 
+    public function hasCertifiedParent(): bool
+    {
+      if ($this->parents->where('vote_sort', 1)->count() > 0) {
+        return true;
+      }
+      else {
+        foreach($this->parents as $parent) {
+          if ($parent->hasCertifiedParent()) return true;
+        }
+        return false;
+      }
+    }
+
+    public function hasUncertifiedSubfiles(): bool
+    {
+      if ($this->subparts->count() == 0) {
+        return false;
+      } elseif ($this->subparts->where('vote_sort', '!=', 1)->count() > 0){
+        return true;
+      } else {
+        foreach($this->subparts->where('vote_sort', 1) as $subpart) {
+          if ($subpart->hasUncertifiedSubfiles()) return true;
+        }
+        return false;
+      }      
+    }
+
     public function releasable(): bool {
       // Already official
       if (!$this->isUnofficial()) return true;
       
       
       if ($this->vote_sort == 1) {
-        if ($this->vote_summary['S'] != 0) {
+        if ($this->hasUncertifiedSubfiles()) {
           return false;
         }
         // Part, Shortcut, or part fix
@@ -402,15 +416,15 @@ class Part extends Model
           return true;
         }
         // Has a releasable part in the part chain
-        elseif ($this->parents->count() > 0) {
-          foreach($this->parents as $parent) {
-            if ($parent->releasable()) return true;
-          }
+        else {
+          return $this->hasCertifiedParent();
         }
+      } else {
+        return false;
       }
-      return false;
+      
     }
-  
+    
     public function refreshHeader(): void {
       $this->header = $this->getHeaderText();
       $this->save();
@@ -425,103 +439,36 @@ class Part extends Model
       // Nothing yet...
     }
     
-    public function updateVoteData(): void {
+    public function updateVoteData(bool $forceUpdate = false): void 
+    {
       if (!$this->isUnofficial()) return;
       $data = array_merge(['A' => 0, 'C' =>0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
-      $data['F'] = $this->official_part_id !== null;
-      $data['S'] = 0;
-
-      // Check subparts for certification
-      foreach ($this->subparts as $subpart) {
-        if ($subpart->vote_sort != 1) $data['S']++;
-      }
-      
+      $data['F'] = is_null($this->official_part_id) ? 'N' : 'F';
       $old_sort = $this->vote_sort;
-      
-      // Held
       if ($data['H'] != 0) {
         $this->vote_sort = 5;
       }
       // Needs votes      
-      elseif ($data['C'] + $data['A'] < 2) {
+      elseif (($data['C'] + $data['A'] < 2) && $data['T'] == 0) {
         $this->vote_sort = 3;
       }  
       // Awaiting Admin      
-      elseif ($data['A'] == 0 && $data['C'] >= 2) {
+      elseif ($data['T'] == 0 && $data['A'] == 0 && $data['C'] >= 2) {
         $this->vote_sort = 2;
       }
       // Certified      
       elseif ((($data['A'] > 0) && (($data['C'] + $data['A']) > 2)) || ($data['T'] > 0)) {
         $this->vote_sort = 1;
       }
-      
-      $this->vote_summary = $data;
 
-      $this->saveQuietly();
-      
-      if ($old_sort != $this->vote_sort) {
-        foreach ($this->parents()->unofficial()->get() as $p) {
-          $p->updateVoteData();
-        }  
-        foreach ($this->subfiles()->unofficial()->get() as $p) {
-          $p->updateVoteData();
-        }  
-      }
-    }
-
-    public function updateVoteSummary(bool $forceUpdate = false): void {
-      if (!$this->isUnofficial()) return;
-      $data = array_merge(['A' => 0, 'C' =>0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
-      $data['S'] = $this->uncertified_subpart_count;
-      $data['F'] = $this->official_part_id !== null;
       $this->vote_summary = $data; 
       $this->saveQuietly();
-      $this->updateVoteSort($forceUpdate);
-    }
-    
-    public function updateVoteSort(bool $forceUpdate = false): void {
-      if (!$this->isUnofficial()) return;
-      $vote = $this->vote_summary;
-      $old_sort = $this->vote_sort;
-      // Held
-      if ($vote['H'] != 0) {
-        $this->vote_sort = 5;
-      }
-      // Uncertified subparts      
-      elseif ($vote['S'] != 0) {
-        $this->vote_sort = 4;
-      }
-      // Needs votes      
-      elseif (($vote['C'] + $vote['A'] < 2) && $vote['T'] == 0) {
-        $this->vote_sort = 3;
-      }  
-      // Awaiting Admin      
-      elseif ($vote['T'] == 0 && $vote['A'] == 0 && $vote['C'] >= 2) {
-        $this->vote_sort = 2;
-      }
-      // Certified      
-      elseif ((($vote['A'] > 0) && (($vote['C'] + $vote['A']) > 2)) || ($vote['T'] > 0)) {
-        $this->vote_sort = 1;
-      }
-      $this->saveQuietly();
+
       if ($forceUpdate || ($old_sort == 1 && $this->vote_sort != 1) || ($old_sort != 1 && $this->vote_sort == 1)) {
-        foreach ($this->parents()->unofficial()->get() as $p) {
-          $p->updateUncertifiedSubpartCount($forceUpdate);
-        }  
+        $this->parents()->unofficial()->each(function (self $p) use ($forceUpdate) {
+          $p->updateVoteData($forceUpdate);
+        });
       }  
-    }
-    
-    public function updateUncertifiedSubpartCount(bool $forceUpdate = false): void {
-      if (!$this->isUnofficial()) return;
-      $us = 0;
-      // Check subparts for certification
-      foreach ($this->subparts as $subpart) {
-        if ($subpart->vote_sort != 1) $us++;
-      }
-      $this->uncertified_subpart_count = $us;
-      $this->saveQuietly();
-      // Report own certification status back to caller
-      $this->updateVoteSummary($forceUpdate);
     }
 
     public static function createMovedTo(Part $oldPart, Part $newPart): ?self {
@@ -783,7 +730,7 @@ class Part extends Model
       $this->subparts()->sync($sids);
       $this->missing_parts = empty(array_filter($missing_parts)) ? null : array_unique($missing_parts);
       $this->save();
-      if ($updateUncertified) $this->updateUncertifiedSubpartCount();
+      if ($updateUncertified) $this->updateVoteData();
     }
 
     public function updateImage($updateParents = false): void {

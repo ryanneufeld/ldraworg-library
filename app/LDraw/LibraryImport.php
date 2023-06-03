@@ -245,7 +245,7 @@ class LibraryImport {
     }
     // Update the cached vote count
     foreach (Part::unofficial()->lazy() as $part) {
-      $part->updateUncertifiedSubpartCount(true);
+      $part->updateVoteData(true);
     }  
   }
 

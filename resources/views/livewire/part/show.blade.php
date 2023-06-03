@@ -66,7 +66,7 @@
 <pre class="part-header"><code>{{ $part->header }}</code></pre>
         @if($part->isUnofficial())
             <div class="ui medium header">Status:</div>
-            <x-part.status :vote="$part->vote_summary" status_text="1" />
+            <x-part.status :$part show-status />
             <div class="ui medium header">Reviewers' certifications:</div>
             <x-vote.table :votes="$part->votes" />
         @endif

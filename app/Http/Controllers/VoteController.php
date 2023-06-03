@@ -79,7 +79,7 @@ class VoteController extends Controller
         Auth::user()->castVote($part, \App\Models\VoteType::firstWhere('code', $validated['vote_type']));
         $event['vote_type_code'] = $validated['vote_type'];
         $event['part_event_type_id'] = PartEventType::firstWhere('slug','review')->id;
-        $part->updateVoteSummary();
+        $part->updateVoteData();
       }
 
       Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);

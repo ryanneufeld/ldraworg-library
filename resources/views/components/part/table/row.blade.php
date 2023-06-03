@@ -24,7 +24,7 @@
   </td>
   <td>
     @if($part->isUnofficial())
-    <x-part.status :vote="$part->vote_summary" status_text="1" />
+    <x-part.status :$part show-status />
     @else
       @isset ($part->unofficial_part_id)
         <a href="{{ route('tracker.show', $part->unofficial_part_id) }}">Updated part on tracker</a>
