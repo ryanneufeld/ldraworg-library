@@ -56,6 +56,9 @@
           </div>
           @endif       
         @endcan    
+        @can('part.flag.manual-hold')
+          <livewire:part.manual-hold-button :part="$part" />
+        @endcan    
       @endif
     </div>
     <div class="ui right floated center aligned compact {{$lib}} detail-img segment">

@@ -56,6 +56,7 @@ class Part extends Model
       'delete_flag' => 'boolean',
       'minor_edit_data' => AsArrayObject::class,
       'missing_parts' => AsArrayObject::class,
+      'flags' => AsArrayObject::class,
     ];
 
     /**

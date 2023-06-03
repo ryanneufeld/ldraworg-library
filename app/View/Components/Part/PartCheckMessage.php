@@ -41,7 +41,11 @@ class PartCheckMessage extends Component
               }    
           }    
         }
-        $show = (!empty($errors) || (!$this->part->hasCertifiedParent() && $this->part->vote_sort == 1 && $this->part->type->folder != "parts/" && !is_null($this->part->official_part_id)) || $this->part->hasUncertifiedSubfiles()) && $this->part->isUnofficial();
+        $show = (!empty($errors) || 
+          (!$this->part->hasCertifiedParent() && $this->part->vote_sort == 1 && $this->part->type->folder != "parts/" && !is_null($this->part->official_part_id)) || 
+          $this->part->hasUncertifiedSubfiles() ||
+          $this->part->manual_hold_flag) && 
+          $this->part->isUnofficial();
         return view('components.part.part-check-message', compact('errors', 'show'));
     }
 }
