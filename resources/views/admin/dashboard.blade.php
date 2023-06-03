@@ -1,5 +1,8 @@
 <x-layout.base>
     <x-slot name="title">Admin Dashboard</x-slot>
+    <x-slot:menu>
+      <x-menu.library />
+    </x-slot>
     <h3 class="ui header">Admin Dashboard</h3>
     <div class="ui compact menu">
         <a class="item" href="{{route('admin.dashboard')}}">Admin Dashboard</a> 

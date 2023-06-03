@@ -1,6 +1,9 @@
 <x-layout.base>
   <x-slot name="title">{{Auth::user()->name}}'s Dashboard</x-slot>
-  <h3 class="ui header">{{Auth::user()->name}}'s Dashboard</h3>
+  <x-slot:menu>
+    <x-menu.library />
+  </x-slot>
+<h3 class="ui header">{{Auth::user()->name}}'s Dashboard</h3>
   <div class="ui top attached tabular dashboardmenu menu">
     <a class="item active" data-tab="submits">My Submits</a>
     <a class="item" data-tab="votes">My Votes</a>
