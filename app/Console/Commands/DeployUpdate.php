@@ -27,18 +27,8 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-      foreach(Part::lazy() as $p) {
-        if ($p->user->license->id != $p->license->id) {
-          $md = $p->minor_edit_data;
-          $old_lid = $p->part_license_id;
-          $p->part_license_id = $p->user->license->id;
-          $md['license'] = \App\Models\PartLicense::find($old_lid)->name . " to " . $p->license->name;
-          $p->minor_edit_data = $md;
-          $p->save();
-          $p->refresh();
-          $p->refreshHeader();
-        }
-      }
-      
+      \Spatie\Permission\Models\Permission::create(['name' => 'admin.view-dashboard']);
     }
+      
+
 }

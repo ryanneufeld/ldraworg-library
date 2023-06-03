@@ -37,7 +37,10 @@
       <div class="ui hidden fitted clearing divider"></div>
       <div class="ui right floated compact fitted basic segment">
         @auth
-          Welcome {{Auth::user()->name}} :: <i class="id card outline icon"></i><a href="{{route('dashboard.index')}}">User Dashboard</a>  
+          Welcome {{Auth::user()->name}} :: <i class="id card outline icon"></i><a href="{{route('dashboard.index')}}">User Dashboard</a>
+          @can('admin.view-dashboard')
+            :: <a href="{{route('admin.dashboard')}}">Admin Dashboard</a>
+          @endcan
         @endauth
       </div>
       
