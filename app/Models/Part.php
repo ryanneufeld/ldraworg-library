@@ -54,9 +54,9 @@ class Part extends Model
     protected $casts = [
       'vote_summary' => AsArrayObject::class,
       'delete_flag' => 'boolean',
+      'manual_hold_flag' => 'boolean',
       'minor_edit_data' => AsArrayObject::class,
       'missing_parts' => AsArrayObject::class,
-      'flags' => AsArrayObject::class,
     ];
 
     /**

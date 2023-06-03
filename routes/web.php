@@ -72,6 +72,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+  Route::get('dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])->middleware('can:admin.view-dashboard')->name('dashboard');
   Route::resource('users', UserController::class);
   Route::resource('roles', RoleController::class);
   Route::resource('review-summaries', \App\Http\Controllers\ReviewSummaryController::class)->except(['create', 'show']);
