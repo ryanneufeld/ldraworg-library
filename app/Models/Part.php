@@ -674,8 +674,9 @@ class Part extends Model
         else {
           $this->body->body = base64_encode($contents);
           $this->body->save();
-        }  
+        }
         $this->save();
+        $this->updateVoteData();  
       }
       elseif (pathinfo($filename, PATHINFO_EXTENSION) == 'dat' && $mimeType == 'text/plain') {
         $this->fillFromText(FileUtils::cleanFileText($contents), false, $rel);
@@ -727,11 +728,10 @@ class Part extends Model
           }
         }  
       }
-      //dd($missing_parts);
       $this->subparts()->sync($sids);
       $this->missing_parts = empty(array_filter($missing_parts)) ? null : array_unique($missing_parts);
       $this->save();
-      if ($updateUncertified) $this->updateVoteData();
+      $this->updateVoteData();
     }
 
     public function updateImage($updateParents = false): void {
