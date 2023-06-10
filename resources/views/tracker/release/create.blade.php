@@ -11,7 +11,7 @@
   @endif
   <form class="ui form" enctype="multipart/form-data" action="{{route('tracker.release.create2')}}" method="POST">
   @csrf
-  @forelse ($parts as ['part' => $part, 'release' => $releasable, 'errors' => $errors, 'warnings' => $warnings])
+  @forelse ($parts as ['part' => $part, 'release' => $releasable, 'errors' => $errors, 'warnings' => $warnings, 'uncertsubparts' => $uncertsubparts, 'certparents' => $certparents])
   @if($loop->first)
   <table class="ui celled table">
   <thead>
@@ -41,27 +41,42 @@
       <td>{{$part->name()}}</td>
       <td><a href="{{route('tracker.show', $part)}}">{{$part->description}}</a></td>
       <td>
-        @if(!$part->releasable())
+        @if($uncertsubparts || !$certparents)
           <div class="ui accordion">
             <div class="title">
               <i class="dropdown icon"></i>
-              No certified parents in the parent chain
+              @if($uncertsubparts)
+                Uncertified subparts
+              @elseif(!$certparents)
+                No certified parents
+              @endif  
             </div>
             <div class="content">
-              @forelse($part->parents as $p)
-              {{$p->name()}} <a href="{{route('tracker.show', $p)}}">{{$p->description}}</a> <x-part.status :part="$p" />
-              @if (!$loop->last)
-              <br>
-              @endif
-              @empty
-              No parents
-              @endforelse
+              @if($uncertsubparts)
+                @foreach($part->subparts()->unofficial()->get() as $p)
+                  {{$p->name()}} <a href="{{route('tracker.show', $p)}}">{{$p->description}}</a> <x-part.status :part="$p" />
+                  @if (!$loop->last)
+                    <br>
+                  @endif
+                @endforeach
+              @elseif(!$certparents)
+                @forelse($part->parents()->unofficial()->get() as $p)
+                  {{$p->name()}} <a href="{{route('tracker.show', $p)}}">{{$p->description}}</a> <x-part.status :part="$p" />
+                  @if (!$loop->last)
+                    <br>
+                  @endif
+                @empty
+                  No parents
+                @endforelse
+              @endif  
             </div>
           </div>
           <br>
         @endif
-        @if(!empty($errors))
-         {!! nl2br(htmlspecialchars(implode("\n", $errors))) !!}<br>
+        @isset($errors)
+          @foreach($errors as $error)
+            {{$error}}<br>
+          @endforeach  
         @endif
         @if (!empty($warnings))
           {!! nl2br(htmlspecialchars(implode("\n", $warnings))) !!}

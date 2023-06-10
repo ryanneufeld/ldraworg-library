@@ -4,12 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -389,18 +386,9 @@ class Part extends Model
       }
     }
 
-    public function hasUncertifiedSubfiles(): bool
+    public function hasUncertifiedSubparts(): bool
     {
-      if ($this->subparts->count() == 0) {
-        return false;
-      } elseif ($this->subparts->where('vote_sort', '!=', 1)->count() > 0){
-        return true;
-      } else {
-        foreach($this->subparts->where('vote_sort', 1) as $subpart) {
-          if ($subpart->hasUncertifiedSubfiles()) return true;
-        }
-        return false;
-      }      
+      return $this->subparts->where('vote_sort', '!=', 1)->count() > 0;
     }
 
     public function releasable(): bool {
@@ -409,7 +397,7 @@ class Part extends Model
       
       
       if ($this->vote_sort == 1) {
-        if ($this->hasUncertifiedSubfiles()) {
+        if ($this->hasUncertifiedSubparts()) {
           return false;
         }
         // Part, Shortcut, or part fix
@@ -1090,12 +1078,5 @@ class Part extends Model
         return preg_replace($pattern, '$1 '. $delcolor[$item[0]], $item);
       });
       return implode("\n", array_merge($same->toArray(), $added->toArray(), $removed->toArray()));
-    }
-
-    public function toUploadedFile(): \Illuminate\Http\UploadedFile
-    {
-      $mime = $this->isTexmap() ? 'image/png' : 'text/plain';
-      Storage::fake('local')->put($this->filename, $this->get());
-      return new \Illuminate\Http\UploadedFile(Storage::disk('local')->path($this->filename), $this->filename, $mime, null, true);
     }
 }

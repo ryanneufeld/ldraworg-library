@@ -3,11 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Contracts\Foundation\Application;
+use App\LDraw\PartChecker;
 
-class AppServiceProvider extends ServiceProvider
+class LDrawServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -16,6 +15,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
+      $this->app->singleton(PartChecker::class, function (Application $app) { 
+        return new PartChecker;
+      });
     } 
 
     /**
@@ -25,10 +27,5 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-      if ($this->app->environment('local')) {
-        Mail::alwaysTo('orion@ldraw.org');
-      }
-      Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
-      //Model::preventLazyLoading(! $this->app->isProduction());
     }
-}
+}    

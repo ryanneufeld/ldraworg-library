@@ -32,7 +32,7 @@ class PartSubmitRequest extends FormRequest
       'partfile.*' => [
         'file', 
         new \App\Rules\LDrawFile,
-        new \App\Rules\LDrawHeader,
+//        new \App\Rules\LDrawHeader,
         new \App\Rules\FileReplace,
         new \App\Rules\FileOfficial,
       ],

@@ -11,42 +11,31 @@ use App\Http\Requests\PartReleaseCreateStep1Request;
 use App\Http\Requests\PartReleaseCreateStep2Request;
 use App\Models\Part;
 
-use App\LDraw\PartCheck;
-
 class PartReleaseController extends Controller
 {
+  public function __construct(
+    protected \App\LDraw\PartChecker $checker
+  ) {}
+
   protected function create() {
     $this->authorize('create', PartRelease::class);
-    $parts = Part::unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
+    $parts = Part::with(['parents', 'subparts'])->unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
     $results = [];
     foreach($parts as $part) {
-      $errors = [];
-      if ($ferrors = PartCheck::checkFile($part->toUploadedFile())) {
-        foreach($ferrors as $error) {
-            if (array_key_exists('args', $error)) {
-              $errors[] = __($error['error'], $error['args']);
-            } else {
-              $errors[] = __($error['error']);;
-            }    
-        }    
-      }
-      if ($herrors = PartCheck::checkHeader($part->toUploadedFile(), ['part_type_id' => $part->part_type_id])) {
-        foreach($herrors as $error) {
-            if (array_key_exists('args', $error)) {
-              $errors[] = __($error['error'], $error['args']);
-            } else {
-              $errors[] = __($error['error']);;
-            }    
-        }    
-      }
-
-      $warnings = PartCheck::historyEventsCrossCheck($part);
-
+      $errors = $this->checker->check($part);
+      $warnings = $this->checker->historyEventsCrossCheck($part);
+      $uncertsubparts = $part->hasUncertifiedSubparts();
+      $certparents = 
+        $part->type->type == "Part" || 
+        $part->type->type == "Shortcut" || 
+        !is_null($part->official_part_id) ||
+        $part->hasCertifiedParent();
       if (isset($part->category) && $part->category->category == "Minifig") {
         $warnings[] = "Check Minifig category: {$part->category->category}";
       }
-      $release = empty($errors) && $part->releasable();
-      $results[] = compact('part', 'release', 'errors', 'warnings');
+
+      $release = is_null($errors) && !$uncertsubparts && $certparents;
+      $results[] = compact('part', 'release', 'errors', 'warnings', 'uncertsubparts', 'certparents');
     }
     return view('tracker.release.create', ['parts' => $results]);
   }
