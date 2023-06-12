@@ -38,7 +38,7 @@ class ReviewSummaryController extends Controller
             'header' => $data['header'],
             'order' => $order 
         ]);
-        return redirect()->route('admin.review-summaries.index')->with('status','Summary Added Successfully');;
+        return redirect()->route('admin.review-summaries.index')->with('status','Summary Added Successfully');
     }
 
     /**

@@ -17,9 +17,4 @@ class VoteType extends Model
       return $this->hasMany(Vote::class, 'vote_type_code', 'code');
     }
     
-    public static function defaultArray() {
-      $arr = ['A','C','H','T'];
-//      foreach (self::all() as $vt) $arr[$vt->code] = 0;
-      return $arr;
-    }
 }

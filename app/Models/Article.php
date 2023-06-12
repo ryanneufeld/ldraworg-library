@@ -43,11 +43,10 @@ class Article extends Model
        if (!empty($this->prop('url'))) {
          return $this->prop('url');
        }
-       elseif (!empty($this->page_url)) {
-         return "/". $this->page_url;
-         
+       if (!empty($this->page_url)) {
+         return "/". $this->page_url;  
        }
-       elseif (!empty($this->hierarchy_path)) {
+       if (!empty($this->hierarchy_path)) {
          return "/". $this->hierarchy_path;
        }
        else {

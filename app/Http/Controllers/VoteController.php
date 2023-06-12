@@ -112,6 +112,6 @@ class VoteController extends Controller
        'part_release_id' => PartRelease::unofficial()->id
       ]);
 
-      return redirect()->route('tracker.show', $pid)->with('status','Vote succesfully canceled');;
+      return redirect()->route('tracker.show', $pid)->with('status','Vote succesfully canceled');
     }
 }
