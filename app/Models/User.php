@@ -137,7 +137,7 @@ class User extends Authenticatable
         $vote->save();
       }
       else {
-        $vote = Vote::create([
+        Vote::create([
           'part_id' => $part->id,
           'user_id' => $this->id,
           'vote_type_code' => $votetype->code,

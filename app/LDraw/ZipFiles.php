@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\Part;
-use App\Models\PartRelease;
 
 class ZipFiles {
   public static function unofficialZip(Part $part, string $oldfilename = null) {
