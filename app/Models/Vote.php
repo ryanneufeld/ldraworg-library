@@ -2,20 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
-
-use App\Models\Part;
-use App\Models\VoteType;
-use App\Models\User;
 
 class Vote extends Model
 {
     protected $fillable = ['user_id', 'part_id', 'vote_type_code'];
 
-//    protected $with = ['user', 'type'];
-    
     public function user()
     {
         return $this->belongsTo(User::class);

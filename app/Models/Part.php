@@ -10,18 +10,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Collection;
 
-use App\Models\User;
-use App\Models\PartCategory;
-use App\Models\Vote;
-use App\Models\PartRelease;
-use App\Models\PartEvent;
-use App\Models\PartHistory;
-use App\Models\PartType;
-use App\Models\PartTypeQualifier;
-use App\Models\PartLicense;
-use App\Models\PartHelp;
-use App\Models\PartBody;
-
 use App\Jobs\RenderFile;
 use App\Jobs\UpdateZip;
 

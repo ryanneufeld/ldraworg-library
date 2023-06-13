@@ -5,8 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
-use App\Models\Part;
-
 class PartCategory extends Model
 {
     public $timestamps = false;

@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
 
-use App\Models\Parts;
-
-
 class PartRelease extends Model
 {
     use HasFactory;

@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\Part;
-
 class PartBody extends Model
 {
   protected $fillable = [

@@ -4,12 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\Part;
-use App\Models\PartEventType;
-use App\Models\PartRelease;
-use App\Models\VoteType;
-use App\Models\User;
-
 class PartEvent extends Model
 {
     protected $fillable = [
