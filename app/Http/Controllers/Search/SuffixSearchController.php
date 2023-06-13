@@ -8,7 +8,7 @@ use App\Models\Part;
 
 class SuffixSearchController extends Controller
 {
-    public function index(Request $request) {
+    public function __invoke(Request $request) {
       $input = $request->all();
       if (!empty($input['s']) && is_string($input['s'])) {
         if (strpos($input['s'], '.dat') === false) $input['s'] .= '.dat';

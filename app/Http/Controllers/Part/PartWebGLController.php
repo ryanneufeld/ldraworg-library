@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class PartWebGLController extends Controller
 {
-    public function show (Part $part) {
+    public function __invoke(Part $part) {
         $parts = new Collection;
         $part->dependencies($parts, $part->isUnofficial());
         $webgl = [];

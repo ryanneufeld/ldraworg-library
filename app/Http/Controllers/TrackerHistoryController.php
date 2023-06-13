@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class TrackerHistoryController extends Controller
 {
-    public function show(Request $request) {
+    public function __invoke(Request $request) {
         $history = \App\Models\TrackerHistory::latest()->get();
         $data = [];
         foreach($history as $h) {  

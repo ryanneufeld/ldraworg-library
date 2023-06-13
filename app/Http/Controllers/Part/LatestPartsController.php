@@ -9,7 +9,7 @@ use App\Models\PartEvent;
 
 class LatestPartsController extends Controller
 {
-    public function index(Request $request) {
+    public function __invoke(Request $request) {
         $events = PartEvent::with(['part'])->where('initial_submit', true)->whereHas('part', function ($q) {
             $q->whereRelation('type', 'folder', 'parts/');
         })->latest()->take(8)->get();

@@ -28,8 +28,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth', 'currentlic'])->post('/submit', [PartController::class, 'store'])->name('store');
 
   Route::get('/list', [PartController::class, 'index'])->name('index');
-  Route::get('/weekly', [\App\Http\Controllers\Part\WeeklyPartController::class, 'index'])->name('weekly');
-  Route::get('/history', [\App\Http\Controllers\TrackerHistoryController::class, 'show'])->name('history');
+  Route::get('/weekly', \App\Http\Controllers\Part\WeeklyPartController::class)->name('weekly');
+  Route::get('/history', \App\Http\Controllers\TrackerHistoryController::class)->name('history');
   Route::get('/summary/{summary}', [\App\Http\Controllers\ReviewSummaryController::class, 'show'])->name('summary');
 
   Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'edit'])->name('edit');
@@ -55,7 +55,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->post('/{part}/vote', [VoteController::class, 'store'])->name('vote.store');
   Route::middleware(['auth'])->put('/vote/{vote}', [VoteController::class, 'update'])->name('vote.update');
 
-  Route::get('/activity', [PartEventController::class, 'index'])->name('activity');
+  Route::get('/activity', PartEventController::class)->name('activity');
 
   Route::get('/next-release', \App\Http\Controllers\Part\NonAdminReleaseController::class)->name('next-release');
 
@@ -72,22 +72,22 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-  Route::get('dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])->middleware('can:admin.view-dashboard')->name('dashboard');
+  Route::get('dashboard', \App\Http\Controllers\AdminDashboardController::class)->middleware('can:admin.view-dashboard')->name('dashboard');
   Route::resource('users', UserController::class);
   Route::resource('roles', RoleController::class);
   Route::resource('review-summaries', \App\Http\Controllers\ReviewSummaryController::class)->except(['create', 'show']);
 });
 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
-  Route::get('/', [\App\Http\Controllers\UserDashboardController::class, 'index'])->name('index');
+  Route::get('/', \App\Http\Controllers\UserDashboardController::class)->name('index');
 });
 
 Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
 Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view'])->name('part-update.view');
 
 Route::redirect('/search', '/search/part');
-Route::get('/search/part', [PartSearchController::class, 'index'])->name('search.part');
-Route::get('/search/suffix', [SuffixSearchController::class, 'index'])->name('search.suffix');
+Route::get('/search/part', PartSearchController::class)->name('search.part');
+Route::get('/search/suffix', SuffixSearchController::class)->name('search.suffix');
 
 Route::prefix('official')->name('official.')->group(function () {
   Route::redirect('/search', '/search/part');
@@ -101,8 +101,8 @@ Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
 Route::redirect('/omr', 'https://omr.ldraw.org')->name('omr');
 Route::redirect('/documentation', 'https://www.ldraw.org/docs-main.html')->name('doc');
 
-Route::get('/library/official/{officialpart}', [PartDownloadController::class, 'show'])->name('official.download');
-Route::get('/library/unofficial/{unofficialpart}', [PartDownloadController::class, 'show'])->name('unofficial.download');
+Route::get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
+Route::get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');
 
 
 // Only enable this route for testing

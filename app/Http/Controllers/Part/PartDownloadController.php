@@ -14,7 +14,7 @@ class PartDownloadController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function show(Part $part) {
+    public function __invoke(Part $part) {
         return response()->streamDownload(function() use ($part) { 
             echo $part->get(); 
         }, basename($part->filename), ['Content-Type' => $part->isTexmap() ? 'image/png' : 'text/plain']);

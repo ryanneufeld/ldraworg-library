@@ -9,7 +9,7 @@ use App\Models\Part;
 
 class WeeklyPartController extends Controller
 {
-    public function index(Request $request)
+    public function __invoke(Request $request)
     {
         $parts = Part::with('type')->
         select()->
