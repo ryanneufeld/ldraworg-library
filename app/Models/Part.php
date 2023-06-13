@@ -373,47 +373,6 @@ class Part extends Model
       return $users;
     }
 
-    public function hasCertifiedParent(): bool
-    {
-      if ($this->parents->where('vote_sort', 1)->count() > 0) {
-        return true;
-      }
-      else {
-        foreach($this->parents as $parent) {
-          if ($parent->hasCertifiedParent()) return true;
-        }
-        return false;
-      }
-    }
-
-    public function hasUncertifiedSubparts(): bool
-    {
-      return $this->subparts->where('vote_sort', '!=', 1)->count() > 0;
-    }
-
-    public function releasable(): bool {
-      // Already official
-      if (!$this->isUnofficial()) return true;
-      
-      
-      if ($this->vote_sort == 1) {
-        if ($this->hasUncertifiedSubparts()) {
-          return false;
-        }
-        // Part, Shortcut, or part fix
-        elseif ($this->type->type == "Part" || $this->type->type == "Shortcut" || !is_null($this->official_part_id)) {
-          return true;
-        }
-        // Has a releasable part in the part chain
-        else {
-          return $this->hasCertifiedParent();
-        }
-      } else {
-        return false;
-      }
-      
-    }
-    
     public function refreshHeader(): void {
       $this->header = $this->getHeaderText();
       $this->save();

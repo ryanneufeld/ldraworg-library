@@ -27,7 +27,8 @@ class PartChecker
         } else {
             $type = $file->isTexmap() ? 'image/png' : 'text/plain';
             $text = $file->get();
-            $filename = $file->filename;   
+            $filename = $file->filename;
+            $errors['uncertsubparts'] = $this->hasUncertifiedSubparts($file);
         };
 
         $errors = $this->checkFile($text, $type, $filename);
@@ -35,7 +36,44 @@ class PartChecker
             $herrors = $this->checkHeader($text, $user_part_type_id);
             $errors = is_null($errors) ? $herrors : array_merge($errors, $herrors ?? []);
         }
+
         return $errors;
+    }
+
+    public function checkCanRelease(Part $part): ?array
+    {
+      $errors = $this->check($part) ?? [];
+      $hascertparents = !is_null($part->official_part_id) || $part->type->folder == 'parts/' || $this->hasCertifiedParent($part);
+      if (!$hascertparents) {
+        $errors[] = 'No certified parents';
+      }
+      $hasuncertsubfiles = $this->hasUncertifiedSubparts($part);
+      if ($hasuncertsubfiles) {
+        $errors[] = 'Has uncertified subfiles';
+      }
+      if ($part->manual_hold_flag) {
+        $errors[] = 'Manual hold back by admin';
+      }
+      $can_release = count($errors) == 0 && $hascertparents && !$hasuncertsubfiles && !$part->manual_hold_flag;
+      return compact('can_release', 'hascertparents', 'hasuncertsubfiles', 'errors');
+    }
+
+    public function hasCertifiedParent(Part $part): bool
+    {
+      if ($part->parents->count() == 0 || $part->parents->where('vote_sort', 1)->count() > 0) {
+        return true;
+      }
+      else {
+        foreach($part->parents as $parent) {
+          if ($this->hasCertifiedParent($parent)) return true;
+        }
+        return false;
+      }
+    }
+
+    public function hasUncertifiedSubparts(Part $part): bool
+    {
+      return $part->subparts->where('vote_sort', '!=', 1)->count() > 0;
     }
 
     public function checkFile(string $text, string $type, string $filename): ?array

@@ -22,12 +22,7 @@ class PartCheckMessage extends Component
      */
     public function render(): View|Closure|string
     {
-        $errors = $this->checker->check($this->part);
-        $show = (!is_null($errors) || 
-        (!$this->part->hasCertifiedParent() && $this->part->vote_sort == 1 && $this->part->type->folder != "parts/" && !is_null($this->part->official_part_id)) || 
-        $this->part->hasUncertifiedSubparts() ||
-        $this->part->manual_hold_flag) && 
-        $this->part->isUnofficial();
-        return view('components.part.part-check-message', compact('errors', 'show'));
+        $check = $this->checker->checkCanRelease($this->part);
+        return view('components.part.part-check-message', compact('check'));
     }
 }

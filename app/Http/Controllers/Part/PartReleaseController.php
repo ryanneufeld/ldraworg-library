@@ -22,20 +22,12 @@ class PartReleaseController extends Controller
     $parts = Part::with(['parents', 'subparts'])->unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
     $results = [];
     foreach($parts as $part) {
-      $errors = $this->checker->check($part);
+      $check = $this->checker->checkCanRelease($part);
       $warnings = $this->checker->historyEventsCrossCheck($part);
-      $uncertsubparts = $part->hasUncertifiedSubparts();
-      $certparents = 
-        $part->type->type == "Part" || 
-        $part->type->type == "Shortcut" || 
-        !is_null($part->official_part_id) ||
-        $part->hasCertifiedParent();
       if (isset($part->category) && $part->category->category == "Minifig") {
         $warnings[] = "Check Minifig category: {$part->category->category}";
       }
-
-      $release = is_null($errors) && !$uncertsubparts && $certparents;
-      $results[] = compact('part', 'release', 'errors', 'warnings', 'uncertsubparts', 'certparents');
+      $results[] = compact('part', 'check', 'warnings');
     }
     return view('tracker.release.create', ['parts' => $results]);
   }
