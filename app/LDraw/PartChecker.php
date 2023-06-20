@@ -60,15 +60,7 @@ class PartChecker
 
     public function hasCertifiedParent(Part $part): bool
     {
-      if ($part->parents->count() == 0 || $part->parents->where('vote_sort', 1)->count() > 0) {
-        return true;
-      }
-      else {
-        foreach($part->parents as $parent) {
-          if ($this->hasCertifiedParent($parent)) return true;
-        }
-        return false;
-      }
+      return $part->parents->where('vote_sort', 1)->count() > 0;
     }
 
     public function hasUncertifiedSubparts(Part $part): bool
