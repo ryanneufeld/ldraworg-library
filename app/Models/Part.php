@@ -79,7 +79,7 @@ class Part extends Model
     }
 
     public function keywords() {
-      return $this->belongsToMany(PartKeyword::class, 'parts_part_keywords', 'part_id', 'part_keyword_id');
+      return $this->belongsToMany(PartKeyword::class, 'parts_part_keywords', 'part_id', 'part_keyword_id')->orderBy('keyword');
     }
 
     public function notification_users() {
@@ -461,15 +461,14 @@ class Part extends Model
     public function setKeywords(string $text, bool $withoutMeta = false): void {
       $text = FileUtils::dos2unix($text);
       $kw = $withoutMeta === true ? explode(",", str_replace("\n", ",", $text)) : FileUtils::getKeywords($text);
-
-      $this->keywords()->sync([]);
   
+      $kws = [];
       if (!empty($kw)) {
         foreach($kw as $word) {
-          $keyword = PartKeyword::findByKeywordOrCreate($word);
-          $this->keywords()->attach($keyword);
+          $kws[] = PartKeyword::findByKeywordOrCreate(trim($word))->id;
         }
       }  
+      $this->keywords()->sync($kws);
     }
 
     public function setHistory(string $text): void {
@@ -830,6 +829,7 @@ class Part extends Model
         // Update events with official part id
         PartEvent::where('part_release_id', $release->id)->where('part_id', $this->id)->update(['part_id' => $opart->id]);
         $this->deleteRelationships();
+        \App\Models\ReviewSummaryItem::where('part_id', $this->id)->delete();
         $this->deleteQuietly();
       }
       else {
