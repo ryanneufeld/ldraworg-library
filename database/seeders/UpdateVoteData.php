@@ -18,7 +18,7 @@ class UpdateVoteData extends Seeder
     public function run()
     {
       // Update the cached vote count
-      foreach (Part::whereRelation('release', 'short', 'unof')->lazy() as $part) {
+      foreach (Part::unofficial()->lazy() as $part) {
         $part->updateVoteData(true);
       }
     }

@@ -25,16 +25,15 @@ class PartRelease extends Model
     }
     
     public function toString() {
-      if ($this->short == 'unof') return ''; 
       return $this->short == 'original' ? " ORIGINAL" : " UPDATE {$this->name}";
     }
 
     public static function unofficial() {
-      return self::firstWhere('short','unof');
+      return null; // self::firstWhere('short','unof');
     }
 
     public static function current() {
-      return self::where('short', '<>', 'unof')->latest()->first();
+      return self::latest()->first();
     }      
     
     // Note this is best called as a queued process

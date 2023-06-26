@@ -30,7 +30,7 @@ class PartMoveController extends Controller
                 'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'rename')->id,
                 'user_id' => Auth::user()->id,
                 'comment' => "part $oldname was renamed to {$part->name()}",
-                'part_release_id' => \App\Models\PartRelease::unofficial()->id,
+                'part_release_id' => null,
                 'part_id' => $part->id,
             ]);
        }

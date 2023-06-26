@@ -42,7 +42,7 @@ class PartEventsShow extends Component
                 $q->whereIn('part_event_type_id', array_values($types));
             })->
             when($this->unofficial, function ($q) {
-                $q->whereRelation('release', 'short', 'unof');
+                $q->unofficial();
             })->
             when($this->order == 'oldest', function ($q) {
                 $q->oldest();

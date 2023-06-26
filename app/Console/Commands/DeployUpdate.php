@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Spatie\Permission\Models\Permission;
 use App\Models\Part;
 
 class DeployUpdate extends Command
@@ -27,7 +26,11 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-//      \Spatie\Permission\Models\Permission::create(['name' => 'admin.view-dashboard']);
+        $r = \App\Models\PartRelease::where('short', 'unof')->first();
+
+        Part::where('part_release_id', $r->id)->update(['part_release_id' => null]);
+        \App\Models\PartEvent::where('part_release_id', $r->id)->update(['part_release_id' => null]);
+        $r->delete();
     }
       
 

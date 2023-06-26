@@ -384,7 +384,7 @@ class PartCheck
     $id = $part->id;
     $eusers = User::whereNotIn('name', ['OrionP', 'cwdee', 'sbliss', 'PTadmin'])->
       whereHas('part_events', function (\Illuminate\Database\Eloquent\Builder $query) use ($id) {
-      $query->whereRelation('part_event_type', 'slug', 'submit')->whereRelation('release', 'short', 'unof')->where('part_id', $id);
+      $query->whereRelation('part_event_type', 'slug', 'submit')->unofficial()->where('part_id', $id);
       })->
       get();
     $husers = $part->editHistoryUsers();

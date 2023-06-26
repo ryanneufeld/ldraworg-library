@@ -4,9 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Traits\HasPartRelease;
+
 class PartEvent extends Model
 {
-    protected $fillable = [
+  use HasPartRelease;
+  
+  protected $fillable = [
       'created_at',
       'initial_submit',
       'part_id',
@@ -44,4 +48,5 @@ class PartEvent extends Model
     public function release() {
       return $this->belongsTo(PartRelease::class, 'part_release_id');
     }
+
 }

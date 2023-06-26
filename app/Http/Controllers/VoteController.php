@@ -85,7 +85,7 @@ class VoteController extends Controller
       Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
       $event['user_id'] = Auth::user()->id;
       $event['part_id'] = $part->id;
-      $event['part_release_id'] = PartRelease::unofficial()->id;
+      $event['part_release_id'] = null;
       PartEvent::create($event);
 
       return redirect()->route('tracker.show', $part)->with('status','Vote succesfully posted');
@@ -109,7 +109,7 @@ class VoteController extends Controller
        'user_id' => Auth::user()->id,
        'part_id' => $pid,
        'part_event_type_id' => PartEventType::firstWhere('slug','review')->id,
-       'part_release_id' => PartRelease::unofficial()->id
+       'part_release_id' => null
       ]);
 
       return redirect()->route('tracker.show', $pid)->with('status','Vote succesfully canceled');

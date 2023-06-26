@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Collection;
+
+use App\Models\Traits\HasPartRelease;
 
 use App\Jobs\RenderFile;
 use App\Jobs\UpdateZip;
@@ -18,7 +19,7 @@ use App\LDraw\LibraryOperations;
 
 class Part extends Model
 {
-    use HasFactory;
+    use HasPartRelease;
 
     protected $fillable = [
       'user_id',
@@ -110,14 +111,6 @@ class Part extends Model
       return $this->hasOne(PartBody::class, 'part_id', 'id');
     }
     
-    public function scopeOfficial($query) {
-        return $query->whereRelation('release', 'short', '<>', 'unof');
-    }
-
-    public function scopeUnofficial($query) {
-        return $query->whereRelation('release', 'short', 'unof');
-    }
-
     public function scopeFilenameWithoutFolder($query, string $filename) {
       $filename = str_replace('\\', '/', $filename);
       if (pathinfo($filename, PATHINFO_EXTENSION) == "png") {
@@ -214,7 +207,7 @@ class Part extends Model
     }
 
     public function isUnofficial(): bool {
-      return $this->release->short == 'unof';
+      return is_null($this->part_release_id);
     }
 
     public function hasPatterns(): bool {
@@ -432,7 +425,7 @@ class Part extends Model
           'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'submit')->id,
           'user_id' => Auth::user()->id,
           'comment' => "part {$oldPart->name()} moved to {$newPart->name()}",
-          'part_release_id' => \App\Models\PartRelease::unofficial()->id,
+          'part_release_id' => null,
           'part_id' => $p->id,
         ]);
       UpdateZip::dispatch($p);
@@ -503,7 +496,7 @@ class Part extends Model
 
       if (is_null($rel)) {
         $release = FileUtils::getRelease($text);
-        $rel = PartRelease::firstWhere('name', $release['release']) ?? PartRelease::unofficial();
+        $rel = PartRelease::firstWhere('name', $release['release']);
       }
       
       if ($type->name == 'Part' || ($type->name == 'Shortcut' && mb_strpos($name, "s\\") === false)) {
@@ -524,7 +517,7 @@ class Part extends Model
       $this->fill([
         'user_id' => $user->id,
         'part_category_id' => $cid,
-        'part_release_id' => $rel->id,
+        'part_release_id' => $rel->id ?? null,
         'filename' => $filename,
         'part_type_id' => $type->id,
         'part_type_qualifier_id' => $qual->id ?? null,
@@ -595,7 +588,7 @@ class Part extends Model
         if (is_null($user) || is_null($pt)) throw new \RuntimeException('User and PartType must be supplied for Texmap');
         $this->fill([
           'user_id' => $user->id,
-          'part_release_id' => $rel->id ?? PartRelease::unofficial()->id,
+          'part_release_id' => $rel->id ?? null,
           'part_license_id' => $user->license->id,
           'filename' => $pt->folder . basename($filename),
           'description' => $pt->name . ' ' . basename($filename),
@@ -709,7 +702,7 @@ class Part extends Model
         $upart = self::findUnofficialByName($newName);
         if (is_null($upart)) {
           $upart = new self;
-          $upart->fillFromText($this->get(), false, PartRelease::unofficial());
+          $upart->fillFromText($this->get(), false, null);
           if (!is_null($newType)) $upart->type()->associate($newType);
           $upart->filename = $newName;
           PartHistory::create([
@@ -725,7 +718,7 @@ class Part extends Model
             'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'submit')->id,
             'user_id' => Auth::user()->id,
             'comment' => "part $oldnamestr was moved to {$upart->name()}",
-            'part_release_id' => \App\Models\PartRelease::unofficial()->id,
+            'part_release_id' => null,
             'part_id' => $upart->id,
           ]);
           UpdateZip::dispatch($upart);
@@ -792,7 +785,7 @@ class Part extends Model
         return;
       }
       // Update release for event released parts
-      PartEvent::whereRelation('release', 'short', 'unof')->where('part_id', $this->id)->update(['part_release_id' => $release->id]);
+      PartEvent::unofficial()->where('part_id', $this->id)->update(['part_release_id' => $release->id]);
 
       // Post a release event     
       PartEvent::create([
@@ -960,7 +953,7 @@ class Part extends Model
         else {
           // Update existing part
           $contents = FileUtils::cleanFileText($contents, true, true);
-          $upart->fillFromText($contents, false, PartRelease::unofficial());
+          $upart->fillFromText($contents, false, null);
         }
         $upart->votes()->delete();
         $upart->refresh();
@@ -968,7 +961,7 @@ class Part extends Model
       // Create a new part
       else {
         $init_submit = true;
-        $upart = Part::createFromFile($file, $user, $pt, PartRelease::unofficial());
+        $upart = Part::createFromFile($file, $user, $pt, null);
       }
       
       $upart->updateSubparts(true);
@@ -994,7 +987,7 @@ class Part extends Model
         'part_event_type_id' => PartEventType::firstWhere('slug', 'submit')->id,
         'user_id' => $user->id,
         'part_id' => $upart->id,
-        'part_release_id' => PartRelease::unofficial()->id,
+        'part_release_id' => null,
         'comment' => $comment,
         'initial_submit' => $init_submit,
       ]);        

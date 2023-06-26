@@ -18,7 +18,7 @@ class PartUpdateController extends Controller
       $releases = PartRelease::current();
     }
     else {
-      $releases = PartRelease::where('short', '<>', 'unof')->latest()->get();
+      $releases = PartRelease::latest()->get();
     }
     return view('tracker.release.index', ['releases' => $releases , 'latest' => $request->has('latest')]);
   }
@@ -30,7 +30,7 @@ class PartUpdateController extends Controller
 
   public function ptreleases(Request $request) {
     $output = strtolower($request->query('output'));
-    $releases = PartRelease::where('short', '!=', 'unof')->where('short', '!=', 'original')->oldest()->get();
+    $releases = PartRelease::where('short', '!=', 'original')->oldest()->get();
     if ($output == 'tab') {
       $response = '';
       foreach ($releases as $release) {
