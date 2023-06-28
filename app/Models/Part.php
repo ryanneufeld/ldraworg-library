@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\Traits\HasPartRelease;
+use App\Models\Traits\HasLicense;
 
 use App\Jobs\RenderFile;
 use App\Jobs\UpdateZip;
@@ -19,7 +20,7 @@ use App\LDraw\LibraryOperations;
 
 class Part extends Model
 {
-    use HasPartRelease;
+    use HasLicense, HasPartRelease;
 
     protected $fillable = [
       'user_id',
@@ -59,10 +60,6 @@ class Part extends Model
         return $this->belongsTo(PartCategory::class, 'part_category_id', 'id');
     }
 
-    public function license() {
-        return $this->belongsTo(PartLicense::class, 'part_license_id', 'id');
-    }
-
     public function type() {
         return $this->belongsTo(PartType::class, 'part_type_id', 'id');
     }
@@ -95,10 +92,6 @@ class Part extends Model
         return $this->hasMany(PartEvent::class, 'part_id', 'id');
     }
 
-    public function release() {
-        return $this->belongsTo(PartRelease::class, 'part_release_id', 'id');
-    }
-    
     public function history() {
       return $this->hasMany(PartHistory::class, 'part_id', 'id');
     }

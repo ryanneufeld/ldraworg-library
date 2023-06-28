@@ -6,10 +6,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\Traits\HasLicense;
 
 class User extends Authenticatable
 {
-    use HasRoles, Notifiable;
+    use HasLicense, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -66,11 +67,6 @@ class User extends Authenticatable
     public function part_histories()
     {
         return $this->hasMany(PartHistory::class);
-    }
-
-    public function license()
-    {
-        return $this->belongsTo(PartLicense::class, 'part_license_id', 'id');
     }
 
     public function notification_parts() {

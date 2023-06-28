@@ -44,9 +44,5 @@ class PartEvent extends Model
     public function part() {
       return $this->belongsTo(Part::class);
     }
-    
-    public function release() {
-      return $this->belongsTo(PartRelease::class, 'part_release_id');
-    }
 
 }
