@@ -486,12 +486,12 @@ class Part extends Model
       else {
         $filename = "parts/" . str_replace('\\', '/', $name);
       }
-
-      if (is_null($rel)) {
+/*
+      if (!is_null($rel)) {
         $release = FileUtils::getRelease($text);
         $rel = PartRelease::firstWhere('name', $release['release']);
       }
-      
+*/      
       if ($type->name == 'Part' || ($type->name == 'Shortcut' && mb_strpos($name, "s\\") === false)) {
         $category = PartCategory::findByName(FileUtils::getCategory($text));
         $cid = $category->id;
