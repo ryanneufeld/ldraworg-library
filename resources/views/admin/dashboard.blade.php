@@ -24,6 +24,7 @@
       @can('part.flag.manual-hold')
       <a class="item" data-tab="manual-hold">Parts Administrativly Held</a>
       @endcan
+      <a class="item" data-tab="prims-2">CC BY 2.0 Primitives</a>
     </div>
     @can('part.flag.delete')
     <div class="ui bottom attached tab segment active" data-tab="delete-flagged">
@@ -35,4 +36,7 @@
         <x-part.table :parts="$manual_hold_flags" />
     </div>
     @endcan
+    <div class="ui bottom attached tab segment" data-tab="prims-2">
+        <x-part.table :parts="$prims" />
+    </div>
   </x-layout.base>

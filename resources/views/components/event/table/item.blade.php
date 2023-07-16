@@ -4,7 +4,7 @@
     <x-event.icon :event="$event" type="table"/>
   </td>
   <td>{{$event->user->name ?? ''}}</td>
-  <td>{{$event->created_at}}</td>
+  <td><x-carbon :date="$event->created_at" human />{{--$event->created_at--}}</td>
   <td>
     @isset($event->part)
       @if($event->part->isUnofficial())

@@ -34,6 +34,8 @@ class Part extends Model
       'header',
       'cmdline',
       'bfc',
+      'official_part_id',
+      'unofficial_part_id',
     ];
 
     protected $with = ['release', 'type'];
@@ -104,20 +106,14 @@ class Part extends Model
       return $this->hasOne(PartBody::class, 'part_id', 'id');
     }
     
-    public function scopeFilenameWithoutFolder($query, string $filename) {
-      $filename = str_replace('\\', '/', $filename);
-      if (pathinfo($filename, PATHINFO_EXTENSION) == "png") {
-        $filename = "textures/$filename";
+    public function scopeName($query, string $name) {
+      $name = str_replace('\\', '/', $name);
+      if (pathinfo($name, PATHINFO_EXTENSION) == "png") {
+        $name = "textures/$name";
       }
 
-      return $query->where(function ($q) use ($filename) {
-        $q->orWhere('filename', "p/$filename")->orWhere('filename', "parts/$filename");
-      });
-    }
-
-    public function scopeUserSubmits($query, User $user) {
-      return $query->whereHas('events', function (Builder $query) use ($user) {
-        $query->whereRelation('part_event_type', 'slug', 'submit')->where('user_id', $user->id);
+      return $query->where(function ($q) use ($name) {
+        $q->orWhere('filename', "p/$name")->orWhere('filename', "parts/$name");
       });
     }
 
@@ -137,6 +133,7 @@ class Part extends Model
           break; 
       } 
     }
+    
     public function scopeSearchPart ($query, string $search, string $scope) {
       if (!empty($search)) {
       //Pull the terms out of the search string
@@ -316,28 +313,6 @@ class Part extends Model
       }
     }
     
-    public static function findUnofficialByName(string $name, bool $withoutFolder = false): ?self {
-      $q = self::unofficial();
-      if ($withoutFolder) {
-        $q = $q->filenameWithoutFolder($name);
-      }
-      else {
-        $q = $q->where('filename', str_replace('\\', '/', $name));
-      }
-      return $q->first();
-    }
-
-    public static function findOfficialByName(string $name, bool $withoutFolder = false): ?self {
-      $q = self::official();
-      if ($withoutFolder) {
-        $q = $q->filenameWithoutFolder($name);
-      }
-      else {
-        $q = $q->where('filename', str_replace('\\', '/', $name));
-      }
-      return $q->first();
-    }
-
     // Returns a collection of the users who have edited this part
     public function editHistoryUsers() {
       $id = $this->id;
@@ -822,172 +797,6 @@ class Part extends Model
         $this->release()->associate($release);
         $this->refreshHeader();
       }
-    }
-
-    public function render(): void {
-      $renderdisk = config('ldraw.ldview.dir.render.disk');
-      $renderpath = config('ldraw.ldview.dir.render.path');
-      $renderfullpath = realpath(config("filesystems.disks.$renderdisk.root") . '/' . $renderpath);
-      $officialimagedisk = config('ldraw.ldview.dir.image.official.disk');
-      $officialimagepath = config('ldraw.ldview.dir.image.official.path');
-      $officialimagefullpath = realpath(config("filesystems.disks.$officialimagedisk.root") . '/' . $officialimagepath);
-      $unofficialimagedisk = config('ldraw.ldview.dir.image.unofficial.disk');
-      $unofficialimagepath = config('ldraw.ldview.dir.image.unofficial.path');
-      $unofficialimagefullpath = realpath(config("filesystems.disks.$unofficialimagedisk.root") . '/' . $unofficialimagepath);
-  
-      // Image saving will fail if these directories do not exist
-      LibraryOperations::checkOrCreateStandardDirs($officialimagedisk, $officialimagepath);
-      LibraryOperations::checkOrCreateStandardDirs($unofficialimagedisk, $unofficialimagepath);
-  
-      $file = $renderpath . '/' . basename($this->filename);
-      $contents = $this->get();
-      // Fix an LDView quirk with non-part folder parts
-      if (!$this->isTexmap() && $this->type->folder != 'parts/') {
-        $contents = str_replace(['Unofficial_Subpart', 'Unofficial_Primitive', 'Unofficial_8_Primitive', 'Unofficial_48_Primitive'], 'Unofficial_Part', $contents);
-      }
-      Storage::disk($renderdisk)->put($file, $contents);
-      $filepath = Storage::disk($renderdisk)->path($file);
-      if ($this->isTexmap()) {
-        $tw = config('ldraw.image.thumb.width');
-        $th = config('ldraw.image.thumb.height');
-        if ($this->isUnofficial()) {
-          $thumbpngfile = $unofficialimagefullpath . '/' . substr($this->filename, 0, -4) . '_thumb.png';        
-        }
-        else {
-          $thumbpngfile = $officialimagefullpath . '/' . substr($this->filename, 0, -4) . '_thumb.png';        
-        }
-        list($width, $height) = getimagesize($filepath);
-        $r = $width / $height;
-        if ($tw/$th > $r) {
-            $newwidth = $th*$r;
-        } else {
-            $newwidth = $tw;
-        }
-        $png = imagecreatefrompng($filepath);
-        imagealphablending($png, false);
-        $png = imagescale($png, $newwidth);
-        imagesavealpha($png, true);
-        imagepng($png, $thumbpngfile);
-        exec("optipng $filepath");
-        exec("optipng $thumbpngfile");
-        $this->body->body = base64_encode(Storage::disk($renderdisk)->get($file));
-        $this->body->save();
-        Storage::disk($renderdisk)->delete($file);
-      }
-      else {
-        // LDview requires a p and a parts directory even if empty
-        LibraryOperations::checkOrCreateStandardDirs($renderdisk, "$renderpath/ldraw");
-  
-        $parts = new Collection;
-        $this->dependencies($parts, $this->isUnofficial());
-        $parts = $parts->diff(new Collection([$this]));
-        foreach ($parts as $p) {
-          Storage::disk($renderdisk)->put($renderpath . '/ldraw/' . $p->filename, $p->get());
-        }
-  
-        if ($this->isUnofficial()) {
-          $pngfile = $unofficialimagefullpath . '/' . substr($this->filename, 0, -4) . '.png';
-        }
-        else {
-          $pngfile = $officialimagefullpath . '/' . substr($this->filename, 0, -4) . '.png';
-        }
-        
-        $ldrawdir = $renderfullpath . '/ldraw';
-        $ldconfig = realpath(config('filesystems.disks.library.root') . '/official/LDConfig.ldr');
-        $ldview = config('ldraw.ldview.path');
-  
-        $normal_size = "-SaveWidth=" . config('ldraw.image.normal.width') . " -SaveHeight=" . config('ldraw.image.normal.height');
-        $thumb_size = "-SaveWidth=" . config('ldraw.image.thumb.width') . " -SaveHeight=" . config('ldraw.image.thumb.height');
-        $thumbfile = substr($pngfile, 0, -4) . '_thumb.png';
-        
-        $cmds = ['[General]'];
-        foreach(config('ldraw.ldview.commands') as $command => $value) {
-          $cmds[] = "$command=$value";
-        }  
-        
-        if (array_key_exists($this->basePart(), config('ldraw.ldview.alt-camera'))) {
-          $ac = config('ldraw.ldview.alt-camera');
-          $cmds[] = " -DefaultLatLong=" . $ac[$this->basePart()];
-        }
-        Storage::disk($renderdisk)->put("$renderpath/ldview.ini", implode("\n", $cmds));
-        $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir -IniFile=$renderfullpath/ldview.ini $normal_size -SaveSnapshot=$pngfile";
-        exec($ldviewcmd);
-        exec("optipng $pngfile");
-        $ldviewcmd = "$ldview $filepath -LDConfig=$ldconfig -LDrawDir=$ldrawdir -IniFile=$renderfullpath/ldview.ini $thumb_size -SaveSnapshot=$thumbfile";
-        exec($ldviewcmd);
-        exec("optipng $thumbfile");
-        Storage::disk($renderdisk)->deleteDirectory("$renderpath/ldraw");
-        Storage::disk($renderdisk)->delete($file);
-        Storage::disk($renderdisk)->delete("$renderpath/ldview.ini");
-      }
-    }
-
-    public static function updateOrCreateFromFile($file, User $user, PartType $pt, string $comment = null): self {
-      $filename = basename(strtolower($file->getClientOriginalName()));
-      $contents = $file->get();
-      $upart = Part::findUnofficialByName($pt->folder . $filename);
-      $opart = Part::findOfficialByName($pt->folder . $filename);
-      // Unofficial file exists
-      if (isset($upart)) {
-        $init_submit = false;
-        if ($upart->isTexmap()) {
-          // If the submitter is not the author and has not edited the file before, add a history line
-          if ($upart->user_id <> $user->id && empty($upart->history()->whereFirst('user_id', $user->id)))
-            PartHistory::create(['user_id' => $user->id, 'part_id' => $upart->id, 'comment' => 'edited']);
-          if (is_null($upart->body)) {
-            PartBody::create(['part_id' => $upart->id, 'body' => base64_encode($contents)]);
-          }
-          else {
-            $upart->body->body = base64_encode($contents);
-            $upart->body->save();
-          }            
-          $upart->put($contents);
-        }
-        else {
-          // Update existing part
-          $contents = FileUtils::cleanFileText($contents, true, true);
-          $upart->fillFromText($contents, false, null);
-        }
-        $upart->votes()->delete();
-        $upart->refresh();
-      }
-      // Create a new part
-      else {
-        $init_submit = true;
-        $upart = Part::createFromFile($file, $user, $pt, null);
-      }
-      
-      $upart->updateSubparts(true);
-      $upart->updateImage(true);
-      $upart->saveHeader();
-      Part::unofficial()->whereJsonContains('missing_parts', str_replace(['p/textures/', 'parts/textures/', 'p/', 'parts/'], '', $upart->filename))->each(function($p) {
-        $p->updateSubparts(true);
-        $p->updateImage(true);
-      });
-      if (!empty($opart)) {
-        $upart->official_part_id = $opart->id;
-        $upart->save();
-        $opart->unofficial_part_id = $upart->id;
-        $opart->save();
-        Part::unofficial()->whereHas('subparts', function (Builder $query) use ($opart) {
-          return $query->where('id', $opart->id);
-        })->each(function (Part $part) {
-          $part->updateSubparts(true);
-        });
-      }
-      $user->notification_parts()->syncWithoutDetaching([$upart->id]);
-      PartEvent::create([
-        'part_event_type_id' => PartEventType::firstWhere('slug', 'submit')->id,
-        'user_id' => $user->id,
-        'part_id' => $upart->id,
-        'part_release_id' => null,
-        'comment' => $comment,
-        'initial_submit' => $init_submit,
-      ]);        
-
-      UpdateZip::dispatch($upart);
-      
-      return $upart;
     }
 
     public function diff(self $part2): string {

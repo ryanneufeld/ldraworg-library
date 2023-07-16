@@ -34,10 +34,14 @@ class LDrawFile implements ValidationRule, DataAwareRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {        
-        if ($errors = app(\App\LDraw\PartChecker::class)->check($value, $this->data['part_type_id'])) {
-            foreach($errors as $error) {
-                $fail($error);
-            }    
+        if ($value->getMimeType() !== 'text/plain') {
+            return;
         }
+        $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
+        $errors = app(\App\LDraw\Check\PartChecker::class)->check($part, $this->data['part_type_id']);
+        foreach($errors ?? [] as $error) {
+            $fail($error);
+        }    
+
     }
 }

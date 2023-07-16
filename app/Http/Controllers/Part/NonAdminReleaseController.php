@@ -8,7 +8,7 @@ use App\Models\Part;
 class NonAdminReleaseController extends Controller
 {
   public function __construct(
-    protected \App\LDraw\PartChecker $checker
+    protected \App\LDraw\Check\PartChecker $checker
   ) {}
 
   public function __invoke() {

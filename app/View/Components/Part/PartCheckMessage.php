@@ -14,7 +14,7 @@ class PartCheckMessage extends Component
      */
     public function __construct(
         public Part $part,
-        protected \App\LDraw\PartChecker $checker
+        protected \App\LDraw\Check\PartChecker $checker
     ) {}
 
     /**

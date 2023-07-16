@@ -43,8 +43,8 @@ class FileOfficial implements DataAwareRule, InvokableRule
       $filename = basename(strtolower($value->getClientOriginalName()));
       $pt = PartType::find($this->data['part_type_id']);
       $cannotfix = empty(Auth::user()) || Auth::user()->cannot('part.submit.fix');
-      $official_exists = !empty(Part::findOfficialByName($pt->folder . $filename));
-      $unofficial_exists = !empty(Part::findUnofficialByName($pt->folder . $filename));
+      $official_exists = !empty(Part::official()->name($pt->folder . $filename)->first());
+      $unofficial_exists = !empty(Part::unofficial()->name($pt->folder . $filename)->first());
       if ($official_exists && !$unofficial_exists && $cannotfix) {
         $fail('partcheck.fix.unofficial')->translate();
       }

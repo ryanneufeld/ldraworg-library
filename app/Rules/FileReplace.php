@@ -41,7 +41,7 @@ class FileReplace implements DataAwareRule, InvokableRule
     {
       $filename = basename(strtolower($value->getClientOriginalName()));
       $pt = PartType::find($this->data['part_type_id']);
-      if (!empty(Part::findUnofficialByName($pt->folder . $filename)) && !isset($this->data['replace'])) {
+      if (!empty(Part::unofficial()->name($pt->folder . $filename)->first()) && !isset($this->data['replace'])) {
         $fail('partcheck.replace')->translate();
       }  
     }

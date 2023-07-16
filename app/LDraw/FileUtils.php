@@ -487,8 +487,9 @@ class FileUtils
       foreach ($matches['keywords'] as $line) {
         $line = explode(',', $line);
         foreach ($line as $word) {
-          $word = preg_replace('#\h+#u', ' ', trim($word));
-          $word = preg_replace('#^[\'"](.*)[\'"]$#u', '$1', trim($word));
+          $word = trim($word);
+          $word = preg_replace('#\h+#u', ' ', $word);
+          $word = preg_replace('#^[\'"](.*)[\'"]$#u', '$1', $word);
           if (! empty($word)) {
           $keywords[] = $word;
           }

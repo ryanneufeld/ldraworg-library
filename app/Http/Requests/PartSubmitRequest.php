@@ -30,9 +30,9 @@ class PartSubmitRequest extends FormRequest
       'user_id' => ['required', 'exists:users,id', new \App\Rules\ProxySubmit],
       'partfile' => 'required',
       'partfile.*' => [
-        'file', 
+        'file',
+        new \App\Rules\FileType,
         new \App\Rules\LDrawFile,
-//        new \App\Rules\LDrawHeader,
         new \App\Rules\FileReplace,
         new \App\Rules\FileOfficial,
       ],

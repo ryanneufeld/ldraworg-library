@@ -31,7 +31,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('validLineProvider')]
     public function test_validLine(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->validLine($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->validLine($input));
     }
 
     public static function checkDescriptionProvider(): array
@@ -57,7 +57,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkDescriptionProvider')]
     public function test_checkDescription(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkDescription($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkDescription($input));
     }    
 
     public static function checkLibraryApprovedDescriptionProvider(): array
@@ -75,7 +75,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkLibraryApprovedDescriptionProvider')]
     public function test_checkLibraryApprovedDescription(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkLibraryApprovedDescription($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedDescription($input));
     }    
 
     public static function checkNameProvider(): array
@@ -101,7 +101,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkNameProvider')]
     public function test_checkName(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkName($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkName($input));
     }    
 
     public static function checkLibraryApprovedNameProvider(): array
@@ -124,7 +124,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkLibraryApprovedNameProvider')]
     public function test_checkLibraryApprovedName(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkLibraryApprovedName($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedName($input));
     }    
     
     public static function checkNameAndPartTypeProvider(): array
@@ -146,7 +146,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkNameAndPartTypeProvider')]
     public function test_checkNameAndPartType(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkNameAndPartType($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkNameAndPartType($input));
     }    
 
     public static function checkAuthorProvider(): array
@@ -173,7 +173,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkAuthorProvider')]
     public function test_checkAuthor(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkAuthor($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkAuthor($input));
     }    
 
     public static function checkAuthorInUsersProvider(): array
@@ -194,7 +194,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkAuthorInUsersProvider')]
     public function test_checkAuthorInUsers(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkAuthorInUsers($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkAuthorInUsers($input));
     }    
 
     public static function checkPartTypeProvider(): array
@@ -225,7 +225,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkPartTypeProvider')]
     public function test_checkPartTypeUsers(string $input, bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkPartType($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkPartType($input));
     }    
 
     public static function checkLicenseProvider(): array
@@ -245,7 +245,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkLicenseProvider')]
     public function test_checkLicense(string $input, array|bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkLicense($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkLicense($input));
     }    
 
     public static function checkLibraryApprovedLicenseProvider(): array
@@ -260,7 +260,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkLibraryApprovedLicenseProvider')]
     public function test_checkLibraryApprovedLicense(string $input, array|bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkLibraryApprovedLicense($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedLicense($input));
     }    
 
     public static function checkLibraryBFCCertifyProvider(): array
@@ -276,7 +276,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkLibraryBFCCertifyProvider')]
     public function test_checkLibraryBFCCertify(string $input, array|bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkLibraryBFCCertify($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkLibraryBFCCertify($input));
     }    
 
     public static function checkCategoryProvider(): array
@@ -300,7 +300,7 @@ class PartCheckTest extends TestCase
     #[DataProvider('checkCategoryProvider')]
     public function test_checkCategory(string $input, array|bool $expected): void
     {
-        $this->assertSame($expected, app(\App\LDraw\PartChecker::class)->checkCategory($input));
+        $this->assertSame($expected, app(\App\LDraw\Check\PartChecker::class)->checkCategory($input));
     }    
 
 }

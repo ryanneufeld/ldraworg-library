@@ -34,13 +34,12 @@ return [
   ],
 
   // LDView parameters and paths
-  'ldview' => [
-    'path' => realpath(resource_path('bin/ldview')),
+  'render' => [
     'dir' => [
-      'render' => [
-        'disk' => 'local',
-        'path' => 'tmp',
-      ],
+      'ldconfig' => [
+        'disk' => 'library',
+        'path' => 'official/LDConfig.ldr'
+      ], 
       'image' => [
         'official' => [
           'disk' => 'images',
@@ -52,8 +51,7 @@ return [
         ]      
       ],
     ],
-
-    'commands' => [
+    'options' => [
       'Texmaps' => '1',
       'AutoCrop' => '1',
       'BackgroundColor3' => '0xFFFFFF',
@@ -77,16 +75,17 @@ return [
     ],
 
     'alt-camera' => [
-      '4864' => '30,225',
-      '6268' => '30,225',
-      '4215' => '30,225',
-      '2362' => '30,225',
-      '4865' => '30,225',
-      '4345' => '30,225',
-      '83496' => '-30,45',
-      '11203' => '-30,45',
-      '35459' => '-30,45',
-      '60581' => '30,225',
+      '4864' => '-1 0 0 0 1 0 0 0 -1',
+      '4864a' => '-1 0 0 0 1 0 0 0 -1',
+      '6268' => '-1 0 0 0 1 0 0 0 -1',
+      '4215' => '-1 0 0 0 1 0 0 0 -1',
+      '2362' => '-1 0 0 0 1 0 0 0 -1',
+      '4865' => '-1 0 0 0 1 0 0 0 -1',
+      '4345' => '-1 0 0 0 1 0 0 0 -1',
+      '83496' => '1 0 0 0 -1 0 0 0 -1',
+      '11203' => '1 0 0 0 -1 0 0 0 -1',
+      '35459' => '1 0 0 0 -1 0 0 0 -1',
+      '60581' => '-1 0 0 0 1 0 0 0 -1',
     ],
   ],
   // Max sizes for images
@@ -127,28 +126,28 @@ return [
   // \x20-\x7E\p{Latin}\p{Han}\p{Hiragana}\p{Katakana}\pS
   // Match patterns
   'patterns' => [
-    'description' => '#^\h*0\h+(?P<description>.*)#u',
+    'description' => '#^\h*0\h+(?P<description>.*)\h*#u',
     'library_approved_description' => '#^[^\p{C}\p{Zl}\p{Zp}]+$#u',
-    'name' => '#^\h*0\h+Name:\h+(?P<name>.*?)\s*$#um',
+    'name' => '#^\h*0\h+Name:\h+(?P<name>.*?)\h*$#um',
     'basepart' => '#^([uts]?\d+[a-z]?)(p[0-9a-z]{2,3}|c[0-9a-z]{2}|d[0-9a-z]{2}|k[0-9a-z]{2}|-f[0-9a-z])?\.(dat|png)#u',
     'library_approved_name' => '#^[\\\\a-z0-9_-]+(\.dat|\.png)$#',
-    'author' => '#^\h*0\h+Author:\h+((\[(?P<user2>[a-zA-Z0-9_.-]+)\])|(?P<realname>[^\[\]\r\n]+?)(\h+\[(?P<user>[a-zA-Z0-9_.-]+)\])?)\s*$#um',
-    'type' => '#^\h*0\h+!LDRAW_ORG\h+(?P<unofficial>Unofficial_)?(?P<type>###PartTypes###)(\h+(?P<qual>###PartTypesQualifiers###))?(\h+((?P<releasetype>ORIGINAL|UPDATE)(\h+(?P<release>\d{4}-\d{2}))?))?\s*$#um',
-    'category' => '#^\h*0\h+!CATEGORY\h+(?P<category>.*?)\s*$#um',
-    'license' => '#^\h*0\h+!LICENSE\h+(?P<license>.*?)\s*$#um',
-    'help' => '#^\h*0\h+!HELP\h+(?P<help>.*?)\s*$#um',
-    'keywords' => '#^\h*0\h+!KEYWORDS\h+(?P<keywords>.*?)\s*$#um',
-    'bfc' => '#^\h*0\h+BFC\h+(?P<bfc>CERTIFY(\h+(?P<certwinding>CCW|CW))?|NOCERTIFY|(CCW|CW)|NOCLIP|CLIP(\h+(?<clipwinding>CCW|CW))?)\s*$#um',
-    'cmdline' => '#^\h*0\h+!CMDLINE\h+(?P<cmdline>.*?)\s*$#um',
-    'history' => '#^\h*0\h+!HISTORY\s+(?P<date>\d\d\d\d-\d\d-\d\d)\s+[\[{](?P<user>[\w\s\/\\.-]+)[}\]]\s+(?P<comment>.*?)\s*$#um',
-    'textures' => '#^\s*0\s+!TEXMAP\s+(START|NEXT)\s+(PLANAR|CYLINDRICAL|SPHERICAL)\s+([-\.\d]+\s+){9,11}(?P<texture1>.*?\.png)(\s+GLOSSMAP\s+(?P<texture2>.*?\.png))?\s*$#um',
-    'subparts' => '#^\s*(0\s+!\:\s+)?1\s+((0x)?\d+\s+){1}([-\.\d]+\s+){12}(?P<subpart>.*?\.(dat|ldr))\s*$#um',
+    'author' => '#^\h*0\h+Author:(\h+(?P<realname>[^\[\]\r\n]+?))?(\h+\[(?P<user>[a-zA-Z0-9_.-]+)\])?\h*$#um',
+    'type' => '#^\h*0\h+!LDRAW_ORG\h+(?P<unofficial>Unofficial_)?(?P<type>###PartTypes###)(\h+(?P<qual>###PartTypesQualifiers###))?(\h+((?P<releasetype>ORIGINAL|UPDATE)(\h+(?P<release>\d{4}-\d{2}))?))?\h*$#um',
+    'category' => '#^\h*0\h+!CATEGORY\h+(?P<category>.*?)\h*$#um',
+    'license' => '#^\h*0\h+!LICENSE\h+(?P<license>.*?)\h*$#um',
+    'help' => '#^\h*0\h+!HELP\h+(?P<help>.*?)\h*$#um',
+    'keywords' => '#^\h*0\h+!KEYWORDS\h+(?P<keywords>.*?)\h*$#um',
+    'bfc' => '#^\h*0\h+BFC\h+(?P<bfc>CERTIFY|NOCERTIFY|CCW|CW|NOCLIP|CLIP)(?:\h+)?(?P<winding>CCW|CW)?\h*$#um',
+    'cmdline' => '#^\h*0\h+!CMDLINE\h+(?P<cmdline>.*?)\h*$#um',
+    'history' => '#^\h*0\h+!HISTORY\h+(?P<date>\d\d\d\d-\d\d-\d\d)\h+[\[{](?P<user>[\w\s\/\\.-]+)[}\]]\h+(?P<comment>.*?)\h*$#um',
+    'textures' => '#^\h*0\h+!TEXMAP\h+(START|NEXT)\h+(PLANAR|CYLINDRICAL|SPHERICAL)\h+([-\.\d]+\h+){9,11}(?P<texture1>.*?\.png)(\h+GLOSSMAP\h+(?P<texture2>.*?\.png))?\h*$#um',
+    'subparts' => '#^\h*(0\h+!\:\h+)?1\h+((0x)?\d+\h+){1}([-\.\d]+\h+){12}(?P<subpart>.*?\.(dat|ldr))\h*$#um',
     'line_type_0' => '#^\h*0(?:\h*)(.*)?\s*$#um',
-    'line_type_1' => '#^\h*1\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+(?P<subpart>[\/a-z0-9_.\\\\-]+)\s*?$#um',
-    'line_type_2' => '#^\h*2\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
-    'line_type_3' => '#^\h*3\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
-    'line_type_4' => '#^\h*4\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
-    'line_type_5' => '#^\h*5\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\s*#um',
+    'line_type_1' => '#^\h*1\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+(?P<subpart>[\/a-z0-9_.\\\\-]+)\h*?$#um',
+    'line_type_2' => '#^\h*2\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h*#um',
+    'line_type_3' => '#^\h*3\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h*#um',
+    'line_type_4' => '#^\h*4\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h*#um',
+    'line_type_5' => '#^\h*5\h+(?P<color>0x2\d{6}|\d+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h+([\d.-]+)\h*#um',
   ],
 
   'allowed_metas' => [

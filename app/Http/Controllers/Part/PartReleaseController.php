@@ -14,7 +14,7 @@ use App\Models\Part;
 class PartReleaseController extends Controller
 {
   public function __construct(
-    protected \App\LDraw\PartChecker $checker
+    protected \App\LDraw\Check\PartChecker $checker
   ) {}
 
   protected function create() {

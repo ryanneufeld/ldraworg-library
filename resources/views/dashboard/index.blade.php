@@ -5,11 +5,15 @@
   </x-slot>
 <h3 class="ui header">{{Auth::user()->name}}'s Dashboard</h3>
   <div class="ui top attached tabular dashboardmenu menu">
-    <a class="item active" data-tab="submits">My Submits</a>
+    <a class="item active" data-tab="activity">Activity on My Parts</a>
+    <a class="item" data-tab="submits">My Submits</a>
     <a class="item" data-tab="votes">My Votes</a>
     <a class="item" data-tab="tracked">My Tracked Files</a>
   </div>
-  <div class="ui bottom attached tab segment active" data-tab="submits">
+  <div class="ui bottom attached tab segment active" data-tab="activity">
+    <x-event.table :events="$events" />
+  </div>
+  <div class="ui bottom attached tab segment" data-tab="submits">
     <x-part.table :parts="$submits" />
   </div>
   <div class="ui bottom attached tab segment" data-tab="votes">

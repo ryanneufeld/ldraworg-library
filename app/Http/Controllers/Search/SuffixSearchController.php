@@ -13,7 +13,7 @@ class SuffixSearchController extends Controller
       if (!empty($input['s']) && is_string($input['s'])) {
         if (strpos($input['s'], '.dat') === false) $input['s'] .= '.dat';
         $bp = $input['s'];
-        $basepart = Part::findOfficialByName($bp, true) ?? Part::findUnofficialByName($bp, true);
+        $basepart = Part::official()->name($bp)->first() ?? Part::unofficial()->name($bp)->first();
         if (!empty($basepart)) {
           $fn = pathinfo($basepart->filename, PATHINFO_FILENAME);
         } else {
