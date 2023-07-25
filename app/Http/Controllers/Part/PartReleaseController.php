@@ -54,7 +54,7 @@ class PartReleaseController extends Controller
     $release_parts = Part::whereIn('id', $data['ids'])->get();
     $parts = new \Illuminate\Database\Eloquent\Collection;
     foreach($release_parts as $part) {
-      $part->allParents($parts, true);
+        $parts = $part->allParents();
     }
     $parts = $parts->diff(Part::whereIn('id', $data['ids']));
 

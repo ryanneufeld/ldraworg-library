@@ -34,6 +34,7 @@ let quick_search_options = {
 
 let fomantic_init = function() {
 	$('.ui.checkbox').checkbox();
+	$('.ui.radio.checkbox').checkbox();
 	$('.dropdown').dropdown();
 	$('.ui.accordion').accordion();
 	$('table.sortable').tablesort();

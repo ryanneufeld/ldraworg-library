@@ -1,6 +1,7 @@
 <?php
 namespace App\LDraw;
 
+use App\LDraw\Parse\Parser;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -12,7 +13,8 @@ class ZipFiles {
     if (Storage::disk('library')->exists('unofficial/ldrawunf.zip')) {
       $zip->open(Storage::disk('library')->path('unofficial/ldrawunf.zip'));
       if (!is_null($oldfilename)) $zip->deleteName($oldfilename);
-      $zip->addFromString($part->filename, $part->get());
+      $file = $part->get();
+      $zip->addFromString($part->filename, $file);
       $zip->close();        
     }
     else {

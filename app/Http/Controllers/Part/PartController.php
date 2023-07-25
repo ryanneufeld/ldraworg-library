@@ -141,9 +141,12 @@ class PartController extends Controller
             $part->part_type_id = $data['part_type_id'];
         }
         $part->part_type_qualifier_id = $data['part_type_qualifier_id'] ?? null;
-        empty($data['help']) ? $part->setHelp('', true) : $part->setHelp($data['help'], true);
-        empty($data['keywords']) ? $part->setKeywords('', true) : $part->setKeywords($data['keywords'], true);
-        empty($data['history']) ? $part->setHistory('', true) : $part->setHistory($data['history'], true);
+        $help = explode("\n", $data['help']);
+        $keywords = explode("\n", $data['keywords']);
+        $history =  explode("\n", $data['history']);
+//        empty($data['help']) ? $part->setHelp('', true) : $part->setHelp($data['help'], true);
+//        empty($data['keywords']) ? $part->setKeywords('', true) : $part->setKeywords($data['keywords'], true);
+//        empty($data['history']) ? $part->setHistory('', true) : $part->setHistory($data['history'], true);
         $part->cmdline = $data['cmdline'] ?? null;
         
         if(!empty($data['part_category_id']) && $data['part_category_id'] != $part->part_category_id) {
@@ -203,8 +206,7 @@ class PartController extends Controller
     
     public function updatesubparts (Part $part) {
         $this->authorize('update', $part);
-        $this->manager->setSubparts($part, $this->manager->parser->parse($part->get())->subparts);
-        //$part->updateSubparts(true);
+        $part->setSubparts($this->manager->parser->getSubparts($part->body->body));
         return redirect()->route('tracker.show', [$part])->with('status','Part dependencies updated');
     }
 }

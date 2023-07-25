@@ -1,4 +1,3 @@
-@props(['copyuser', 'editusers'])
 <div class="ui accordion">
   <div class="title">
     <i class="dropdown icon"></i>
@@ -10,11 +9,8 @@
     <br>
     Edits:<br>
     LDraw.org Parts Tracker,
-    @forelse($editusers as $u)
-    @if(!$u->hasRole('Synthetic User'))
-    {{$u->realname}},
-    @endif
-    @empty
-    @endforelse
+    @foreach($editusers as $u)
+        {{$u->realname}},
+    @endforeach
   </div>
 </div>  

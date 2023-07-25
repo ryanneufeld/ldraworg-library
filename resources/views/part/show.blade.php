@@ -118,7 +118,7 @@
     <x-event.list title="File events" :events="$part->events" />
   @endif
     <x-menu.part-detail :part="$part" />
-    <x-part.attribution :copyuser="$part->user" :editusers="$part->editHistoryUsers()" />
+    <x-part.attribution :part="$part" />
     <x-part.3dmodal id="{{$part->id}}" />
   </div>
  

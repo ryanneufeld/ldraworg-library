@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Part;
 
 use App\Models\Part;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\Eloquent\Collection;
 
 class PartWebGLController extends Controller
 {
     public function __invoke(Part $part) {
-        $parts = new Collection;
-        $part->dependencies($parts, $part->isUnofficial());
+        $parts = $part->allSubparts();
+        if ($part->isUnofficial()) {
+            $parts = $parts->whereNull('unofficial_part_id');
+        } else {
+            $parts = $parts->whereNotNull('part_release_id');
+        }
+        $parts->add($part);
         $webgl = [];
         $parts->each(function(Part $p) use (&$webgl) {
             if ($p->isTexmap()) {

@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\PartEvent;
 use Illuminate\Console\Command;
-use App\Models\Part;
+use App\Models\User;
 
 class DeployUpdate extends Command
 {
@@ -26,12 +27,30 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $r = \App\Models\PartRelease::where('short', 'unof')->first();
+        User::each(function (User $u) {
+            if ($u->hasRole('Legacy User')) {
+                $u->account_type = 1;
+                $u->save();
+            } elseif ($u->hasRole('Synthetic User')) {
+                $u->account_type = 2;
+                $u->save();
+            } else {
+                $u->account_type = 0;
+                $u->save();
+            }               
+        });
+        
+        $ptadmin = User::ptadmin();
+        $ptadmin->account_type = 2;
+        $ptadmin->save();
 
-        Part::where('part_release_id', $r->id)->update(['part_release_id' => null]);
-        \App\Models\PartEvent::where('part_release_id', $r->id)->update(['part_release_id' => null]);
-        $r->delete();
-    }
-      
+        PartEvent::whereRelation('part_event_type', 'slug', 'rename')->each(function (PartEvent $e) {
+            if (preg_match('#^part (.*) was renamed to (.*)$#', $e->comment, $matches)) {
+                $e->moved_to_filename = str_replace('\'','', $matches[2]);
+                $e->moved_from_filename = str_replace('\'','', $matches[1]);
+                $e->save();
+            }
+        });
+    }  
 
 }

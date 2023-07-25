@@ -8,7 +8,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PartSubmitted
+class PartRenamed
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -18,6 +18,7 @@ class PartSubmitted
     public function __construct(
         public Part $part,
         public User $user,
-        public ?string $comment = null
+        public string $moved_from,
+        public string $moved_to,
     ) {}
 }

@@ -22,6 +22,7 @@ class Status extends Component
      */
     public function render(): View|Closure|string
     {
+        $codes = array_merge(['A' => 0, 'C' => 0, 'H' => 0, 'T' => 0], $this->part->votes->pluck('vote_type_code')->countBy()->all());
         switch($this->part->vote_sort) {
             case 1:
                 $color = 'brtgrn';
@@ -33,7 +34,7 @@ class Status extends Component
                 break;
             case 3:
                 $color = 'gray';
-                $text = $this->part->vote_summary['A'] +  $this->part->vote_summary['C'] == 1 ? 'Needs 1 More Vote' : 'Needs 2 More Votes';
+                $text = $codes['A'] +  $codes['C'] == 1 ? 'Needs 1 More Vote' : 'Needs 2 More Votes';
                 break;
             case 5:
                 $color = 'red';
@@ -44,9 +45,9 @@ class Status extends Component
         $text = $this->showStatus ? $text : '';
         $code = "(";
         foreach(['T', 'A', 'C', 'H'] as $letter) {
-            $code .= str_repeat($letter, $this->part->vote_summary[$letter]);
+            $code .= str_repeat($letter, $codes[$letter]);
         } 
-        $code .=  $this->part->vote_summary['F'] . ")";
+        $code .= is_null($this->part->official_part_id) ? 'N)' : 'F)';
 
         return view('components.part.status', compact('text','code','color'));
     }

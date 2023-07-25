@@ -34,19 +34,19 @@ class PartChecker
         if (!$part->isTexmap()) {
             $errors = $this->check(ParsedPart::fromPart($part)) ?? [];
         }  
-      $hascertparents = !is_null($part->official_part_id) || $part->type->folder == 'parts/' || $this->hasCertifiedParent($part);
-      if (!$hascertparents) {
-        $errors[] = 'No certified parents';
-      }
-      $hasuncertsubfiles = $this->hasUncertifiedSubparts($part);
-      if ($hasuncertsubfiles) {
-        $errors[] = 'Has uncertified subfiles';
-      }
-      if ($part->manual_hold_flag) {
-        $errors[] = 'Manual hold back by admin';
-      }
-      $can_release = count($errors) == 0 && $hascertparents && !$hasuncertsubfiles && !$part->manual_hold_flag;
-      return compact('can_release', 'hascertparents', 'hasuncertsubfiles', 'errors');
+        $hascertparents = !is_null($part->official_part_id) || $part->type->folder == 'parts/' || $this->hasCertifiedParent($part);
+        if (!$hascertparents) {
+            $errors[] = 'No certified parents';
+        }
+        $hasuncertsubfiles = $this->hasUncertifiedSubparts($part);
+        if ($hasuncertsubfiles) {
+            $errors[] = 'Has uncertified subfiles';
+        }
+        if ($part->manual_hold_flag) {
+            $errors[] = 'Manual hold back by admin';
+        }
+        $can_release = count($errors) == 0 && $hascertparents && !$hasuncertsubfiles && !$part->manual_hold_flag;
+        return compact('can_release', 'hascertparents', 'hasuncertsubfiles', 'errors');
     }
 
     public function hasCertifiedParent(Part $part): bool
@@ -56,7 +56,7 @@ class PartChecker
 
     public function hasUncertifiedSubparts(Part $part): bool
     {
-      return $part->subparts->where('vote_sort', '!=', 1)->count() > 0;
+      return $part->allSubparts()->where('vote_sort', '!=', 1)->count() > 0;
     }
 
     public function checkFile(ParsedPart $part): ?array
@@ -161,14 +161,15 @@ class PartChecker
           $errors[] = __('partcheck.bfc' );
       }
       // Category Check
-      if (!empty($part->metaCategory)) {
-        $validCategory = $this->checkCategory($part->metaCategory);
-        $cat = $part->metaCategory;
-      } else {
-        $validCategory = $this->checkCategory($part->descriptionCategory);
-        $cat = $part->descriptionCategory;
+      if ($pt->folder === 'parts/') {
+          if (!empty($part->metaCategory)) {
+            $validCategory = $this->checkCategory($part->metaCategory);
+            $cat = $part->metaCategory;
+          } else {
+            $validCategory = $this->checkCategory($part->descriptionCategory);
+            $cat = $part->descriptionCategory;
+          }
       }
-      
       if (($pt->type == 'Part' || $pt->type == 'Shortcut') && !$validCategory) {
           $errors[] = __('partcheck.category.invalid', ['value' => $cat] );
       } elseif (($pt->type == 'Part' || $pt->type == 'Shortcut') && $cat == 'Moved' && ($part->description[0] != '~')) {

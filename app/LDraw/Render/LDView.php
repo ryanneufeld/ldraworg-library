@@ -3,7 +3,7 @@
 namespace App\LDraw\Render;
 
 use App\LDraw\LDrawModelMaker;
-use App\LDraw\PartManager;
+use App\LDraw\Parse\Parser;
 use App\Models\Part;
 use GdImage;
 use Illuminate\Support\Facades\Process;
@@ -36,7 +36,7 @@ class LDView
         } else {
             $matrix = "1 0 0 0 1 0 0 0 1";
         }
-        Storage::disk($this->tempDisk)->put($filename, $this->modelmaker->makePartMpd($part, $matrix));
+        Storage::disk($this->tempDisk)->put($filename, $this->modelmaker->partMpd($part, $matrix));
         $filepath = Storage::disk($this->tempDisk)->path($filename);
         
         $normal_size = "-SaveWidth={$this->maxWidth} -SaveHeight={$this->maxWidth}";

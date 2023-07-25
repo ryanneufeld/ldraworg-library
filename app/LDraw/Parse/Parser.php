@@ -375,9 +375,9 @@ class Parser
         $textures = $this->patternMatchAll('textures', $text);
         if (!is_null($textures)) {
             if (array_key_exists('texture2', $textures)) {
-                $textures = array_merge($textures['textures'], $textures['texture2']);
+                $textures = array_merge($textures['texture1'], $textures['texture2']);
             } else {
-                $textures = $textures['textures'];
+                $textures = $textures['texture1'];
             }
             array_walk($textures, function (&$arg) {
                 $arg = mb_strtolower($arg);
