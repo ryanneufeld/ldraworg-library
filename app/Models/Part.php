@@ -326,7 +326,7 @@ class Part extends Model
             }
         } else {
             foreach ($history as $hist) {
-                $u = User::findByName($hist['user']);
+                $u = User::fromAuthor($hist['user'])->first();
                 PartHistory::create([
                     'user_id' => $u->id, 
                     'part_id' => $this->id, 

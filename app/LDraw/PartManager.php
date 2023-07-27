@@ -74,7 +74,7 @@ class PartManager
     {
         $part = $this->parser->parse($text);
         
-        $user = User::findByName($part->username, $part->realname);
+        $user = User::fromAuthor($part->username, $part->realname)->first();
         $type = PartType::firstWhere('type', $part->type);
         $qual = PartTypeQualifier::firstWhere('type', $part->qual);
         $cat = PartCategory::firstWhere('category', $part->metaCategory ?? $part->descriptionCategory);

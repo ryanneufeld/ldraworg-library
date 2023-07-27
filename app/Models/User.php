@@ -79,10 +79,10 @@ class User extends Authenticatable
         });
     }
 
-    public function scopeAuthor(Builder $query, string $username, ?string $realname = null): void
+    public function scopeFromAuthor(Builder $query, string $username, ?string $realname = null): void
     {
         $query->where(function (Builder $q) use ($username, $realname) {
-            $q->orWhere('realname', $username)->orWhere('name', $realname);
+            $q->orWhere('realname', $realname)->orWhere('name', $username);
         });
     }
     
@@ -90,7 +90,7 @@ class User extends Authenticatable
     {
         $this->notification_parts()->toggle([$part->id]);
     }
-
+/*
     // Find by user or real name
     public static function findByName($name, $rname = ''): self
     {
@@ -101,7 +101,7 @@ class User extends Authenticatable
             return self::firstWhere('name',$name);
         }  
     }
-    
+*/    
     public static function ptadmin(): self
     {
         return self::firstWhere('name', 'PTadmin');

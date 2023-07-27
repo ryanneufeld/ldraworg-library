@@ -200,7 +200,7 @@ class PartChecker
           $errors[] = __('partcheck.history.invalid' );
         }
         foreach ($part->history as $hist) {
-          if (is_null(User::findByName($hist['user']))) {
+          if (is_null(User::fromAuthor($hist['user'])->first())) {
               $errors[] = __('partcheck.history.author');
           }
         }  
@@ -283,7 +283,7 @@ class PartChecker
    */
   public function checkAuthorInUsers(string $username, string $realname): bool
   {
-    return !is_null(User::findByName($username, $realname));
+    return !is_null(User::fromAuthor($username, $realname)->first());
   }
 
   /**
