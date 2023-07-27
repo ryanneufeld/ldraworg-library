@@ -2,25 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasParts;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PartCategory extends Model
 {
+    use HasParts;
+
     public $timestamps = false;
 
-    public function parts()
+    public function toString(): string 
     {
-        return $this->hasMany(Part::class);
-    }
-
-    public static function findByName($name) {
-      if (empty(self::firstWhere('category', $name))) Log::debug($name);
-      return self::firstWhere('category', $name);
-    }  
-
-    public function toString() {
-      return "0 !CATEGORY {$this->category}";
+        return "0 !CATEGORY {$this->category}";
     }      
     
 }

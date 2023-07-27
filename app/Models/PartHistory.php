@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasPart;
+use App\Models\Traits\HasUser;
 use Illuminate\Database\Eloquent\Model;
 
 class PartHistory extends Model
 {
+    use HasPart, HasUser;
+
     protected $fillable = [
       'user_id',
       'created_at',
@@ -14,20 +18,11 @@ class PartHistory extends Model
     ];
 
     protected $with = ['user'];
-    
-    public function user()
+        
+    public function toString(): string 
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function part()
-    {
-        return $this->belongsTo(Part::class);
-    }
-    
-    public function toString() {
-      $date = date_format(date_create($this->created_at), "Y-m-d");
-      $user = $this->user->historyString();
-      return "0 !HISTORY $date $user {$this->comment}";
+        $date = date_format(date_create($this->created_at), "Y-m-d");
+        $user = $this->user->historyString();
+        return "0 !HISTORY $date $user {$this->comment}";
     }
 }

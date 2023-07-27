@@ -2,21 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasPart;
 use Illuminate\Database\Eloquent\Model;
 
 class PartHelp extends Model
 {
-  protected $fillable = [
-    'order',
-    'text',
-    'part_id',
-  ];
+    use HasPart;
 
-  public $timestamps = false;
+    protected $fillable = [
+        'order',
+        'text',
+        'part_id',
+    ];
 
-  public function part()
-  {
-      return $this->belongsTo(Part::class);
-  }
-
+    public $timestamps = false;
 }

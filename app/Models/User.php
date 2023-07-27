@@ -7,13 +7,14 @@ use Illuminate\Notifications\Notifiable;
 
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Traits\HasLicense;
+use App\Models\Traits\HasParts;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
-    use HasLicense, HasRoles, Notifiable;
+    use HasParts, HasLicense, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -49,14 +50,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-//    protected $with = ['license'];
-    
-    public function parts(): HasMany
-    {
-        return $this->hasMany(Part::class);
-    }
-
+   
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
@@ -85,6 +79,13 @@ class User extends Authenticatable
         });
     }
 
+    public function scopeAuthor(Builder $query, string $username, ?string $realname = null): void
+    {
+        $query->where(function (Builder $q) use ($username, $realname) {
+            $q->orWhere('realname', $username)->orWhere('name', $realname);
+        });
+    }
+    
     public function togglePartNotification(Part $part): void 
     {
         $this->notification_parts()->toggle([$part->id]);

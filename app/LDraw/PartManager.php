@@ -117,10 +117,11 @@ class PartManager
 
     protected function addOrChangePartFromImage(\GdImage $image, string $filename, User $user, PartType $type): Part
     {
+        $image = $this->png->optimize($image);
+        imagesavealpha($image, true);
         ob_start (); 
         imagepng($image);
-        $image_data = ob_get_contents (); 
-        ob_end_clean (); 
+        $image_data = ob_get_clean();
         $body = base64_encode($image_data);
         $values = [
             'user_id' => $user->id,

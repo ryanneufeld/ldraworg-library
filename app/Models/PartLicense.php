@@ -2,26 +2,23 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasParts;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PartLicense extends Model
 {
+    use HasParts;
+
     public $timestamps = false;
-
-    public function parts()
-    {
-        return $this->hasMany(Part::class);
-    }
-
-    public static function findByName($name) {
-      return self::firstWhere('name', $name);
-    }
     
-    public function toString() {
-      return "0 !LICENSE {$this->text}";
+    public function toString(): string
+    {
+        return "0 !LICENSE {$this->text}";
     }
 
-    public static function default() {
-      return self::firstWhere('name', config('ldraw.license.default'));
+    public static function default(): self 
+    {
+        return self::firstWhere('name', config('ldraw.license.default'));
     }      
 }

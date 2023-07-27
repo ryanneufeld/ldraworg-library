@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ReviewSummary extends Model
 {
@@ -13,7 +14,7 @@ class ReviewSummary extends Model
     
     protected $with = ['items'];
 
-    public function items() 
+    public function items(): HasMany 
     {
         return $this->hasMany(ReviewSummaryItem::class, 'review_summary_id', 'id')->orderBy('order');
     }

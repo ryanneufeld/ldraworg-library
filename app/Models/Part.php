@@ -10,8 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 use App\Models\Traits\HasPartRelease;
 use App\Models\Traits\HasLicense;
-
-use App\LDraw\FileUtils;
+use App\Models\Traits\HasUser;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -19,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Part extends Model
 {
-    use HasLicense, HasPartRelease;
+    use HasLicense, HasPartRelease, HasUser;
 
     protected $fillable = [
         'user_id',
@@ -46,11 +45,6 @@ class Part extends Model
         'minor_edit_data' => AsArrayObject::class,
         'missing_parts' => AsArrayObject::class,
     ];
-
-    public function user(): BelongsTo 
-    {
-        return $this->belongsTo(User::class, 'user_id', 'id');
-    }
 
     public function category(): BelongsTo 
     {
@@ -433,7 +427,7 @@ class Part extends Model
         if (!is_null($this->category)) {
             $cat = str_replace(['~','|','=','_'], '', mb_strstr($this->description, " ", true));
             if ($cat != $this->category->category) {
-                $header[] = "0 !CATEGORY {$this->metaCategory}";
+                $header[] = $this->category->toString();
                 $addBlank = true;
             }
         }

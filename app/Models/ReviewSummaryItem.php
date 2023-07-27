@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasPart;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ReviewSummaryItem extends Model
 {
+    use HasPart;
+
     protected $fillable = [
         'order',
         'review_summary_id',
@@ -15,14 +19,9 @@ class ReviewSummaryItem extends Model
     
     protected $with = ['part'];
 
-    public function review_summary()
+    public function review_summary(): BelongsTo
     {
         return $this->belongsTo(ReviewSummary::class);
-    }
-
-    public function part() 
-    {
-        return $this->belongsTo(Part::class);
     }
     
     public function toString(): string

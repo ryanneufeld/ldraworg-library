@@ -2,23 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasParts;
 use Illuminate\Database\Eloquent\Model;
 
 class PartType extends Model
 {
+    use HasParts;
+
     public $timestamps = false;
-
-    public function parts()
-    {
-        return $this->hasMany(Part::class);
-    }
     
-    public static function findByType($type) {
-      return self::firstWhere('type', $type);
-    }
-
-    public function toString($unofficial = false) {
-      $u = $unofficial ? 'Unofficial_' : '';
-      return "0 !LDRAW_ORG {$u}{$this->type}";
+    public function toString(bool $unofficial = false): string 
+    {
+        $u = $unofficial ? 'Unofficial_' : '';
+        return "0 !LDRAW_ORG {$u}{$this->type}";
     }      
 }

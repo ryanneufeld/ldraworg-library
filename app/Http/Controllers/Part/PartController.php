@@ -95,6 +95,7 @@ class PartController extends Controller
                 $part = $this->manager->addOrChangePart($file->get());
             } else {
                 $image = imagecreatefrompng($file->path());
+                imagesavealpha($image, true);
                 $part = $this->manager->addOrChangePart($image, basename($file->getClientOriginalName()), $user, $pt);
             }
             Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
@@ -132,7 +133,7 @@ class PartController extends Controller
         if (!empty($data['description'])) {
             $part->description = $data['description'];
             $cat = str_replace(['~','|','=','_'], '', mb_strstr($data['description'], " ", true));
-            if ($c = PartCategory::findByName($cat)) {
+            if ($c = PartCategory::firstWhere('category', $cat)) {
               $part->part_category_id = $c->id;
             } 
         }

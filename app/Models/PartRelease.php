@@ -2,38 +2,39 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Traits\HasParts;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PartRelease extends Model
 {
-    use HasFactory;
+    use HasParts;
     
-    protected $fillable = ['name', 'short', 'notes', 'created_at', 'part_data'];
-
-    protected $casts = [
-      'part_list' => AsArrayObject::class,
-      'part_data' => AsArrayObject::class,
+    protected $fillable = [
+        'name', 
+        'short', 
+        'notes', 
+        'created_at', 
+        'part_data'
     ];
 
-    public function parts() {
-      return $this->hasMany(Parts::class);
-    }
+    protected $casts = [
+        'part_list' => AsArrayObject::class,
+        'part_data' => AsArrayObject::class,
+    ];
     
-    public function toString() {
-      return $this->short == 'original' ? " ORIGINAL" : " UPDATE {$this->name}";
+    public function toString(): string 
+    {
+        return $this->short == 'original' ? " ORIGINAL" : " UPDATE {$this->name}";
     }
 
-    public static function unofficial() {
-      return null; // self::firstWhere('short','unof');
-    }
-
-    public static function current() {
-      return self::latest()->first();
+    public static function current(): self 
+    {
+        return self::latest()->first();
     }      
     
     // Note this is best called as a queued process
