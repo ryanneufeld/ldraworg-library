@@ -394,7 +394,7 @@ class Part extends Model
         $header[] = "0 Name: {$this->name()}" ?? '';
         $header[] = $this->user->toString();
 
-        $typestr = $this->type->toString();
+        $typestr = $this->type->toString(is_null($this->release));
         if (!is_null($this->type_qualifier)) {
             $typestr .= " {$this->type_qualifier}";
         }
@@ -432,8 +432,9 @@ class Part extends Model
             }
         }
         if ($this->keywords->count() > 0) {
-            foreach ($this->keywords as $index => $kw) {
-                if (array_key_first($this->keywords) == $index) {
+            $kws = $this->keywords->pluck('keyword')->all();
+            foreach ($kws as $index => $kw) {
+                if (array_key_first($kws) == $index) {
                     $kwline = "0 !KEYWORDS ";
                 }
                 if ($kwline !== "0 !KEYWORDS " && mb_strlen("{$kwline}, {$kw}") > 80) {
@@ -444,7 +445,7 @@ class Part extends Model
                     $kwline .= ", ";
                 }
                 $kwline .= $kw;
-                if (array_key_last($this->keywords) == $index) {
+                if (array_key_last($kws) == $index) {
                     $header[] = $kwline;
                     $addBlank = true;
                 }
