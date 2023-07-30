@@ -24,7 +24,7 @@ class ReviewSummaryEdit extends Component
                 if ($line[0] == '/') {
                     $heading = explode(" ", $line, 2)[1] ?? '';
                     ReviewSummaryItem::create([
-                        'heading' => empty($heading) ? '' :  $heading,
+                        'heading' => empty($heading) ? '' : $heading,
                         'order' => $order + 1,
                         'review_summary_id' => $this->summary->id
                     ]);            

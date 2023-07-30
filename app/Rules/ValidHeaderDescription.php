@@ -15,14 +15,15 @@ class ValidHeaderDescription implements ValidationRule
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void {
-      if (! PartCheck::checkLibraryApprovedDescription("0 $value")) {
-        $fail('partcheck.description.invalidchars')->translate();
-      }
+        if (! app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedDescription("0 $value")) {
+            $fail('partcheck.description.invalidchars')->translate();
+        }
 
-      $isPattern = preg_match('#^[a-z0-9_-]+?p[a-z0-9]{2,3}\.dat$#i', request()->part->name(), $matches);
-      $hasPatternText = preg_match('#^.*?\sPattern(\s\((Obsolete|Needs Work)\))?$#ui', $value, $matches);
-      if (request()->part->type->folder == 'parts/' && $isPattern && !$hasPatternText) {
-          $fail('partcheck.description.patternword')->translate();
-      }
-}
+        if (
+            request()->part->type->folder == 'parts/' && 
+            ! app(\App\LDraw\Check\PartChecker::class)->checkDescriptionForPatternText(request()->part->name(), $value)
+        ) {
+            $fail('partcheck.description.patternword')->translate();
+        }
+    }
 }

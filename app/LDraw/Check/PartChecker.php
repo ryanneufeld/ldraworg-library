@@ -108,11 +108,10 @@ class PartChecker
           $errors[] = __('partcheck.description.invalidchars' );
       }
   
-      $isPattern = preg_match('#^[a-z0-9_-]+?p[a-z0-9]{2,3}\.dat$#i', $name, $matches);
-      $hasPatternText = preg_match('#^.*?\sPattern(\s\((Obsolete|Needs Work)\))?$#ui', $part->description, $matches);
-      if ($pt->folder == 'parts/' && $isPattern && !$hasPatternText) {
+      if ($pt->folder == 'parts/' && !$this->checkDescriptionForPatternText($name, $part->description)) {
           $errors[] = __('partcheck.description.patternword' );
       }
+
       // Note: Name: checks are done in the LDrawFile rule
       // Author checks
       if (! $this->checkAuthorInUsers($part->username ?? '', $part->realname ?? '')) {
@@ -173,26 +172,13 @@ class PartChecker
       if (($pt->type == 'Part' || $pt->type == 'Shortcut') && !$validCategory) {
           $errors[] = __('partcheck.category.invalid', ['value' => $cat] );
       } elseif (($pt->type == 'Part' || $pt->type == 'Shortcut') && $cat == 'Moved' && ($part->description[0] != '~')) {
-          $errors[] = __('partcheck.category.movedto' );
+          $errors[] = __('partcheck.category.movedto');
       }
       // Keyword Check
-      $isPatternOrSticker = preg_match('#^[a-z0-9_-]+?[pd][a-z0-9]{2,3}\.dat$#i', $name, $matches);
-      if ($pt->folder == 'parts/' && $isPatternOrSticker) {
-        if (empty($part->keywords)) {
-          $errors[] = __('partcheck.keywords' );
-        } else {
-          $setfound = false;
-          foreach ($part->keywords as $word) {
-            if (mb_strtolower(explode(' ', trim($word))[0]) == 'set' || mb_strtolower($word) == 'cmf' || mb_strtolower($word) == 'build-a-minifigure') {
-              $setfound = true;
-              break;
-            }
-          }
-          if (! $setfound) {
-              $errors[] = __('partcheck.keywords' );
-          }
-        }
-      }
+      if ($pt->folder == 'parts/' && !$this->checkPatternForSetKeyword($name, $part->keywords ?? [])) {
+        $errors[] = __('partcheck.keywords');
+      }  
+
       // Check History
       if (!is_null($part->history)) {
         $hcount = count($part->history);
@@ -240,6 +226,12 @@ class PartChecker
     return preg_match(config('ldraw.patterns.library_approved_description'), $description, $matches);
   }
 
+    public function checkDescriptionForPatternText(string $name, string $description): bool
+    {
+        $isPattern = preg_match('#^[a-z0-9_-]+?p[a-z0-9]{2,3}\.dat$#i', $name, $matches);
+        $hasPatternText = preg_match('#^.*?\sPattern(\s\((Obsolete|Needs Work)\))?$#ui', $description, $matches);
+        return !$isPattern || ($isPattern && $hasPatternText);
+    }
   /**
    * checkLibraryApprovedName
    *
@@ -350,4 +342,24 @@ class PartChecker
     }
   }
 
+    public function checkPatternForSetKeyword(string $name, array $keywords): bool
+    {
+        $isPatternOrSticker = preg_match('#^[a-z0-9_-]+?[pd][a-z0-9]{2,3}\.dat$#i', $name, $matches);
+        if ($isPatternOrSticker) {
+            if (count($keywords) === 0) {
+                return false;
+            }
+            $setfound = false;
+            foreach ($keywords as $word) {
+                if (mb_strtolower(explode(' ', trim($word))[0]) == 'set' || mb_strtolower($word) == 'cmf' || mb_strtolower($word) == 'build-a-minifigure') {
+                    $setfound = true;
+                    break;
+                }
+            }
+            if (! $setfound) {
+                return false;
+            }
+        }
+        return true;
+    }
 } 

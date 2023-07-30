@@ -2,13 +2,14 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 
 use App\Models\PartType;
 use App\Models\Part;
 
-class FileReplace implements DataAwareRule, InvokableRule
+class FileReplace implements DataAwareRule, ValidationRule
 {
     /**
      * All of the data under validation.
@@ -23,7 +24,7 @@ class FileReplace implements DataAwareRule, InvokableRule
      * @param  array  $data
      * @return $this
      */
-    public function setData($data)
+    public function setData($data): static
     {
         $this->data = $data;
         return $this;
@@ -37,12 +38,17 @@ class FileReplace implements DataAwareRule, InvokableRule
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      * @return void
      */
-    public function __invoke($attribute, $value, $fail)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-      $filename = basename(strtolower($value->getClientOriginalName()));
-      $pt = PartType::find($this->data['part_type_id']);
-      if (!empty(Part::unofficial()->name($pt->folder . $filename)->first()) && !isset($this->data['replace'])) {
-        $fail('partcheck.replace')->translate();
-      }  
+        if ($value->getMimeType() == 'text/plain') {
+            $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
+            $unofficial_exists = !is_null(Part::unofficial()->name($part->name)->first());
+        } else {
+            $filename = $value->getClientOriginalName();
+            $unofficial_exists = !is_null(Part::unofficial()->where('filename', 'LIKE', "%{$filename}")->first());
+        }
+        if ($unofficial_exists && $this->data['replace'] !== true) {
+            $fail('partcheck.replace')->translate();
+        }  
     }
 }

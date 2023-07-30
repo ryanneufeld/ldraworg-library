@@ -2,14 +2,15 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\InvokableRule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\PartType;
 use App\Models\Part;
 
-class FileOfficial implements DataAwareRule, InvokableRule
+class FileOfficial implements DataAwareRule, ValidationRule
 {
     /**
      * All of the data under validation.
@@ -24,7 +25,7 @@ class FileOfficial implements DataAwareRule, InvokableRule
      * @param  array  $data
      * @return $this
      */
-    public function setData($data)
+    public function setData($data): static
     {
         $this->data = $data;
         return $this;
@@ -38,18 +39,23 @@ class FileOfficial implements DataAwareRule, InvokableRule
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      * @return void
      */
-    public function __invoke($attribute, $value, $fail)
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-      $filename = basename(strtolower($value->getClientOriginalName()));
-      $pt = PartType::find($this->data['part_type_id']);
-      $cannotfix = empty(Auth::user()) || Auth::user()->cannot('part.submit.fix');
-      $official_exists = !empty(Part::official()->name($pt->folder . $filename)->first());
-      $unofficial_exists = !empty(Part::unofficial()->name($pt->folder . $filename)->first());
-      if ($official_exists && !$unofficial_exists && $cannotfix) {
-        $fail('partcheck.fix.unofficial')->translate();
-      }
-      elseif ($official_exists && !$unofficial_exists && empty($this->data['partfix'])) {
-        $fail('partcheck.fix.checked')->translate();
-      }  
+        if ($value->getMimeType() == 'text/plain') {
+            $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
+            $official_exists = !is_null(Part::official()->name($part->name)->first());
+            $unofficial_exists = !is_null(Part::unofficial()->name($part->name)->first());
+        } else {
+            $filename = $value->getClientOriginalName();
+            $official_exists = !is_null(Part::official()->where('filename', 'LIKE', "%{$filename}")->first());
+            $unofficial_exists = !is_null(Part::unofficial()->where('filename', 'LIKE', "%{$filename}")->first());
+        }
+        $cannotfix = !Auth::check() || Auth::user()->cannot('part.submit.fix');
+        if ($official_exists && !$unofficial_exists && $cannotfix) {
+            $fail('partcheck.fix.unofficial')->translate();
+        }
+        elseif ($official_exists && !$unofficial_exists && $this->data['officialfix'] !== true) {
+            $fail('partcheck.fix.checked')->translate();
+        }  
     }
 }

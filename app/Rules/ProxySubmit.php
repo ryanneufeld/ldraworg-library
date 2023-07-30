@@ -17,7 +17,7 @@ class ProxySubmit implements InvokableRule
      */
     public function __invoke($attribute, $value, $fail)
     {
-      if (empty(Auth::user()) || (Auth::user()->id <> $value && Auth::user()->cannot('part.submit.proxy'))) {
+      if (!Auth::check() || (!is_null($value) && Auth::user()->cannot('part.submit.proxy'))) {
         $fail('partcheck.proxy')->translate();
       }
     }

@@ -6,8 +6,6 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 
-use App\LDraw\FileUtils;
-
 class ValidHeaderKeywords implements DataAwareRule, ValidationRule
 {
     /**
@@ -43,25 +41,13 @@ class ValidHeaderKeywords implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-      $text = "0 {$this->data['description']}\n0 !KEYWORDS $value";
-      // Keyword Check
-      $keywords = FileUtils::getKeywords($text);
-      $isPatternOrSticker = preg_match('#^[a-z0-9_-]+?[pd][a-z0-9]{2,3}\.dat$#i', request()->part->name(), $matches);
-      if (request()->part->type->folder == 'parts/' && $isPatternOrSticker) {
-        if (empty($keywords)) {
-          $fail('partcheck.keywords')->translate();
-        } else {
-          $setfound = false;
-          foreach ($keywords as $word) {
-            if (mb_strtolower(explode(' ', trim($word))[0]) == 'set' || mb_strtolower($word) == 'cmf' || mb_strtolower($word) == 'build-a-minifigure') {
-              $setfound = true;
-              break;
-            }
-          }
-          if (! $setfound) {
-              $fail('partcheck.keywords')->translate();
-          }
+        $keywords = "0 !KEYWORDS " . str_replace(["\n","\r"], [', ',''], $value);
+        $keywords = app(\App\LDraw\Parse\Parser::class)->getKeywords($keywords) ?? [];
+        if (
+            request()->part->type->folder == 'parts/' && 
+            ! app(\App\LDraw\Check\PartChecker::class)->checkPatternForSetKeyword(request()->part->name(), $keywords)
+        ) {
+            $fail('partcheck.keywords')->translate();
         }
-      }
     }
 }

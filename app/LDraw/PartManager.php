@@ -105,7 +105,7 @@ class PartManager
         $upart->setKeywords($part->keywords ?? []);
         $upart->setHelp($part->help ?? []);
         $upart->setHistory($part->history ?? []);
-        $upart->setSubparts($part->subparts);
+        $upart->setSubparts($part->subparts ?? []);
         $upart->setBody($part->body);       
         $upart->save();
         $upart->refresh();

@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Events\PartHeaderEdited;
 use App\Events\PartRenamed;
 use App\Events\PartSubmitted;
 use App\Models\PartEvent;
@@ -30,11 +31,22 @@ class PartEventSubscriber
         ]);
     }
 
+    public function storePartHeaderEditEvent(PartHeaderEdited $event)
+    {
+        PartEvent::create([
+            'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'edit')->id,
+            'user_id' => $event->user->id,
+            'part_id' => $event->part->id,
+            'comment' => $event->comment,
+        ]);
+    }
+
     public function subscribe(Dispatcher $events): array
     {
         return [
             PartSubmitted::class => 'storeSubmitPartEvent',
             PartRenamed::class => 'storeRenamePartEvent',
+            PartHeaderEdited::class => 'storePartHeaderEditEvent',
         ];
     }
 }

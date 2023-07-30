@@ -26,14 +26,13 @@ class ReviewSummaryItem extends Model
     
     public function toString(): string
     {
-        if (is_null($this->part)) {
-            if (is_null($this->heading)) {
-                return '/';
-            } else {
-                return "/ {$this->heading}";
-            }
-        } else {
-            return $this->part->filename;
+        if (is_null($this->part) && is_null($this->heading)) {
+            return '/';
         }
+        if (is_null($this->part)) {
+            return "/ {$this->heading}";
+        }
+        
+        return $this->part->filename;
     }
 }

@@ -90,18 +90,7 @@ class User extends Authenticatable
     {
         $this->notification_parts()->toggle([$part->id]);
     }
-/*
-    // Find by user or real name
-    public static function findByName($name, $rname = ''): self
-    {
-        if (!empty($rname)) {
-            return self::firstWhere('realname',$rname) ?? self::firstWhere('name',$name);
-        }  
-        else {
-            return self::firstWhere('name',$name);
-        }  
-    }
-*/    
+
     public static function ptadmin(): self
     {
         return self::firstWhere('name', 'PTadmin');
@@ -112,12 +101,11 @@ class User extends Authenticatable
         if ($this->account_type === 1) {
             return $this->realname;
         }
-        elseif ($this->account_type === 2) {
+        if ($this->account_type === 2) {
             return "[{$this->name}]";
         }
-        else {
-            return trim("{$this->realname} [{$this->name}]");
-        }
+        
+        return trim("{$this->realname} [{$this->name}]");
     }
 
     public function historyString(): string 
@@ -125,12 +113,11 @@ class User extends Authenticatable
         if ($this->account_type === 1) {
             return "{{$this->realname}}";
         }
-        elseif ($this->account_type === 2 && $this->name !== 'PTadmin') {
+        if ($this->account_type === 2 && $this->name !== 'PTadmin') {
             return "{{$this->name}}";
         }
-        else {
-            return "[{$this->name}]";
-        }
+
+        return "[{$this->name}]";
     }
     
     public function toString(): string 

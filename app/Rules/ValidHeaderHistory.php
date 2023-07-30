@@ -7,6 +7,8 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 
 use App\LDraw\FileUtils;
+use App\LDraw\Parse\Parser;
+use App\Models\User;
 
 class ValidHeaderHistory implements DataAwareRule, ValidationRule
 {
@@ -43,33 +45,33 @@ class ValidHeaderHistory implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-      if (!is_null($value)) {
-        $lines = explode("\n", FileUtils::dos2unix(rtrim($value)));
-  
-        if (count($lines) != mb_substr_count($value, '0 !HISTORY')) {
-          $fail('partcheck.history.invalid')->translate();
-          return;
-        }  
+        $value = Parser::dos2unix(trim($value));
+        if (!is_null($value)) {
+            $lines = explode("\n", $value);
+            if (count($lines) != mb_substr_count($value, '0 !HISTORY')) {
+                $fail('partcheck.history.invalid')->translate();
+                return;
+            }  
 
-        $history = FileUtils::getHistory($value, true);
-        if (! empty($history)) {
-          foreach ($history as $hist) {
-            if ($hist['user'] == -1) {
-                $fail('partcheck.history.author')->translate();
+            $history = app(\App\LDraw\Parse\Parser::class)->getHistory($value);
+            if (! is_null($history)) {
+                foreach ($history as $hist) {
+                    if (is_null(User::fromAuthor($hist['user'])->first())) {
+                        $fail('partcheck.history.author')->translate();
+                    }
+                }
             }
-          }
         }
-      }
-      
+        
+        $part = request()->part;
 
-      $part = request()->part;
-
-      $hist = '';
-      foreach ($part->history()->oldest()->get() as $h) {
-        $hist .= $h->toString() . "\n";
-      }
-      $hist = rtrim($hist);
-      if (((!empty($hist) && empty($value)) || strpos(FileUtils::dos2unix(rtrim($value)), $hist) === false) && empty($this->data['editcomment'])) 
-        $fail('partcheck.history.alter')->translate();
+        $hist = '';
+        foreach ($part->history()->oldest()->get() as $h) {
+            $hist .= $h->toString() . "\n";
+        }
+        $hist = Parser::dos2unix(trim($hist));
+        if (((!empty($hist) && empty($value)) || $hist !== $value) && empty($this->data['editcomment'])) {
+            $fail('partcheck.history.alter')->translate();
+        }
     }
 }

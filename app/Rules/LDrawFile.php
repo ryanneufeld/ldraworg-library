@@ -38,7 +38,7 @@ class LDrawFile implements ValidationRule, DataAwareRule
             return;
         }
         $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
-        $errors = app(\App\LDraw\Check\PartChecker::class)->check($part, $this->data['part_type_id']);
+        $errors = app(\App\LDraw\Check\PartChecker::class)->check($part);
         foreach($errors ?? [] as $error) {
             $fail($error);
         }    

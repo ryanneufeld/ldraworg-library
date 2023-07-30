@@ -29,7 +29,7 @@ class ValidHeaderCategory implements DataAwareRule, ValidationRule
      *
      * @param  array<string, mixed>  $data
      */
-    public function setData($data)
+    public function setData($data): static
     {
         $this->data = $data;
  
@@ -45,7 +45,7 @@ class ValidHeaderCategory implements DataAwareRule, ValidationRule
     {
       if(request()->part->type->folder == 'parts/') {
         $c = str_replace(['~','|','=','_'], '', mb_strstr($this->data['description'], " ", true));
-        $cat = PartCategory::findByName($c);
+        $cat = PartCategory::firstWhere('category', $c);
         if (empty($cat) && empty($value)) $fail('partcheck.category.invalid')->translate(['value' => $c]);
       }
     }

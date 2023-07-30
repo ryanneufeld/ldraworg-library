@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Part;
 
+use App\Events\PartHeaderEdited;
 use App\Events\PartSubmitted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,16 +53,6 @@ class PartController extends Controller
         $part->events->load('part_event_type', 'user', 'part', 'vote_type');
         $part->user->load('license');
         $part->votes->load('user','type');
-        $urlpattern = '#https?:\/\/(?:www\.)?[a-zA-Z0-9@:%._\+~\#=-]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[a-zA-Z0-9()@:%_\+.~\#?&\/=-]*)#u';
-
-        foreach ($part->events as $e) {
-            if(!is_null($e->comment)) {
-                $e->comment = $this->manager->parser::dos2unix($e->comment);
-                $e->comment = preg_replace('#\n{3,}#us', "\n\n", $e->comment);
-                $e->comment = preg_replace($urlpattern, '<a href="$0">$0</a>', $e->comment);
-                $e->comment = nl2br($e->comment);
-            }  
-        }
         return view('part.show', compact('part'));
     }
 
@@ -129,7 +120,6 @@ class PartController extends Controller
     {
         $this->authorize('update', $part);
         $data = $request->validated();
-        
         if (!empty($data['description'])) {
             $part->description = $data['description'];
             $cat = str_replace(['~','|','=','_'], '', mb_strstr($data['description'], " ", true));
@@ -142,12 +132,11 @@ class PartController extends Controller
             $part->part_type_id = $data['part_type_id'];
         }
         $part->part_type_qualifier_id = $data['part_type_qualifier_id'] ?? null;
-        $help = explode("\n", $data['help']);
-        $keywords = explode("\n", $data['keywords']);
-        $history =  explode("\n", $data['history']);
-//        empty($data['help']) ? $part->setHelp('', true) : $part->setHelp($data['help'], true);
-//        empty($data['keywords']) ? $part->setKeywords('', true) : $part->setKeywords($data['keywords'], true);
-//        empty($data['history']) ? $part->setHistory('', true) : $part->setHistory($data['history'], true);
+        $help = empty($data['help']) ? [] : explode("\n", $this->manager->parser->dos2unix($data['help']));
+        $keywords = empty($data['keywords']) ? '' : str_replace(["\n","\r"], [', ',''], $data['keywords']);
+        $part->setHelp($help);
+        $part->setKeywords($this->manager->parser->getKeywords('0 !KEYWORDS ' . $keywords));
+        $part->setHistory($this->manager->parser->getHistory($this->manager->parser->dos2unix($data['history']) ?? '') ?? []);
         $part->cmdline = $data['cmdline'] ?? null;
         
         if(!empty($data['part_category_id']) && $data['part_category_id'] != $part->part_category_id) {
@@ -156,16 +145,10 @@ class PartController extends Controller
 
         $part->save();
         $part->refresh();
-        $part->refreshHeader();
+        $part->generateHeader();
         
         // Post an event
-        PartEvent::create([
-            'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'edit')->id,
-            'user_id' => Auth::user()->id,
-            'part_id' => $part->id,
-            'part_release_id' => null,
-            'comment' => $data['editcomment'] ?? null,
-        ]);
+        PartHeaderEdited::dispatch($part, Auth::user(), $data['editcomment'] ?? null);
         Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
         UpdateZip::dispatch($part);
 

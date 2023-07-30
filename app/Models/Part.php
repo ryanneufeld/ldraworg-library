@@ -290,7 +290,7 @@ class Part extends Model
         } else {
             $kws = PartKeyword::whereIn('keyword', $keywords)->get();
             $ids = $kws->pluck('id')->all();
-            $new_keywords = collect($keywords)->diff($kws->pluck('keyword')->all());
+            $new_keywords = array_udiff($keywords, $kws->pluck('keyword')->all(), 'strcasecmp');
             foreach($new_keywords as $kw) {
                 $ids[] = PartKeyword::create(['keyword' => $kw])->id;
             }
@@ -410,7 +410,7 @@ class Part extends Model
 
         if ($this->help->count() > 0) {
             foreach($this->help as $h) {
-                $header[] = "0 !HELP $h";
+                $header[] = "0 !HELP {$h->text}";
             }
             $header[] = '';
         }
