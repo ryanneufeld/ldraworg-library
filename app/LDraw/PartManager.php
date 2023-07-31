@@ -2,22 +2,17 @@
 
 namespace App\LDraw;
 
-use App\LDraw\Parse\ParsedPart;
 use App\LDraw\Parse\Parser;
 use App\LDraw\Render\LDrawPng;
 use App\LDraw\Render\LDView;
 use App\Models\Part;
 use App\Models\PartBody;
 use App\Models\PartCategory;
-use App\Models\PartHelp;
-use App\Models\PartHistory;
-use App\Models\PartKeyword;
-use App\Models\PartLicense;
 use App\Models\PartType;
 use App\Models\PartTypeQualifier;
 use App\Models\User;
 use \GDImage;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -57,6 +52,7 @@ class PartManager
             'header' => $part->header,
         ];
         $upart = Part::create($values);
+        $this->updateUnofficialWithOfficialFix($part);
         $upart->setSubparts($part->subparts);
         $upart->setKeywords($part->keywords);
         $upart->setHelp($part->help);
@@ -64,9 +60,7 @@ class PartManager
         $upart->setBody($part->body);
         $upart->save();
         $upart->refresh();
-        $upart->generateHeader();
-        $upart->updateVoteData();
-        $this->updatePartImage($upart);
+        $this->finalizePart($upart);
         return $upart;
     }
 
@@ -91,17 +85,7 @@ class PartManager
             'cmdline' => $part->cmdline,
             'header' => ''
         ];
-        $upart = Part::unofficial()->name($part->name)->first();
-        $opart = Part::official()->name($part->name)->first();
-        if (!is_null($upart)) {
-            $upart->votes()->delete();
-            $upart->fill($values);
-        } elseif (!is_null($opart)) {
-            $values['official_part_id'] = $opart->id;
-            $upart = Part::create($values);
-        } else {
-            $upart = Part::create($values);
-        }
+        $upart = $this->makePart($values);
         $upart->setKeywords($part->keywords ?? []);
         $upart->setHelp($part->help ?? []);
         $upart->setHistory($part->history ?? []);
@@ -109,9 +93,7 @@ class PartManager
         $upart->setBody($part->body);       
         $upart->save();
         $upart->refresh();
-        $upart->generateHeader();
-        $upart->updateVoteData();
-        $this->updatePartImage($upart, true);
+        $this->finalizePart($upart);
         return $upart;
     }
 
@@ -119,10 +101,9 @@ class PartManager
     {
         $image = $this->png->optimize($image);
         imagesavealpha($image, true);
-        ob_start (); 
+        ob_start(); 
         imagepng($image);
         $image_data = ob_get_clean();
-        $body = base64_encode($image_data);
         $values = [
             'user_id' => $user->id,
             'part_license_id' => $user->license->id,
@@ -131,8 +112,18 @@ class PartManager
             'part_type_id' => $type->id,
             'header' => '',
         ];
-        $upart = Part::unofficial()->firstWhere('filename', $type->folder . $filename);
-        $opart = Part::official()->firstWhere('filename', $type->folder . $filename);
+        $upart = $this->makePart($values);
+        $upart->setBody(base64_encode($image_data));       
+        $upart->save();
+        $upart->refresh();
+        $this->finalizePart($upart);
+        return $upart;
+    }
+    
+    protected function makePart(array $values): Part
+    {
+        $upart = Part::unofficial()->firstWhere('filename', $values['filename']);
+        $opart = Part::official()->firstWhere('filename', $values['filename']);
         if (!is_null($upart)) {
             $upart->votes()->delete();
             $upart->fill($values);
@@ -141,23 +132,19 @@ class PartManager
             $upart = Part::create($values);
             $opart->unofficial_part_id = $upart->id;
             $opart->save();
+            $this->updateUnofficialWithOfficialFix($opart);
         } else {
             $upart = Part::create($values);
         }
-        if (is_null ($upart->body)) {
-            PartBody::create([
-                'part_id' => $upart->id,
-                'body' => $body,
-            ]);
-        } else {
-            $upart->body->body = $body;
-        }
-        $upart->save();
-        $upart->refresh();
-        $upart->generateHeader();
-        $upart->updateVoteData();
-        $this->updatePartImage($upart, true);
         return $upart;
+    }
+
+    public function finalizePart(Part $part): void
+    {
+        $part->generateHeader();
+        $part->updateVoteData();
+        $this->updatePartImage($part, true);
+        $this->updateMissing($part->filename);
     }
     
     public function updatePartImage(Part $part, bool $updateParents = false): void
@@ -179,6 +166,25 @@ class PartManager
                 $this->updatePartImage($p);
             }
         }
+    }
+
+    protected function updateMissing(string $filename): void
+    {
+        $name = str_replace(['p/textures/', 'parts/textures/', 'p/', 'parts/'], '', $filename);
+        Part::unofficial()->whereJsonContains('missing_parts', $name)->each(function(Part $p) {
+            $p->setSubparts($this->parser->getSubparts($p->get(false)));
+            $this->updatePartImage($p, true);
+        });
+    }
+
+    protected function updateUnofficialWithOfficialFix(Part $officialPart): void
+    {
+        Part::unofficial()->whereHas('subparts', function (Builder $query) use ($officialPart) {
+            return $query->where('id', $officialPart->id);
+        })->each(function (Part $p) {
+            $p->setSubparts($this->parser->getSubparts($p->get(false)));
+            $this->updatePartImage($p, true);
+        });    
     }
 
     public function addMovedTo(Part $oldPart, Part $newPart): ?Part {
@@ -237,11 +243,7 @@ class PartManager
             $p->body->body = str_replace($oldname, $part->name(), $p->body->body);
             $p->body->save();
         }
-        $n = str_replace('\\', '/', $part->name());
-        Part::unofficial()->whereJsonContains('missing_parts', $n)->each(function($p) {
-            $p->setSubparts($this->parser->getSubparts($p->get(false)));
-            $this->updatePartImage($p, true);
-        });
+        $this->updateMissing($part->name());
         return true;
     }
   

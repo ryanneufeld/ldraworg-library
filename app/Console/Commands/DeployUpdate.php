@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\PartEvent;
+use App\Models\PartType;
 use Illuminate\Console\Command;
 use App\Models\User;
 
@@ -51,6 +52,11 @@ class DeployUpdate extends Command
                 $e->save();
             }
         });
+
+        $pt = PartType::firstWhere('type', 'Texmap');
+        $pt->type = 'Part_Texmap';
+        $pt->name = 'Part TEXMAP Image';
+        $pt->save();
     }  
 
 }

@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\App;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Validation\Validator;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Jobs\UpdateZip;
 use App\Events\PartSubmitted;
 use App\Models\Part;
 use App\Models\PartType;
+use App\Models\User;
 
 class Submit extends Component
 {
@@ -77,23 +77,22 @@ class Submit extends Component
     public function guessPartType(string $filename): PartType
     {
         $manager = App::make(\App\LDraw\PartManager::class);
-        $p = Part::where('filename', 'LIKE', "%{$filename}")->first();
-        
+        $p = Part::firstWhere('filename', 'LIKE', "%{$filename}");
         //Texmap exists, use that type
         if (!is_null($p)) {
             return $p->type;
         }
         // Texmap is used in one of the submitted files, use the type appropriate for that part
-        foreach ($partfiles as $file) {
+        foreach ($this->partfiles as $file) {
             if ($file->getMimeType() == 'text/plain' && stripos($filename, $file->get() !== false)) {
                 $type = $manager->parser->parse($file->get())->type;
-                $pt = PartType::whereFirst('type', $type);
-                $textype = PartType::whereFirst('type', str_replace('Part_', '', $pt->type));
-                if (!is_null($pt)) {
-                    return $pt;
+                $pt = PartType::firstWhere('type', $type);
+                $textype = PartType::firstWhere('type', "{$pt->type}_Texmap");
+                if (!is_null($textype)) {
+                    return $textype;
                 }
             }
         }
-        return PartType::whereFirst('type', 'Texmap');
+        return PartType::firstWhere('type', 'Texmap');
     }
 }

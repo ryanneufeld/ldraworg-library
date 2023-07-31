@@ -29,7 +29,7 @@ class ReviewSummaryEdit extends Component
                         'review_summary_id' => $this->summary->id
                     ]);            
                 } else {
-                    $part = \App\Models\Part::unofficial()->whereFirst('filename', $line) ?? \App\Models\Part::official()->whereFirst('filename', $line);
+                    $part = \App\Models\Part::unofficial()->firstWhere('filename', $line) ?? \App\Models\Part::official()->firstWhere('filename', $line);
                     if (!empty($part)) {
                         ReviewSummaryItem::create([
                             'part_id' => $part->id,
