@@ -47,7 +47,7 @@ class FileReplace implements DataAwareRule, ValidationRule
             $filename = $value->getClientOriginalName();
             $unofficial_exists = !is_null(Part::unofficial()->where('filename', 'LIKE', "%{$filename}")->first());
         }
-        if ($unofficial_exists && $this->data['replace'] !== true) {
+        if ($unofficial_exists && (!array_key_exists('replace', $this->data) || $this->data['replace'] !== true)) {
             $fail('partcheck.replace')->translate();
         }  
     }

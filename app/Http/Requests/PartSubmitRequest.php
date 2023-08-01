@@ -3,58 +3,54 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class PartSubmitRequest extends FormRequest
 {
-  protected $stopOnFirstFailure = false;
+    protected $stopOnFirstFailure = false;
   /**
    * Determine if the user is authorized to make this request.
    *
    * @return bool
    */
-  public function authorize()
-  {
-      return true;
-  }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
   /**
    * Get the validation rules that apply to the request.
    *
    * @return array<string, mixed>
    */
-  public function rules()
-  {
-    return [
-      'part_type_id' => 'required|exists:part_types,id',
-      'comment' => 'nullable|string',
-      'user_id' => ['required', 'exists:users,id', new \App\Rules\ProxySubmit],
-      'partfile' => 'required',
-      'partfile.*' => [
-        'file',
-        new \App\Rules\FileType,
-        new \App\Rules\LDrawFile,
-        new \App\Rules\FileReplace,
-        new \App\Rules\FileOfficial,
-      ],
-    ];
-  }
+    public function rules(): array
+    {
+        return [
+            'comments' => 'nullable|string',
+            'proxy_user_id' => ['nullable', 'exists:users,id', new \App\Rules\ProxySubmit()],
+            'partfiles' => 'required',
+            'partfiles.*' => [
+                'file',
+                'mimetypes:text/plain,image/png',
+                new \App\Rules\LDrawFile(),
+                new \App\Rules\FileReplace(),
+                new \App\Rules\FileOfficial(),
+            ],
+        ];
+    }
 
-  /**
-   * Configure the validator instance.
-   *
-   * @param  \Illuminate\Validation\Validator  $validator
-   * @return void
-   */
-  public function withValidator($validator)
-  {
-      $validator->after(function ($validator) {
-        if (request()->hasFile('partfile')) {
-          $partnames = [];
-          foreach(request()->file('partfile') as $index => $file) {
-            $partnames["partfile.$index"] = basename(strtolower($file->getClientOriginalName()));
-          }  
-          request()->merge(['partnames' => $partnames]);
-        }  
-      });
-  }
+    public function after(): array
+    {
+        return [
+            function (Validator $validator) {
+                if ($this->has('partfiles')) {
+                    $partnames = [];
+                    foreach($this->partfiles as $index => $file) {
+                        $partnames[$index] = strtolower($file->getClientOriginalName());
+                    }
+                    $validator->errors()->add('partnames',$partnames);
+                }  
+            }
+        ];
+    }
 }

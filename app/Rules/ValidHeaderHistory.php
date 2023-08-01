@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 
-use App\LDraw\FileUtils;
 use App\LDraw\Parse\Parser;
 use App\Models\User;
 

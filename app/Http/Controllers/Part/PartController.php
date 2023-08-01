@@ -77,24 +77,54 @@ class PartController extends Controller
     public function store(PartSubmitRequest $request)
     {
         $this->authorize('create', Part::class);
-        $filedata = $request->validated();
-        $user = User::find($filedata['user_id']);
-        $pt = PartType::find($filedata['part_type_id']);
+        $data = $request->validated();
+        if (!is_null($data['proxy_user_id'])) {
+            $user = User::find($data['proxy_user_id']);
+        } else {
+            $user = Auth::user();
+        }
+        
         $parts = new Collection;
-        foreach($filedata['partfile'] as $file) {
+        foreach($data['partfiles'] as $file) {
             if ($file->getMimeType() == 'text/plain') {
                 $part = $this->manager->addOrChangePart($file->get());
             } else {
                 $image = imagecreatefrompng($file->path());
                 imagesavealpha($image, true);
-                $part = $this->manager->addOrChangePart($image, basename($file->getClientOriginalName()), $user, $pt);
+                $part = $this->manager->addOrChangePart(
+                    $image, 
+                    basename($file->getClientOriginalName()), 
+                    $user, 
+                    $this->guessPartType($file->getClientOriginalName(), $data['partfiles'])
+                );
             }
-            Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
+            $user->notification_parts()->syncWithoutDetaching([$part->id]);
             UpdateZip::dispatch($part);
-            PartSubmitted::dispatch($part, Auth::user(), $filedata['comment']);
+            PartSubmitted::dispatch($part, $user, $data['comments']);
             $parts->add($part);
         }
         return view('tracker.postsubmit', ['parts' => $parts]);
+    }
+
+    protected function guessPartType(string $filename, array $partfiles): PartType
+    {
+        $p = Part::firstWhere('filename', 'LIKE', "%{$filename}");
+        //Texmap exists, use that type
+        if (!is_null($p)) {
+            return $p->type;
+        }
+        // Texmap is used in one of the submitted files, use the type appropriate for that part
+        foreach ($partfiles as $file) {
+            if ($file->getMimeType() == 'text/plain' && stripos($filename, $file->get() !== false)) {
+                $type = $this->manager->parser->parse($file->get())->type;
+                $pt = PartType::firstWhere('type', $type);
+                $textype = PartType::firstWhere('type', "{$pt->type}_Texmap");
+                if (!is_null($textype)) {
+                    return $textype;
+                }
+            }
+        }
+        return PartType::firstWhere('type', 'Part_Texmap');
     }
 
     /**
