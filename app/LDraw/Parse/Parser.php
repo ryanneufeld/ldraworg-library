@@ -20,13 +20,13 @@ class Parser
         $p = new ParsedPart(
             $this->getDescription($text),
             $this->getName($text),
-            $author['user'],
-            $author['realname'],
-            $type['unofficial'] == 'Unofficial_',
-            $type['type'],
-            $type['qual'],
-            $type['releasetype'],
-            $type['release'],
+            $author['user'] ?? null,
+            $author['realname'] ?? null,
+            $type['unofficial'] ?? null,
+            $type['type'] ?? null,
+            $type['qual'] ?? null,
+            $type['releasetype'] ?? null,
+            $type['release'] ?? null,
             $this->getLicense($text),
             $this->getHelp($text),
             $bfc['bfc'] == 'CERTIFY' ? $bfc['winding'] : null,
@@ -249,9 +249,17 @@ class Parser
     {
         $author = $this->patternMatch('author', $text);
         if (!is_null($author)) {
-            //preg_match optional pattern bug workaround
-            return array_merge(['user' => '', 'realname' => ''], $author);
-        } 
+            $a = ['realname' => '', 'user' => ''];
+            if (array_key_exists('user', $author)) {
+                $a['user'] = $author['user'];
+            } 
+            if (array_key_exists('realname', $author)) {
+                $a['realname'] = $author['realname'];
+            } 
+
+            return $a['realname'] !== '' || $a['user'] !== '' ? $a : null;
+        }
+        return null;
     }
   
     /**
@@ -292,15 +300,26 @@ class Parser
     public function getType(string $text): ?array
     {
         if (array_key_exists('type', $this->patterns)) {
-            $pattern = str_replace('###PartTypes###', implode('|', $this->types), $this->patterns['type']);
-            $pattern = str_replace('###PartTypesQualifiers###', implode('|', $this->type_qualifiers), $pattern);
+            $pattern = str_replace(['###PartTypes###', '###PartTypesQualifiers###'], [implode('|', $this->types), implode('|', $this->type_qualifiers)], $this->patterns['type']);
+            
             if (preg_match($pattern, $text, $matches)) {
-                //preg_match optional pattern bug workaround
-                $matches = array_merge(['unofficial' => '', 'type' => '', 'qual' => '', 'releasetype' => '', 'release' => ''], $matches);
-                if (array_key_exists('releasetype', $matches) && $matches['releasetype'] == 'ORIGINAL') {
-                    $matches['release'] = 'original';
+                $t = ['unofficial' => false, 'type' => $matches['type'], 'qual' => '', 'releasetype' => '', 'release' => ''];
+                if (array_key_exists('unofficial', $matches) && $matches['unofficial'] !== '') {
+                    $t['unofficial'] = true;
                 }
-                return $matches;
+                if (array_key_exists('qual', $matches)) {
+                    $t['qual'] = $matches['qual'];
+                }
+                if (array_key_exists('releasetype', $matches)) {
+                    $t['releasetype'] = $matches['releasetype'];
+                }
+                if (array_key_exists('release', $matches)) {
+                    $t['release'] = $matches['release'];
+                }
+                if (array_key_exists('releasetype', $matches) && $matches['releasetype'] == 'ORIGINAL') {
+                    $t['release'] = 'original';
+                }
+                return $t;
             }
         }
         return null;
@@ -337,8 +356,11 @@ class Parser
         $bfc = $this->patternMatch('bfc', $text);
         if (!is_null($bfc)) {
             //preg_match optional pattern bug workaround
-            $bfc = array_merge(['bfc' => '', 'winding' => ''], $bfc);
-            return $bfc;
+            $b = ['bfc' => $bfc['bfc'], 'winding' => ''];
+            if (array_key_exists('winding', $bfc)) {
+                $b['winding'] = $bfc['winding'];
+            }
+            return $b;
         }
         return null;
     }
@@ -352,7 +374,14 @@ class Parser
      */
     public function getHistory(string $text): ?array
     {
-        return $this->patternMatchAll('history', $text, PREG_SET_ORDER);
+        $history = $this->patternMatchAll('history', $text, PREG_SET_ORDER);
+        if (!is_null($history)) {
+            foreach($history as &$hist) {
+                $hist = array_filter($hist, 'is_string', ARRAY_FILTER_USE_KEY);
+            }
+            return $history;    
+        }
+        return null;
     }
 
     /**

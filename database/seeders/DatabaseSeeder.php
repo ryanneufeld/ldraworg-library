@@ -28,19 +28,6 @@ class DatabaseSeeder extends Seeder
         PermissionSeeder::class,
         RoleSeeder::class,
         UserSeeder::class,
-
-        LibImport::class,
-/*
-        PartSeeder::class,
-        RelatedPartsSeeder::class,
-        
-        VoteSeeder::class,
-        UpdateVoteData:: class,
-        
-        PartEventSeeder::class,
-        
-        UpdateImages::class,
-*/        
       ]);
     }
 }

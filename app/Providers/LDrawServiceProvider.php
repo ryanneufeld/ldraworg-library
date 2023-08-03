@@ -22,10 +22,12 @@ class LDrawServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(PartChecker::class, function (Application $app) { 
-            return new PartChecker;
+            return new PartChecker(
+                config('ldraw.allowed_metas.body')
+            );
         });        
         $this->app->singleton(LDrawModelMaker::class, function (Application $app) { 
-            return new LDrawModelMaker;
+            return new LDrawModelMaker();
         });
         $this->app->singleton(Parser::class, function (Application $app) { 
             return new Parser(

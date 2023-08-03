@@ -11,6 +11,9 @@ use App\Models\PartCategory;
 
 class PartChecker
 {
+    public function __construct(
+        public readonly array $allowedBodyMetas
+    ) {}
     /**
      * check
      *
@@ -63,7 +66,7 @@ class PartChecker
     {
       if (! $this->checkLibraryApprovedName($part->name)) {
           $errors[] = __('partcheck.name.invalidchars' );
-      } elseif ($part->name[0] == 'x') {
+      } elseif (! $this->checkUnknownPartNumber($part->name)) {
           $errors[] = __('partcheck.name.xparts' );
       }
 
@@ -72,7 +75,7 @@ class PartChecker
       foreach ($text as $index => $line) {
         if (! $this->validLine($line)) {
             $errors[] = __('partcheck.line.invalid', ['value' => $index] );
-        } elseif (! empty($line) && trim($line) != '0' && $line[0] == '0' && ! in_array(explode(' ', trim($line))[1], config('ldraw.allowed_metas.body'), true)) {
+        } elseif (! $this->checkLineAllowedBodyMeta($line)) {
             $errors[] = __('partcheck.line.invalidmeta', ['value' => $index] );
         }
       }  
@@ -83,11 +86,11 @@ class PartChecker
     {
       // Ensure header required metas are present
       $missing = [
-          'description' => !empty($part->description),
-          'name' => !empty($part->name),
-          'author' => !empty($part->username) || !empty($part->realname),
-          'ldraw_org' => !empty($part->type),
-          'license' => !empty($part->license),
+          'description' => !is_null($part->description),
+          'name' => !is_null($part->name),
+          'author' => !is_null($part->username) || !is_null($part->realname),
+          'ldraw_org' => !is_null($part->type),
+          'license' => !is_null($part->license),
       ];
       $exit = false;
       foreach ($missing as $meta => $status) {
@@ -351,7 +354,7 @@ class PartChecker
             }
             $setfound = false;
             foreach ($keywords as $word) {
-                if (mb_strtolower(explode(' ', trim($word))[0]) == 'set' || mb_strtolower($word) == 'cmf' || mb_strtolower($word) == 'build-a-minifigure') {
+                if (mb_strtolower(explode(' ', trim($word))[0]) == 'set' || mb_strtolower(explode(' ', trim($word))[0]) == 'cmf' || mb_strtolower($word) == 'build-a-minifigure') {
                     $setfound = true;
                     break;
                 }
@@ -361,5 +364,18 @@ class PartChecker
             }
         }
         return true;
+    }
+
+    public function checkUnknownPartNumber(string $name): bool
+    {
+        return $name !== '' && $name[0] !== 'x';
+    }
+
+    public function checkLineAllowedBodyMeta(string $line): bool
+    {
+        $words = explode(' ', trim($line));
+        return $words === false ||
+            $words[0] !== '0' || 
+            ($words[0] === '0' && count($words) > 1 && in_array($words[1], $this->allowedBodyMetas, true));
     }
 } 
