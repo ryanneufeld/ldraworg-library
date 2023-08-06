@@ -39,11 +39,10 @@ class Part extends Model
     protected $with = ['release', 'type'];
 
     protected $casts = [
-//        'vote_summary' => AsArrayObject::class,
         'delete_flag' => 'boolean',
         'manual_hold_flag' => 'boolean',
         'minor_edit_data' => AsArrayObject::class,
-        'missing_parts' => AsArrayObject::class,
+        'missing_parts' => 'array',
     ];
 
     public function category(): BelongsTo 
