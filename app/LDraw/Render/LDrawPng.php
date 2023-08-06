@@ -32,8 +32,9 @@ class LDrawPng
     public function optimize(GdImage $image): GdImage
     {
         $filename = Storage::disk($this->tempDisk)->path("{$this->tempPath}/image.png");
+        imagesavealpha($image, true);
         imagepng($image, $filename);
-        Process::run('optipng $filename');
+        Process::run("optipng $filename");
         $image = imagecreatefrompng($filename);
         imagesavealpha($image, true);
         Storage::disk($this->tempDisk)->delete("{$this->tempPath}/image.png");
