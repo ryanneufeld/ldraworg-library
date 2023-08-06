@@ -28,7 +28,7 @@ class PartManager
     {
         if ($part instanceof GDImage) {
             if (is_null($filename) || is_null($user) || is_null($type)) {
-                // Runtime exception
+                throw new RuntimeException("Images must have a non-null user and type");
             } else {
                 return $this->addOrChangePartFromImage($part, $filename, $user, $type);
             }
@@ -144,7 +144,8 @@ class PartManager
         $part->generateHeader();
         $part->updateVoteData();
         $this->updatePartImage($part, true);
-        $this->updateMissing($part->filename);
+        $this->updateMissing($part->name());
+        $part->refresh();
     }
     
     public function updatePartImage(Part $part, bool $updateParents = false): void
@@ -170,8 +171,9 @@ class PartManager
 
     protected function updateMissing(string $filename): void
     {
-        $name = str_replace(['p/textures/', 'parts/textures/', 'p/', 'parts/'], '', $filename);
-        Part::unofficial()->whereJsonContains('missing_parts', $name)->each(function(Part $p) {
+        //$name = str_replace(['p/textures/', 'parts/textures/', 'p/', 'parts/'], '', $filename);
+        //$name = str_replace(['/', '\\']);
+        Part::unofficial()->whereJsonContains('missing_parts', $filename)->each(function(Part $p) {
             $p->setSubparts($this->parser->getSubparts($p->get(false)));
             $this->updatePartImage($p, true);
         });
