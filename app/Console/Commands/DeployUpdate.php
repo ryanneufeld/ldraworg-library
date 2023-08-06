@@ -28,6 +28,7 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        /*
         User::each(function (User $u) {
             if ($u->hasRole('Legacy User')) {
                 $u->account_type = 1;
@@ -57,6 +58,7 @@ class DeployUpdate extends Command
         $pt->type = 'Part_Texmap';
         $pt->name = 'Part TEXMAP Image';
         $pt->save();
+        */
     }  
 
 }

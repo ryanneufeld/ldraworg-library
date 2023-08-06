@@ -28,7 +28,7 @@ class PartManager
     {
         if ($part instanceof GDImage) {
             if (is_null($filename) || is_null($user) || is_null($type)) {
-                throw new RuntimeException("Images must have a non-null user and type");
+                throw new \RuntimeException("Images must have a non-null user and type");
             } else {
                 return $this->addOrChangePartFromImage($part, $filename, $user, $type);
             }

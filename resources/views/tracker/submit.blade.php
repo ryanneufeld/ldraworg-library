@@ -45,7 +45,7 @@
     <div class="inline fields">
         <div class="inline field">
           <div class="ui checkbox">
-            <input type="checkbox" name="replace"></TD>
+            <input type="checkbox" name="replace">
             <label>Replace existing file(s)</label>
           </div>
         </div>
@@ -53,7 +53,7 @@
         @can('part.submit.fix')
         <div class="inline field">
           <div class="ui checkbox">
-            <input type="checkbox" name="officialfix"></TD>
+            <input type="checkbox" name="officialfix">
             <label>New version of official file(s)</label>
           </div>
         </div>
@@ -61,7 +61,9 @@
     </div>
 
     @can('part.submit.proxy')
-    <x-form.select-user name="proxy_user_id" label="Proxy User:" selected="{{old('proxy_user_id')}}" />
+    <x-form.select-user name="proxy_user_id" label="Proxy User:" selected="{{old('proxy_user_id') ?? Auth::user()->id}}" />
+    @else
+    <input type="hidden" name="proxy_user_id" value="{{Auth::user()->id}}">    
     @endcan
     
     <div class="field">

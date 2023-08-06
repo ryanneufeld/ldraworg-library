@@ -27,7 +27,6 @@ class PartChecker
         $errors = $this->checkFile($part);
         $herrors = $this->checkHeader($part);
         $errors = is_null($errors) ? $herrors : array_merge($errors, $herrors ?? []);
-
         return $errors;
     }
 
@@ -375,7 +374,8 @@ class PartChecker
     {
         $words = explode(' ', trim($line));
         return $words === false ||
-            $words[0] !== '0' || 
+            $words[0] !== '0' ||
+            trim($line) === '0' || 
             ($words[0] === '0' && count($words) > 1 && in_array($words[1], $this->allowedBodyMetas, true));
     }
 } 

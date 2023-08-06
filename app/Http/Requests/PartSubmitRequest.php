@@ -27,7 +27,7 @@ class PartSubmitRequest extends FormRequest
     {
         return [
             'comments' => 'nullable|string',
-            'proxy_user_id' => ['nullable', 'exists:users,id', new \App\Rules\ProxySubmit()],
+            'proxy_user_id' => ['exists:users,id', new \App\Rules\ProxySubmit()],
             'partfiles' => 'required',
             'partfiles.*' => [
                 'file',
@@ -43,7 +43,7 @@ class PartSubmitRequest extends FormRequest
     {
         return [
             function (Validator $validator) {
-                if ($this->has('partfiles')) {
+                if (!$validator->errors()->isEmpty() && $this->has('partfiles')) {
                     $partnames = [];
                     foreach($this->partfiles as $index => $file) {
                         $partnames[$index] = strtolower($file->getClientOriginalName());

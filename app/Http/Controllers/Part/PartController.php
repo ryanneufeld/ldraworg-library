@@ -83,7 +83,6 @@ class PartController extends Controller
         } else {
             $user = Auth::user();
         }
-        
         $parts = new Collection;
         foreach($data['partfiles'] as $file) {
             if ($file->getMimeType() == 'text/plain') {

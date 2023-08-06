@@ -12,8 +12,10 @@ class PartEventSubscriber
 {
     public function storeSubmitPartEvent(PartSubmitted $event)
     {
+        $init_submit = is_null(PartEvent::unofficial()->firstWhere('part_id', $event->part->id));
         PartEvent::create([
             'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'submit')->id,
+            'initial_submit' => $init_submit,
             'user_id' => $event->user->id,
             'part_id' => $event->part->id,
             'comment' => $event->comment,
