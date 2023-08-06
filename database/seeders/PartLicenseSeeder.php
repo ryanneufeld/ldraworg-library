@@ -17,7 +17,7 @@ class PartLicenseSeeder extends Seeder
      */
     public function run()
     {
-      $lics = MetaData::getLibraryLicenses();
+      $lics = config('ldraw.part_licenses');
       foreach ($lics as $name => $text) {
         PartLicense::create(['name' => $name, 'text' => $text]);
       }

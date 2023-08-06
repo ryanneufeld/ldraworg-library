@@ -16,7 +16,7 @@ class PartTypeSeeder extends Seeder
      */
     public function run()
     {
-      $types = MetaData::getPartTypes();
+      $types = config('ldraw.part_types');
       foreach ($types as $type => $data) {
         $data['type'] = $type;
         PartType::create($data);

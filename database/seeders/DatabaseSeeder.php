@@ -14,20 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-      file_put_contents(storage_path('logs/laravel.log'),'');
-      Cache::flush();
       $this->call([
         PartCategorySeeder::class,
         PartTypeSeeder::class,
         PartTypeQualifierSeeder::class,
         VoteTypeSeeder::class,
         PartEventTypeSeeder::class,
-        PartReleaseSeeder::class,
         PartLicenseSeeder::class,
-
         PermissionSeeder::class,
         RoleSeeder::class,
-        UserSeeder::class,
       ]);
     }
 }

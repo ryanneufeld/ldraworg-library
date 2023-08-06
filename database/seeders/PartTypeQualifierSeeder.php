@@ -16,7 +16,7 @@ class PartTypeQualifierSeeder extends Seeder
      */
     public function run()
     {
-      $types = MetaData::getPartTypeQualifiers();
+      $types = config('ldraw.part_type_qualifiers');
       foreach ($types as $type => $name) {
         PartTypeQualifier::create(['type' => $type, 'name' => $name]);
       }
