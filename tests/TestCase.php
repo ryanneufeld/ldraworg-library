@@ -9,9 +9,11 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
     
+    protected $seed = true;
+    
     protected function tearDown(): void
     {
-        DB::connection()->setPdo(null);
+        //DB::connection()->setPdo(null);
         parent::tearDown();
     }
 }
