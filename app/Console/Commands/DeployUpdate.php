@@ -2,10 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\PartEvent;
-use App\Models\PartType;
 use Illuminate\Console\Command;
-use App\Models\User;
+use App\Models\Part;
 
 class DeployUpdate extends Command
 {
@@ -28,37 +26,11 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        /*
-        User::each(function (User $u) {
-            if ($u->hasRole('Legacy User')) {
-                $u->account_type = 1;
-                $u->save();
-            } elseif ($u->hasRole('Synthetic User')) {
-                $u->account_type = 2;
-                $u->save();
-            } else {
-                $u->account_type = 0;
-                $u->save();
-            }               
+        $this->info('Updating subparts');
+        Part::with('body')->each(function (Part $p){
+            $s = app(\App\LDraw\Parse\Parser::class)->getSubparts($p->body->body);
+            $p->setSubparts($s ?? []);
         });
-        
-        $ptadmin = User::ptadmin();
-        $ptadmin->account_type = 2;
-        $ptadmin->save();
-
-        PartEvent::whereRelation('part_event_type', 'slug', 'rename')->each(function (PartEvent $e) {
-            if (preg_match('#^part (.*) was renamed to (.*)$#', $e->comment, $matches)) {
-                $e->moved_to_filename = str_replace('\'','', $matches[2]);
-                $e->moved_from_filename = str_replace('\'','', $matches[1]);
-                $e->save();
-            }
-        });
-
-        $pt = PartType::firstWhere('type', 'Texmap');
-        $pt->type = 'Part_Texmap';
-        $pt->name = 'Part TEXMAP Image';
-        $pt->save();
-        */
     }  
 
 }
