@@ -24,10 +24,10 @@ class VoteRequest extends FormRequest
      */
     public function rules(): array
     {
-      $vts = array_merge(VoteType::all()->pluck('code')->all(),['N','M']);
-      return [
-        'vote_type' => ['required' , Rule::in($vts)],
-        'comment' => 'required_if:vote_type,M,H|nullable|string',
-      ];
+        $vts = array_merge(VoteType::all()->pluck('code')->all(),['N','M']);
+        return [
+            'vote_type' => ['required' , Rule::in($vts)],
+            'comment' => 'required_if:vote_type,M,H|nullable|string',
+        ];
     }
 }

@@ -46,10 +46,10 @@ class UserController extends Controller
      */
     public function create(UserCreateRequest $request)
     {
-      $validated = $request->validated();  
-      $roles = Role::pluck('name','name')->all();
-      $user = MybbUser::find($validated['forum_user_id']);
-      return view('admin.users.create', ['roles' => $roles, 'user' => $user]);
+        $validated = $request->validated();  
+        $roles = Role::pluck('name','name')->all();
+        $user = MybbUser::find($validated['forum_user_id']);
+        return view('admin.users.create', ['roles' => $roles, 'user' => $user]);
     }
 
     /**
@@ -63,18 +63,19 @@ class UserController extends Controller
         $validated = $request->validated();
 
         $user = User::create([
-          'name' => $validated['name'],
-          'realname' => $validated['realname'],
-          'email' => $validated['email'],
-          'password' => bcrypt(Str::random(40)),
-          'forum_user_id' => $validated['forum_user_id'],
-          'part_license_id' => $validated['part_license_id'],
+            'name' => $validated['name'],
+            'realname' => $validated['realname'],
+            'email' => $validated['email'],
+            'password' => bcrypt(Str::random(40)),
+            'forum_user_id' => $validated['forum_user_id'],
+            'part_license_id' => $validated['part_license_id'],
         ]);
         $user->syncRoles($validated['roles']);
         $user->save();
         UpdateMybbUser::dispatch($user);
-        return redirect()->route('admin.users.index')
-                        ->with('success','User updated successfully');                        
+        return redirect()->
+            route('admin.users.index')->
+            with('success','User updated successfully');                        
     }
 
     /**
@@ -122,10 +123,10 @@ class UserController extends Controller
             $olddata['part_license_id'] = $user->part_license_id;
         }
         $user->fill([
-          'name' => $validated['name'],
-          'realname' => $validated['realname'],
-          'email' => $validated['email'],
-          'part_license_id' => $validated['part_license_id'],
+            'name' => $validated['name'],
+            'realname' => $validated['realname'],
+            'email' => $validated['email'],
+            'part_license_id' => $validated['part_license_id'],
         ]);
         $user->syncRoles($validated['roles']);
         $user->save();
@@ -133,8 +134,9 @@ class UserController extends Controller
             UserChangePartUpdate::dispatch($user, $olddata);
         }
         UpdateMybbUser::dispatch($user);
-        return redirect()->route('admin.users.index')
-                        ->with('success','User updated successfully');                        
+        return redirect()->
+            route('admin.users.index')->
+            with('success','User updated successfully');                        
     }
 
     /**
@@ -146,7 +148,8 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->route('users.index')
-                        ->with('success','User deleted successfully');
+        return redirect()->
+            route('users.index')->
+            with('success','User deleted successfully');
     }
 }

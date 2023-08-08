@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Vote;
 use App\Models\Part;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Facades\Log;
 
 class VotePolicy
 {
@@ -20,28 +19,27 @@ class VotePolicy
      */
     public function create(User $user, Part $part)
     {
-      if ($part->user_id == $user->id) {
-        return $user->hasAnyPermission([
-          'part.vote.certify', 
-          'part.vote.admincertify',
-          'part.vote.fastrack',
-          'part.vote.hold',
-          'part.comment',
-          'part.own.vote.certify', 
-          'part.own.vote.hold',
-          'part.own.comment',
-        ]);
-      }
-      else {
-        return $user->hasAnyPermission([
-          'part.vote.certify', 
-          'part.vote.admincertify',
-          'part.vote.fastrack',
-          'part.vote.hold',
-          'part.vote.novote',
-          'part.comment',
-        ]);
-      }  
+        if ($part->user_id == $user->id) {
+            return $user->hasAnyPermission([
+            'part.vote.certify', 
+            'part.vote.admincertify',
+            'part.vote.fastrack',
+            'part.vote.hold',
+            'part.comment',
+            'part.own.vote.certify', 
+            'part.own.vote.hold',
+            'part.own.comment',
+            ]);
+        } else {
+            return $user->hasAnyPermission([
+            'part.vote.certify', 
+            'part.vote.admincertify',
+            'part.vote.fastrack',
+            'part.vote.hold',
+            'part.vote.novote',
+            'part.comment',
+            ]);
+        }  
     }
 
     /**
@@ -53,32 +51,7 @@ class VotePolicy
      */
     public function update(User $user, Vote $vote)
     {
-      return $vote->user_id === $user->id;
-      /*
-      if ($vote->user_id !== $user->id) return false;
-      if ($vote->part->user_id == $user->id) {
-        return $user->hasAnyPermission([
-          'part.vote.certify', 
-          'part.own.vote.certify', 
-          'part.vote.admincertify',
-          'part.vote.fastrack',
-          'part.vote.hold',
-          'part.vote.own.hold',
-          'part.comment',
-          'part.own.comment',
-        ]);
-      }
-      else {
-        return $user->hasAnyPermission([
-          'part.vote.certify', 
-          'part.vote.admincertify',
-          'part.vote.fastrack',
-          'part.vote.hold',
-          'part.vote.novote',
-          'part.comment',
-        ]);
-      }
-      */      
+        return $vote->user_id === $user->id;
     }
 
     /**
@@ -90,31 +63,6 @@ class VotePolicy
      */
     public function delete(User $user, Vote $vote)
     {
-      return $vote->user_id === $user->id;
-      /*
-      if ($vote->user_id !== $user->id) return false;
-      if ($vote->part->user_id == $user->id) {
-        return $user->hasAnyPermission([
-          'part.vote.certify', 
-          'part.own.vote.certify', 
-          'part.vote.admincertify',
-          'part.vote.fastrack',
-          'part.vote.hold',
-          'part.vote.own.hold',
-          'part.comment',
-          'part.own.comment',
-        ]);
-      }
-      else {
-        return $user->hasAnyPermission([
-          'part.vote.certify', 
-          'part.vote.admincertify',
-          'part.vote.fastrack',
-          'part.vote.hold',
-          'part.vote.novote',
-          'part.comment',
-        ]);
-      }
-      */      
-   }
+        return $vote->user_id === $user->id;
+    }
 }

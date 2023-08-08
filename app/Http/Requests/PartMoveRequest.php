@@ -23,9 +23,9 @@ class PartMoveRequest extends FormRequest
      */
     public function rules(): array
     {
-      return [
-        'part_type_id' => 'required|exists:part_types,id',
-        'newname' => [new MoveName],
-      ];
+        return [
+            'part_type_id' => 'required|exists:part_types,id',
+            'newname' => [new MoveName],
+        ];
     }
 }

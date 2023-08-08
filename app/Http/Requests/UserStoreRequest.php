@@ -22,19 +22,19 @@ class UserStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-      if (empty($this->route('user'))) {
-        $unique = Rule::unique('users');
-      }
-      else {
-        $unique = Rule::unique('users')->ignore($this->route('user')->id);
-      }
-      return [
-        'forum_user_id' => empty($this->route('user')) ? 'required|integer' : '',
-        'realname' => ['required', 'string', $unique],
-        'name' => ['required', 'string', $unique],
-        'email' => ['required', 'email',$unique],
-        'roles' => 'required',
-        'part_license_id' => 'required|exists:part_licenses,id'
-      ];
+        if (empty($this->route('user'))) {
+            $unique = Rule::unique('users');
+        }
+        else {
+            $unique = Rule::unique('users')->ignore($this->route('user')->id);
+        }
+        return [
+            'forum_user_id' => empty($this->route('user')) ? 'required|integer' : '',
+            'realname' => ['required', 'string', $unique],
+            'name' => ['required', 'string', $unique],
+            'email' => ['required', 'email',$unique],
+            'roles' => 'required',
+            'part_license_id' => 'required|exists:part_licenses,id'
+        ];
     }
 }

@@ -23,15 +23,15 @@ class RoleStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-      if (empty($this->role)) {
-        $unique = Rule::unique('users')->ignore($this->role->id);
-      }
-      else {
-        $unique = Rule::unique('users');
-      }
-      return [
-        'name' => ['required', 'string', $unique],
-        'permissions.*' => 'nullable|exists:permissions,name',
-      ];
+        if (empty($this->role)) {
+            $unique = Rule::unique('users')->ignore($this->role->id);
+        }
+        else {
+            $unique = Rule::unique('users');
+        }
+        return [
+            'name' => ['required', 'string', $unique],
+            'permissions.*' => 'nullable|exists:permissions,name',
+        ];
     }
 }

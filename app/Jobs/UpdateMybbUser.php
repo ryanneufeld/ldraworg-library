@@ -24,7 +24,7 @@ class UpdateMybbUser implements ShouldQueue
      */
     public function __construct(User $user)
     {
-      $this->user = $user;
+        $this->user = $user;
     }
 
     /**
@@ -34,20 +34,20 @@ class UpdateMybbUser implements ShouldQueue
      */
     public function handle()
     {
-      $mybb = MybbUser::find($this->user->forum_user_id);
-      $mybb->username = $this->user->realname;
-      $mybb->email = $this->user->email;
-      $mybb->loginname = $this->user->name;
-      $mybb_groups = empty($mybb->additionalgroups) ? [] : explode(',', $mybb->additionalgroups);
-      foreach(config('ldraw.mybb-groups') as $role => $group) {
-        if ($this->user->hasRole($role) && !in_array($group, $mybb_groups)) {
-          $mybb_groups[] = $group;
+        $mybb = MybbUser::find($this->user->forum_user_id);
+        $mybb->username = $this->user->realname;
+        $mybb->email = $this->user->email;
+        $mybb->loginname = $this->user->name;
+        $mybb_groups = empty($mybb->additionalgroups) ? [] : explode(',', $mybb->additionalgroups);
+        foreach(config('ldraw.mybb-groups') as $role => $group) {
+            if ($this->user->hasRole($role) && !in_array($group, $mybb_groups)) {
+                $mybb_groups[] = $group;
+            }
+            elseif(!$this->user->hasRole($role) && in_array($group, $mybb_groups)) {
+                $mybb_groups = array_values(array_filter($mybb_groups, fn ($m) => $m != $group));
+            }
         }
-        elseif(!$this->user->hasRole($role) && in_array($group, $mybb_groups)) {
-          $mybb_groups = array_values(array_filter($mybb_groups, fn ($m) => $m != $group));
-        }
-      }
-      $mybb->additionalgroups = implode(',', $mybb_groups);
-      $mybb->save();
+        $mybb->additionalgroups = implode(',', $mybb_groups);
+        $mybb->save();
     }
 }

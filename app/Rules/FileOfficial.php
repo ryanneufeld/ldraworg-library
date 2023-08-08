@@ -6,8 +6,6 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Support\Facades\Auth;
-
-use App\Models\PartType;
 use App\Models\Part;
 
 class FileOfficial implements DataAwareRule, ValidationRule

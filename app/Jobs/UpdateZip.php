@@ -7,7 +7,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
 
 use App\Models\Part;
 use App\LDraw\ZipFiles;
@@ -36,6 +35,6 @@ class UpdateZip implements ShouldQueue
      */
     public function handle()
     {
-      ZipFiles::unofficialZip($this->part, $this->oldfilename);
+        ZipFiles::unofficialZip($this->part, $this->oldfilename);
     }
 }

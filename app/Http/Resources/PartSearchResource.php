@@ -19,7 +19,7 @@ class PartSearchResource extends JsonResource
      *
      * @return array<int|string, mixed>
      */
-    public function toArray(Request $request)
+    public function toArray(Request $request): array
     {
         return [
             'title' => $this->name(),

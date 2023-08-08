@@ -15,6 +15,6 @@ class PartEventController extends Controller
      */
     public function __invoke()
     {
-      return view('tracker.activity');
+        return view('tracker.activity');
     }
 }

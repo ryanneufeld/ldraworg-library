@@ -26,11 +26,14 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        $this->info('Nothing to update');
+        /*
         $this->info('Updating subparts');
         Part::with('body')->each(function (Part $p){
             $s = app(\App\LDraw\Parse\Parser::class)->getSubparts($p->body->body);
             $p->setSubparts($s ?? []);
         });
+        */
     }  
 
 }

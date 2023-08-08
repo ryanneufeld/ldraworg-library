@@ -16,11 +16,11 @@ class CurrentLicense
      */
     public function handle(Request $request, Closure $next): Response
     {
-      if (Auth::user()->license->id != \App\Models\PartLicense::default()->id) {
-        session(['ca_route_redirect' => $request->route()->getName()]);
-        return redirect('tracker/confirmCA');
-      }
+        if (Auth::user()->license->id != \App\Models\PartLicense::default()->id) {
+            session(['ca_route_redirect' => $request->route()->getName()]);
+            return redirect('tracker/confirmCA');
+        }
 
-      return $next($request);
+        return $next($request);
     }
 }

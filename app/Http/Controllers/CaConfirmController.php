@@ -8,17 +8,19 @@ use App\Jobs\UserChangePartUpdate;
 
 class CaConfirmController extends Controller
 {
-  public function edit() {
-    return view('tracker.confirmCA');
-  }
+    public function edit()
+    {
+        return view('tracker.confirmCA');
+    }
 
-  public function update() {
-    $user = Auth::user();
-    $user->license()->associate(\App\Models\PartLicense::default());
-    $user->save();
-    UserChangePartUpdate::dispatch($user);
-    $redirect = session('ca_route_redirect');
-    return redirect(route($redirect));
-  }
+    public function update()
+    {
+        $user = Auth::user();
+        $user->license()->associate(\App\Models\PartLicense::default());
+        $user->save();
+        UserChangePartUpdate::dispatch($user);
+        $redirect = session('ca_route_redirect');
+        return redirect(route($redirect));
+    }
 
 }

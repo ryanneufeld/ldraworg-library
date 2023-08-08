@@ -2,20 +2,6 @@
 
 namespace App\LDraw;
 
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
-
-use App\Models\Part;
-use App\Models\PartType;
-use App\Models\PartRelease;
-use App\Models\User;
-use App\Models\Vote;
-use App\Models\VoteType;
-use App\Models\PartEventType;
-use App\Models\PartEvent;
-use App\Models\TrackerHistory;
-use App\Models\PartBody;
-
 class LibraryImport {
   
   // Current as of 2206
@@ -101,7 +87,7 @@ class LibraryImport {
     'parts/textures/u9480.png' => ['Alex Taylor', '2202'],
     'parts/textures/u9481.png' => ['Alex Taylor', '2202'],
   ];
-  
+  /*
   public static function fixUnofficialHistory() {
     Part::unofficial()->lazy()->each(function($part) {
       $text = FileUtils::cleanFileText(Storage::disk('library')->get('tmp/unofficial/' . $part->filename));
@@ -442,4 +428,5 @@ class LibraryImport {
       }
     }
   }
+  */
 }

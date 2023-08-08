@@ -43,10 +43,12 @@ class ValidHeaderCategory implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-      if(request()->part->type->folder == 'parts/') {
-        $c = str_replace(['~','|','=','_'], '', mb_strstr($this->data['description'], " ", true));
-        $cat = PartCategory::firstWhere('category', $c);
-        if (empty($cat) && empty($value)) $fail('partcheck.category.invalid')->translate(['value' => $c]);
-      }
+        if(request()->part->type->folder == 'parts/') {
+            $c = str_replace(['~','|','=','_'], '', mb_strstr($this->data['description'], " ", true));
+            $cat = PartCategory::firstWhere('category', $c);
+            if (empty($cat) && empty($value)) {
+                $fail('partcheck.category.invalid')->translate(['value' => $c]);
+            } 
+        }
     }
 }

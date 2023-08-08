@@ -11,10 +11,10 @@ class PartHistory extends Model
     use HasPart, HasUser;
 
     protected $fillable = [
-      'user_id',
-      'created_at',
-      'comment',
-      'part_id',
+        'user_id',
+        'created_at',
+        'comment',
+        'part_id',
     ];
 
     protected $with = ['user'];

@@ -248,5 +248,14 @@ class PartManager
         $this->updateMissing($part->name());
         return true;
     }
-  
+    
+    public function refreshAllSubparts()
+    {
+        Part::with('body')->each(function (Part $p){
+            if (is_null($p->body->body) || !is_string($p->body->body)) dd($p, $p->body->body);
+            $s = $this->parser->getSubparts($p->body->body);
+            if (is_null($s)) dd($p->body->body, $p);
+            $p->setSubparts($this->parser->getSubparts($s));
+        });
+    }
 }

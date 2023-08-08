@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\Part;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Facades\Log;
 
 class PartPolicy
 {
@@ -19,7 +18,7 @@ class PartPolicy
      */
     public function create(User $user)
     {
-      return $user->canAny('part.submit.regular', 'part.submit.fix', 'part.submit.proxy');
+        return $user->canAny('part.submit.regular', 'part.submit.fix', 'part.submit.proxy');
     }
 
     /**
@@ -31,7 +30,7 @@ class PartPolicy
      */
     public function update(User $user, Part $part)
     {
-      return $part->isUnofficial() && $user->can('part.edit.header', 'part.edit.number');
+        return $part->isUnofficial() && $user->can('part.edit.header', 'part.edit.number');
     }
 
     /**
@@ -43,7 +42,7 @@ class PartPolicy
      */
     public function delete(User $user, Part $part)
     {
-      return $part->isUnofficial() && $user->can('part.delete');
+        return $part->isUnofficial() && $user->can('part.delete');
     }
 
     /**
@@ -55,7 +54,7 @@ class PartPolicy
      */
     public function restore(User $user, Part $part)
     {
-      return $user->can('part.delete');
+        return $user->can('part.delete');
     }
 
     /**
@@ -67,6 +66,6 @@ class PartPolicy
      */
     public function forceDelete(User $user, Part $part)
     {
-      return $part->isUnofficial() && $user->can('part.delete');
+        return $part->isUnofficial() && $user->can('part.delete');
     }
 }

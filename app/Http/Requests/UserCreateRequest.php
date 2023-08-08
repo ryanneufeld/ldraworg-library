@@ -21,8 +21,8 @@ class UserCreateRequest extends FormRequest
      */
     public function rules(): array
     {
-      return [
-        'forum_user_id' => 'required|integer',
-      ];
+        return [
+            'forum_user_id' => 'required|integer',
+        ];
     }
 }

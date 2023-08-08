@@ -63,7 +63,6 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');
   Route::middleware(['can:release.store'])->post('/release/store', [PartReleaseController::class, 'store'])->name('release.store');
   
-  Route::get('/{part}/lw', \App\Http\Livewire\Part\Show::class);
   Route::get('/{part}/diff/{part2}', [\App\Http\Controllers\Part\DatDiffController::class, 'show'])->name('datdiff.download');
   Route::get('/diff', [\App\Http\Controllers\Part\DatDiffController::class, 'index'])->name('datdiff');
 

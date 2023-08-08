@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -24,8 +23,8 @@ class DailyDigest extends Mailable
      */
     public function __construct($date, $events)
     {
-      $this->date = $date;
-      $this->events = $events;
+        $this->date = $date;
+        $this->events = $events;
     }
 
     /**
@@ -36,8 +35,8 @@ class DailyDigest extends Mailable
     public function envelope()
     {
         return new Envelope(
-          from: new Address('parts@ldraw.org', 'LDraw.org Parts Tracker'),
-          subject: 'Parts Tracker Daily Summary for ' . date_format($this->date, 'Y-m-d'),
+            from: new Address('parts@ldraw.org', 'LDraw.org Parts Tracker'),
+            subject: 'Parts Tracker Daily Summary for ' . date_format($this->date, 'Y-m-d'),
         );
     }
 

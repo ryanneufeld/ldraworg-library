@@ -5,8 +5,6 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-use App\LDraw\PartCheck;
-
 class ValidHeaderDescription implements ValidationRule
 {
     /**

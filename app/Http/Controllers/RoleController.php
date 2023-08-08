@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -27,7 +24,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-      return view('admin.roles.index', ['roles' => Role::all()]);
+        return view('admin.roles.index', ['roles' => Role::all()]);
     }
 
     /**
@@ -35,7 +32,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-      return view('admin.roles.create', ['permissions' => Permission::orderBy('name')->get()]);
+        return view('admin.roles.create', ['permissions' => Permission::orderBy('name')->get()]);
     }
 
     /**
@@ -43,19 +40,12 @@ class RoleController extends Controller
      */
     public function store(RoleStoreRequest $request)
     {
-      $validated = $request->validated();
-      $role = Role::create(['name' => $validated['name']]);
-      $role->syncPermissions($validated['permissions']);
-      return redirect()->route('admin.roles.index')
-                      ->with('success','Role created successfully');                        
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Role $role)
-    {
-        //
+        $validated = $request->validated();
+        $role = Role::create(['name' => $validated['name']]);
+        $role->syncPermissions($validated['permissions']);
+        return redirect()->
+            route('admin.roles.index')->
+            with('success','Role created successfully');                        
     }
 
     /**
@@ -63,7 +53,7 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
-      return view('admin.roles.edit', ['role' => $role, 'permissions' => Permission::orderBy('name')->get()]);
+        return view('admin.roles.edit', ['role' => $role, 'permissions' => Permission::orderBy('name')->get()]);
     }
 
     /**
@@ -71,17 +61,10 @@ class RoleController extends Controller
      */
     public function update(RoleStoreRequest $request, Role $role)
     {
-      $validated = $request->validated();
-      $role->syncPermissions($validated['permissions']);
-      return redirect()->route('admin.roles.index')
-                      ->with('success','Role updated successfully');                        
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Role $role)
-    {
-        //
+        $validated = $request->validated();
+        $role->syncPermissions($validated['permissions']);
+        return redirect()->
+            route('admin.roles.index')->
+            with('success','Role updated successfully');                        
     }
 }

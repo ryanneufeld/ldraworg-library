@@ -17,18 +17,18 @@ class UserPolicy
      */
     public function viewAny(User $user)
     {
-      return $user->canAny([
-        'user.add',
-        'user.add.nonadmin',
-        'user.delete',
-        'user.modify',
-        'user.modify.email',
-        'user.modify.role.nonadmin',
-        'user.view.email',
-        'role.add',
-        'role.modify',
-        'role.delete'
-      ]);
+        return $user->canAny([
+            'user.add',
+            'user.add.nonadmin',
+            'user.delete',
+            'user.modify',
+            'user.modify.email',
+            'user.modify.role.nonadmin',
+            'user.view.email',
+            'role.add',
+            'role.modify',
+            'role.delete'
+        ]);
     }
 
     /**
@@ -40,18 +40,18 @@ class UserPolicy
      */
     public function view(User $user, User $model)
     {
-      return $user->canAny([
-        'user.add',
-        'user.add.nonadmin',
-        'user.delete',
-        'user.modify',
-        'user.modify.email',
-        'user.modify.role.nonadmin',
-        'user.view.email',
-        'role.add',
-        'role.modify',
-        'role.delete'
-      ]);
+        return $user->canAny([
+            'user.add',
+            'user.add.nonadmin',
+            'user.delete',
+            'user.modify',
+            'user.modify.email',
+            'user.modify.role.nonadmin',
+            'user.view.email',
+            'role.add',
+            'role.modify',
+            'role.delete'
+        ]);
     }
 
     /**
@@ -62,10 +62,10 @@ class UserPolicy
      */
     public function create(User $user)
     {
-      return $user->canAny([
-        'user.add',
-        'user.add.nonadmin',
-      ]);
+        return $user->canAny([
+            'user.add',
+            'user.add.nonadmin',
+        ]);
     }
 
     /**
@@ -77,14 +77,14 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
-      return $user->canAny([
-        'user.modify',
-        'user.modify.email',
-        'user.modify.role.nonadmin',
-        'role.add',
-        'role.modify',
-        'role.delete',
-      ]);
+        return $user->canAny([
+            'user.modify',
+            'user.modify.email',
+            'user.modify.role.nonadmin',
+            'role.add',
+            'role.modify',
+            'role.delete',
+        ]);
     }
 
     /**
@@ -96,8 +96,8 @@ class UserPolicy
      */
     public function delete(User $user, User $model)
     {
-      return $user->canAny([
-        'user.delete',
-      ]);
+        return $user->canAny([
+            'user.delete',
+        ]);
     }
 }

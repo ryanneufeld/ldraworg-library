@@ -19,10 +19,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-      $schedule->command('telescope:prune')->daily();
-      $schedule->command('queue:prune-batches')->daily();
-      $schedule->call(new SendDailyDigest(new \DateTime('yesterday')))->dailyAt('01:30');
-      $schedule->call(new UpdateTrackerHistory)->daily();
+        $schedule->command('telescope:prune')->daily();
+        $schedule->command('queue:prune-batches')->daily();
+        $schedule->call(new SendDailyDigest(new \DateTime('yesterday')))->dailyAt('01:30');
+        $schedule->call(new UpdateTrackerHistory)->daily();
     }
 
     /**
