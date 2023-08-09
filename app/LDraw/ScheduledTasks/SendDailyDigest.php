@@ -10,11 +10,9 @@ use App\Models\PartEvent;
 use App\Mail\DailyDigest;
 
 class SendDailyDigest {
-    public $date;
-    
-    public function __construct(\DateTime $date) {
-        $this->date = $date;
-    }
+    public function __construct(
+        public \DateTime $date
+    ) {}
     
     public function __invoke(): void {
         $next = date_add(clone $this->date, new \DateInterval('P1D'));

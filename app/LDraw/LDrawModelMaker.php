@@ -13,7 +13,7 @@ class LDrawModelMaker
         }
 
         $topModelName = pathinfo($part->filename, PATHINFO_FILENAME) . '.ldr';
-        $file = "0 FILE $topModelName.ldr\r\n1 16 0 0 0 {$matrix} {$part->name()}\r\n0 FILE {$part->name()}\r\n{$part->get()}\r\n";
+        $file = "0 FILE {$topModelName}\r\n1 16 0 0 0 {$matrix} {$part->name()}\r\n0 FILE {$part->name()}\r\n{$part->get()}\r\n";
         $sparts = $part->allSubparts();
         if ($part->isUnofficial()) {
             $sparts = $sparts->whereNull('unofficial_part_id');

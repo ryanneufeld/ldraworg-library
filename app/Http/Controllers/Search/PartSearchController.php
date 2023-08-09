@@ -13,8 +13,7 @@ class PartSearchController extends Controller
     if (!empty($input['s']) && is_string($input['s'])) {
         return view('search.part', ['search' => $input['s']]);
     }
-    else {
-        return view('search.part');                  
-    }
+    
+    return view('search.part');                  
   }
 }

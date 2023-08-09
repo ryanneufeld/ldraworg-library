@@ -25,7 +25,7 @@ class SuffixSearchController extends Controller
             $patterns = Part::patterns($fn)->orderBy('filename')->get();
             $composites = Part::composites($fn)->orderBy('filename')->get();
             $stickers = Part::stickerShortcuts($fn)->orderBy('filename')->get();
-            return view('search.suffix', compact('patterns','composites','stickers','basepart','fn'));
+            return view('search.suffix', compact('patterns', 'composites', 'stickers', 'basepart', 'fn'));
         }
         return view('search.suffix');        
     }  

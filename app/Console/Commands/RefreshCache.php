@@ -23,7 +23,7 @@ class RefreshCache extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $this->call('cache:clear');
         $this->call('view:clear');
@@ -32,5 +32,5 @@ class RefreshCache extends Command
         $this->call('view:cache');
         $this->call('route:cache');
         $this->call('config:cache');
-     }
+    }
 }

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 use App\Http\Requests\UserCreateRequest;
@@ -36,7 +34,7 @@ class UserController extends Controller
     {
         $users = User::withCount('parts')->orderBy('realname')->get();
 
-        return view('admin.users.index',compact('users'));
+        return view('admin.users.index', compact('users'));
     }
 
     /**
@@ -47,7 +45,7 @@ class UserController extends Controller
     public function create(UserCreateRequest $request)
     {
         $validated = $request->validated();  
-        $roles = Role::pluck('name','name')->all();
+        $roles = Role::pluck('name', 'name')->all();
         $user = MybbUser::find($validated['forum_user_id']);
         return view('admin.users.create', ['roles' => $roles, 'user' => $user]);
     }
@@ -73,9 +71,9 @@ class UserController extends Controller
         $user->syncRoles($validated['roles']);
         $user->save();
         UpdateMybbUser::dispatch($user);
-        return redirect()->
-            route('admin.users.index')->
-            with('success','User updated successfully');                        
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'User updated successfully');                        
     }
 
     /**
@@ -97,9 +95,9 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $roles = Role::pluck('name','name')->all();
-        $userRole = $user->roles->pluck('name','name')->all();
-        return view('admin.users.edit', compact('user','roles','userRole'));
+        $roles = Role::pluck('name', 'name')->all();
+        $userRole = $user->roles->pluck('name', 'name')->all();
+        return view('admin.users.edit', compact('user', 'roles', 'userRole'));
     }
 
     /**
@@ -134,9 +132,9 @@ class UserController extends Controller
             UserChangePartUpdate::dispatch($user, $olddata);
         }
         UpdateMybbUser::dispatch($user);
-        return redirect()->
-            route('admin.users.index')->
-            with('success','User updated successfully');                        
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'User updated successfully');                        
     }
 
     /**
@@ -148,8 +146,8 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->
-            route('users.index')->
-            with('success','User deleted successfully');
+        return redirect()
+            ->route('users.index')
+            ->with('success', 'User deleted successfully');
     }
 }

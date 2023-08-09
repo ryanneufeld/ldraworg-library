@@ -17,7 +17,7 @@ class Parser
         $author = $this->getAuthor($text);
         $type = $this->getType($text);
         $bfc = $this->getBFC($text);
-        $p = new ParsedPart(
+        return new ParsedPart(
             $this->getDescription($text),
             $this->getName($text),
             $author['user'] ?? null,
@@ -39,7 +39,6 @@ class Parser
             $this->getBody($text),
             $part
         );
-        return $p;
     }
 
     /**
@@ -234,7 +233,7 @@ class Parser
     {
         $d = $this->getSingleValueMeta($text, 'description');
         if (!is_null($d)) {
-            $dwords = explode (' ', $d);
+            $dwords = explode(' ', $d);
             $category = trim($dwords[0]);
             //Remove prefixes
             $category = str_replace(['~', '|', '=', '_'], '', $category);

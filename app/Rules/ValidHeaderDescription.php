@@ -13,7 +13,7 @@ class ValidHeaderDescription implements ValidationRule
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void {
-        if (! app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedDescription("0 $value")) {
+        if (! app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedDescription($value)) {
             $fail('partcheck.description.invalidchars')->translate();
         }
 

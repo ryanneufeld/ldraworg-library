@@ -11,7 +11,7 @@ use App\Models\PartCategory;
 use App\Models\PartType;
 use App\Models\PartTypeQualifier;
 use App\Models\User;
-use \GDImage;
+use GDImage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -29,12 +29,12 @@ class PartManager
         if ($part instanceof GDImage) {
             if (is_null($filename) || is_null($user) || is_null($type)) {
                 throw new \RuntimeException("Images must have a non-null user and type");
-            } else {
-                return $this->addOrChangePartFromImage($part, $filename, $user, $type);
             }
-        } else {
-            return $this->addOrChangePartFromText($part);
+            
+            return $this->addOrChangePartFromImage($part, $filename, $user, $type);
         }
+
+        return $this->addOrChangePartFromText($part);
     }
     
     public function cloneOfficialToUnofficialPart(Part $part): Part
@@ -108,7 +108,7 @@ class PartManager
             'user_id' => $user->id,
             'part_license_id' => $user->license->id,
             'filename' => $type->folder . $filename,
-            'description' => "{$type->name} $filename",
+            'description' => "{$type->name} {$filename}",
             'part_type_id' => $type->id,
             'header' => '',
         ];
@@ -152,16 +152,22 @@ class PartManager
     {
         if ($part->isTexmap()) {
             $image = imagecreatefromstring($part->get());
+            imagesavealpha($image, true);
         } else {
             $image = $this->render->render($part);
         }
         $lib = $part->isUnofficial() ? 'unofficial' : 'official';
         $imageFilename = substr($part->filename, 0, -4) . '.png';
-        $imagePath = Storage::disk(config("ldraw.render.dir.image.$lib.disk"))->path(config("ldraw.render.dir.image.$lib.path") . "/$imageFilename");
+        $imagePath = Storage::disk(config("ldraw.render.dir.image.{$lib}.disk"))->path(config("ldraw.render.dir.image.{$lib}.path") . "/{$imageFilename}");
         $imageThumbPath = substr($imagePath, 0, -4) . '_thumb.png';
+        $image = $this->png->optimize($image);
         imagesavealpha($image, true);
-        imagepng($this->png->optimize($image), $imagePath);
-        imagepng($this->png->optimize($this->png->resizeImage($image, config('ldraw.image.thumb.height'), config('ldraw.image.thumb.width'))), $imageThumbPath);
+        imagepng($image, $imagePath);
+        $thumb = $this->png->resizeImage($image, config('ldraw.image.thumb.height'), config('ldraw.image.thumb.width'));
+        imagesavealpha($thumb, true);
+        $thumb = $this->png->optimize($thumb);
+        imagesavealpha($thumb, true);
+        imagepng($thumb, $imageThumbPath);
         if ($updateParents === true) {
             foreach ($part->allParents() as $p) {
                 $this->updatePartImage($p);
@@ -197,28 +203,28 @@ class PartManager
             $oldPart->type->folder != 'parts/'
         ) {
             return null;
-        } else {
-            $values = [
-                'description' => "~Moved To " . str_replace(['.dat', '.png'], '', $newPart->name()),
-                'filename' => $oldPart->filename,
-                'user_id' => Auth::user()->id,
-                'part_type_id' => $oldPart->type->id,
-                'part_type_qualifier_id' => $oldPart->qualifier->id ?? null,
-                'part_license_id' => Auth::user()->license->id,
-                'bfc' => $newPart->bfc,
-                'part_category_id' => PartCategory::firstWhere('category', 'Moved')->id,
-                'header' => '',
-            ];
-            $upart = Part::create($values);
-            $upart->setBody("1 16 0 0 0 1 0 0 0 1 0 0 0 1 {$newPart->name()}\n");
-            $upart->subparts()->sync([$newPart->id]);
-            $upart->refresh();
-            $upart->generateHeader();
-            $this->updatePartImage($upart);
-            $oldPart->unofficial_part_id = $upart->id;
-            $oldPart->save();
-            return $upart;
         }
+
+        $values = [
+            'description' => "~Moved To " . str_replace(['.dat', '.png'], '', $newPart->name()),
+            'filename' => $oldPart->filename,
+            'user_id' => Auth::user()->id,
+            'part_type_id' => $oldPart->type->id,
+            'part_type_qualifier_id' => $oldPart->qualifier->id ?? null,
+            'part_license_id' => Auth::user()->license->id,
+            'bfc' => $newPart->bfc,
+            'part_category_id' => PartCategory::firstWhere('category', 'Moved')->id,
+            'header' => '',
+        ];
+        $upart = Part::create($values);
+        $upart->setBody("1 16 0 0 0 1 0 0 0 1 0 0 0 1 {$newPart->name()}\n");
+        $upart->subparts()->sync([$newPart->id]);
+        $upart->refresh();
+        $upart->generateHeader();
+        $this->updatePartImage($upart);
+        $oldPart->unofficial_part_id = $upart->id;
+        $oldPart->save();
+        return $upart;    
     }
 
     public function movePart(Part $part, string $newName, PartType $newType): bool 
@@ -247,15 +253,5 @@ class PartManager
         }
         $this->updateMissing($part->name());
         return true;
-    }
-    
-    public function refreshAllSubparts()
-    {
-        Part::with('body')->each(function (Part $p){
-            if (is_null($p->body->body) || !is_string($p->body->body)) dd($p, $p->body->body);
-            $s = $this->parser->getSubparts($p->body->body);
-            if (is_null($s)) dd($p->body->body, $p);
-            $p->setSubparts($this->parser->getSubparts($s));
-        });
     }
 }

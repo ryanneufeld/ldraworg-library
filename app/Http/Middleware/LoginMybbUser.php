@@ -22,7 +22,8 @@ class LoginMybbUser
     {
         if (!Auth::check()) {
             // Get the mybb login data from the mybbuser cookie
-            if ($mybb = $request->cookies->get('mybbuser')) {
+            $mybb = $request->cookies->get('mybbuser', '');
+            if ($mybb !== '') {
                 $mybb = explode("_", $mybb);
                 // The cookie should be in the format <uid>_<loginkey>
                 if (!is_array($mybb) || count($mybb) !== 2 || !is_numeric($mybb[0])) {

@@ -13,19 +13,15 @@ class DailyDigest extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $date;
-    public $events;
-
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($date, $events)
-    {
-        $this->date = $date;
-        $this->events = $events;
-    }
+    public function __construct(
+        public $date,
+        public $events
+    ) {}
 
     /**
      * Get the message envelope.

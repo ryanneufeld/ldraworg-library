@@ -21,7 +21,7 @@ class SelectEventType extends Component
      */
     public function render(): View|Closure|string
     {
-        $options = \App\Models\PartEventType::pluck('name','id')->all();
+        $options = \App\Models\PartEventType::pluck('name', 'id')->all();
         return view('components.form.select-event-type', compact('options'));
     }
 }

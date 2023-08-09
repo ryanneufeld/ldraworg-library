@@ -13,16 +13,13 @@ class UserChangePartUpdate implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public User $user;
-    public array $olddata;
     /**
      * Create a new job instance.
      */
-    public function __construct(User $user, array $olddata)
-    {
-        $this->user = $user;
-        $this->olddata = $olddata;
-    }
+    public function __construct(
+        public User $user,
+        public array $olddata
+    ) {}
 
     /**
      * Execute the job.

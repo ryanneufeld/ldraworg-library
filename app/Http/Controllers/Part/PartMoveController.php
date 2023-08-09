@@ -28,7 +28,7 @@ class PartMoveController extends Controller
         $validated = $request->validated();
         $newType = PartType::find($validated['part_type_id']);
         $newName = basename($validated['newname'], ".{$part->type->format}");
-        $newName = "$newName.{$newType->format}";
+        $newName .= ".{$newType->format}";
         if ($part->isUnofficial()) {
             $oldname = $part->filename;
             $this->manager->movePart($part, $newName, $newType);
@@ -53,6 +53,6 @@ class PartMoveController extends Controller
             $mpart->save();
             PartSubmitted::dispatch($mpart, Auth::user());
         }
-        return redirect()->route('tracker.show', [$part])->with('status','Move successful');
+        return redirect()->route('tracker.show', [$part])->with('status', 'Move successful');
     }
 }

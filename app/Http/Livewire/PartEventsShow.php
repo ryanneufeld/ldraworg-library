@@ -46,11 +46,10 @@ class PartEventsShow extends Component
             })->
             when($this->order == 'oldest', function ($q) {
                 $q->oldest();
-            },
-            function($q) {
+            }, function($q) {
                 $q->latest();
             })->paginate($this->itemsPerPage);
         $this->dispatchBrowserEvent('jquery');
-        return view('livewire.part-events-show', compact('filtersActive','orderItems','events'));
+        return view('livewire.part-events-show', compact('filtersActive', 'orderItems', 'events'));
     }
 }

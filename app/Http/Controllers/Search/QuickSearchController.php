@@ -15,13 +15,14 @@ class QuickSearchController extends Controller
             $json_limit = config('ldraw.search.quicksearch.limit');
             $uparts = Part::unofficial()->searchPart($input['s'], 'header')->orderBy('filename')->take($json_limit)->get();
             $oparts = Part::official()->searchPart($input['s'], 'header')->orderBy('filename')->take($json_limit)->get();
-            return ['results' => [
-                'oparts' => ['name' => "Official\nParts", 'results' => PartSearchResource::collection($oparts)],
-                'uparts' => ['name' => "Unofficial\nParts", 'results' => PartSearchResource::collection($uparts)],
-            ]];
+            return [
+                'results' => [
+                    'oparts' => ['name' => "Official\nParts", 'results' => PartSearchResource::collection($oparts)],
+                    'uparts' => ['name' => "Unofficial\nParts", 'results' => PartSearchResource::collection($uparts)],
+                ]
+            ];
         }
-        else {
-            return response(400);
-        }
+        
+        return response(400);
     }
 }

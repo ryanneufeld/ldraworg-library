@@ -109,11 +109,11 @@ class Part extends Model
     {
         $name = str_replace('\\', '/', $name);
         if (pathinfo($name, PATHINFO_EXTENSION) == "png") {
-            $name = "textures/$name";
+            $name = "textures/{$name}";
         }
 
         $query->where(function ($q) use ($name) {
-            $q->orWhere('filename', "p/$name")->orWhere('filename', "parts/$name");
+            $q->orWhere('filename', "p/{$name}")->orWhere('filename', "parts/{$name}");
         });
     }
 
@@ -137,7 +137,7 @@ class Part extends Model
     
     public function scopeSearchPart (Builder $query, string $search, string $scope): void 
     {
-        if (!empty($search)) {
+        if ($search !== '') {
             //Pull the terms out of the search string
             $pattern = '#([^\s"]+)|"([^"]*)"#u';
             preg_match_all($pattern, $search, $matches, PREG_SET_ORDER);
@@ -152,20 +152,20 @@ class Part extends Model
                 switch ($scope) {
                 case 'description':
                     $query->where(function(Builder $q) use ($term) {
-                        $q->orWhere('filename', 'LIKE', "%$term%")->orWhere('description', 'LIKE', "%$term%");
+                        $q->orWhere('filename', 'LIKE', "%{$term}%")->orWhere('description', 'LIKE', "%{$term}%");
                     });
                     break;
                 case 'filename':
                 case 'header':
-                    $query->where($scope, 'LIKE', "%$term%");
+                    $query->where($scope, 'LIKE', "%{$term}%");
                     break;
                 case 'file':
                     $query->where(function(Builder $q) use ($term) {
-                        $q->orWhere('header', 'LIKE', "%$term%")->orWhereRelation('body', 'body', 'LIKE', "%$term%");
+                        $q->orWhere('header', 'LIKE', "%{$term}%")->orWhereRelation('body', 'body', 'LIKE', "%{$term}%");
                     });
                     break;
                 default:  
-                    $query->where('header', 'LIKE', "%$term%");
+                    $query->where('header', 'LIKE', "%{$term}%");
                     break;
                 }
             }
@@ -261,7 +261,9 @@ class Part extends Model
     
     public function updateVoteData(): void 
     {
-        if (!$this->isUnofficial()) return;
+        if (!$this->isUnofficial()) {
+            return;
+        }
         $data = array_merge(['A' => 0, 'C' =>0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
         if ($data['H'] != 0) {
             $this->vote_sort = 5;
@@ -275,7 +277,7 @@ class Part extends Model
             $this->vote_sort = 2;
         }
         // Certified      
-        elseif ((($data['A'] > 0) && (($data['C'] + $data['A']) > 2)) || ($data['T'] > 0)) {
+        elseif (($data['A'] > 0 && ($data['C'] + $data['A']) > 2) || $data['T'] > 0) {
             $this->vote_sort = 1;
         }
 
@@ -346,13 +348,13 @@ class Part extends Model
             $subs = [];
             foreach ($subparts['subparts'] ?? [] as $s) {
                 $s = str_replace('\\', '/', $s);
-                $subs[] = "parts/$s";
-                $subs[] = "p/$s";
+                $subs[] = "parts/{$s}";
+                $subs[] = "p/{$s}";
             }
             foreach ($subparts['textures'] ?? [] as $s) {
                 $s = str_replace('\\', '/', $s);
-                $subs[] = "parts/textures/$s";
-                $subs[] = "p/textures/$s";
+                $subs[] = "parts/textures/{$s}";
+                $subs[] = "p/textures/{$s}";
             }
             $subps = Part::whereIn('filename', $subs)->get();
             $this->subparts()->sync($subps->pluck('id')->all());
@@ -471,8 +473,10 @@ class Part extends Model
   
     public function allSubparts(): Collection
     {
-        $parts = new Collection;
-        if ($this->subparts->count() == 0) return $parts;
+        $parts = new Collection();
+        if ($this->subparts->count() == 0) {
+            return $parts;
+        }
         $parts = $parts->concat($this->subparts);
         foreach ($this->subparts as $s) {
             $parts = $parts->concat($s->allSubparts());
@@ -482,8 +486,10 @@ class Part extends Model
 
     public function allParents(): Collection
     {
-        $parts = new Collection;
-        if ($this->parents->count() == 0) return $parts;
+        $parts = new Collection();
+        if ($this->parents->count() == 0) {
+            return $parts;
+        }
         $parts = $parts->concat($this->parents);
         foreach ($this->parents as $s) {
             $parts = $parts->concat($s->allParents());
@@ -517,56 +523,5 @@ class Part extends Model
     public function putDeletedBackup(): void 
     {
         Storage::disk('local')->put('deleted/library/' . $this->filename . '.' . time(), $this->get());
-    }
-
-    public function releasePart(PartRelease $release, User $user): void {
-      if (!$this->isUnofficial()) {
-        return;
-      }
-      // Update release for event released parts
-      PartEvent::unofficial()->where('part_id', $this->id)->update(['part_release_id' => $release->id]);
-
-      // Post a release event     
-      PartEvent::create([
-        'part_event_type_id' => PartEventType::firstWhere('slug', 'release')->id,
-        'user_id' => $user->id,
-        'part_id' => $this->id,
-        'part_release_id' => $release->id,
-        'comment' =>'Release ' . $release->name
-      ]);
-
-      // Add history line
-      PartHistory::create(['user_id' => $user->id, 'part_id' => $this->id, 'comment' => 'Official Update ' . $release->name]);
-      
-      $this->refreshHeader();
-
-      if (!is_null($this->official_part_id)) {
-        $opart = Part::find($this->official_part_id);
-        $contents = $this->get();
-        // Update the official part
-        if ($opart->isTexmap()) {
-          $opart->body->body = $contents;
-          $opart->body->save();
-          $opart->history()->delete();
-          foreach($this->history()->latest()->get() as $h) {
-            PartHistory::create(['created_at' => $h->created_at, 'user_id' => $h->user_id, 'part_id' => $opart->id, 'comment' => $h->comment]);
-          }
-        } 
-        else {
-          $opart->fillFromText($contents, false, $release);
-        }
-        $opart->unofficial_part_id = null;
-        $opart->save();
-
-        // Update events with official part id
-        PartEvent::where('part_release_id', $release->id)->where('part_id', $this->id)->update(['part_id' => $opart->id]);
-        $this->deleteRelationships();
-        \App\Models\ReviewSummaryItem::where('part_id', $this->id)->delete();
-        $this->deleteQuietly();
-      }
-      else {
-        $this->release()->associate($release);
-        $this->refreshHeader();
-      }
     }
 }

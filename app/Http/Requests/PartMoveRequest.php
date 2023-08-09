@@ -25,7 +25,7 @@ class PartMoveRequest extends FormRequest
     {
         return [
             'part_type_id' => 'required|exists:part_types,id',
-            'newname' => [new MoveName],
+            'newname' => [new MoveName()],
         ];
     }
 }

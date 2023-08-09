@@ -49,6 +49,6 @@ class Status extends Component
         } 
         $code .= is_null($this->part->official_part_id) ? 'N)' : 'F)';
 
-        return view('components.part.status', compact('text','code','color'));
+        return view('components.part.status', compact('text', 'code', 'color'));
     }
 }

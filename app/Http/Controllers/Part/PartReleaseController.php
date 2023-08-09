@@ -55,17 +55,18 @@ class PartReleaseController extends Controller
         $this->authorize('store', PartRelease::class);
         $data = $request->validated();
         $release_parts = Part::whereIn('id', $data['ids'])->get();
-        $parts = new \Illuminate\Database\Eloquent\Collection;
+        $parts = new \Illuminate\Database\Eloquent\Collection();
         foreach($release_parts as $part) {
             $parts = $part->allParents();
         }
         $parts = $parts->diff(Part::whereIn('id', $data['ids']));
 
-        Bus::batch([[
-            new \App\Jobs\Release\MakePartRelease($release_parts, Auth::user()),
-            new \App\Jobs\UpdateSubparts,
-            new \App\Jobs\Release\PostReleaseCleanup($parts),
-        ]])->then(function ($batch) {
+        Bus::batch([
+            [
+                new \App\Jobs\Release\MakePartRelease($release_parts, Auth::user()),
+                new \App\Jobs\Release\PostReleaseCleanup($parts),
+            ]
+        ])->then(function ($batch) {
         })->dispatch();
         
         return redirect()->route('tracker.activity');

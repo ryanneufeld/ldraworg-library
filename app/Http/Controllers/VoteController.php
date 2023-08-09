@@ -45,7 +45,7 @@ class VoteController extends Controller
     public function edit(Vote $vote)
     {
         $this->authorize('update', $vote);
-        return view('tracker.vote',['part' => $vote->part, 'vote' => $vote]);
+        return view('tracker.vote', ['part' => $vote->part, 'vote' => $vote]);
     }
 
     /**
@@ -62,7 +62,7 @@ class VoteController extends Controller
         return $this->postVote($vote->part, $vote, $request);
    }
     
-    protected function postVote(Part $part, Vote $vote = null, VoteRequest $request) {
+    protected function postVote(Part $part, ?Vote $vote, VoteRequest $request) {
         $validated = $request->validated();
 
         if ($validated['vote_type'] == 'N') {
@@ -77,7 +77,7 @@ class VoteController extends Controller
         else {
             Auth::user()->castVote($part, \App\Models\VoteType::firstWhere('code', $validated['vote_type']));
             $event['vote_type_code'] = $validated['vote_type'];
-            $event['part_event_type_id'] = PartEventType::firstWhere('slug','review')->id;
+            $event['part_event_type_id'] = PartEventType::firstWhere('slug', 'review')->id;
             $part->updateVoteData();
         }
 
@@ -87,7 +87,7 @@ class VoteController extends Controller
         $event['part_release_id'] = null;
         PartEvent::create($event);
 
-        return redirect()->route('tracker.show', $part)->with('status','Vote succesfully posted');        
+        return redirect()->route('tracker.show', $part)->with('status', 'Vote succesfully posted');        
     }
     /**
      * Remove the specified resource from storage.
@@ -106,10 +106,10 @@ class VoteController extends Controller
             'comment' => $request->input('comment') ?? null,
             'user_id' => Auth::user()->id,
             'part_id' => $pid,
-            'part_event_type_id' => PartEventType::firstWhere('slug','review')->id,
+            'part_event_type_id' => PartEventType::firstWhere('slug', 'review')->id,
             'part_release_id' => null
         ]);
 
-        return redirect()->route('tracker.show', $pid)->with('status','Vote succesfully canceled');
+        return redirect()->route('tracker.show', $pid)->with('status', 'Vote succesfully canceled');
     }
 }

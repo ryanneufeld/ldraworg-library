@@ -45,16 +45,16 @@ class LDView
         // Make the ldview.ini
         $cmds = ['[General]'];
         foreach($this->options as $command => $value) {
-          $cmds[] = "$command=$value";
+          $cmds[] = "{$command}={$value}";
         }  
         Storage::disk($this->tempDisk)->put("{$this->tempPath}/ldview.ini", implode("\n", $cmds));
         $inipath = Storage::disk($this->tempDisk)->path("{$this->tempPath}/ldview.ini");
         
         // Run LDView
-        $ldviewcmd = "ldview $filepath -LDConfig={$this->ldconfigPath} -LDrawDir=$ldrawdir -IniFile=$inipath $normal_size -SaveSnapshot=$imagepath";
+        $ldviewcmd = "ldview {$filepath} -LDConfig={$this->ldconfigPath} -LDrawDir={$ldrawdir} -IniFile={$inipath} {$normal_size} -SaveSnapshot={$imagepath}";
         Process::run($ldviewcmd);
         $png = imagecreatefrompng($imagepath);
-
+        imagesavealpha($png, true);
         // Remove temp files
         Storage::disk($this->tempDisk)->deleteDirectory("{$this->tempPath}/ldraw");
         Storage::disk($this->tempDisk)->delete("{$this->tempPath}/part.mpd");

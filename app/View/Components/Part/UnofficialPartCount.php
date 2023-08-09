@@ -15,7 +15,8 @@ class UnofficialPartCount extends Component
      */
     public function __construct(
         public array $summary = ['1' => 0, '2' => 0, '3' => 0, '5' => 0],
-        public bool $small = true)
+        public bool $small = true
+    )
     {
         $this->summary = Part::unofficial()->pluck('vote_sort')->countBy()->all();
     }

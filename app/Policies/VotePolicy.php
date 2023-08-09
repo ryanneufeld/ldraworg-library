@@ -21,25 +21,24 @@ class VotePolicy
     {
         if ($part->user_id == $user->id) {
             return $user->hasAnyPermission([
-            'part.vote.certify', 
-            'part.vote.admincertify',
-            'part.vote.fastrack',
-            'part.vote.hold',
-            'part.comment',
-            'part.own.vote.certify', 
-            'part.own.vote.hold',
-            'part.own.comment',
+                'part.vote.certify', 
+                'part.vote.admincertify',
+                'part.vote.fastrack',
+                'part.vote.hold',
+                'part.comment',
+                'part.own.vote.certify', 
+                'part.own.vote.hold',
+                'part.own.comment',
             ]);
-        } else {
-            return $user->hasAnyPermission([
+        }
+        return $user->hasAnyPermission([
             'part.vote.certify', 
             'part.vote.admincertify',
             'part.vote.fastrack',
             'part.vote.hold',
             'part.vote.novote',
             'part.comment',
-            ]);
-        }  
+        ]); 
     }
 
     /**

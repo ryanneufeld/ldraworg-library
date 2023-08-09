@@ -49,10 +49,10 @@ class PartController extends Controller
      */
     public function show(Part $part)
     {
-        $part->load('events','history','subparts','parents');
+        $part->load('events', 'history', 'subparts', 'parents');
         $part->events->load('part_event_type', 'user', 'part', 'vote_type');
         $part->user->load('license');
-        $part->votes->load('user','type');
+        $part->votes->load('user', 'type');
         return view('part.show', compact('part'));
     }
 
@@ -83,7 +83,7 @@ class PartController extends Controller
         } else {
             $user = Auth::user();
         }
-        $parts = new Collection;
+        $parts = new Collection();
         foreach($data['partfiles'] as $file) {
             if ($file->getMimeType() == 'text/plain') {
                 $part = $this->manager->addOrChangePart($file->get());
@@ -91,9 +91,9 @@ class PartController extends Controller
                 $image = imagecreatefrompng($file->path());
                 imagesavealpha($image, true);
                 $part = $this->manager->addOrChangePart(
-                    $image, 
-                    basename($file->getClientOriginalName()), 
-                    $user, 
+                    $image,
+                    basename($file->getClientOriginalName()),
+                    $user,
                     $this->guessPartType($file->getClientOriginalName(), $data['partfiles'])
                 );
             }
@@ -152,8 +152,9 @@ class PartController extends Controller
         if (!empty($data['description'])) {
             $part->description = $data['description'];
             $cat = str_replace(['~','|','=','_'], '', mb_strstr($data['description'], " ", true));
-            if ($c = PartCategory::firstWhere('category', $cat)) {
-              $part->part_category_id = $c->id;
+            $c = PartCategory::firstWhere('category', $cat);
+            if (!is_null($c)) {
+                $part->part_category_id = $c->id;
             } 
         }
 
@@ -181,7 +182,7 @@ class PartController extends Controller
         Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
         UpdateZip::dispatch($part);
 
-        return redirect()->route('tracker.show', [$part])->with('status','Header update successful');
+        return redirect()->route('tracker.show', [$part])->with('status', 'Header update successful');
     }
 
     public function delete(Part $part) {
@@ -214,12 +215,12 @@ class PartController extends Controller
     {
         $this->authorize('update', $part);
         $this->manager->updatePartImage($part);
-        return redirect()->route('tracker.show', [$part])->with('status','Part image updated');
+        return redirect()->route('tracker.show', [$part])->with('status', 'Part image updated');
     }
     
     public function updatesubparts (Part $part) {
         $this->authorize('update', $part);
         $part->setSubparts($this->manager->parser->getSubparts($part->body->body));
-        return redirect()->route('tracker.show', [$part])->with('status','Part dependencies updated');
+        return redirect()->route('tracker.show', [$part])->with('status', 'Part dependencies updated');
     }
 }

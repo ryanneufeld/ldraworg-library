@@ -15,18 +15,16 @@ class UpdateZip implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     
-    protected $part;
-    protected $oldfilename;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Part $part, string $oldfilename = null)
-    {
-        $this->part = $part;
-        $this->oldfilename = $oldfilename;
-    }
+    public function __construct(
+        protected Part $part,
+        protected ?string $oldfilename = null
+    )
+    {}
 
     /**
      * Execute the job.

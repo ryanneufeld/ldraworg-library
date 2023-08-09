@@ -23,6 +23,6 @@ class PartHistory extends Model
     {
         $date = date_format(date_create($this->created_at), "Y-m-d");
         $user = $this->user->historyString();
-        return "0 !HISTORY $date $user {$this->comment}";
+        return "0 !HISTORY {$date} {$user} {$this->comment}";
     }
 }

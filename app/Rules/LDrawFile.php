@@ -42,6 +42,5 @@ class LDrawFile implements ValidationRule, DataAwareRule
         foreach($errors ?? [] as $error) {
             $fail($error);
         }    
-
     }
 }

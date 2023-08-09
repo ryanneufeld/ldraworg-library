@@ -26,8 +26,7 @@ class PartChecker
     {
         $errors = $this->checkFile($part);
         $herrors = $this->checkHeader($part);
-        $errors = is_null($errors) ? $herrors : array_merge($errors, $herrors ?? []);
-        return $errors;
+        return is_null($errors) ? $herrors : array_merge($errors, $herrors ?? []);
     }
 
     public function checkCanRelease(Part $part): ?array
@@ -53,37 +52,39 @@ class PartChecker
 
     public function hasCertifiedParent(Part $part): bool
     {
-      return $part->parents->where('vote_sort', 1)->count() > 0;
+        return $part->parents->where('vote_sort', 1)->count() > 0;
     }
 
     public function hasUncertifiedSubparts(Part $part): bool
     {
-      return $part->allSubparts()->where('vote_sort', '!=', 1)->count() > 0;
+        return $part->allSubparts()->where('vote_sort', '!=', 1)->count() > 0;
     }
 
     public function checkFile(ParsedPart $part): ?array
     {
-      if (! $this->checkLibraryApprovedName($part->name)) {
-          $errors[] = __('partcheck.name.invalidchars' );
-      } elseif (! $this->checkUnknownPartNumber($part->name)) {
-          $errors[] = __('partcheck.name.xparts' );
-      }
-
-      $text = explode("\n", $part->body);
-      
-      foreach ($text as $index => $line) {
-        if (! $this->validLine($line)) {
-            $errors[] = __('partcheck.line.invalid', ['value' => $index] );
-        } elseif (! $this->checkLineAllowedBodyMeta($line)) {
-            $errors[] = __('partcheck.line.invalidmeta', ['value' => $index] );
+        $errors = [];
+        if (! $this->checkLibraryApprovedName($part->name)) {
+            $errors[] = __('partcheck.name.invalidchars' );
+        } elseif (! $this->checkUnknownPartNumber($part->name)) {
+            $errors[] = __('partcheck.name.xparts' );
         }
-      }  
-      return $errors ?? null;
+
+        $text = explode("\n", $part->body);
+        
+        foreach ($text as $index => $line) {
+            if (! $this->validLine($line)) {
+                $errors[] = __('partcheck.line.invalid', ['value' => $index] );
+            } elseif (! $this->checkLineAllowedBodyMeta($line)) {
+                $errors[] = __('partcheck.line.invalidmeta', ['value' => $index] );
+            }
+        }  
+        return count($errors) > 0 ? $errors : null; 
     }
   
     public function checkHeader(ParsedPart $part): ?array
     {
       // Ensure header required metas are present
+      $errors = [];
       $missing = [
           'description' => !is_null($part->description),
           'name' => !is_null($part->name),
@@ -193,7 +194,7 @@ class PartChecker
           }
         }  
       }
-      return $errors ?? null;  
+      return count($errors) > 0 ? $errors : null;  
     }
 
   /**
@@ -339,9 +340,9 @@ class PartChecker
     $ediff = $eusers->diff($husers);
     if ($ediff->count() > 0) {
       return [__('partcheck.history.eventmismatch', ['users' => implode(', ', $ediff->pluck('name')->all())])];
-    } else {
-      return [];
     }
+    
+    return [];
   }
 
     public function checkPatternForSetKeyword(string $name, array $keywords): bool

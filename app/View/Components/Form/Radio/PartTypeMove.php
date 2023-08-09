@@ -25,7 +25,7 @@ class PartTypeMove extends Component
         $options = [];
         foreach (PartType::where('format', $this->format)->pluck('folder', 'id')->unique() as $id => $option) {
             $types = implode(', ', PartType::where('folder', $option)->pluck('name')->all());
-            $options[] = ['id' => $id, 'folder' => $option, 'text' => "$option ($types)"]; 
+            $options[] = ['id' => $id, 'folder' => $option, 'text' => "{$option} ({$types})"]; 
         }
         return view('components.form.radio.part-type-move', compact('options'));
     }

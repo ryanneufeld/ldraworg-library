@@ -14,7 +14,6 @@ class DatDiffController extends Controller
     }
 
     public function show(Request $request, Part $part, Part $part2) {
-        dd($part->diff($part2));
         return;
     }
 }

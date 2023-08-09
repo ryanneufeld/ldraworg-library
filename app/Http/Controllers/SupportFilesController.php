@@ -8,11 +8,11 @@ class SupportFilesController extends Controller
 {
     public function categories() 
     {
-        return response(SupportFiles::categoriesText())->header('Content-Type','text/plain');
+        return response(SupportFiles::categoriesText())->header('Content-Type', 'text/plain');
     }
 
     public function librarycsv() 
     {
-        return response(SupportFiles::libaryCsv())->header('Content-Type','text/plain; charset=utf-8');
+        return response(SupportFiles::libaryCsv())->header('Content-Type', 'text/plain; charset=utf-8');
     }
 }

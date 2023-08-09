@@ -7,7 +7,6 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 use App\LDraw\ScheduledTasks\SendDailyDigest;
 use App\LDraw\ScheduledTasks\UpdateTrackerHistory;
-use App\Jobs\UpdateUncertifiedSubparts;
 
 class Kernel extends ConsoleKernel
 {
@@ -22,7 +21,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('telescope:prune')->daily();
         $schedule->command('queue:prune-batches')->daily();
         $schedule->call(new SendDailyDigest(new \DateTime('yesterday')))->dailyAt('01:30');
-        $schedule->call(new UpdateTrackerHistory)->daily();
+        $schedule->call(new UpdateTrackerHistory())->daily();
     }
 
     /**

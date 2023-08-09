@@ -28,19 +28,19 @@ class RefreshDB extends Command
     {
         if (app()->environment('local') && file_exists(env('LIBRARY_SQL_FILE'))) {
             $sql = env('LIBRARY_SQL_FILE');
-              
+
             $db = [
                 'username' => env('DB_USERNAME'),
                 'password' => env('DB_PASSWORD'),
                 'host' => env('DB_HOST'),
-                'database' => env('DB_DATABASE')
+                'database' => env('DB_DATABASE'),
             ];
-            
-            Process::run("mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --database {$db['database']} < $sql");
+
+            Process::run("mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --database {$db['database']} < {$sql}");
             $this->call('migrate');
             $this->call('app:update');
         } else {
             $this->info('This command cannot be run the the production environment');
         }
-     }
+    }
 }

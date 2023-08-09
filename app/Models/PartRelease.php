@@ -46,11 +46,11 @@ class PartRelease extends Model
         $short = date_format($year, 'y') . '01';
       }
       else {
-        $num = (int) substr($current->name,-2) + 1;
+        $num = (int) substr($current->name, -2) + 1;
         if ($num <= 9) {
-          $num = "0$num";
+          $num = "0{$num}";
         }
-        $name = date_format($year, 'Y') . "-$num";
+        $name = date_format($year, 'Y') . "-{$num}";
         $short = date_format($year, 'y') . $num;
       }
 
@@ -61,7 +61,7 @@ class PartRelease extends Model
       $spath = config('ldraw.staging_dir.path');
       if (!Storage::disk($sdisk)->exists($spath))
         Storage::disk($sdisk)->makeDirectory($spath);
-      Storage::disk($sdisk)->put("$spath/ldraw/models/Note{$release->short}CA.txt", $release->notes());
+      Storage::disk($sdisk)->put("{$spath}/ldraw/models/Note{$release->short}CA.txt", $release->notes());
 
       $partslist = [];
       foreach ($parts as $part) {
@@ -73,14 +73,16 @@ class PartRelease extends Model
             Storage::disk('images')->put("library/updates/view{$release->short}/" . $part->filename, $part->get());
           }
           elseif (Storage::disk('images')->exists("library/unofficial/$f.png")) {
-            Storage::disk('images')->copy("library/unofficial/$f.png", "library/updates/view{$release->short}/$f.png");
+            Storage::disk('images')->copy("library/unofficial/{$f}.png", "library/updates/view{$release->short}/$f.png");
           }
           if (Storage::disk('images')->exists("library/unofficial/{$f}_thumb.png"))
             Storage::disk('images')->copy("library/unofficial/{$f}_thumb.png", "library/updates/view{$release->short}/{$f}_thumb.png");
         }
         $part->releasePart($release, $user);
       }
-      usort($partslist, function(array $a, array $b) { return $a[0] <=> $b[0]; });
+      usort($partslist, function(array $a, array $b) { 
+        return $a[0] <=> $b[0]; 
+      });
       $release->part_list = $partslist;
       $release->save();
       $release->makeZip();  
@@ -179,13 +181,13 @@ class PartRelease extends Model
       $spath = config('ldraw.staging_dir.path');
       if (!Storage::disk($sdisk)->exists($spath))
         Storage::disk($sdisk)->makeDirectory($spath);
-      $sfullpath = realpath(config("filesystems.disks.$sdisk.root") . "/$spath");
-      $uzipname = "$sfullpath/lcad{$this->short}.zip";
-      $zipname = "$sfullpath/complete.zip";
-      $uzip = new \ZipArchive;
+      $sfullpath = realpath(config("filesystems.disks.{$sdisk}.root") . "/{$spath}");
+      $uzipname = "{$sfullpath}/lcad{$this->short}.zip";
+      $zipname = "{$sfullpath}/complete.zip";
+      $uzip = new \ZipArchive();
       $uzip->open($uzipname, \ZipArchive::CREATE);
   
-      $zip = new \ZipArchive;
+      $zip = new \ZipArchive();
       $zip->open($zipname, \ZipArchive::CREATE);
   
       foreach (Storage::disk('library')->allFiles('official') as $filename) {
@@ -196,8 +198,8 @@ class PartRelease extends Model
       $zip->close();
   
       $zip->open($zipname);
-      foreach (Storage::disk($sdisk)->allFiles("$spath/ldraw") as $filename) {
-        $zipfilename = str_replace("$spath/", '', $filename);
+      foreach (Storage::disk($sdisk)->allFiles("{$spath}/ldraw") as $filename) {
+        $zipfilename = str_replace("{$spath}/", '', $filename);
         $content = Storage::disk($sdisk)->get($filename);
         $uzip->addFromString($zipfilename, $content);
         if ($zip->getFromName($zipfilename) !== false)
@@ -224,8 +226,8 @@ class PartRelease extends Model
       });
 
       Storage::disk('library')->copy('updates/complete.zip', "updates/complete-{$this->short}.zip");
-      Storage::disk('library')->writeStream("updates/lcad{$this->short}.zip", Storage::disk($sdisk)->readStream("$spath/lcad{$this->short}.zip"));
-      Storage::disk('library')->writeStream("updates/complete.zip", Storage::disk($sdisk)->readStream("$spath/complete.zip"));
+      Storage::disk('library')->writeStream("updates/lcad{$this->short}.zip", Storage::disk($sdisk)->readStream("{$spath}/lcad{$this->short}.zip"));
+      Storage::disk('library')->writeStream("updates/complete.zip", Storage::disk($sdisk)->readStream("{$spath}/complete.zip"));
     }
       
 }

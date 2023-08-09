@@ -48,7 +48,7 @@ class PartSubmitRequest extends FormRequest
                     foreach($this->partfiles as $index => $file) {
                         $partnames[$index] = strtolower($file->getClientOriginalName());
                     }
-                    $validator->errors()->add('partnames',$partnames);
+                    $validator->errors()->add('partnames', $partnames);
                 }  
             }
         ];

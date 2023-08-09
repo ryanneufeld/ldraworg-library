@@ -22,17 +22,15 @@ class LDrawServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(PartChecker::class, function (Application $app) { 
-            return new PartChecker(
-                config('ldraw.allowed_metas.body')
-            );
+            return new PartChecker(config('ldraw.allowed_metas.body'));
         });        
         $this->app->singleton(LDrawModelMaker::class, function (Application $app) { 
             return new LDrawModelMaker();
         });
         $this->app->singleton(Parser::class, function (Application $app) { 
             return new Parser(
-                config('ldraw.patterns'), 
-                \App\Models\PartType::pluck('type')->all(), 
+                config('ldraw.patterns'),
+                \App\Models\PartType::pluck('type')->all(),
                 \App\Models\PartTypeQualifier::pluck('type')->all(),
                 config('ldraw.allowed_metas.header')
             );

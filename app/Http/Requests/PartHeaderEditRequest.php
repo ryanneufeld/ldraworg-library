@@ -30,14 +30,14 @@ class PartHeaderEditRequest extends FormRequest
     public function rules()
     {
         return [
-            'description' => ['required', 'string', new ValidHeaderDescription],
+            'description' => ['required', 'string', new ValidHeaderDescription()],
             'part_type_id' => 'nullable|exists:part_types,id',
             'part_type_qualifier_id' => 'nullable|exists:part_type_qualifiers,id',
             'help' => 'nullable|string',
-            'keywords' => ['nullable','string', new ValidHeaderKeywords],
+            'keywords' => ['nullable','string', new ValidHeaderKeywords()],
             'cmdline' => 'nullable|string',
-            'part_category_id' => ['nullable','exists:part_categories,id', new ValidHeaderCategory],
-            'history' => ['nullable','string', new ValidHeaderHistory],
+            'part_category_id' => ['nullable','exists:part_categories,id', new ValidHeaderCategory()],
+            'history' => ['nullable','string', new ValidHeaderHistory()],
             'editcomment' => 'nullable|string',
         ];
     }
