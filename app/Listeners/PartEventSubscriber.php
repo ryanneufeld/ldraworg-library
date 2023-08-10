@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\PartHeaderEdited;
+use App\Events\PartReleased;
 use App\Events\PartRenamed;
 use App\Events\PartSubmitted;
 use App\Models\PartEvent;
@@ -43,12 +44,24 @@ class PartEventSubscriber
         ]);
     }
 
+    public function storePartReleaseEvent(PartReleased $event)
+    {
+        PartEvent::create([
+            'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'release')->id,
+            'user_id' => $event->user->id,
+            'part_id' => $event->part->id,
+            'part_release_id' => $event->release->id,
+            'comment' => "Release {$event->release->name}",
+        ]);
+    }
+
     public function subscribe(Dispatcher $events): array
     {
         return [
             PartSubmitted::class => 'storeSubmitPartEvent',
             PartRenamed::class => 'storeRenamePartEvent',
             PartHeaderEdited::class => 'storePartHeaderEditEvent',
+            PartReleased::class => 'storePartReleaseEvent',
         ];
     }
 }
