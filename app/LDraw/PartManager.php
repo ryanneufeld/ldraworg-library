@@ -37,7 +37,7 @@ class PartManager
         return $this->addOrChangePartFromText($part);
     }
     
-    public function cloneOfficialToUnofficialPart(Part $part): Part
+    public function copyOfficialToUnofficialPart(Part $part): Part
     {
         $values = [
             'description' => $part->description,

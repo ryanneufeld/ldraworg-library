@@ -36,7 +36,7 @@ class PartMoveController extends Controller
         } else {
             $upart = Part::unofficial()->where('filename', "{$newType->folder}$newName")->first();
             if (is_null($upart)) {
-                $upart = $this->manager->cloneOfficialToUnofficialPart($part);
+                $upart = $this->manager->copyOfficialToUnofficialPart($part);
                 PartHistory::create([
                     'part_id' => $upart->id,
                     'user_id' => Auth::user()->id,
