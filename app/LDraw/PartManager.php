@@ -152,7 +152,6 @@ class PartManager
     {
         if ($part->isTexmap()) {
             $image = imagecreatefromstring($part->get());
-            imagesavealpha($image, true);
         } else {
             $image = $this->render->render($part);
         }
@@ -161,12 +160,9 @@ class PartManager
         $imagePath = Storage::disk(config("ldraw.render.dir.image.{$lib}.disk"))->path(config("ldraw.render.dir.image.{$lib}.path") . "/{$imageFilename}");
         $imageThumbPath = substr($imagePath, 0, -4) . '_thumb.png';
         $image = $this->png->optimize($image);
-        imagesavealpha($image, true);
         imagepng($image, $imagePath);
         $thumb = $this->png->resizeImage($image, config('ldraw.image.thumb.height'), config('ldraw.image.thumb.width'));
-        imagesavealpha($thumb, true);
         $thumb = $this->png->optimize($thumb);
-        imagesavealpha($thumb, true);
         imagepng($thumb, $imageThumbPath);
         if ($updateParents === true) {
             foreach ($part->allParents() as $p) {

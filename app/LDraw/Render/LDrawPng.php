@@ -15,7 +15,6 @@ class LDrawPng
 
     public function resizeImage(GdImage $image, int $maxHeight, int $maxWidth): GdImage
     {
-        imagesavealpha($image, true);
         $width = imagesx($image);
         $height = imagesy($image);
         $r = $width / $height;
@@ -24,20 +23,16 @@ class LDrawPng
         } else {
             $newwidth = $maxWidth;
         }
-        imagealphablending($image, false);
         $image = imagescale($image, $newwidth);
-        imagesavealpha($image, true);
         return $image;
     }
 
     public function optimize(GdImage $image): GdImage
     {
-        imagesavealpha($image, true);
         $filename = Storage::disk($this->tempDisk)->path("{$this->tempPath}/image.png");
         imagepng($image, $filename);
         Process::run("optipng {$filename}");
         $image = imagecreatefrompng($filename);
-        imagesavealpha($image, true);
         Storage::disk($this->tempDisk)->delete("{$this->tempPath}/image.png");
         return $image;        
     }
