@@ -47,7 +47,8 @@ class ValidHeaderHistory implements DataAwareRule, ValidationRule
         $value = Parser::dos2unix(trim($value));
         if (!is_null($value)) {
             $lines = explode("\n", $value);
-            if (count($lines) != mb_substr_count($value, '0 !HISTORY')) {
+            if ($value !== '' && count($lines) != mb_substr_count($value, '0 !HISTORY')) {
+                dd($lines, count($lines), mb_substr_count($value, '0 !HISTORY'));
                 $fail('partcheck.history.invalid')->translate();
                 return;
             }  
