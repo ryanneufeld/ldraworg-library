@@ -42,6 +42,12 @@
         </div>
       </div>
       <div class="partfeed extra text">
+        @if($event->part_event_type->slug == 'edit' && !is_null($event->header_changes))
+          <x-event.list.edit-accordian :changes="$event->header_changes" />
+          @if(!is_null($event->comment))  
+            Comment:<br>
+          @endif    
+        @endif            
         {!! $event->processedComment() !!}
       </div>
     </div>

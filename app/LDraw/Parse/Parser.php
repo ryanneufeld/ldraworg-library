@@ -120,6 +120,7 @@ class Parser
      */
     protected function patternMatch(string $pattern, string $text): ?array
     {
+        $text = $this->formatText($text);
         if (array_key_exists($pattern, $this->patterns) && preg_match($this->patterns[$pattern], $text, $matches)) {
             return $matches;
         }
@@ -136,6 +137,7 @@ class Parser
      */
     protected function patternMatchAll(string $pattern, string $text, int $flags = 0): ?array
     {
+        $text = $this->formatText($text);
         if (array_key_exists($pattern, $this->patterns) && preg_match_all($this->patterns[$pattern], $text, $matches, $flags)) {
             return $matches;
         }
@@ -298,6 +300,7 @@ class Parser
      */
     public function getType(string $text): ?array
     {
+        $text = $this->formatText($text);
         if (array_key_exists('type', $this->patterns)) {
             $pattern = str_replace(['###PartTypes###', '###PartTypesQualifiers###'], [implode('|', $this->types), implode('|', $this->type_qualifiers)], $this->patterns['type']);
             
@@ -426,6 +429,7 @@ class Parser
      * @return string
      */
     public function getBody(string $text): string {
+        $text = $this->formatText($text);
         $lines = explode("\n", $text);
         $index = 0;
         while ($index < count($lines)) {

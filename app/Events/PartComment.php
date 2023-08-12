@@ -8,7 +8,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PartHeaderEdited
+class PartComment
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -18,7 +18,6 @@ class PartHeaderEdited
     public function __construct(
         public Part $part,
         public User $user,
-        public array $changes,
         public ?string $comment = null,
     ) {}
 }

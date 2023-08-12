@@ -27,10 +27,12 @@ class PartEvent extends Model
         'moved_from_filename',
         'moved_from_filename',
         'initial_submit',
+        'header_changes',
     ];
 
     protected $casts = [
         'initial_submit' => 'boolean',
+        'header_changes' => 'array',
     ];
   
     public function part_event_type(): BelongsTo 

@@ -23,7 +23,7 @@ class PartReleaseController extends Controller
         $results = [];
         foreach($parts as $part) {
             $check = $this->checker->checkCanRelease($part);
-            $warnings = $this->checker->historyEventsCrossCheck($part);
+            $warnings = [];//$this->checker->historyEventsCrossCheck($part);
             if (isset($part->category) && $part->category->category == "Minifig") {
                 $warnings[] = "Check Minifig category: {$part->category->category}";
             }

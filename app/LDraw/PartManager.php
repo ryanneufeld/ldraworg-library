@@ -177,8 +177,6 @@ class PartManager
 
     protected function updateMissing(string $filename): void
     {
-        //$name = str_replace(['p/textures/', 'parts/textures/', 'p/', 'parts/'], '', $filename);
-        //$name = str_replace(['/', '\\']);
         Part::unofficial()->whereJsonContains('missing_parts', $filename)->each(function(Part $p) {
             $p->setSubparts($this->parser->getSubparts($p->get(false)));
             $this->updatePartImage($p, true);

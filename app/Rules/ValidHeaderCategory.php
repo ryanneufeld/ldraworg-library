@@ -44,9 +44,9 @@ class ValidHeaderCategory implements DataAwareRule, ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if(request()->part->type->folder == 'parts/') {
-            $c = str_replace(['~','|','=','_'], '', mb_strstr($this->data['description'], " ", true));
+            $c = app(\App\LDraw\Parse\Parser::class)->getDescriptionCategory($this->data['description']);
             $cat = PartCategory::firstWhere('category', $c);
-            if (empty($cat) && empty($value)) {
+            if (is_null($cat) && is_null($value)) {
                 $fail('partcheck.category.invalid')->translate(['value' => $c]);
             } 
         }

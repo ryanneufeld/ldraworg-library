@@ -396,10 +396,7 @@ class Part extends Model
 
         $typestr = $this->type->toString(is_null($this->release));
         if (!is_null($this->type_qualifier)) {
-            $typestr .= " {$this->type_qualifier}";
-        }
-         if (!is_null($this->type_qualifier)) {
-            $typestr .= " {$this->type_qualifier}";
+            $typestr .= " {$this->type_qualifier->type}";
         }
         if (!is_null($this->release)) {
             $typestr .= $this->release->toString();

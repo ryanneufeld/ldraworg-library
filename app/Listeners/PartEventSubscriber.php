@@ -2,16 +2,19 @@
 
 namespace App\Listeners;
 
+use App\Events\PartComment;
+use App\Events\PartDeleted;
 use App\Events\PartHeaderEdited;
 use App\Events\PartReleased;
 use App\Events\PartRenamed;
+use App\Events\PartReviewed;
 use App\Events\PartSubmitted;
 use App\Models\PartEvent;
 use Illuminate\Events\Dispatcher;
 
 class PartEventSubscriber
 {
-    public function storeSubmitPartEvent(PartSubmitted $event)
+    public function storeSubmitPartEvent(PartSubmitted $event): void
     {
         $init_submit = is_null(PartEvent::unofficial()->firstWhere('part_id', $event->part->id));
         PartEvent::create([
@@ -23,7 +26,7 @@ class PartEventSubscriber
         ]);
     }
 
-    public function storeRenamePartEvent(PartRenamed $event)
+    public function storeRenamePartEvent(PartRenamed $event): void
     {
         PartEvent::create([
             'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'rename')->id,
@@ -34,17 +37,18 @@ class PartEventSubscriber
         ]);
     }
 
-    public function storePartHeaderEditEvent(PartHeaderEdited $event)
+    public function storePartHeaderEditEvent(PartHeaderEdited $event): void
     {
         PartEvent::create([
             'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'edit')->id,
             'user_id' => $event->user->id,
             'part_id' => $event->part->id,
+            'header_changes' => $event->changes,
             'comment' => $event->comment,
         ]);
     }
 
-    public function storePartReleaseEvent(PartReleased $event)
+    public function storePartReleaseEvent(PartReleased $event): void
     {
         PartEvent::create([
             'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'release')->id,
@@ -55,6 +59,37 @@ class PartEventSubscriber
         ]);
     }
 
+    public function storePartReviewEvent(PartReviewed $event): void
+    {
+        PartEvent::create([
+            'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'review')->id,
+            'user_id' => $event->user->id,
+            'part_id' => $event->part->id,
+            'vote_type_code' => $event->vote_type_code,
+            'comment' => $event->comment,
+        ]);
+    }
+
+    public function storePartCommentEvent(PartComment $event): void
+    {
+        PartEvent::create([
+            'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'comment')->id,
+            'user_id' => $event->user->id,
+            'part_id' => $event->part->id,
+            'comment' => $event->comment,
+        ]);
+    }
+
+    public function storePartDeletedEvent(PartDeleted $event): void
+    {
+        PartEvent::create([
+            'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'delete')->id,
+            'user_id' => $event->user->id,
+            'deleted_filename' => $event->deleted_filename,
+            'deleted_description' => $event->deleted_description,
+        ]);
+    }
+
     public function subscribe(Dispatcher $events): array
     {
         return [
@@ -62,6 +97,9 @@ class PartEventSubscriber
             PartRenamed::class => 'storeRenamePartEvent',
             PartHeaderEdited::class => 'storePartHeaderEditEvent',
             PartReleased::class => 'storePartReleaseEvent',
+            PartReviewed::class => 'storePartReviewEvent',
+            PartComment::class => 'storePartCommentEvent',
+            PartDeleted::class => 'storePartDeletedEvent',
         ];
     }
 }

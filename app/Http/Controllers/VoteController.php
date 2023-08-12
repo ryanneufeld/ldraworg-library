@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PartComment;
+use App\Events\PartReviewed;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -73,20 +75,17 @@ class VoteController extends Controller
         
         if ($validated['vote_type'] == 'M') {
             $event['part_event_type_id'] = PartEventType::firstWhere('slug','comment')->id;
+            PartComment::dispatch($part, Auth::user(), $validated['comment'] ?? null);
         }
         else {
             Auth::user()->castVote($part, \App\Models\VoteType::firstWhere('code', $validated['vote_type']));
             $event['vote_type_code'] = $validated['vote_type'];
             $event['part_event_type_id'] = PartEventType::firstWhere('slug', 'review')->id;
             $part->updateVoteData();
+            PartReviewed::dispatch($part, Auth::user(), $validated['vote_type'], $validated['comment'] ?? null);
         }
 
         Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
-        $event['user_id'] = Auth::user()->id;
-        $event['part_id'] = $part->id;
-        $event['part_release_id'] = null;
-        PartEvent::create($event);
-
         return redirect()->route('tracker.show', $part)->with('status', 'Vote succesfully posted');        
     }
     /**
@@ -101,15 +100,7 @@ class VoteController extends Controller
 
         $pid = $vote->part->id;
         Auth::user()->cancelVote($vote->part);
-
-        PartEvent::create([
-            'comment' => $request->input('comment') ?? null,
-            'user_id' => Auth::user()->id,
-            'part_id' => $pid,
-            'part_event_type_id' => PartEventType::firstWhere('slug', 'review')->id,
-            'part_release_id' => null
-        ]);
-
+        PartReviewed::dispatch($vote->part, Auth::user(), null, $request->input('comment') ?? null);
         return redirect()->route('tracker.show', $pid)->with('status', 'Vote succesfully canceled');
     }
 }
