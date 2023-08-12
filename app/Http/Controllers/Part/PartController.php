@@ -165,16 +165,17 @@ class PartController extends Controller
         }
 
         if ($part->type->folder === 'parts/' && 
-            !is_null($data['part_category_id'] && 
-            $part->part_category_id !== $data['part_category_id']
-        )) {
-            $cat = PartCategory::firstWhere('category', $data['part_category_id']);
+            !is_null($data['part_category_id']) && 
+            $part->part_category_id !== (int)$data['part_category_id']
+        ) {
+            dd($part->part_category_id, $data['part_category_id']);
+            $cat = PartCategory::find($data['part_category_id']);
             $changes['old']['category'] = $part->category->category;
             $changes['new']['category'] = $cat->category;
             $part->part_category_id = $cat->id;
         }
 
-        if ($part->type->folder === 'parts/' && $data['part_type_id'] !== $part->part_type_id) {
+        if ($part->type->folder === 'parts/' && (int)$data['part_type_id'] !== $part->part_type_id) {
             $pt = PartType::find($data['part_type_id']);
             $changes['old']['type'] = $part->type->type;
             $changes['new']['type'] = $pt->type;
