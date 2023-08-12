@@ -242,8 +242,8 @@ class PartManager
         $part->generateHeader();
         $this->updatePartImage($part);
         foreach ($part->parents()->unofficial()->get() as $p) {
-            if ($p->category->category === "Moved") {
-                $p->description = "~Moved To {$part->name()}";
+            if ($p->type->folder === 'parts/' && $p->category->category === "Moved") {
+                $p->description = str_replace($oldname, $part->name(), $p->description);
                 $p->save();
             }
             $p->body->body = str_replace($oldname, $part->name(), $p->body->body);
