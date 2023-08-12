@@ -25,7 +25,7 @@ class PartEvent extends Model
         'deleted_filename',
         'deleted_description',
         'moved_from_filename',
-        'moved_from_filename',
+        'moved_to_filename',
         'initial_submit',
         'header_changes',
     ];

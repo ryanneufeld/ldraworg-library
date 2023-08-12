@@ -32,6 +32,7 @@ class PartMoveController extends Controller
         if ($part->isUnofficial()) {
             $oldname = $part->filename;
             $this->manager->movePart($part, $newName, $newType);
+            $part->refresh();
             PartRenamed::dispatch($part, Auth::user(), $oldname, $part->filename);
         } else {
             $upart = Part::unofficial()->where('filename', "{$newType->folder}$newName")->first();

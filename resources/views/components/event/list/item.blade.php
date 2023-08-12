@@ -42,13 +42,18 @@
         </div>
       </div>
       <div class="partfeed extra text">
+        @if($event->part_event_type->slug == 'rename')
+        {{$event->moved_from_filename}} to {{$event->moved_to_filename}}
+        @endif            
         @if($event->part_event_type->slug == 'edit' && !is_null($event->header_changes))
           <x-event.list.edit-accordian :changes="$event->header_changes" />
           @if(!is_null($event->comment))  
             Comment:<br>
           @endif    
-        @endif            
+        @endif
+        @if(!is_null($event->comment))            
         {!! $event->processedComment() !!}
+        @endif
       </div>
     </div>
   </div>
