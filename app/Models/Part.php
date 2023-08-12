@@ -251,7 +251,7 @@ class Part extends Model
         }
       }
       else {
-        $file = rtrim($this->header) . "\n\n" . $this->body->body;
+        $file = rtrim($this->header) . "\n\n" . ($this->body->body ?? '');
         if ($dos === true) {
             $file = preg_replace('#\R#us', "\r\n", $file);
         }
@@ -280,7 +280,6 @@ class Part extends Model
         elseif (($data['A'] > 0 && ($data['C'] + $data['A']) > 2) || $data['T'] > 0) {
             $this->vote_sort = 1;
         }
-
         $this->saveQuietly();
     }
   
