@@ -3,28 +3,27 @@
 namespace App\LDraw;
 
 use App\LDraw\Parse\Parser;
-use App\LDraw\Render\LDrawPng;
 use App\LDraw\Render\LDView;
 use App\Models\Part;
-use App\Models\PartBody;
 use App\Models\PartCategory;
 use App\Models\PartType;
 use App\Models\PartTypeQualifier;
 use App\Models\User;
-use GDImage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-
+use Spatie\Image\Image;
+use Spatie\ImageOptimizer\OptimizerChain;
+use Spatie\ImageOptimizer\Optimizers\Optipng;
 class PartManager
 {
     public function __construct(
         public Parser $parser,
         public LDView $render,
-        public LDrawPng $png,
     ) {}
-    
-    public function addOrChangePart(string|GDImage $part, ?string $filename = null, ?User $user = null, ?PartType $type = null): Part
+
+/*
+    public function addOrChangePart(string|Image $part, ?string $filename = null, ?User $user = null, ?PartType $type = null): Part
     {
         if ($part instanceof GDImage) {
             if (is_null($filename) || is_null($user) || is_null($type)) {
@@ -36,7 +35,7 @@ class PartManager
 
         return $this->addOrChangePartFromText($part);
     }
-    
+*/    
     public function copyOfficialToUnofficialPart(Part $part): Part
     {
         $values = [
@@ -64,7 +63,7 @@ class PartManager
         return $upart;
     }
 
-    protected function addOrChangePartFromText(string $text): Part
+    public function addOrChangePartFromText(string $text): Part
     {
         $part = $this->parser->parse($text);
         
@@ -97,13 +96,20 @@ class PartManager
         return $upart;
     }
 
-    protected function addOrChangePartFromImage(\GdImage $image, string $filename, User $user, PartType $type): Part
+    protected function imageOptimize(string $path, string $newPath = ''): void
     {
-        $image = $this->png->optimize($image);
-        imagesavealpha($image, true);
-        ob_start(); 
-        imagepng($image);
-        $image_data = ob_get_clean();
+        $optimizerChain = (new OptimizerChain)->addOptimizer(new Optipng([]));
+        if ($newPath !== '') {
+            $optimizerChain->optimize($path, $newPath);
+        } else {
+            $optimizerChain->optimize($path);
+        }
+    }
+
+    public function addOrChangePartFromImage(string $path, string $filename, User $user, PartType $type): Part
+    {
+        $this->imageOptimize($path);
+        $image_data = file_get_contents($path);
         $values = [
             'user_id' => $user->id,
             'part_license_id' => $user->license->id,
@@ -159,11 +165,10 @@ class PartManager
         $imageFilename = substr($part->filename, 0, -4) . '.png';
         $imagePath = Storage::disk(config("ldraw.render.dir.image.{$lib}.disk"))->path(config("ldraw.render.dir.image.{$lib}.path") . "/{$imageFilename}");
         $imageThumbPath = substr($imagePath, 0, -4) . '_thumb.png';
-        $image = $this->png->optimize($image);
         imagepng($image, $imagePath);
-        $thumb = $this->png->resizeImage($image, config('ldraw.image.thumb.height'), config('ldraw.image.thumb.width'));
-        $thumb = $this->png->optimize($thumb);
-        imagepng($thumb, $imageThumbPath);
+        $this->imageOptimize($imagePath);
+        Image::load($imagePath)->width(config('ldraw.image.thumb.width'))->height(config('ldraw.image.thumb.height'))->save($imageThumbPath);
+        $this->imageOptimize($imageThumbPath);
         if ($updateParents === true) {
             foreach ($part->allParents() as $p) {
                 $this->updatePartImage($p);

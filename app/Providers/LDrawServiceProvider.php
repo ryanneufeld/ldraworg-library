@@ -47,17 +47,10 @@ class LDrawServiceProvider extends ServiceProvider
                 $app->make(LDrawModelMaker::class)
             );    
         });
-        $this->app->singleton(LDrawPNG::class, function (Application $app) { 
-            return new LDrawPng(
-                config('ldraw.staging_dir.disk'),
-                config('ldraw.staging_dir.path'),
-            );
-        });
         $this->app->singleton(PartManager::class, function (Application $app) { 
             return new PartManager(
                 $app->make(Parser::class),
                 $app->make(LDView::class),
-                $app->make(LDrawPng::class)
             );
         });
     } 

@@ -87,12 +87,12 @@ class PartController extends Controller
         $parts = new Collection();
         foreach($data['partfiles'] as $file) {
             if ($file->getMimeType() == 'text/plain') {
-                $part = $this->manager->addOrChangePart($file->get());
+                $part = $this->manager->addOrChangePartFromText($file->get());
             } else {
                 $image = imagecreatefrompng($file->path());
                 imagesavealpha($image, true);
-                $part = $this->manager->addOrChangePart(
-                    $image,
+                $part = $this->manager->addOrChangePartFromImage(
+                    $file->path(),
                     basename($file->getClientOriginalName()),
                     $user,
                     $this->guessPartType($file->getClientOriginalName(), $data['partfiles'])
