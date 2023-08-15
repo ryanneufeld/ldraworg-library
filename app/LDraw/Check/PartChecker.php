@@ -111,7 +111,7 @@ class PartChecker
           $errors[] = __('partcheck.description.invalidchars' );
       }
   
-      if ($pt->folder == 'parts/' && !$this->checkDescriptionForPatternText($name, $part->description)) {
+      if ($part->descriptionCategory !== 'Moved' && $pt->folder == 'parts/' && !$this->checkDescriptionForPatternText($name, $part->description)) {
           $errors[] = __('partcheck.description.patternword' );
       }
 
@@ -178,7 +178,7 @@ class PartChecker
           $errors[] = __('partcheck.category.movedto');
       }
       // Keyword Check
-      if ($pt->folder == 'parts/' && !$this->checkPatternForSetKeyword($name, $part->keywords ?? [])) {
+      if ($part->descriptionCategory !== 'Moved' && $pt->folder == 'parts/' && !$this->checkPatternForSetKeyword($name, $part->keywords ?? [])) {
         $errors[] = __('partcheck.keywords');
       }  
 
