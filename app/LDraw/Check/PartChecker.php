@@ -35,9 +35,9 @@ class PartChecker
         if (!$part->isTexmap()) {
             $errors = $this->check(ParsedPart::fromPart($part)) ?? [];
         }  
-        $hascertparents = !is_null($part->official_part_id) || $part->type->folder == 'parts/' || $this->hasCertifiedParent($part);
+        $hascertparents = !is_null($part->official_part_id) || $part->type->folder == 'parts/' || $this->hasCertifiedParentInParts($part);
         if (!$hascertparents) {
-            $errors[] = 'No certified parents';
+            $errors[] = 'No certified parents in the parts directory';
         }
         $hasuncertsubfiles = $this->hasUncertifiedSubparts($part);
         if ($hasuncertsubfiles) {
@@ -50,9 +50,9 @@ class PartChecker
         return compact('can_release', 'hascertparents', 'hasuncertsubfiles', 'errors');
     }
 
-    public function hasCertifiedParent(Part $part): bool
+    public function hasCertifiedParentInParts(Part $part): bool
     {
-        return $part->parents->where('vote_sort', 1)->count() > 0;
+        return $part->allParents()->where('type.folder', 'parts/')->where('vote_sort', 1)->count() > 0;
     }
 
     public function hasUncertifiedSubparts(Part $part): bool
