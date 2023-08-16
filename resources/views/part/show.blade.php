@@ -108,11 +108,21 @@
   @endif
     <div class="ui clearing basic segment"></div>
   @if($part->isUnofficial())
-    <x-part.table title="{{ucfirst($lib)}} parent parts" :parts="$part->parents()->unofficial()->get()" />
-    <x-part.table title="{{ucfirst($lib)}} subparts" :parts="$part->subparts()->unofficial()->get()" :missing="$part->missing_parts" />
+    <x-part.table title="Unofficial parent parts" :parts="$part->parents()->unofficial()->get()" />
+    <x-part.table title="Unofficial subparts" :parts="$part->subparts()->unofficial()->get()" :missing="$part->missing_parts" />
+    <div class="ui accordion">
+        <div class="title">
+            <i class="dropdown icon"></i>
+            Official parents and subparts
+        </div>
+        <div class="content">
+            <x-part.table title="Official parent parts" :parts="$part->parents()->official()->get()" />
+            <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
+        </div>
+    </div>
   @else
-  <x-part.table title="{{ucfirst($lib)}} parent parts" :parts="$part->parents()->official()->get()" />
-    <x-part.table title="{{ucfirst($lib)}} subparts" :parts="$part->subparts()->official()->get()" />
+  <x-part.table title="Official parent parts" :parts="$part->parents()->official()->get()" />
+    <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
   @endif    
   @if($part->isUnofficial())
     <x-event.list title="File events" :events="$part->events" />
