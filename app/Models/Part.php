@@ -15,10 +15,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Staudenmeir\LaravelAdjacencyList\Eloquent\HasGraphRelationships;
 
 class Part extends Model
 {
-    use HasLicense, HasPartRelease, HasUser;
+    use 
+        HasLicense, 
+        HasPartRelease, 
+        HasUser, 
+        HasGraphRelationships;
 
     protected $fillable = [
         'user_id',
@@ -45,6 +50,21 @@ class Part extends Model
         'missing_parts' => 'array',
     ];
 
+    public function getPivotTableName(): string
+    {
+        return 'related_parts';
+    }
+
+    public function getParentKeyName(): string
+    {
+        return 'parent_id';
+    }
+  
+    public function getChildKeyName(): string
+    {
+        return 'subpart_id';
+    }
+
     public function category(): BelongsTo 
     {
         return $this->belongsTo(PartCategory::class, 'part_category_id', 'id');
@@ -64,7 +84,7 @@ class Part extends Model
     {
         return $this->belongsToMany(self::class, 'related_parts', 'parent_id', 'subpart_id');
     }
-    
+
     public function parents(): BelongsToMany 
     {
         return $this->belongsToMany(self::class, 'related_parts', 'subpart_id', 'parent_id');
@@ -466,7 +486,7 @@ class Part extends Model
         $this->header = implode("\n", $header);
         $this->save();
     }
-  
+/*  
     public function allSubparts(): Collection
     {
         $parts = new Collection();
@@ -492,7 +512,7 @@ class Part extends Model
         }
         return $parts->unique();
     }
-
+*/
 
     public function deleteRelationships(): void 
     {

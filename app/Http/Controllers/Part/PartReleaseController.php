@@ -19,9 +19,10 @@ class PartReleaseController extends Controller
 
     protected function create() {
         $this->authorize('create', PartRelease::class);
-        $parts = Part::with(['parents', 'subparts'])->unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
+        $parts = Part::unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
         $results = [];
         foreach($parts as $part) {
+            $part->load('descendants', 'ancestors');
             $check = $this->checker->checkCanRelease($part);
             $warnings = [];//$this->checker->historyEventsCrossCheck($part);
             if (isset($part->category) && $part->category->category == "Minifig") {

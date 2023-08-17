@@ -52,12 +52,12 @@ class PartChecker
 
     public function hasCertifiedParentInParts(Part $part): bool
     {
-        return $part->allParents()->where('type.folder', 'parts/')->where('vote_sort', 1)->count() > 0;
+        return $part->ancestors->where('type.folder', 'parts/')->where('vote_sort', 1)->count() > 0;
     }
 
     public function hasUncertifiedSubparts(Part $part): bool
     {
-        return $part->allSubparts()->where('vote_sort', '!=', 1)->count() > 0;
+        return $part->descendants->where('vote_sort', '!=', 1)->count() > 0;
     }
 
     public function checkFile(ParsedPart $part): ?array

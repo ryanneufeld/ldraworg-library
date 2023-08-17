@@ -170,7 +170,7 @@ class PartManager
         Image::load($imagePath)->width(config('ldraw.image.thumb.width'))->height(config('ldraw.image.thumb.height'))->save($imageThumbPath);
         $this->imageOptimize($imageThumbPath);
         if ($updateParents === true) {
-            foreach ($part->allParents() as $p) {
+            foreach ($part->ancestors as $p) {
                 $this->updatePartImage($p);
             }
         }
