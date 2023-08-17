@@ -168,7 +168,6 @@ class PartController extends Controller
             !is_null($data['part_category_id']) && 
             $part->part_category_id !== (int)$data['part_category_id']
         ) {
-            dd($part->part_category_id, $data['part_category_id']);
             $cat = PartCategory::find($data['part_category_id']);
             $changes['old']['category'] = $part->category->category;
             $changes['new']['category'] = $cat->category;
