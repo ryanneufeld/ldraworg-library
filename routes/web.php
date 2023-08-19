@@ -55,6 +55,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::middleware(['auth'])->post('/{part}/vote', [VoteController::class, 'store'])->name('vote.store');
   Route::middleware(['auth'])->put('/vote/{vote}', [VoteController::class, 'update'])->name('vote.update');
 
+  Route::middleware(['auth'])->get('/{part}/adminquickvote', [VoteController::class, 'adminquickvote'])->name('vote.adminquickvote');
+
   Route::get('/activity', PartEventController::class)->name('activity');
 
   Route::get('/next-release', \App\Http\Controllers\Part\NonAdminReleaseController::class)->name('next-release');

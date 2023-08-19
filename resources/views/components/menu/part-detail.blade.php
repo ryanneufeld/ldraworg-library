@@ -19,6 +19,11 @@
   <div class="ui dropdown item">
     Admin Actions<i class="dropdown icon"></i>
     <div class="menu">
+      @if($part->isUnofficial() && $part->type->folder == 'parts/' && $part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0)
+      @can('vote.admincertify')
+        <a class="item" title="Admin Certify All" href="{{route('tracker.vote.adminquickvote', $part)}}">Admin Certify All</a>
+      @endcan
+      @endif
       @if($part->isUnofficial() && $part->type->format == 'dat')
       @canany(['part.edit.header','part.own.edit.header'])
         <a class="item" title="Edit the file header" href="{{route('tracker.edit', $part)}}">Edit Header</a>

@@ -103,4 +103,16 @@ class VoteController extends Controller
         PartReviewed::dispatch($vote->part, Auth::user(), null, $request->input('comment') ?? null);
         return redirect()->route('tracker.show', $pid)->with('status', 'Vote succesfully canceled');
     }
+    
+    public function adminquickvote(Part $part)
+    {
+        $this->authorize('admin', [Vote::class, $part]);
+        foreach ($part->descendantsAndSelf->where('vote_sort', 2) as $p) {
+            Auth::user()->castVote($p, \App\Models\VoteType::firstWhere('code', 'A'));
+            $p->updateVoteData();
+            PartReviewed::dispatch($p, Auth::user(), 'A', null);
+            Auth::user()->notification_parts()->syncWithoutDetaching([$p->id]);
+        }
+        return redirect()->route('tracker.show', $part)->with('status', 'Quickvote action complete');
+    }
 }
