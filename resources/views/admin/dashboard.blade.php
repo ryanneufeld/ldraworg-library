@@ -24,6 +24,9 @@
       @can('part.flag.manual-hold')
       <a class="item" data-tab="manual-hold">Parts Administrativly Held</a>
       @endcan
+      @can('part.vote.admincertify')
+      <a class="item" data-tab="admin-ready">Parts Ready For Admin</a>
+      @endcan
       <a class="item" data-tab="prims-2">CC BY 2.0 Primitives</a>
     </div>
     @can('part.flag.delete')
@@ -34,6 +37,11 @@
     @can('part.flag.manual-hold')
     <div class="ui bottom attached tab segment" data-tab="manual-hold">
         <x-part.table :parts="$manual_hold_flags" />
+    </div>
+    @endcan
+    @can('part.vote.admincertify')
+    <div class="ui bottom attached tab segment" data-tab="admin-ready">
+        <x-part.table :parts="$adminreadyparts" />
     </div>
     @endcan
     <div class="ui bottom attached tab segment" data-tab="prims-2">

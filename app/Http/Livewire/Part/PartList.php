@@ -16,7 +16,6 @@ class PartList extends Component
     public $part_types = [];
     public $exclude_user = false;
     public $exclude_reviews = false;
-    public $list = '';
 
     protected $queryString= [
         'itemsPerPage' => ['except' => '500', 'as' => 'n'],
@@ -25,7 +24,6 @@ class PartList extends Component
         'exclude_user' => ['except' => false],
         'exclude_reviews' => ['except' => false],
         'part_types' => ['except' => []],
-        'list' => ['except' => '']
     ];
 
     public function updated($name, $value)
@@ -35,42 +33,33 @@ class PartList extends Component
 
     public function render()
     {
-        if ($this->list === 'adminready') {
-            $parts = \App\Models\Part::unofficial()
-                ->where('vote_sort', 2)
-                ->whereIn('part_type_id', [1, 6])
-                ->whereDoesntHave('descendants', function ($q){
-                    $q->where('vote_sort', '>', 2);
-                });
-        } else {
-            if ($this->unofficial == true) {
-                $parts = \App\Models\Part::unofficial();
+        if ($this->unofficial == true) {
+            $parts = \App\Models\Part::unofficial();
+        }
+        else {
+            $parts = \App\Models\Part::official();
+        }
+
+        if ($this->unofficial && !empty($this->status)) {
+            $parts->partStatus($this->status);
+        }
+        if (!empty($this->user_id) && is_numeric($this->user_id)) {
+            if ($this->exclude_user) {
+                $parts->where('user_id', '!=', $this->user_id);
+            } else {
+                $parts->where('user_id', $this->user_id);
             }
-            else {
-                $parts = \App\Models\Part::official();
-            }
-    
-            if ($this->unofficial && !empty($this->status)) {
-                $parts->partStatus($this->status);
-            }
-            if (!empty($this->user_id) && is_numeric($this->user_id)) {
-                if ($this->exclude_user) {
-                    $parts->where('user_id', '!=', $this->user_id);
-                } else {
-                    $parts->where('user_id', $this->user_id);
-                }
-                
-            }
-            $types = array_filter($this->part_types, 'is_numeric');
-            if (!empty($types)) {
-                $parts->whereIn('part_type_id', $types);
-            }
-            if ($this->unofficial && !empty($this->exclude_reviews)) {
-                $parts->whereDoesntHave('votes', function($q) {
-                    $q->where('user_id', auth()->user()->id);
-                });
-            }    
-        }  
+            
+        }
+        $types = array_filter($this->part_types, 'is_numeric');
+        if (!empty($types)) {
+            $parts->whereIn('part_type_id', $types);
+        }
+        if ($this->unofficial && !empty($this->exclude_reviews)) {
+            $parts->whereDoesntHave('votes', function($q) {
+                $q->where('user_id', auth()->user()->id);
+            });
+        }      
         $this->dispatchBrowserEvent('jquery');
         return view('livewire.part.part-list', [
             'parts' => $parts->orderby('vote_sort')->orderBy('part_type_id')->orderBy('filename')->paginate($this->itemsPerPage)
