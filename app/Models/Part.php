@@ -216,6 +216,17 @@ class Part extends Model
         });
     }
 
+    public function scopeAdminReady(Builder $query): void
+    {
+        $query->unofficial()
+            ->whereIn('part_type_id', PartType::where('folder', 'parts/')->pluck('id')->all())
+            ->whereHas('descendantsAndSelf', function ($q){
+                $q->where('vote_sort', '=', 2);
+            })
+            ->whereDoesntHave('descendantsAndSelf', function ($q){
+                $q->where('vote_sort', '>', 2);
+            });
+    }
     public function isTexmap(): bool {
       return $this->type->format == 'png';
     }
