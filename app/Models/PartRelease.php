@@ -22,7 +22,7 @@ class PartRelease extends Model
     ];
 
     protected $casts = [
-        'part_list' => AsArrayObject::class,
+        'part_list' => 'array',
         'part_data' => AsArrayObject::class,
     ];
     

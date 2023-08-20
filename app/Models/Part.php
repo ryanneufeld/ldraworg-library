@@ -82,14 +82,14 @@ class Part extends Model
 
     public function subparts(): BelongsToMany 
     {
-        return $this->belongsToMany(self::class, 'related_parts', 'parent_id', 'subpart_id');
+        return $this->children();//$this->belongsToMany(self::class, 'related_parts', 'parent_id', 'subpart_id');
     }
-
+/*
     public function parents(): BelongsToMany 
     {
         return $this->belongsToMany(self::class, 'related_parts', 'subpart_id', 'parent_id');
     }
-
+*/
     public function keywords(): BelongsToMany 
     {
         return $this->belongsToMany(PartKeyword::class, 'parts_part_keywords', 'part_id', 'part_keyword_id')->orderBy('keyword');

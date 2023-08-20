@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Part;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Bus;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PartReleaseCreateStep1Request;
 use App\Http\Requests\PartReleaseCreateStep2Request;
 use App\Models\Part;
+use App\Jobs\MakePartRelease;
 
 class PartReleaseController extends Controller
 {
@@ -56,20 +56,7 @@ class PartReleaseController extends Controller
         $this->authorize('store', PartRelease::class);
         $data = $request->validated();
         $release_parts = Part::whereIn('id', $data['ids'])->get();
-        $parts = new \Illuminate\Database\Eloquent\Collection();
-        foreach($release_parts as $part) {
-            $parts = $part->allParents();
-        }
-        $parts = $parts->diff(Part::whereIn('id', $data['ids']));
-
-        Bus::batch([
-            [
-                new \App\Jobs\Release\MakePartRelease($release_parts, Auth::user()),
-                new \App\Jobs\Release\PostReleaseCleanup($parts),
-            ]
-        ])->then(function ($batch) {
-        })->dispatch();
-        
+        MakePartRelease::dispatch($release_parts, Auth::user());
         return redirect()->route('tracker.activity');
     }
   

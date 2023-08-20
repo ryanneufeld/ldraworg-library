@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Release;
 
+use App\LDraw\PartsUpdateProcessor;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -17,9 +18,6 @@ class MakePartRelease implements ShouldQueue, ShouldBeUnique
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected Collection $parts;
-    protected User $user;
-
     public $uniqueFor = 1800;
     public $timeout = 1800;
     
@@ -28,11 +26,10 @@ class MakePartRelease implements ShouldQueue, ShouldBeUnique
      *
      * @return void
      */
-    public function __construct(Collection $parts, User $user)
-    {
-      $this->parts = $parts;
-      $this->user = $user;
-    }
+    public function __construct(
+        public Collection $parts, 
+        public User $user
+    ) {}
 
     /**
      * Execute the job.
@@ -41,6 +38,7 @@ class MakePartRelease implements ShouldQueue, ShouldBeUnique
      */
     public function handle()
     {
-      \App\Models\PartRelease::createRelease($this->parts, $this->user);
+        $updater = new PartsUpdateProcessor($this->parts, $this->user);
+        $updater->createRelease();
     }
 }

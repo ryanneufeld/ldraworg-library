@@ -9,6 +9,7 @@ use App\Events\PartReleased;
 use App\Events\PartRenamed;
 use App\Events\PartReviewed;
 use App\Events\PartSubmitted;
+use App\Events\PartUpdateProcessingComplete;
 use App\Models\PartEvent;
 use Illuminate\Events\Dispatcher;
 
@@ -90,6 +91,11 @@ class PartEventSubscriber
         ]);
     }
 
+    public function emailPartUpdateComplete(PartUpdateProcessingComplete $event): void
+    {
+        // Nothing yet
+    }
+
     public function subscribe(Dispatcher $events): array
     {
         return [
@@ -100,6 +106,7 @@ class PartEventSubscriber
             PartReviewed::class => 'storePartReviewEvent',
             PartComment::class => 'storePartCommentEvent',
             PartDeleted::class => 'storePartDeletedEvent',
+            PartUpdateProcessingComplete::class => 'emailPartUpdateComplete',
         ];
     }
 }
