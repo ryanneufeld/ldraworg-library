@@ -193,7 +193,7 @@ class PartController extends Controller
         }
 
         if (!is_null($data['help']) && trim($data['help']) !== '') {
-            $newHelp = "0 !HELP " . str_replace(["\n","\r"], ["\n0 HELP",''], $data['help']);
+            $newHelp = "0 !HELP " . str_replace(["\n","\r"], ["\n0 !HELP ",''], $data['help']);
             $newHelp = $this->manager->parser->getHelp($newHelp);
         } else {
             $newHelp = [];
