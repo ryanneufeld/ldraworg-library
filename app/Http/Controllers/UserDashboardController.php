@@ -21,14 +21,19 @@ class UserDashboardController extends Controller
             })
             ->get()
             ->sortBy($partSort);
+        $userready = Part::userReady()
+            ->orderby('vote_sort')
+            ->orderBy('part_type_id')
+            ->oldest()
+            ->get();    
         $submitIds = $submits->pluck('id')->all();
         $votes = Vote::with(['part'])->where('user_id', $user->id)->take(500)->get()->sortBy([['vote_type_code','asc'],['part.type.folder', 'asc'],['part.description', 'asc']]);
         $tracked = $user->notification_parts()->take(500)->get()->sortBy($partSort);
-        $events = \App\Models\PartEvent::unofficial()->
-            whereHas('part', function ($q) use ($submitIds) {
+        $events = \App\Models\PartEvent::unofficial()
+            ->whereHas('part', function ($q) use ($submitIds) {
                 $q->whereIn('id', $submitIds);
             })->latest()->take(500)->get();
-        return view('dashboard.index', compact('submits', 'votes', 'tracked', 'events'));
+        return view('dashboard.index', compact('submits', 'votes', 'tracked', 'events', 'userready'));
     }
   
 }

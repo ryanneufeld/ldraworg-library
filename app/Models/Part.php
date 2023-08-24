@@ -82,14 +82,9 @@ class Part extends Model
 
     public function subparts(): BelongsToMany 
     {
-        return $this->children();//$this->belongsToMany(self::class, 'related_parts', 'parent_id', 'subpart_id');
+        return $this->children();
     }
-/*
-    public function parents(): BelongsToMany 
-    {
-        return $this->belongsToMany(self::class, 'related_parts', 'subpart_id', 'parent_id');
-    }
-*/
+
     public function keywords(): BelongsToMany 
     {
         return $this->belongsToMany(PartKeyword::class, 'parts_part_keywords', 'part_id', 'part_keyword_id')->orderBy('keyword');
@@ -227,6 +222,23 @@ class Part extends Model
                 $q->where('vote_sort', '>', 2);
             });
     }
+
+    public function scopeUserReady(Builder $query): void
+    {
+        $query->unofficial()
+            ->whereIn('part_type_id', PartType::where('folder', 'parts/')->pluck('id')->all())
+            ->whereDoesntHave('descendantsAndSelf', function ($q) {
+                $q->where('vote_sort', '5');
+            })
+            ->whereHas('descendantsAndSelf', function ($q) {
+                $q->has('votes', '<=', 1)
+                ->whereDoesntHave('votes', function($q){
+                    $q->where('user_id', auth()->user()->id);
+                })
+                ->where('vote_sort', 3);
+            });
+    }
+
     public function isTexmap(): bool {
       return $this->type->format == 'png';
     }

@@ -9,6 +9,7 @@
     <a class="item" data-tab="submits">My Submits</a>
     <a class="item" data-tab="votes">My Votes</a>
     <a class="item" data-tab="tracked">My Tracked Files</a>
+    <a class="item" data-tab="queue">My Queue</a>
   </div>
   <div class="ui bottom attached tab segment active" data-tab="activity">
     <x-event.table :events="$events" />
@@ -50,5 +51,14 @@
   </div>
   <div class="ui bottom attached tab segment" data-tab="tracked">
     <x-part.table :parts="$tracked" />
+  </div>
+  <div class="ui bottom attached tab segment" data-tab="queue">
+    <div class="ui info message">
+        <div class="header">What is this?</div>
+        This is a list of parts where either the part itself or its subparts
+        need at least one more vote and you haven't voted. The list is ordered
+        by status, part type, and age on the tracker in that order.
+    </div>
+    <x-part.table :parts="$userready" />
   </div>
 </x-layout.base>
