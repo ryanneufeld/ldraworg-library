@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\Release;
+namespace App\Jobs;
 
 use App\LDraw\PartsUpdateProcessor;
 use Illuminate\Bus\Batchable;
