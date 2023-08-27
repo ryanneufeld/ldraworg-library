@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -49,7 +49,7 @@ class PartEventsShow extends Component
             }, function($q) {
                 $q->latest();
             })->paginate($this->itemsPerPage);
-        $this->dispatchBrowserEvent('jquery');
+        $this->dispatch('jquery');
         return view('livewire.part-events-show', compact('filtersActive', 'orderItems', 'events'));
     }
 }

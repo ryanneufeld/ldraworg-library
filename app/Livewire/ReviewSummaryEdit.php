@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\ReviewSummary;
@@ -46,7 +46,7 @@ class ReviewSummaryEdit extends Component
     public function render()
     {
         $this->manualEntry = $this->summary->toString();
-        $this->dispatchBrowserEvent('jquery');
+        $this->dispatch('jquery');
         return view('livewire.review-summary-edit');
     }
 }

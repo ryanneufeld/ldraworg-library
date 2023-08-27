@@ -1,6 +1,5 @@
 <div>
     @if ($paginator->hasPages())   
-        @php(isset($this->numberOfPaginatorsRendered[$paginator->getPageName()]) ? $this->numberOfPaginatorsRendered[$paginator->getPageName()]++ : $this->numberOfPaginatorsRendered[$paginator->getPageName()] = 1)
         <div class="ui compact pagination menu">
             <a @class(['disabled' => $paginator->onFirstPage(), 'item']) wire:click="previousPage('{{ $paginator->getPageName() }}')" wire:loading.attr="disabled"><i class="ui chevron left icon"></i></a>
             @foreach ($elements as $element)
@@ -10,9 +9,9 @@
                 @if (is_array($element))
                     @foreach ($element as $page => $url)
                         @if ($page == $paginator->currentPage())
-                            <div class="active item" wire:key="paginator-{{ $paginator->getPageName() }}-{{ $this->numberOfPaginatorsRendered[$paginator->getPageName()] }}-page-{{ $page }}" >{{ $page }}</div>
+                            <div class="active item" wire:key="paginator-{{ $paginator->getPageName() }}-page-{{ $page }}" >{{ $page }}</div>
                         @else
-                            <a class="item" wire:key="paginator-{{ $paginator->getPageName() }}-{{ $this->numberOfPaginatorsRendered[$paginator->getPageName()] }}-page-{{ $page }}" wire:click="gotoPage({{ $page }}, '{{ $paginator->getPageName() }}')">{{ $page }}</a>
+                            <a class="item" wire:key="paginator-{{ $paginator->getPageName() }}-page-{{ $page }}" wire:click="gotoPage({{ $page }}, '{{ $paginator->getPageName() }}')">{{ $page }}</a>
                         @endif
                     @endforeach
                 @endif

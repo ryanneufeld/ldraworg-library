@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Part;
+namespace App\Livewire\Part;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -60,7 +60,7 @@ class PartList extends Component
                 $q->where('user_id', auth()->user()->id);
             });
         }      
-        $this->dispatchBrowserEvent('jquery');
+        $this->dispatch('jquery');
         return view('livewire.part.part-list', [
             'parts' => $parts->orderby('vote_sort')->orderBy('part_type_id')->orderBy('filename')->paginate($this->itemsPerPage)
         ]);
