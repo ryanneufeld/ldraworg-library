@@ -1,6 +1,9 @@
 const mix = require('laravel-mix');
-const webpack = require('webpack');
 
+mix.autoload({
+    jquery: ['$', 'jQuery', 'window.jQuery'],
+});
+   
 mix.js('resources/js/app.js', 'public/assets/js')
     .postCss('resources/css/app.css', 'public/assets/css')
     .postCss('resources/css/ldbi.css', 'public/assets/css')

@@ -1,19 +1,19 @@
 import $ from 'jquery';
-window.$ = window.jQuery = $;
+global.$ = global.jQuery = $;
 
-require('../semantic/dist/components/api.js');
-require('../semantic/dist/components/transition.js');
-require('../semantic/dist/components/visibility.js');
-require('../semantic/dist/components/dimmer.js');
-require('../semantic/dist/components/popup.js');
-require('../semantic/dist/components/modal.js');
-require('../semantic/dist/components/checkbox.js');
-require('../semantic/dist/components/dropdown.js');
-require('../semantic/dist/components/accordion.js');
-require('../semantic/dist/components/calendar.js');
-require('../semantic/dist/components/tab.js');
-require('../semantic/dist/components/search.js');
-require('./tablesort.js');
+import '../semantic/dist/components/api.js';
+import '../semantic/dist/components/transition.js';
+import '../semantic/dist/components/visibility.js';
+import '../semantic/dist/components/dimmer.js';
+import '../semantic/dist/components/popup.js';
+import '../semantic/dist/components/modal.js';
+import '../semantic/dist/components/checkbox.js';
+import '../semantic/dist/components/dropdown.js';
+import '../semantic/dist/components/accordion.js';
+import '../semantic/dist/components/calendar.js';
+import '../semantic/dist/components/tab.js';
+import '../semantic/dist/components/search.js';
+import './tablesort.js';
 
 let cal_options = {
 	type: 'datetime',
