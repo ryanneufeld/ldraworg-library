@@ -16,6 +16,7 @@ return [
     */
 
     'components' => [
+        'carbon' => Components\DateTime\Carbon::class,
         /*
         'alert' => Components\Alerts\Alert::class,
         'avatar' => Components\Support\Avatar::class,
