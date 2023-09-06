@@ -18,5 +18,6 @@ class PartDeleted
         public User $user,
         public string $deleted_filename,
         public string $deleted_description,
+        public array $parentIds,
     ) {}
 }

@@ -83,6 +83,9 @@ class PartEventSubscriber
 
     public function storePartDeletedEvent(PartDeleted $event): void
     {
+        \App\Models\Part::whereIn('id', $event->parentIds)->each(function (\App\Models\Part $p) {
+            $p->setSubparts(app(\App\LDraw\PartManager::class)->parser->getSubparts($p->body->body));
+        });
         PartEvent::create([
             'part_event_type_id' => \App\Models\PartEventType::firstWhere('slug', 'delete')->id,
             'user_id' => $event->user->id,

@@ -282,7 +282,7 @@ class PartController extends Controller
     public function destroy(Part $part)
     {
         $this->authorize('delete', $part);
-        if ($part->parents->count() > 0) {
+        if (is_null($part->official_part_id) && $part->parents->count() > 0) {
             return back();
         }
         $part->delete();
