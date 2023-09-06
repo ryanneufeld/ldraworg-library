@@ -1,6 +1,6 @@
 <div>
     @if ($paginator->hasPages())   
-        <div class="ui compact pagination menu">
+        <div class="ui compact stackable pagination menu">
             <a @class(['disabled' => $paginator->onFirstPage(), 'item']) wire:click="previousPage('{{ $paginator->getPageName() }}')" wire:loading.attr="disabled"><i class="ui chevron left icon"></i></a>
             @foreach ($elements as $element)
                 @if (is_string($element))
