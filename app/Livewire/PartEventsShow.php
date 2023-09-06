@@ -13,7 +13,7 @@ class PartEventsShow extends Component
     public $order = 'latest';
     public $dt;
     public $unofficial = false;
-    public $types = [];
+    public $types = '';
 
     protected $queryString= [
         'itemsPerPage' => ['except' => '20', 'as' => 'n'],
@@ -30,16 +30,24 @@ class PartEventsShow extends Component
 
     public function render()
     {
+        $event_types_ids = array_filter(explode(',', $this->types), 'is_numeric');
+        
+        if (count($event_types_ids) > 0) {
+            $this->types = implode(',', $event_types_ids);
+        } else {
+            $this->types = '';
+        }
+        
         $filtersActive = $this->itemsPerPage != '20' || $this->order != 'latest' || !empty($this->dt) || !empty($this->types) || $this->unofficial;
         $orderItems = ['latest' => 'Newest First', 'oldest' => 'Oldest First'];
         $dt = empty($this->dt) ? null : date_create($this->dt);
-        $types = array_filter($this->types, 'is_numeric');
+        //$types = array_filter($this->types, 'is_numeric');
         $events = \App\Models\PartEvent::with(['part', 'user', 'part_event_type', 'release'])->
             when(!empty($dt), function ($q) use ($dt) {
                 $q->where('created_at', '>=', $dt);
             })->
-            when(!empty($types), function ($q) use ($types) {
-                $q->whereIn('part_event_type_id', array_values($types));
+            when(count($event_types_ids) > 0, function ($q) use ($event_types_ids) {
+                $q->whereIn('part_event_type_id', $event_types_ids);
             })->
             when($this->unofficial, function ($q) {
                 $q->unofficial();
@@ -49,7 +57,6 @@ class PartEventsShow extends Component
             }, function($q) {
                 $q->latest();
             })->paginate($this->itemsPerPage);
-        $this->dispatch('jquery');
-        return view('livewire.part-events-show', compact('filtersActive', 'orderItems', 'events'));
+            return view('livewire.part-events-show', compact('filtersActive', 'orderItems', 'events'));
     }
 }

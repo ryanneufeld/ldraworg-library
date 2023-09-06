@@ -1,12 +1,12 @@
 <?php
 
-namespace App\View\Components\Form;
+namespace App\View\Components\Form\Select;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class SelectPartStatus extends Component
+class PartStatus extends Component
 {
     /**
      * Create a new component instance.
@@ -27,6 +27,6 @@ class SelectPartStatus extends Component
             'memberreview' => 'Needs More Votes', 
             'held' => 'Hold', 
         ];
-        return view('components.form.select-part-status', compact('options'));
+        return view('components.form.select.part-status', compact('options'));
     }
 }

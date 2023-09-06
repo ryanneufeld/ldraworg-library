@@ -14,7 +14,7 @@ class Parts extends Component
     public $scope = 'header';
     public $user_id = '';
     public $status = '';
-    public $part_types = [];
+    public $part_types = '';
     public $exclude_user = false;
 
     protected $queryString= [
@@ -33,6 +33,14 @@ class Parts extends Component
 
     public function render()
     {
+        $part_types_ids = array_filter(explode(',', $this->part_types), 'is_numeric');
+        
+        if (count($part_types_ids) > 0) {
+            $this->part_types = implode(',', $part_types_ids);
+        } else {
+            $this->part_types = '';
+        }
+
         $scopeOptions = [
             'filename' => 'Filename only',
             'description' => 'Filename and description',
@@ -51,10 +59,9 @@ class Parts extends Component
         if (!empty($this->status)) {
             $uparts->partStatus($this->status);
         }
-        $types = array_filter($this->part_types, 'is_numeric');
-        if (!empty($types)) {
-            $uparts->whereIn('part_type_id', $types);
-            $oparts->whereIn('part_type_id', $types);
+        if (count($part_types_ids) > 0) {
+            $uparts->whereIn('part_type_id', $part_types_ids);
+            $oparts->whereIn('part_type_id', $part_types_ids);
         }
         $uparts->searchPart($this->search, $this->scope);
         $oparts->searchPart($this->search, $this->scope);

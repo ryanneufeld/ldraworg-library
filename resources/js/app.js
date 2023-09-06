@@ -44,8 +44,9 @@ let fomantic_init = function() {
 	$('.summarymenu .item').tab();
 	$('.ui.menu > .ui.dropdown').dropdown({on: 'hover', });
 	$('.ui.ptsearch').search(quick_search_options);
+    console.log('fomantic init');
 };
 
 document.addEventListener('DOMContentLoaded', fomantic_init, false);
-window.addEventListener('jquery', fomantic_init);
+//window.addEventListener('jquery', fomantic_init);
 

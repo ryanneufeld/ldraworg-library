@@ -13,7 +13,7 @@ class PartList extends Component
     public $itemsPerPage = '500';
     public $status = '';
     public $user_id = '';
-    public $part_types = [];
+    public $part_types = '';
     public $exclude_user = false;
     public $exclude_reviews = false;
 
@@ -33,6 +33,14 @@ class PartList extends Component
 
     public function render()
     {
+        $part_types_ids = array_filter(explode(',', $this->part_types), 'is_numeric');
+        
+        if (count($part_types_ids) > 0) {
+            $this->part_types = implode(',', $part_types_ids);
+        } else {
+            $this->part_types = '';
+        }
+
         if ($this->unofficial == true) {
             $parts = \App\Models\Part::unofficial();
         }
@@ -51,9 +59,8 @@ class PartList extends Component
             }
             
         }
-        $types = array_filter($this->part_types, 'is_numeric');
-        if (!empty($types)) {
-            $parts->whereIn('part_type_id', $types);
+        if (count($part_types_ids) > 0) {
+            $parts->whereIn('part_type_id', $part_types_ids);
         }
         if ($this->unofficial && !empty($this->exclude_reviews)) {
             $parts->whereDoesntHave('votes', function($q) {

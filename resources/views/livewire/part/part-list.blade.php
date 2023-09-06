@@ -2,15 +2,21 @@
   <div class="ui form">
     <div @class(['ui', 'three' => !$unofficial, 'five' => $unofficial, 'column stackable grid'])>
       <div class="column">
-        <x-form.select-page-items name="itemsPerPage" wire:model.live="itemsPerPage" selected="{{$itemsPerPage}}" />
+        <div wire:ignore class="field">
+            <x-form.select.page-items name="itemsPerPage" wire:change="$set('itemsPerPage', $event.target.value)" selected="{{$itemsPerPage}}" />
+        </div>    
       </div>
       @if ($unofficial)
       <div class="column">
-          <x-form.select-part-status name="status" wire:model.live="status" selected="{{$status}}" />
+        <div wire:ignore class="field">
+            <x-form.select.part-status name="status" wire:change="$set('status', $event.target.value)" selected="{{$status}}" />
+        </div>     
       </div>
       @endif
       <div class="column">
-        <x-form.select-user name="user_id" wire:model.live="user_id" :$unofficial selected="{{$user_id}}" />
+        <div wire:ignore class="field">
+            <x-form.select.user name="user_id" wire:change="$set('user_id', $event.target.value)" :$unofficial selected="{{$user_id}}" />
+        </div>    
         <div class="field">
           <div class="ui toggle checkbox">
               <input type="checkbox" wire:model.live="exclude_user" tabindex="0" class="hidden">
@@ -19,7 +25,9 @@
         </div>
       </div>
       <div class="column">
-        <x-form.select-part-type name="part_types" wire:model.live="part_types" :selected="$part_types" multiple />
+        <div wire:ignore class="field">
+            <x-form.select.part-type name="part_types" class="multiple" wire:change="$set('part_types', $event.target.value)" selected="{{$part_types}}" />
+        </div>
       </div>
       @if ($unofficial && Auth::check())
       <div class="column">

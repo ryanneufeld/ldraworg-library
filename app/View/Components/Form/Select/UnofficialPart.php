@@ -1,12 +1,12 @@
 <?php
 
-namespace App\View\Components\Form;
+namespace App\View\Components\Form\Select;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class SelectUnofficialPart extends Component
+class UnofficialPart extends Component
 {
     /**
      * The properties / methods that should not be exposed to the component template.
@@ -37,6 +37,6 @@ class SelectUnofficialPart extends Component
         } else {
             $options = \App\Models\Part::unofficial()->orderby('filename')->pluck('filename', 'id')->all();
         }
-        return view('components.form.select-unofficial-part', compact('options'));
+        return view('components.form.select.unofficial-part', compact('options'));
     }
 }

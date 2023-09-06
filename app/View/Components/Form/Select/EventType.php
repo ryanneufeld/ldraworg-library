@@ -1,19 +1,20 @@
 <?php
 
-namespace App\View\Components\Form;
+namespace App\View\Components\Form\Select;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class SelectEventType extends Component
+class EventType extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
-        public $label = "Type",
-        public $placeholder = "Part Type",
+        public string $label = "Type",
+        public string $placeholder = "Part Event Type",
+        public string $selected = ''
     ) {}
 
     /**
@@ -22,6 +23,6 @@ class SelectEventType extends Component
     public function render(): View|Closure|string
     {
         $options = \App\Models\PartEventType::pluck('name', 'id')->all();
-        return view('components.form.select-event-type', compact('options'));
+        return view('components.form.select.event-type', compact('options'));
     }
 }

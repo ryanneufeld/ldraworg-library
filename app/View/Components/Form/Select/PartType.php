@@ -1,12 +1,12 @@
 <?php
 
-namespace App\View\Components\Form;
+namespace App\View\Components\Form\Select;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class SelectPartType extends Component
+class PartType extends Component
 {
     /**
      * Create a new component instance.
@@ -22,6 +22,6 @@ class SelectPartType extends Component
     public function render(): View|Closure|string
     {
         $options = \App\Models\PartType::pluck('name', 'id')->all();
-        return view('components.form.select-part-type', compact('options'));
+        return view('components.form.select.part-type', compact('options'));
     }
 }

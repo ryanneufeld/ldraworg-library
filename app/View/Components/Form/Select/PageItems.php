@@ -1,19 +1,19 @@
 <?php
 
-namespace App\View\Components\Form;
+namespace App\View\Components\Form\Select;
 
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class SelectPageItems extends Component
+class PageItems extends Component
 {
     /**
      * Create a new component instance.
      */
     public function __construct(
-        public $options = [50, 100, 250, 500],
-        public $label = 'Items per Page'
+        public array $options = [50, 100, 250, 500],
+        public string $label = 'Items per Page'
     ) { }
 
     /**
@@ -22,6 +22,6 @@ class SelectPageItems extends Component
     public function render(): View|Closure|string
     {
         $this->options = array_combine($this->options, $this->options);
-        return view('components.form.select-page-items');
+        return view('components.form.select.page-items');
     }
 }
