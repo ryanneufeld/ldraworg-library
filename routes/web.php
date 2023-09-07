@@ -68,8 +68,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
   Route::get('/{part}/diff/{part2}', [\App\Http\Controllers\Part\DatDiffController::class, 'show'])->name('datdiff.download');
   Route::get('/diff', [\App\Http\Controllers\Part\DatDiffController::class, 'index'])->name('datdiff');
 
-  Route::get('/{unofficialpart}', [PartController::class, 'show'])->name('show.filename');
-  Route::get('/{part}', [PartController::class, 'show'])->name('show');
+  Route::get('/{unofficialpart}', \App\Livewire\Part\Show::class)->name('show.filename');
+  Route::get('/{part}', \App\Livewire\Part\Show::class)->name('show');
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
@@ -94,8 +94,8 @@ Route::prefix('official')->name('official.')->group(function () {
   Route::redirect('/search', '/search/part');
   Route::redirect('/suffixsearch', '/search/suffix');
   Route::get('/list', [PartController::class, 'index'])->name('index');
-  Route::get('/{officialpart}', [PartController::class, 'show'])->name('show.filename');
-  Route::get('/{part}', [PartController::class, 'show'])->name('show');
+  Route::get('/{officialpart}', \App\Livewire\Part\Show::class)->name('show.filename');
+  Route::get('/{part}', \App\Livewire\Part\Show::class)->name('show');
 });
 
 Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
