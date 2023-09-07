@@ -431,16 +431,17 @@ class Parser
     public function getBody(string $text): string {
         $text = $this->formatText($text);
         $lines = explode("\n", $text);
-        $index = 0;
+        $index = 1;
         while ($index < count($lines)) {
             $l = explode(' ', $lines[$index]);
-            if ((count($l) >= 2 && $l[0] === '0' && in_array($l[1], $this->header_metas, true)) ||
-                ($index === 0 && count($l) >= 2 && $l[0] === '0') ||
-                in_array($lines[$index], ['0', '', '0 BFC CERTIFY CCW', '0 BFC CERTIFY CW', '0 BFC NOCERTIFY'])) {
-                $index++;
-            } else {
+            $isEmptyLine = $lines[$index] === '' || $lines[$index] === '0';
+            $isHeaderBFC = count($l) >= 2 && $l[1] === 'BFC' && in_array($lines[$index], ['0 BFC CERTIFY CCW', '0 BFC CERTIFY CW', '0 BFC NOCERTIFY']);
+            $isHeaderMeta = count($l) >= 2 && $l[1] !== 'BFC' && in_array($l[1], $this->header_metas);
+            $headerend = !$isEmptyLine && !($isHeaderMeta || $isHeaderBFC);
+            if ($headerend) {
                 break;
             }
+            $index++;    
         }
         return implode("\n", array_slice($lines, $index));
     }
