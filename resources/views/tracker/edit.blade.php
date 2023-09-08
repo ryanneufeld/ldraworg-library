@@ -42,7 +42,7 @@
     @endif
     <div class="six wide field"> 
         <x-form.select class="clearable" width="six" label="Type Qualifier" name="part_type_qualifier_id" :options="\App\Models\PartTypeQualifier::pluck('type', 'id')"  placeholder="Qualifier" selected="{{old('part_type_qualifier_id') ?? $part->part_type_qualifier_id}}" />
-    <div>        
+        </div>        
   </div>
   <div class="field info">
     <label for="license">0 !LICENSE</label>

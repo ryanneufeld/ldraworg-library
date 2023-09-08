@@ -9,7 +9,7 @@
     <label for={{$attributes->get('name')}}>{{$label}}</label>
 @endif
 <div {{$attributes->class(['ui selection dropdown'])}}>
-    <input {{$attributes->whereStartsWith('wire:')}} type="hidden" {{$attributes->get('name')}} value="{{$selected}}">
+    <input {{$attributes->whereStartsWith('wire:')}} type="hidden" name="{{$attributes->get('name')}}" value="{{$selected}}">
     <i class="dropdown icon"></i>
     <div class="default text">{{$placeholder}}</div>
     <div class="scrollhint menu">
