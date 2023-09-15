@@ -22,20 +22,6 @@ class PartManager
         public LDView $render,
     ) {}
 
-/*
-    public function addOrChangePart(string|Image $part, ?string $filename = null, ?User $user = null, ?PartType $type = null): Part
-    {
-        if ($part instanceof GDImage) {
-            if (is_null($filename) || is_null($user) || is_null($type)) {
-                throw new \RuntimeException("Images must have a non-null user and type");
-            }
-            
-            return $this->addOrChangePartFromImage($part, $filename, $user, $type);
-        }
-
-        return $this->addOrChangePartFromText($part);
-    }
-*/    
     public function copyOfficialToUnofficialPart(Part $part): Part
     {
         $values = [
@@ -219,8 +205,7 @@ class PartManager
         $upart->setBody("1 16 0 0 0 1 0 0 0 1 0 0 0 1 {$newPart->name()}\n");
         $upart->subparts()->sync([$newPart->id]);
         $upart->refresh();
-        $upart->generateHeader();
-        $this->updatePartImage($upart);
+        $this->finalizePart($upart);
         $oldPart->unofficial_part_id = $upart->id;
         $oldPart->save();
         return $upart;    
