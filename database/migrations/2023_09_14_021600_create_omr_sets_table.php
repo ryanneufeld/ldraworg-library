@@ -15,11 +15,13 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->foreignIdFor(\App\Models\User::class);
-            $table->foreignIdFor(\App\Models\Omr\Theme::class)->nullable();
-            $table->foreignIdFor(PartLicense::class)->constrained();
+            $table->foreignIdFor(\App\Models\Omr\Set::class);
+            $table->foreignIdFor(\App\Models\PartLicense::class)->constrained();
             $table->boolean('missing_parts');
             $table->boolean('missing_patterns');
             $table->boolean('missing_stickers');
+            $table->boolean('alt_model');
+            $table->json('notes');
         });
     }
 
