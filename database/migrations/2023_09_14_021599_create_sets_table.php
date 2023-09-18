@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sets', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->stirng('number')->unique();
+            $table->string('number')->unique();
             $table->string('name');
             $table->string('year');
             $table->string('rb_url');
