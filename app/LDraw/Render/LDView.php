@@ -4,6 +4,7 @@ namespace App\LDraw\Render;
 
 use App\LDraw\LDrawModelMaker;
 use App\LDraw\Parse\Parser;
+use App\Models\Omr\OmrModel;
 use App\Models\Part;
 use GdImage;
 use Illuminate\Support\Facades\Process;
@@ -22,7 +23,7 @@ class LDView
         public LDrawModelMaker $modelmaker,
     ) {}
     
-    public function render(Part $part): GDImage
+    public function render(Part|OmrModel $part): GDImage
     {
         // LDview requires a p and parts directory
         Storage::disk($this->tempDisk)->makeDirectory("{$this->tempPath}/ldraw/parts");
@@ -31,12 +32,17 @@ class LDView
         
         // Store the part as an mpd
         $filename = "{$this->tempPath}/part.mpd";
-        if (array_key_exists($part->basePart(), $this->altCameraPositions)) {
+        if ($part instanceof Part && array_key_exists($part->basePart(), $this->altCameraPositions)) {
             $matrix = $this->altCameraPositions[$part->basePart()];
         } else {
             $matrix = "1 0 0 0 1 0 0 0 1";
         }
-        Storage::disk($this->tempDisk)->put($filename, $this->modelmaker->partMpd($part, $matrix));
+        if ($part instanceof Part) {
+            Storage::disk($this->tempDisk)->put($filename, $this->modelmaker->partMpd($part, $matrix));
+        } else {
+            Storage::disk($this->tempDisk)->put($filename, $this->modelmaker->modelMpd($part));
+        }
+        
         $filepath = Storage::disk($this->tempDisk)->path($filename);
         
         $normal_size = "-SaveWidth={$this->maxWidth} -SaveHeight={$this->maxWidth}";

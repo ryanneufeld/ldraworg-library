@@ -2,7 +2,10 @@
 
 namespace App\LDraw;
 
+use App\Models\Omr\OmrModel;
 use App\Models\Part;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class LDrawModelMaker
 {
@@ -24,7 +27,37 @@ class LDrawModelMaker
             if ($s->isTexmap()) {
                 $file .= $s->get(true, true);
             } else {
-                $file .= "0 FILE {$s->name()}\r\n{$s->get()}\n";
+                $file .= "0 FILE {$s->name()}\r\n{$s->get()}\r\n";
+            }
+        }
+        return $file;
+    }
+
+    public function modelMpd(OmrModel $model): string
+    {
+        $file = app(\App\LDraw\Parse\Parser::class)->unix2dos(Storage::disk('library')->get("omr/{$model->filename()}") . "\r\n");
+        $parts = app(\App\LDraw\Parse\Parser::class)->getSubparts($file);
+        $subs = [];
+        foreach ($parts['subparts'] ?? [] as $s) {
+            $s = str_replace('\\', '/', $s);
+            $subs[] = "parts/{$s}";
+            $subs[] = "p/{$s}";
+        }
+        foreach ($parts['textures'] ?? [] as $s) {
+            $s = str_replace('\\', '/', $s);
+            $subs[] = "parts/textures/{$s}";
+            $subs[] = "p/textures/{$s}";
+        }
+        $oparts = new Collection();
+        foreach(Part::official()->whereIn('filename', $subs)->get() as $part) {
+            $oparts = $oparts->merge($part->descendantsAndSelf()->official()->get());
+        }
+        $oparts = $oparts->unique();
+        foreach ($oparts ?? [] as $s) {
+            if ($s->isTexmap()) {
+                $file .= $s->get(true, true);
+            } else {
+                $file .= "0 FILE {$s->name()}\r\n{$s->get()}\r\n";
             }
         }
         return $file;

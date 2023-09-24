@@ -7,7 +7,7 @@
       <a class="item" href="{{route('tracker.main')}}">Parts Tracker</a>
       <a class="item" href="{{route('part-update.index', ['latest'])}}">Latest Update</a>
       <a class="item" href="{{route('part-update.index')}}">Update Archive</a>
-      <a class="item" href="{{route('omr')}}">OMR</a>
+      <a class="item" href="{{route('omr.main')}}">OMR</a>
     </div>
   </div>    
   @can('create', App\Models\Part::class)
