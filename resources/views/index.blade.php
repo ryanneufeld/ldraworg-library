@@ -24,7 +24,7 @@
       <x-slot:title>Documentation</x-slot>
       The reference docmentation for the LDraw File Format and LDraw.org Official Parts Library.
     </x-layout.home-card>  
-    <x-layout.home-card image="{{asset('/images/cards/omr.png')}}" link="https://omr.ldraw.org/">
+    <x-layout.home-card image="{{asset('/images/cards/omr.png')}}" link="{{route('omr.main')}}">
       <x-slot:title>Official Model Repository</x-slot>
       The Official Model Repository or OMR is a library of official LEGO&reg; sets that have been
       created in LDRaw format.

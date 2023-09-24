@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('omr_sets', function (Blueprint $table) {
+        Schema::create('omr_models', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignIdFor(\App\Models\User::class);
-            $table->foreignIdFor(\App\Models\Omr\Set::class);
+            $table->foreignIdFor(\App\Models\User::class)->constrained();
+            $table->foreignIdFor(\App\Models\Omr\Set::class)->constrained();
             $table->foreignIdFor(\App\Models\PartLicense::class)->constrained();
             $table->boolean('missing_parts');
             $table->boolean('missing_patterns');
             $table->boolean('missing_stickers');
             $table->boolean('alt_model');
-            $table->json('notes');
+            $table->string('alt_model_name')->nullable();
+            $table->json('notes')->nullable();
         });
     }
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('omr_sets');
+        Schema::dropIfExists('omr_models');
     }
 };

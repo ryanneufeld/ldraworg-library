@@ -44,7 +44,7 @@ class UserController extends Controller
      */
     public function create(UserCreateRequest $request)
     {
-        $validated = $request->validated();  
+        $validated = $request->validated();
         $roles = Role::pluck('name', 'name')->all();
         $user = MybbUser::find($validated['forum_user_id']);
         return view('admin.users.create', ['roles' => $roles, 'user' => $user]);

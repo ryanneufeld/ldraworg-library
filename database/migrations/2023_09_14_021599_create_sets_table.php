@@ -16,9 +16,9 @@ return new class extends Migration
             $table->timestamps();
             $table->string('number')->unique();
             $table->string('name');
-            $table->string('year');
+            $table->year('year');
             $table->string('rb_url');
-            $table->foreignIdFor(\App\Models\Omr\Theme::class)->nullable();            
+            $table->foreignIdFor(\App\Models\Omr\Theme::class)->constrained()->nullable();            
         });
     }
 
