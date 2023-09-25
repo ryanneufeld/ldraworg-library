@@ -17,7 +17,7 @@
   <a class="item" href="{{route('tracker.activity')}}">Activity</a> 
   <a class="item" href="{{route('tracker.weekly')}}">Weekly New Parts</a>
   <div class="ui dropdown item">
-    <a href="{{route('doc')}}">Documentation</a>
+    Documentation
     <i class="dropdown icon"></i>
     <div class="menu">
       <div class="ui dropdown item">
