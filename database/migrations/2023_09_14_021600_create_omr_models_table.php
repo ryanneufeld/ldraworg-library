@@ -20,6 +20,7 @@ return new class extends Migration
             $table->boolean('missing_parts');
             $table->boolean('missing_patterns');
             $table->boolean('missing_stickers');
+            $table->boolean('approved');
             $table->boolean('alt_model');
             $table->string('alt_model_name')->nullable();
             $table->json('notes')->nullable();

@@ -111,6 +111,7 @@ class DeployUpdate extends Command
                     'missing_parts' => $model->missing_parts,
                     'missing_stickers' => $model->missing_stickers,
                     'missing_patterns' => $model->missing_patterns,
+                    'approved' => true,
                     'alt_model' => !$model->is_main_model,
                     'alt_model_name' => $model->is_main_model ? null : trim($model->alternate_model),
                     'notes' => ['notes' => trim($model->notes)],

@@ -19,6 +19,10 @@ class OmrModel extends Model
 
     protected $casts = [
         'notes' => 'array',
+        'missing_parts' => 'boolean',
+        'missing_patterns' => 'boolean',
+        'missing_stickers' => 'boolean',
+        'approved' => 'boolean',
     ];
 
     
