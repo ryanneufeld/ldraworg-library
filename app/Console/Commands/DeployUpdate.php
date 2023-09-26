@@ -2,12 +2,17 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Part;
+use App\Models\MybbUser;
+use App\Models\PartLicense;
+use App\Models\User;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DeployUpdate extends Command
 {
@@ -30,6 +35,15 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        Permission::create(['name' => 'omr.create']);
+        Permission::create(['name' => 'omr.update']);
+        Permission::create(['name' => 'omr.delete']);
+        $role = Role::create(['name' => 'OMR Admin']);
+        $role->givePermissionTo('omr.create');
+        $role->givePermissionTo('omr.update');
+        $role->givePermissionTo('omr.delete');
+        $role = Role::create(['name' => 'OMR Author']);
+
         Config::set('database.connections.sqlite.database', '/var/www/librarydev.ldraw.org/ldraworg-library/storage/app/library/db.sqlite3');
         DB::connection('sqlite')->table('omr_theme')->orderBy('id')->each(function ($theme) {
             \App\Models\Omr\Theme::updateOrCreate(
@@ -49,11 +63,49 @@ class DeployUpdate extends Command
                 ],
             );
         });
-        DB::connection('sqlite')->table('omr_file')->orderBy('id')->each(function ($model) {
+        foreach (DB::connection('sqlite')->table('omr_file')->orderBy('id')->get() as $model) {
+            $omruser = DB::connection('sqlite')->table('omr_author')->find($model->author_id);
+            $fname = trim($omruser->first_name);
+            $fname = $fname === '-' ? '' : $fname;
+            $lname = trim($omruser->last_name);
+            $lname = $lname === '-' ? '' : $lname;
+            $omrrealname = trim("{$fname} {$lname}");
+            $omrrealname = $omrrealname === '' ? null : $omrrealname;
+            $nname = trim(str_replace('-', '', $omruser->nickname));
+            $libuser = User::fromAuthor($nname, $omrrealname)->first();
+            $mybbuser = MybbUser::where('loginname', $nname)->orWhere('username', $omrrealname)->first();
+            if (!is_null($libuser)) {
+                $uid = $libuser->id ;
+                $libuser->assignRole('OMR Author');
+            } elseif (!is_null($mybbuser)) {
+                $newuser = User::create([
+                    'name' => $mybbuser->loginname, 
+                    'email' => $mybbuser->email,
+                    'realname' => $mybbuser->username,
+                    'password' => bcrypt(Str::random(40)),
+                    'forum_user_id' => $mybbuser->uid,
+                    'part_license_id' => PartLicense::default()->id,
+                ]);
+                $uid = $newuser->id;
+                $newuser->assignRole('OMR Author');
+            } else {
+                Log::debug("user not found: {$omrrealname} [{$nname}]");
+                $rname = is_null($omrrealname) ? $nname : $omrrealname;
+                $uname = $nname === '' ? str_replace(' ', '-', $omrrealname) : $nname;
+                $newuser = User::create([
+                    'name' => $uname, 
+                    'email' => str_replace(' ', '', strtolower($uname)) . '@ldraw.org',
+                    'realname' => $rname,
+                    'password' => bcrypt(Str::random(40)),
+                    'part_license_id' => PartLicense::default()->id,
+                ]);
+                $uid = $newuser->id;
+                $newuser->assignRole('OMR Author');
+            }
             $omodel = \App\Models\Omr\OmrModel::updateOrCreate(
                 ['id' => $model->id],
                 [
-                    'user_id' => \App\Models\User::firstWhere('name', DB::connection('sqlite')->table('omr_author')->find($model->author_id)->nickname)->id ?? 290,
+                    'user_id' => $uid,
                     'set_id' => \App\Models\Omr\Set::firstWhere('number', $model->model_number)->id ?? 1,
                     'part_license_id' => 1,
                     'missing_parts' => $model->missing_parts,
@@ -79,6 +131,6 @@ class DeployUpdate extends Command
                     Storage::disk('library')->put("omr/{$omodel->filename()}", $file);
                 }    
             }
-        });
+        }
     }    
 }

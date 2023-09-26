@@ -13,7 +13,7 @@
     @can('create', App\Models\Omr\OmrModel::class)
         <a class="item" href="">Submit</a>
     @endcan
-    <a class="item" href="">Model List</a> 
+    <a class="item" href="{{route('omr.sets.index')}}">Model List</a> 
     <a class="item" href="">Statistics</a> 
     <div class="ui dropdown item">
         Documentation

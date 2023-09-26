@@ -15,7 +15,7 @@ class SetController extends Controller
      */
     public function index(Request $request)
     {
-        return view('omr.list');
+        return view('omr.index');
     }
 
     /**
