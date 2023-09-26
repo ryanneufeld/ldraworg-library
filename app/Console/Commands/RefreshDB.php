@@ -36,8 +36,8 @@ class RefreshDB extends Command
                 'database' => env('DB_DATABASE'),
             ];
 
+            $this->call('migrate:fresh');
             Process::run("mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --database {$db['database']} < {$sql}");
-            $this->call('migrate');
             $this->call('app:update');
         } else {
             $this->info('This command cannot be run the the production environment');
