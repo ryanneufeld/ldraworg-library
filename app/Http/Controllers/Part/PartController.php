@@ -103,6 +103,9 @@ class PartController extends Controller
             PartSubmitted::dispatch($part, $user, $data['comments']);
             $parts->add($part);
         }
+        $parts->each(function (Part $p) {
+            $p->setSubparts($this->manager->parser->getSubparts($p->body->body));
+        });
         return view('tracker.postsubmit', ['parts' => $parts]);
     }
 
