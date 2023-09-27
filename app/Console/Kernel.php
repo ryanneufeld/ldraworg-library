@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('telescope:prune')->daily();
         $schedule->command('queue:prune-batches')->daily();
-        $schedule->call(new SendDailyDigest(new \DateTime('yesterday')))->dailyAt('01:30');
+        $schedule->call(new SendDailyDigest(new \DateTime('yesterday')))->dailyAt('01:30')->environments(['production']);    
         $schedule->call(new UpdateTrackerHistory())->daily();
     }
 

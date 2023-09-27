@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         if ($this->app->environment('local')) {
-            Mail::alwaysTo('orion@ldraw.org');
+            //Mail::alwaysTo('orion@ldraw.org');
         }
         Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
         //Model::preventLazyLoading(! $this->app->isProduction());

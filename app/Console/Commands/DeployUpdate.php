@@ -35,6 +35,7 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+/*
         Permission::create(['name' => 'omr.create']);
         Permission::create(['name' => 'omr.update']);
         Permission::create(['name' => 'omr.delete']);
@@ -133,5 +134,6 @@ class DeployUpdate extends Command
                 }    
             }
         }
-    }    
+    */        
+    }
 }
