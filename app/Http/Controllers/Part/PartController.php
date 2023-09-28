@@ -104,7 +104,7 @@ class PartController extends Controller
             $parts->add($part);
         }
         $parts->each(function (Part $p) {
-            $p->setSubparts($this->manager->parser->getSubparts($p->body->body));
+            $this->manager->loadSubpartsFromBody($p);
         });
         return view('tracker.postsubmit', ['parts' => $parts]);
     }
@@ -307,7 +307,7 @@ class PartController extends Controller
     
     public function updatesubparts (Part $part) {
         $this->authorize('update', $part);
-        $part->setSubparts($this->manager->parser->getSubparts($part->body->body));
+        $this->manager->loadSubpartsFromBody($part);
         return redirect()->route('tracker.show', [$part])->with('status', 'Part dependencies updated');
     }
 }

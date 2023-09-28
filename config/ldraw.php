@@ -92,8 +92,8 @@ return [
   // Max sizes for images
   'image' => [
     'normal' => [
-      'width' => '1024',
-      'height' => '768',
+      'width' => '300',
+      'height' => '300',
     ],
     'thumb' => [
       'width' => '35',

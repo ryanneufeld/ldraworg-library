@@ -238,4 +238,9 @@ class PartManager
         $this->updateMissing($part->name());
         return true;
     }
+
+    function loadSubpartsFromBody(Part $part): void
+    {
+        $part->setSubparts($this->parser->getSubparts($part->body->body) ?? []);
+    }
 }
