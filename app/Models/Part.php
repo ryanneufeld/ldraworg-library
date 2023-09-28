@@ -561,6 +561,8 @@ class Part extends Model
 
     public function putDeletedBackup(): void 
     {
-        Storage::disk('local')->put('deleted/library/' . $this->filename . '.' . time(), $this->get());
+        $t = time();
+        Storage::disk('local')->put("deleted/library/{$this->filename}.{$t}", $this->get());
+        Storage::disk('local')->put('deleted/library/' . str_replace(['.png', '.dat'], '.evt', $this->filename). ".{$t}", $this->events->toJson());
     }
 }
