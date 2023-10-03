@@ -16,12 +16,14 @@ class Parts extends Component
     public $status = '';
     public $part_types = '';
     public $exclude_user = false;
-
+    public $include_history = false;
+    
     protected $queryString= [
         'search' => ['except' => '', 'as' => 's'],
         'scope' => ['except' => 'header'],
         'user_id' => ['except' => ''],
         'exclude_user' => ['except' => false],
+        'include_history' => ['except' => false],
         'status' => ['except' => ''],
         'part_types' => ['except' => []],
     ];
@@ -29,6 +31,10 @@ class Parts extends Component
     public function updated() {
         $this->resetPage('unofficialPage');
         $this->resetPage('officialPage');
+    }
+
+    public function searchpart() {
+        return;
     }
 
     public function render()
@@ -45,7 +51,7 @@ class Parts extends Component
             'filename' => 'Filename only',
             'description' => 'Filename and description',
             'header' => 'File header',
-            'file' => 'Entire file'
+            'file' => 'Entire file (very slow)'
         ];
 
         $scope = array_key_exists($this->scope, $scopeOptions) ? $this->scope : 'header';
@@ -53,8 +59,21 @@ class Parts extends Component
         $oparts = Part::official();
         if (!empty($this->user_id) && is_numeric($this->user_id)) {
             $opr = $this->exclude_user ? '!=' : '=';
-            $uparts->where('user_id', $opr, $this->user_id);
-            $oparts->where('user_id', $opr, $this->user_id);
+            if ($this->include_history) {
+                $uparts->where(function ($q) use ($opr) {
+                    $q->orWhere('user_id', $opr, $this->user_id)->orWhereHas('history', function($qu) use ($opr) {
+                        $qu->where('user_id', $opr, $this->user_id);
+                    });
+                });
+                $oparts->where(function ($q) use ($opr) {
+                    $q->orWhere('user_id', $opr, $this->user_id)->orWhereHas('history', function($qu) use ($opr) {
+                        $qu->where('user_id', $opr, $this->user_id);
+                    });
+                });
+            } else {
+                $uparts->where('user_id', $opr, $this->user_id);
+                $oparts->where('user_id', $opr, $this->user_id);
+            }
         }
         if (!empty($this->status)) {
             $uparts->partStatus($this->status);
@@ -63,9 +82,12 @@ class Parts extends Component
             $uparts->whereIn('part_type_id', $part_types_ids);
             $oparts->whereIn('part_type_id', $part_types_ids);
         }
-        $uparts->searchPart($this->search, $this->scope);
-        $oparts->searchPart($this->search, $this->scope);
-         
+        
+        if (!empty(trim($this->search))) {
+            $uparts->searchPart($this->search, $this->scope);
+            $oparts->searchPart($this->search, $this->scope);
+        }
+        
         $ucount = $uparts->count();
         $ocount = $oparts->count();
         $uparts = $uparts->orderBy('filename')->paginate('50', ['*'], 'unofficialPage');
