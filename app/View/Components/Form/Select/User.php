@@ -30,13 +30,19 @@ class User extends Component
      */
     public function render(): View|Closure|string
     {
-        $options = \App\Models\User::whereHas('parts', function ($query) {
+        $options = [];
+        \App\Models\User::whereHas('parts', function ($query) {
             if ($this->unofficial === false) {
               $query->unofficial();
             } elseif ($this->unofficial === true) {
               $query->official();
             }
-        })->orderBy('name')->pluck('name', 'id')->all();        
+        })
+        ->orderBy('realname')
+        ->get()
+        ->each(function (\App\Models\User $u) use (&$options) {
+            $options[$u->id] = $u->authorString();
+        });        
         return view('components.form.select.user', compact('options'));
     }
 }
