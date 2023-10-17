@@ -32,7 +32,9 @@ class LDView
         
         // Store the part as an mpd
         $filename = "{$this->tempPath}/part.mpd";
-        if ($part instanceof Part && array_key_exists($part->basePart(), $this->altCameraPositions)) {
+        if ($part instanceof Part && array_key_exists(basename($part->filename, '.dat'), $this->altCameraPositions)) {
+            $matrix = $this->altCameraPositions[basename($part->filename, '.dat')];
+        } elseif ($part instanceof Part && array_key_exists($part->basePart(), $this->altCameraPositions)) {
             $matrix = $this->altCameraPositions[$part->basePart()];
         } else {
             $matrix = "1 0 0 0 1 0 0 0 1";
