@@ -138,6 +138,11 @@ class PartManager
         $this->updatePartImage($part, true);
         $this->updateMissing($part->name());
         $part->refresh();
+        if (!is_null($part->official_part_id)) {
+            foreach (Part::find($part->official_part_id)->parents()->official()->get() as $p) {
+                $this->loadSubpartsFromBody($p);
+            }
+        }
     }
     
     public function updatePartImage(Part $part, bool $updateParents = false): void
