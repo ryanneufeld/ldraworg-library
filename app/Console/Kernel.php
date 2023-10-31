@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\DailyMaintenance;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -22,6 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('queue:prune-batches')->daily();
         $schedule->call(new SendDailyDigest(new \DateTime('yesterday')))->dailyAt('01:30')->environments(['production']);    
         $schedule->call(new UpdateTrackerHistory())->daily();
+        $schedule->job(new DailyMaintenance())->daily();
     }
 
     /**
