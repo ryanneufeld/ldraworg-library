@@ -32,7 +32,14 @@ class PartReleaseController extends Controller
                     if (isset($part->category) && $part->category->category == "Minifig") {
                         $warnings[] = "Check Minifig category: {$part->category->category}";
                     }
-                    $results[] = compact('part', 'check', 'warnings');
+                    $results[] = [
+                        'id' => $part->id,
+                        'description' => $part->description,
+                        'name' => $part->name(),
+                        'filename' => $part->filename,
+                        'warnings' => $warnings,
+                        'check' => $check,
+                    ];
                 }        
             });        
         return view('tracker.release.create', ['parts' => $results]);
