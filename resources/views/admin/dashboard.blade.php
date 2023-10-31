@@ -27,7 +27,7 @@
       @can('part.vote.admincertify')
       <a class="item" data-tab="admin-ready">Parts Ready For Admin</a>
       @endcan
-      <a class="item" data-tab="prims-2">Top 100 CC BY 2.0 Primitives</a>
+      <a class="item" data-tab="prims-2">CC BY 2.0 Primitives</a>
     </div>
     @can('part.flag.delete')
     <div class="ui bottom attached tab segment active" data-tab="delete-flagged">

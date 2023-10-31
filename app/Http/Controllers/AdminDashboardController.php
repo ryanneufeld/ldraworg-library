@@ -28,7 +28,6 @@ class AdminDashboardController extends Controller
             })
             ->withCount('parents')
             ->orderBy('parents_count', 'desc')
-            ->take(100)
             ->get();
         return view('admin.dashboard', compact('delete_flags', 'manual_hold_flags', 'adminreadyparts', 'prims'));
     }
