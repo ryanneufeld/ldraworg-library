@@ -32,9 +32,6 @@ class UserChangePartUpdate implements ShouldQueue
             });
         })->get();
         foreach($parts as $p) {
-            if ($p->isUnofficial()) {
-                return;
-            }
             $md = $p->minor_edit_data;
             if (isset($this->olddata['name']) ||
                 $p->part_license_id != $this->user->license->id || 
@@ -50,10 +47,12 @@ class UserChangePartUpdate implements ShouldQueue
                 if (isset($this->olddata['name'])) {
                     $md['name'] = $this->olddata['name'] . " to " . $this->user->name;
                 }
-                $p->minor_edit_data = $md;
+                if (!$p->isUnofficial()) {
+                    $p->minor_edit_data = $md;
+                }
                 $p->save();
                 $p->refresh();
-                $p->refreshHeader();
+                $p->generateHeader();
             }
         }
     }
