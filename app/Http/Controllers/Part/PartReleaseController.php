@@ -10,25 +10,31 @@ use App\Http\Requests\PartReleaseCreateStep1Request;
 use App\Http\Requests\PartReleaseCreateStep2Request;
 use App\Models\Part;
 use App\Jobs\MakePartRelease;
+use App\LDraw\Check\PartChecker;
+use Illuminate\Database\Eloquent\Collection;
 
 class PartReleaseController extends Controller
 {
     public function __construct(
-        protected \App\LDraw\Check\PartChecker $checker
+        protected PartChecker $checker
     ) {}
 
     protected function create() {
         $this->authorize('create', PartRelease::class);
-        $parts = Part::with('descendants', 'ancestors')->unofficial()->where('vote_sort', 1)->orderBy('part_type_id')->orderBy('filename')->get();
         $results = [];
-        foreach($parts as $part) {
-            $check = $this->checker->checkCanRelease($part);
-            $warnings = [];//$this->checker->historyEventsCrossCheck($part);
-            if (isset($part->category) && $part->category->category == "Minifig") {
-                $warnings[] = "Check Minifig category: {$part->category->category}";
-            }
-            $results[] = compact('part', 'check', 'warnings');
-        }
+        Part::unofficial()->where('vote_sort', 1)
+            ->orderBy('part_type_id')
+            ->orderBy('filename')
+            ->chunk(100, function (Collection $parts) use (&$results) {
+                foreach($parts as $part) {
+                    $check = $this->checker->checkCanRelease($part);
+                    $warnings = [];//$this->checker->historyEventsCrossCheck($part);
+                    if (isset($part->category) && $part->category->category == "Minifig") {
+                        $warnings[] = "Check Minifig category: {$part->category->category}";
+                    }
+                    $results[] = compact('part', 'check', 'warnings');
+                }        
+            });        
         return view('tracker.release.create', ['parts' => $results]);
     }
 

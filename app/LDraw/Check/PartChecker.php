@@ -31,6 +31,7 @@ class PartChecker
 
     public function checkCanRelease(Part $part): ?array
     {
+        $part->load('descendants', 'ancestors');
         $errors = [];
         if (!$part->isTexmap()) {
             $errors = $this->check(ParsedPart::fromPart($part)) ?? [];
