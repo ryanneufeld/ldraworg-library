@@ -234,7 +234,7 @@ class PartChecker
     public function checkDescriptionForPatternText(string $name, string $description): bool
     {
         $isPattern = preg_match('#^[a-z0-9_-]+?p[a-z0-9]{2,3}\.dat$#i', $name, $matches);
-        $hasPatternText = preg_match('#^.*?\sPattern(\s\((Obsolete|Needs Work)\))?$#ui', $description, $matches);
+        $hasPatternText = preg_match('#^.*?\sPattern(\s\((Obsolete|Needs Work|Hollow Stud|Blocked Hollow Stud|Solid Stud)\))?$#ui', $description, $matches);
         return !$isPattern || ($isPattern && $hasPatternText);
     }
   /**
