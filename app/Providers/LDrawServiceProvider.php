@@ -44,6 +44,7 @@ class LDrawServiceProvider extends ServiceProvider
                 Storage::disk(config('ldraw.render.dir.ldconfig.disk'))->path(config('ldraw.render.dir.ldconfig.path')),
                 config('ldraw.image.normal.height'),
                 config('ldraw.image.normal.width'),
+                config('ldraw.render.debug', false),
                 $app->make(LDrawModelMaker::class)
             );    
         });

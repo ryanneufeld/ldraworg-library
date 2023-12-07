@@ -7,6 +7,7 @@ use App\LDraw\Parse\Parser;
 use App\Models\Omr\OmrModel;
 use App\Models\Part;
 use GdImage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,6 +21,7 @@ class LDView
         public readonly string $ldconfigPath,
         public readonly int $maxHeight,
         public readonly int $maxWidth,
+        public readonly bool $debug,
         public LDrawModelMaker $modelmaker,
     ) {}
     
@@ -60,6 +62,10 @@ class LDView
         
         // Run LDView
         $ldviewcmd = "ldview {$filepath} -LDConfig={$this->ldconfigPath} -LDrawDir={$ldrawdir} -IniFile={$inipath} {$normal_size} -SaveSnapshot={$imagepath}";
+        if ($this->debug) {
+            Log::debug($ldviewcmd);
+        }
+
         Process::run($ldviewcmd);
         $png = imagecreatefrompng($imagepath);
         imagesavealpha($png, true);

@@ -73,7 +73,7 @@ return [
       'LightVector' => '-1,1,1', 
       'TextureStuds' => '0',
     ],
-
+    'debug' => false,
     'alt-camera' => [
         '3678' => '-1 0 0 0 1 0 0 0 -1',
         '3678a' => '-1 0 0 0 1 0 0 0 -1',
