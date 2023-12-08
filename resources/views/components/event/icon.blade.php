@@ -1,5 +1,6 @@
 @props(['event', 'type' => 'feed'])
-@if(!is_null($event->comment) && !in_array($event->part_event_type->slug, ['comment', 'release', 'delete', 'rename']) && $type == 'table')
+@if((!is_null($event->comment) && !in_array($event->part_event_type->slug, ['comment', 'release', 'delete', 'rename']) && $type == 'table') || 
+($event->initial_submit === true && $event->part_event_type->slug === 'submit' && !is_null($event->part->official_part_id) && $type == 'table'))
 <i class="icons">
 @endif
 <i title=" @if($event->part_event_type->slug == 'review') {{$event->part_event_type->name}}: {{$event->vote_type->name ?? 'Vote Cancel'}} @else {{$event->part_event_type->name}} @endif "
@@ -21,6 +22,9 @@
 ])></i>
 @if(!is_null($event->comment) && !in_array($event->part_event_type->slug, ['comment', 'release', 'delete', 'rename']) && $type == 'table')
 <i @class(['small' => $type == 'table', 'blue bottom left corner comment icon'])></i>
+</i>
+@elseif($event->initial_submit === true && $event->part_event_type->slug === 'submit' && !is_null($event->part->official_part_id) && $type == 'table')
+<i @class(['small' => $type == 'table', 'green bottom left corner tools icon'])></i>
 </i>
 @endif
   
