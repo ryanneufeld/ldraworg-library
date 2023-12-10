@@ -22,7 +22,7 @@ class DeployUpdate extends Command
      *
      * @var string
      */
-    protected $signature = 'app:update';
+    protected $signature = 'lib:update';
 
     /**
      * The console command description.

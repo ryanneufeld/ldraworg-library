@@ -12,7 +12,7 @@ class RefreshDB extends Command
      *
      * @var string
      */
-    protected $signature = 'app:db-refresh';
+    protected $signature = 'lib:refresh-db';
 
     /**
      * The console command description.

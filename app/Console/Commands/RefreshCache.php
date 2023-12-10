@@ -11,7 +11,7 @@ class RefreshCache extends Command
      *
      * @var string
      */
-    protected $signature = 'app:refresh';
+    protected $signature = 'lib:refresh';
 
     /**
      * The console command description.
