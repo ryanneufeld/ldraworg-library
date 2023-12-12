@@ -26,7 +26,7 @@
     <div>
       <strong>File:</strong> {{ $vote->part->filename ?? $part->filename }}
     </div>
-    @canany('part.vote.certify', 'part.vote.hold', 'part.vote.admincertify', 'part.vote.fastrack')
+    @canany('part.vote.certify', 'part.vote.hold', 'part.vote.admincertify', 'part.vote.fasttrack')
     <div><strong>Your Current Review:</strong> <span class="{{$vote->type->short ?? 'none'}}-text">{{ $vote->type->name ?? 'None' }}</span></div>
     @endcan
   </div>
