@@ -5,18 +5,23 @@ namespace App\Livewire\Part;
 use App\Models\Part;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Illuminate\Support\Facades\Log;
 
 class Show extends Component
 {
-    public $part;
+    public Part $part;
 
     public function mount(Part $part)
     {
+        if (is_null($part) || is_null($part->type)) {
+            Log::debug(request());
+            Log::debug($part);
+        }
+        
         $this->part = $part;
         $this->part->load('events', 'history', 'subparts', 'parents');
         $this->part->events->load('part_event_type', 'user', 'part', 'vote_type');
-        $this->part->user->load('license');
-        $this->part->votes->load('user', 'type');
+        $this->part->votes->load('user', 'type');    
     }
 
     public function toggleTracked()

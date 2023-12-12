@@ -30,7 +30,7 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'part.vote.certify']);
         Permission::create(['name' => 'part.vote.hold']);
         Permission::create(['name' => 'part.vote.admincertify']);
-        Permission::create(['name' => 'part.vote.fastrack']);
+        Permission::create(['name' => 'part.vote.fasttrack']);
 
         Permission::create(['name' => 'part.comment']);
         

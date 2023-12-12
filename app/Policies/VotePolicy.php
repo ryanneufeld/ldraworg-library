@@ -23,7 +23,7 @@ class VotePolicy
             return $user->hasAnyPermission([
                 'part.vote.certify', 
                 'part.vote.admincertify',
-                'part.vote.fastrack',
+                'part.vote.fasttrack',
                 'part.vote.hold',
                 'part.comment',
                 'part.own.vote.certify', 
@@ -34,7 +34,7 @@ class VotePolicy
         return $user->hasAnyPermission([
             'part.vote.certify', 
             'part.vote.admincertify',
-            'part.vote.fastrack',
+            'part.vote.fasttrack',
             'part.vote.hold',
             'part.vote.novote',
             'part.comment',
