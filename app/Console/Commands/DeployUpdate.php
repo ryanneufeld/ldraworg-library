@@ -36,22 +36,6 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $parts = Part::whereHas('subparts', function($q) {
-            return $q->where('filename', 'parts/s/sticker_templates01.dat');
-        })
-        ->each(function($p) {
-            $fn = str_replace('dat', 'png', $p->name());
-            $body = str_replace('s/sticker_templates', 's\sticker_templates', $p->body->body);
-            $body = preg_replace('#3068bpb\d\d\d\d.png#i', $fn, $body);
-            $p->body->body = $body;
-            $p->body->save();
-            $p->refresh();
-            app(\App\LDraw\PartManager::class)->loadSubpartsFromBody($p);
-            $t = Part::firstWhere('filename', "parts/textures/{$fn}");
-            $t->description = "{$t->type->name} {$fn}";
-            $t->generateHeader();
-            echo("fixed {$p->filename} \n");
-        });
 /*;
         Permission::create(['name' => 'omr.create']);
         Permission::create(['name' => 'omr.update']);
