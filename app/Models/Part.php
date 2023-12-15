@@ -565,4 +565,32 @@ class Part extends Model
         Storage::disk('local')->put("deleted/library/{$this->filename}.{$t}", $this->get());
         Storage::disk('local')->put('deleted/library/' . str_replace(['.png', '.dat'], '.evt', $this->filename). ".{$t}", $this->events->toJson());
     }
+
+    public function statusText(): string {
+        if ($this->isUnofficial()) {
+            $codes = array_merge(['A' => 0, 'C' => 0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
+            return match ($this->vote_sort) {
+                1 => 'Certified!',
+                2 => 'Needs Admin Review',
+                3 => $codes['A'] + $codes['C'] == 1 ? 'Needs 1 More Vote' : 'Needs 2 More Votes',
+                5 => 'Errors Found'
+            };
+        } else {
+            return "Update {$this->release->name}";
+        }
+    }
+
+    public function statusCode(): string {
+        if ($this->isUnofficial()) {
+            $code = '(';
+            $codes = array_merge(['A' => 0, 'C' => 0, 'H' => 0, 'T' => 0], $p->votes->pluck('vote_type_code')->countBy()->all());
+            foreach(['T', 'A', 'C', 'H'] as $letter) {
+                $code .= str_repeat($letter, $codes[$letter]);
+            } 
+            return $code .= is_null($this->official_part_id) ? 'N)' : 'F)';
+        } else {
+            return $this->partStatusText($this);
+        }  
+    }
+
 }

@@ -9,6 +9,8 @@
 /public/library
 /public/edit
 /public/vendor
+/public/js
+/public/css
 /public/mix-manifest.json
 /storage/app/library
 /storage/app/images/library
