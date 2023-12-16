@@ -33,5 +33,5 @@
             @endif
         </x-menu.item>
     @endcanany
-    <x-menu.item label="3D View" link="" />
+    <x-menu.item class="webglview" label="3D View" link="" />
 </x-menu>

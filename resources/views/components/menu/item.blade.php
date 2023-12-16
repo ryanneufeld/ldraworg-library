@@ -10,8 +10,8 @@
     </div>
 @else
     @isset($link)
-        <a class="item" href="{{$link}}">{{$label}}</a>
+        <a {{$attributes->merge(['class' => 'item'])}} href="{{$link}}">{{$label}}</a>
     @else
-        <div class="item">{{$label}}</div>
+        <div {{$attributes->merge(['class' => 'item'])}}>{{$label}}</div>
     @endisset
 @endisset
