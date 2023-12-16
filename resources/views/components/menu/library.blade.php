@@ -1,7 +1,7 @@
-<div class="ui menu">
-    <a class="item" href="{{route('index')}}">Library Main</a> 
-    <a class="item" href="{{route('tracker.main')}}">Parts Tracker</a> 
-    <a class="item" href="{{route('part-update.index')}}">Update</a> 
-    <a class="item" href="https://www.ldraw.org/docs-main.html">Documentation</a> 
-    <a class="item" href="https://omr.ldraw.org/">OMR</a> 
-</div>
+<x-menu class="stackable">
+    <x-menu.item label="Library Main" link="{{route('index')}}" /> 
+    <x-menu.item label="Parts Tracker" link="{{route('tracker.main')}}" />
+    <x-menu.item label="Update" link="{{route('part-update.index')}}" />
+    <x-menu.item label="Documentation" link="https://www.ldraw.org/docs-main.html" />
+    <x-menu.item label="OMR" link="https://omr.ldraw.org/" />
+</x-menu>

@@ -1,26 +1,18 @@
-<div class="ui stackable menu">
-    <div class="ui dropdown item">
-        Library
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <a class="item" href="{{route('index')}}">Library Main</a>
-            <a class="item" href="{{route('tracker.main')}}">Parts Tracker</a>
-            <a class="item" href="{{route('part-update.index', ['latest'])}}">Latest Update</a>
-            <a class="item" href="{{route('part-update.index')}}">Update Archive</a>
-            <a class="item" href="{{route('omr.main')}}">OMR</a>
-        </div>
-    </div>    
+<x-menu class="stackable">
+    <x-menu.item dropdown label="Library">
+        <x-menu.item label="Library Main" link="{{route('index')}}" />
+        <x-menu.item label="Parts Tracker" link="{{route('tracker.main')}}" />
+        <x-menu.item label="Latest Update" link="{{route('part-update.index', ['latest'])}}" />
+        <x-menu.item label="Update Archive" link="{{route('part-update.index')}}" />
+        <x-menu.item label="OMR" link="{{route('omr.main')}}" />
+    </x-menu.item>
     @can('create', App\Models\Omr\OmrModel::class)
-        <a class="item" href="">Submit</a>
+        <x-menu.item label="Submit" link="" />
     @endcan
-    <a class="item" href="{{route('omr.sets.index')}}">Model List</a> 
-    <a class="item" href="">Statistics</a> 
-    <div class="ui dropdown item">
-        Documentation
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <a class="item" href="https://www.ldraw.org/article/593.html">Official Model Repository (OMR) Specification</a>
-            <a class="item" href="https://www.ldraw.org/docs-main/official-model-repository-omr/rules-and-procedures-for-the-official-model-repository.html">Rules and procedures for the Official Model Repository</a>
-        </div>
-    </div>    
-</div>  
+    <x-menu.item label="Model List" link="{{route('omr.sets.index')}}" />
+    <x-menu.item label="Statistics" link="" />
+    <x-menu.item dropdown label="Library">
+        <x-menu.item label="Official Model Repository (OMR) Specification" link="https://www.ldraw.org/article/593.html" />
+        <x-menu.item label="Rules and procedures for the Official Model Repository" link="https://www.ldraw.org/docs-main/official-model-repository-omr/rules-and-procedures-for-the-official-model-repository.html" />
+    </x-menu.item>
+</x-menu>
