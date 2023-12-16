@@ -1,14 +1,6 @@
 <x-layout.tracker>
   <x-slot:title>Create Release Step 1</x-slot>
-  @if ($errors->any())
-  <div class="ui error message">
-    <ul class="ui list">
-    @foreach($errors->all() as $errorfield)
-      <li>{{$errorfield}}</li>
-    @endforeach
-    </ul>    
-  </div>
-  @endif
+  <x-message.session-error />
   <form class="ui form" enctype="multipart/form-data" action="{{route('tracker.release.create2')}}" method="POST">
   @csrf
   @forelse ($parts as ['id' => $id, 'description' => $description, 'name' => $name, 'filename' => $filename, 'check' => $check, 'warnings' => $warnings])

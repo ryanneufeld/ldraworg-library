@@ -17,13 +17,12 @@
     <div class="ui container">
       <div class="basic segment">      
         @env('local')
-        <div class="ui center aligned icon warning message">
-          <i class="exclamation triangle icon"></i>
-          <div class="content">
-            <div class="header">You are on the BETA LDraw.org Library Site.</div> 
-            For the live version go here: <a href="https://library.ldraw.org">http://library.ldraw.org</a>
-          </div>
-        </div>
+            <x-message centered warning>
+                <x-slot:header>
+                    You are on the BETA LDraw.org Library Site.
+                </x-slot:header>
+                For the live version go here: <a href="https://library.ldraw.org">http://library.ldraw.org</a>
+            </x-message>        
         @endenv
       </div>
       

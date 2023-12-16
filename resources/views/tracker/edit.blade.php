@@ -5,15 +5,8 @@
   </x-slot>    
 <h3 class="ui header">{{$part->name()}} Header Edit</h3>
 <p> Fields in blue are shown for information only and are not editable.</p>
-@if ($errors->any())
-  <div class="ui error message">
-    <ul class="ui list">
-    @foreach($errors->all() as $errorfield)
-      <li>{{$errorfield}}</li>
-    @endforeach
-    </ul>    
-  </div>
-@endif
+<x-message.session-error />
+
 <form class="ui form" name="headeredit" action="{{route('tracker.update', $part->id)}}" method="POST">
   @method('PUT')
   @csrf

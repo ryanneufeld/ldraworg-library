@@ -8,27 +8,30 @@
   <p>
   Use this form to upload <b>new</b> files to the Parts Tracker and to update already-submitted <b>unofficial</b> files.
   </p>
-  @if($errors->hasAny(['comments','proxy_user_id','partfiles'])) 
-    <div class="ui error message">
-      @foreach(['comments','proxy_user_id','partfiles'] as $errorfield)
-        @error($errorfield)
-        {{implode("<br/>", $errors->get($errorfield))}}@if(!$loop->last)<br/>@endif
-        @enderror
-      @endforeach  
-    </div>
+  @if($errors->hasAny(['comments','proxy_user_id','partfiles']))
+    <x-message error>
+        <x-slot:header>
+            There were some problems with your input:
+        </x-slot:header>    
+        @foreach(['comments','proxy_user_id','partfiles'] as $errorfield)
+            @error($errorfield)
+                {{implode("<br/>", $errors->get($errorfield))}}@if(!$loop->last)<br/>@endif
+            @enderror
+        @endforeach
+    </x-message>     
   @endif
   @error('partfiles.*')
     @foreach(Arr::undot($errors->get('partfiles.*'))['partfiles'] as $index => $parterr)
-      <div class="ui error message">
-        <div class="header">
-          {{$errors->get('partnames')[0][$index]}}
-        </div>
-        <ul class="list">
-          @foreach($parterr as $error)
-            <li>{{ $error }}</li>
-          @endforeach
-        </ul>
-      </div>
+        <x-message error>
+            <x-slot:header>
+                {{$errors->get('partnames')[0][$index]}}
+            </x-slot:header>    
+            <ul class="list">
+                @foreach($parterr as $error)
+                  <li>{{ $error }}</li>
+                @endforeach
+              </ul>
+        </x-message>     
     @endforeach      
   @enderror
 

@@ -53,12 +53,16 @@
     <x-part.table :parts="$tracked" />
   </div>
   <div class="ui bottom attached tab segment" data-tab="queue">
-    <div class="ui info message">
-        <div class="header">What is this?</div>
-        This is a list of parts where either the part itself or its subparts
-        need at least one more vote and you haven't voted. The list is ordered
-        by status, part type, and age on the tracker in that order.
-    </div>
+    <x-message info>
+        <x-slot:header>
+            What is this?
+        </x-slot:header>
+        <p>
+            This is a list of parts where either the part itself or its subparts
+            need at least one more vote and you haven't voted. The list is ordered
+            by status, part type, and age on the tracker in that order.
+        </p>
+    </x-message>        
     <x-part.table :parts="$userready" />
   </div>
 </x-layout.base>

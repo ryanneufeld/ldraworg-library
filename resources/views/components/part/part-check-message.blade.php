@@ -1,15 +1,12 @@
 @if (!$check['can_release'])
-<div class="ui compact icon warning message">
-    <i class="ui exclamation icon"></i>
-    <div class="content">
-        <div class="header">
-            This part is not releaseable
-        </div>
-        <ul class="ui list">
-            @foreach($check['errors'] as $error)
-                <li>{{$error}}</li>
-            @endforeach
-        </ul>
-    </div>
-</div>  
+<x-message compact warning>
+    <x-slot:header>
+        This part is not releaseable
+    </x-slot:header>
+    <ul class="ui list">
+        @foreach($check['errors'] as $error)
+            <li>{{$error}}</li>
+        @endforeach
+    </ul>
+</x-message>        
 @endif

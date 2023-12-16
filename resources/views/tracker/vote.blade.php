@@ -4,18 +4,7 @@
   <x-breadcrumb-item class="active" item="Vote" />
 </x-slot>    
 
-@if ($errors->any())
-<div class="ui error message">
-  <div class="header">
-    Your vote was not submitted due to these errors:
-  </div>
-  <ul class="list">
-    @foreach ($errors->all() as $error)
-    <li>{{ $error }}</li>
-    @endforeach
-  </ul>
-</div>
-@endif
+<x-message.session-error />
 <h3 class="ui header">Part {{ basename($vote->part->filename ?? $part->filename) }} Voting Form</h3>
 <form class="ui form" method="post" ACTION="{{$vote != null ? route('tracker.vote.update', $vote->id) : route('tracker.vote.store', $part->id)}}" name="reviewform">
 @csrf

@@ -2,18 +2,7 @@
   <x-slot name="title">
     Edit User
   </x-slot>
-@if (count($errors) > 0)
-  <div class="ui icon negative message">
-    <i class="exclamation icon"></i>
-    <div class="header">There were some problems with your input:</div>
-    <ul class="list">
-      @foreach ($errors->all() as $error)
-      <li>{{ $error }}</li>
-      @endforeach
-    </ul>
-  </div>  
-@endif
-
+  <x-message.session-error />
 
 <form method="POST" action="{{route('admin.users.store')}}" class="ui form">
   @csrf
