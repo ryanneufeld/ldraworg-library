@@ -1,4 +1,4 @@
 @props(['submenu' => false])
-<div {{ $attributes->class(['ui' => !$submenu, 'menu']) }}>
+<ul @class(['flex flex-row' => !$submenu])>
   {{$slot}}
-</div>  
+</ul>  

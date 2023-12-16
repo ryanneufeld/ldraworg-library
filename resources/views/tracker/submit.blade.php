@@ -9,7 +9,7 @@
   Use this form to upload <b>new</b> files to the Parts Tracker and to update already-submitted <b>unofficial</b> files.
   </p>
   @if($errors->hasAny(['comments','proxy_user_id','partfiles']))
-    <x-message error>
+    <x-message type="error">
         <x-slot:header>
             There were some problems with your input:
         </x-slot:header>    
@@ -22,7 +22,7 @@
   @endif
   @error('partfiles.*')
     @foreach(Arr::undot($errors->get('partfiles.*'))['partfiles'] as $index => $parterr)
-        <x-message error>
+        <x-message type="error">
             <x-slot:header>
                 {{$errors->get('partnames')[0][$index]}}
             </x-slot:header>    

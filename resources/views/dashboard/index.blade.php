@@ -53,7 +53,7 @@
     <x-part.table :parts="$tracked" />
   </div>
   <div class="ui bottom attached tab segment" data-tab="queue">
-    <x-message info>
+    <x-message type="info">
         <x-slot:header>
             What is this?
         </x-slot:header>

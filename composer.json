@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.1.0",
+        "blade-ui-kit/blade-icons": "^1.5",
         "blade-ui-kit/blade-ui-kit": "^0.4.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.0",
@@ -13,6 +14,7 @@
         "laravel/tinker": "^2.7",
         "laravel/ui": "^4.0",
         "livewire/livewire": "^3.0",
+        "owenvoke/blade-fontawesome": "^2.5",
         "spatie/image": "^2.2",
         "spatie/laravel-permission": "^5.5",
         "staudenmeir/laravel-adjacency-list": "^1.13"
