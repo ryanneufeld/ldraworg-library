@@ -135,17 +135,13 @@ class PartManager
     {
         $part->generateHeader();
         $part->updateVoteData();
-        $this->updatePartImage($part, true);
+        $this->updatePartImage($part);
         $this->updateMissing($part->name());
         $part->refresh();
-        if (!is_null($part->official_part_id)) {
-            foreach (Part::find($part->official_part_id)->parents()->official()->get() as $p) {
-                $this->loadSubpartsFromBody($p);
-            }
-        }
+        \App\Jobs\UpdateParentParts::dispatch($part);
     }
     
-    public function updatePartImage(Part $part, bool $updateParents = false): void
+    public function updatePartImage(Part $part): void
     {
         if ($part->isTexmap()) {
             $image = imagecreatefromstring($part->get());
@@ -160,18 +156,14 @@ class PartManager
         $this->imageOptimize($imagePath);
         Image::load($imagePath)->width(config('ldraw.image.thumb.width'))->height(config('ldraw.image.thumb.height'))->save($imageThumbPath);
         $this->imageOptimize($imageThumbPath);
-        if ($updateParents === true) {
-            foreach ($part->ancestors as $p) {
-                $this->updatePartImage($p);
-            }
-        }
     }
 
     protected function updateMissing(string $filename): void
     {
         Part::unofficial()->whereJsonContains('missing_parts', $filename)->each(function(Part $p) {
-            $p->setSubparts($this->parser->getSubparts($p->get(false)));
-            $this->updatePartImage($p, true);
+            $this->loadSubpartsFromBody($p);
+            $this->updatePartImage($p);
+            \App\Jobs\UpdateParentParts::dispatch($p);
         });
     }
 
@@ -180,8 +172,9 @@ class PartManager
         Part::unofficial()->whereHas('subparts', function (Builder $query) use ($officialPart) {
             return $query->where('id', $officialPart->id);
         })->each(function (Part $p) {
-            $p->setSubparts($this->parser->getSubparts($p->get(false)));
-            $this->updatePartImage($p, true);
+            $this->loadSubpartsFromBody($p);
+            $this->updatePartImage($p);
+            \App\Jobs\UpdateParentParts::dispatch($p);
         });    
     }
 
