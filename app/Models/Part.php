@@ -464,7 +464,7 @@ class Part extends Model
         }
 
         $addBlank = false;
-        if (!is_null($this->category)) {
+        if (!is_null($this->category) && ($this->type->type === 'Part' || $this->type->type === 'Shortcut')) {
             $cat = str_replace(['~','|','=','_'], '', mb_strstr($this->description, " ", true));
             if ($cat != $this->category->category) {
                 $header[] = $this->category->toString();
