@@ -1,21 +1,28 @@
-@props(['label', 'link' => null, 'dropdown' => null])
-
+@props(['label', 'link' => null, 'dropdown' => null, 'toplevel' => null])
 @isset($dropdown)
-{{--
-    <div class="outline-none focus:outline-none border px-3 py-1 bg-white rounded-sm flex items-center min-w-32">
-        <span class="pr-1 font-semibold flex-1">{{$label}}</span> 
-        <i class="dropdown icon"></i>
-        <x-menu submenu>
-            {{$slot}}
-        </x-menu>    
-    </div>
---}}    
+    @php 
+        $mname = strtolower(preg_replace('/[^A-Za-z0-9_]/', '', $label)) 
+    @endphp
+    <li x-data="{ {{$mname}} : false }" @@mouseover="{{$mname}} = true" @@mouseover.away="{{$mname}} = false" class="p-2 hover:bg-gray-300 relative">
+        {{$label}}
+        @isset($toplevel)
+            <x-fas-caret-down class="inline size-4" />
+            <x-menu menuname="{{$mname}}" submenu >
+                {{$slot}}
+            </x-menu>
+        @else
+            <x-fas-caret-right class="inline size-4" />
+            <x-menu menuname="{{$mname}}" submenu nested>
+                {{$slot}}
+            </x-menu>
+        @endisset    
+    </li>
 @else
-    <li class="rounded-sm px-3 py-1 hover:bg-gray-100">
+    <li class="p-2 hover:bg-gray-300">
         @isset($link)
             <a class="item" href="{{$link}}">{{$label}}</a>
         @else
             {{$label}}
-        @endisset        
+        @endisset
     </li>
 @endisset

@@ -13,7 +13,7 @@
         @vite('resources/css/app.css')
         @stack('css')
     </head>
-  <body>
+  <body class="bg-gradient-to-r from-[#D4D4D4] via-[#F4F4F4] via-[#FFFFFF] via-[#F4F4F4] to-[#D4D4D4]">
     <div class="container mx-auto p-4 space-y-4">
         @env('local')
             <x-message centered type="warning">
@@ -35,12 +35,20 @@
                     <img src="{{$rightlogo}}">
                 </div>
             @endisset
-        </div>    
-        {{$menu ?? ''}}
+        </div>
+        <nav class="bg-white rounded">   
+            {{$menu ?? ''}}
+        </nav>    
       <div class="ui hidden fitted clearing divider"></div>
-      <div class="ui right floated compact fitted basic segment">
+      <div class="ui right floated compact fitted basic segment inline">
         @auth
-          Welcome {{Auth::user()->name}} :: <i class="id card outline icon"></i><a href="{{route('dashboard.index')}}">User Dashboard</a>
+          Welcome {{Auth::user()->name}} :: 
+          
+          <div class="relative w-10 h-10">
+            <x-fas-file class='absolute left-0 top-0' />
+            <x-fas-comment class='absolute bottom-0 left-0 w-5 h-5 fill-blue-500' />
+          </div>
+          <a href="{{route('dashboard.index')}}">User Dashboard</a>
           @can('admin.view-dashboard')
             :: <a href="{{route('admin.dashboard')}}">Admin Dashboard</a>
           @endcan

@@ -1,5 +1,5 @@
 <x-menu class="stackable">
-    <x-menu.item dropdown label="Library">
+    <x-menu.item dropdown toplevel label="Library">
             <x-menu.item label="Library Main" link="{{route('index')}}" />
             <x-menu.item label="Parts Tracker" link="{{route('tracker.main')}}" />
             <x-menu.item label="Latest Update" link="{{route('part-update.index', ['latest'])}}" />
@@ -12,7 +12,7 @@
     <x-menu.item label="Parts List" link="{{route('tracker.index')}}" /> 
     <x-menu.item label="Activity" link="{{route('tracker.activity')}}" /> 
     <x-menu.item label="Weekly New Parts" link="{{route('tracker.weekly')}}" />
-    <x-menu.item dropdown label="Documentation">
+    <x-menu.item dropdown toplevel label="Documentation">
             <x-menu.item dropdown label="LDraw File Format">
                     <x-menu.item label="LDraw File Format Specification" link="https://www.ldraw.org/article/218.html" />
                     <x-menu.item label="Colour Definition (!COLOUR) Language Extension" link="https://www.ldraw.org/article/299.html" />
@@ -46,7 +46,7 @@
                     <x-menu.item label="Legal Info" link="https://www.ldraw.org/docs-main/licenses/legal-info.html" />
             </x-menu.item>
     </x-menu.item>
-    <x-menu.item dropdown label="Tools">
+    <x-menu.item dropdown toplevel label="Tools">
         <x-menu.item label="User Dashboard" link="{{route('dashboard.index')}}" /> 
         <x-menu.item label="Part Search" link="{{route('search.part')}}" />
         <x-menu.item label="Pattern/Shortcut Part Summary" link="{{route('search.suffix')}}" /> 
