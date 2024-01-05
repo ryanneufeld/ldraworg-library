@@ -212,7 +212,7 @@ class PartManager
     public function movePart(Part $part, string $newName, PartType $newType): bool 
     {
         $oldname = $part->name();
-        $newName = $part->type->folder . $newName;
+        $newName = "{$newType->folder}{$newName}";
         $upart = Part::unofficial()->where('filename', $newName)->first();
         if (!$part->isUnofficial() || !is_null($upart))
         {
