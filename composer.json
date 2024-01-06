@@ -15,7 +15,7 @@
         "laravel/ui": "^4.0",
         "livewire/livewire": "^3.0",
         "owenvoke/blade-fontawesome": "^2.5",
-        "spatie/image": "^2.2",
+        "spatie/image": "^3.0",
         "spatie/laravel-permission": "^6.2",
         "staudenmeir/laravel-adjacency-list": "^1.13"
     },
