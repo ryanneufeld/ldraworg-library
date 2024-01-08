@@ -212,11 +212,18 @@ class PartManager
     public function movePart(Part $part, string $newName, PartType $newType): bool 
     {
         $oldname = $part->name();
+        if ($newName == '.dat') {
+            $newName = basename($part->filename);
+        }
         $newName = "{$newType->folder}{$newName}";
         $upart = Part::unofficial()->where('filename', $newName)->first();
         if (!$part->isUnofficial() || !is_null($upart))
         {
             return false;
+        }
+        if ($part->type->folder !== 'parts/' && $newType->folder == 'parts/') {
+            $dcat = PartCategory::firstWhere('category', $this->parser->getDescriptionCategory($part->header));
+            $part->category()->associate($dcat);
         }
         if ($part->type->folder !== $newType->folder) {
             $part->type()->associate($newType);
