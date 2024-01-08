@@ -10,6 +10,7 @@
         @stack('meta')
         <link rel="shortcut icon" href="{{asset('/images/LDraw_Green_64x64.png')}}" type="image/x-icon">
         @livewireStyles
+        @filamentStyles
         @vite('resources/css/app.css')
         @stack('css')
     </head>
@@ -38,35 +39,33 @@
         </div>
         <nav class="bg-white rounded">   
             {{$menu ?? ''}}
-        </nav>    
-      <div class="ui hidden fitted clearing divider"></div>
-      <div class="ui right floated compact fitted basic segment inline">
-        @auth
-          Welcome {{Auth::user()->name}} :: 
-          
-          <div class="relative w-10 h-10">
-            <x-fas-file class='absolute left-0 top-0' />
-            <x-fas-comment class='absolute bottom-0 left-0 w-5 h-5 fill-blue-500' />
-          </div>
-          <a href="{{route('dashboard.index')}}">User Dashboard</a>
-          @can('admin.view-dashboard')
-            :: <a href="{{route('admin.dashboard')}}">Admin Dashboard</a>
-          @endcan
-        @endauth
-      </div>
-      
-      <div class="ui basic segment breadcrumb">
-        <div class="section"><a href="https://www.ldraw.org">LDraw.org</a></div>
-        @isset($breadcrumbs)
-          <x-breadcrumb-item item="Library" />
-          {{$breadcrumbs}}
-        @else   
-          <x-breadcrumb-item class="active" item="Library" />
-        @endisset
-      </div>
-      
+        </nav>
+        <div class="grid grid-cols-2 justify-stretch items-center">
+            <div class="justify-self-start">
+                <div class="flex flex-row items-center">
+                    <a href="https://www.ldraw.org">LDraw.org</a>
+                    @isset($breadcrumbs)
+                        <x-breadcrumb-item item="Library" />
+                        {{$breadcrumbs}}
+                    @else   
+                        <x-breadcrumb-item active item="Library" />
+                    @endisset
+                </div>
+            </div>
+            <div class="justify-self-end">
+                @auth
+                    Welcome {{Auth::user()->name}} :: 
+                  
+                   <a href="{{route('dashboard.index')}}">User Dashboard</a>
+                    @can('admin.view-dashboard')
+                        :: <a href="{{route('admin.dashboard')}}">Admin Dashboard</a>
+                    @endcan
+                @endauth
+            </div>
+        </div>
+
   
-      <div class="ui segment main-content">
+      <div class="bg-white rounded p-2">
          {{ $slot ?? '' }}
       </div>
     
@@ -91,5 +90,6 @@
     @vite('resources/js/app.js')
     @stack('scripts')
     @livewireScripts
+    @filamentScripts
   </body>
 </html>
