@@ -1,7 +1,7 @@
 @props([
     'icon',
     'size',
-    'class' => 'w-5',
+    'class' => '',
     'top_left' => null, 
     'top_right' => null,
     'bottom_left' => null,

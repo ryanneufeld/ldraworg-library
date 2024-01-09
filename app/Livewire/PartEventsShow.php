@@ -4,9 +4,10 @@ namespace App\Livewire;
 use App\Models\PartEvent;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Columns\ViewColumn;
+use App\Tables\Columns\PartStatus;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
@@ -23,9 +24,14 @@ class PartEventsShow extends Component implements HasForms, HasTable
         return $table
             ->query(PartEvent::latest())
             ->columns([
-                ViewColumn::make('status')->view('components.event.icon.submit-with-comment'),
+                ViewColumn::make('part_event_type')
+                    ->view('components.lib-icon', ['icon' => 'fas-file', 'bottom_left' => 'fas-comment', 'class' => 'w-6'])
+                    ->alignCenter()
+                    ->label('Event'),
                 TextColumn::make('user.name'),
-                TextColumn::make('created_at')->since(),
+                TextColumn::make('created_at')
+                    ->since()
+                    ->label('Date/Time'),
                 ImageColumn::make('image')
                     ->state(
                         function (PartEvent $event) {
@@ -41,12 +47,15 @@ class PartEventsShow extends Component implements HasForms, HasTable
                     ->state(
                         fn (PartEvent $e) =>
                             !is_null($e->part) ? $e->part->filename : $e->deleted_filename
-                    ),
+                    )
+                    ->label('Part'),
                 TextColumn::make('part.description')
                     ->state(
                         fn (PartEvent $e) =>
                             !is_null($e->part) ? $e->part->description : $e->deleted_description
-                    ),
+                    )
+                    ->label('Description'),
+                PartStatus::make('status'),
             ])
             ->filters([
                 // ...
@@ -56,7 +65,12 @@ class PartEventsShow extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 // ...
-            ]);
+            ])
+            ->recordUrl(
+                fn (PartEvent $e): string => 
+                    !is_null($e->part) ? route($e->part->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $e->part]) : ''
+            )
+            ->striped();
     }
     
     public function render(): View

@@ -1,13 +1,18 @@
 <x-layout.tracker>
-  <x-slot:title>Recent Activity</x-slot>
-  <x-slot:breadcrumbs>
-    <x-breadcrumb-item class="active" item="Activity" />
-  </x-slot>    
-  <div class="ui right floated right aligned basic segment">
-    Server Time: {{date('Y-m-d H:i:s')}}<br/>
-    <x-part.unofficial-part-count />
-  </div>
-
-  <h2 class="ui header">Parts Tracker Activity Log</h2>
-  <livewire:part-events-show />
+    <x-slot:title>Recent Activity</x-slot>
+    <x-slot:breadcrumbs>
+        <x-breadcrumb-item class="active" item="Activity" />
+    </x-slot>
+    <div class="flex flex-col space-y-4">
+        <div class="grid grid-cols-2 justify-stretch items-center">
+            <div class="justify-self-start">
+                <p class="text-2xl font-bold">Parts Tracker Activity Log</p>
+            </div>
+            <div class="justify-self-end">
+                <p class="text-right">Server Time: {{date('Y-m-d H:i:s')}}</p>
+                <x-part.unofficial-part-count />
+            </div>
+        </div>
+        <livewire:part-events-show />
+    </div>
 </x-layout.tracker>
