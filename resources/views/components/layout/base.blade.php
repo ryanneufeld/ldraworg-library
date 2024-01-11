@@ -9,7 +9,6 @@
         <meta name="csrf-token" content="{{ csrf_token() }}" />
         @stack('meta')
         <link rel="shortcut icon" href="{{asset('/images/LDraw_Green_64x64.png')}}" type="image/x-icon">
-        @livewireStyles
         @filamentStyles
         @vite('resources/css/app.css')
         @stack('css')
@@ -87,9 +86,8 @@
         </p>
       </div>
     </div>
+    @filamentScripts
     @vite('resources/js/app.js')
     @stack('scripts')
-    @livewireScripts
-    @filamentScripts
   </body>
 </html>

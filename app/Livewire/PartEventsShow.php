@@ -25,7 +25,7 @@ class PartEventsShow extends Component implements HasForms, HasTable
             ->query(PartEvent::latest())
             ->columns([
                 ViewColumn::make('part_event_type')
-                    ->view('components.lib-icon', ['icon' => 'fas-file', 'bottom_left' => 'fas-comment', 'class' => 'w-6'])
+                    ->view('components.event.icon.filament-table-icon')
                     ->alignCenter()
                     ->label('Event'),
                 TextColumn::make('user.name'),
@@ -54,7 +54,8 @@ class PartEventsShow extends Component implements HasForms, HasTable
                         fn (PartEvent $e) =>
                             !is_null($e->part) ? $e->part->description : $e->deleted_description
                     )
-                    ->label('Description'),
+                    ->label('Description')
+                    ->wrap(),
                 PartStatus::make('status'),
             ])
             ->filters([
@@ -70,7 +71,8 @@ class PartEventsShow extends Component implements HasForms, HasTable
                 fn (PartEvent $e): string => 
                     !is_null($e->part) ? route($e->part->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $e->part]) : ''
             )
-            ->striped();
+            ->striped()
+            ->recordClasses(fn (PartEvent $e) => !is_null($e->part) && !$e->part->isUnofficial() ? 'bg-green-300' : '' );
     }
     
     public function render(): View
