@@ -15,6 +15,7 @@
         "livewire/livewire": "^3.0",
         "spatie/image": "^3.0",
         "spatie/laravel-permission": "^5.5",
+        "spatie/temporary-directory": "^2.2",
         "staudenmeir/laravel-adjacency-list": "^1.13"
     },
     "require-dev": {

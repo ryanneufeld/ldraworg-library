@@ -10,6 +10,7 @@ use GdImage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class LDView
 {
@@ -27,13 +28,15 @@ class LDView
     
     public function render(Part|OmrModel $part): GDImage
     {
+        $tempDir = TemporaryDirectory::make()->deleteWhenDestroyed();
+
         // LDview requires a p and parts directory
-        Storage::disk($this->tempDisk)->makeDirectory("{$this->tempPath}/ldraw/parts");
-        Storage::disk($this->tempDisk)->makeDirectory("{$this->tempPath}/ldraw/p");
-        $ldrawdir = Storage::disk($this->tempDisk)->path("{$this->tempPath}/ldraw");
-        
+        $ldrawdir = $tempDir->path("ldraw");
+        $tempDir->path("ldraw/parts");
+        $tempDir->path("ldraw/p");
+
         // Store the part as an mpd
-        $filename = "{$this->tempPath}/part.mpd";
+        $filename = $tempDir->path("part.mpd");
         if ($part instanceof Part && array_key_exists(basename($part->filename, '.dat'), $this->altCameraPositions)) {
             $matrix = $this->altCameraPositions[basename($part->filename, '.dat')];
         } elseif ($part instanceof Part && array_key_exists($part->basePart(), $this->altCameraPositions)) {
@@ -42,26 +45,25 @@ class LDView
             $matrix = "1 0 0 0 1 0 0 0 1";
         }
         if ($part instanceof Part) {
-            Storage::disk($this->tempDisk)->put($filename, $this->modelmaker->partMpd($part, $matrix));
+            file_put_contents($filename, $this->modelmaker->partMpd($part, $matrix));
         } else {
-            Storage::disk($this->tempDisk)->put($filename, $this->modelmaker->modelMpd($part));
+            file_put_contents($filename, $this->modelmaker->modelMpd($part));
         }
         
-        $filepath = Storage::disk($this->tempDisk)->path($filename);
-        
         $normal_size = "-SaveWidth={$this->maxWidth} -SaveHeight={$this->maxWidth}";
-        $imagepath = Storage::disk($this->tempDisk)->path("{$this->tempPath}/part.png");
+        $imagepath = $tempDir->path("part.png");
         
         // Make the ldview.ini
         $cmds = ['[General]'];
         foreach($this->options as $command => $value) {
           $cmds[] = "{$command}={$value}";
         }  
-        Storage::disk($this->tempDisk)->put("{$this->tempPath}/ldview.ini", implode("\n", $cmds));
-        $inipath = Storage::disk($this->tempDisk)->path("{$this->tempPath}/ldview.ini");
+
+        $inipath = $tempDir->path("ldview.ini");
+        file_put_contents($inipath, implode("\n", $cmds));
         
         // Run LDView
-        $ldviewcmd = "ldview {$filepath} -LDConfig={$this->ldconfigPath} -LDrawDir={$ldrawdir} -IniFile={$inipath} {$normal_size} -SaveSnapshot={$imagepath}";
+        $ldviewcmd = "ldview {$filename} -LDConfig={$this->ldconfigPath} -LDrawDir={$ldrawdir} -IniFile={$inipath} {$normal_size} -SaveSnapshot={$imagepath}";
         if ($this->debug) {
             Log::debug($ldviewcmd);
         }
@@ -69,11 +71,7 @@ class LDView
         Process::run($ldviewcmd);
         $png = imagecreatefrompng($imagepath);
         imagesavealpha($png, true);
-        // Remove temp files
-        Storage::disk($this->tempDisk)->deleteDirectory("{$this->tempPath}/ldraw");
-        Storage::disk($this->tempDisk)->delete("{$this->tempPath}/part.mpd");
-        Storage::disk($this->tempDisk)->delete("{$this->tempPath}/part.png");
-        Storage::disk($this->tempDisk)->delete("{$this->tempPath}/ldview.ini");
+
         return $png;
     }
 }
