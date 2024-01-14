@@ -37,7 +37,7 @@ class UpdateParentParts implements ShouldQueue
                 app(PartManager::class)->loadSubpartsFromBody($p);
             }
         }
-        foreach ($this->part->ancestors as $p) {
+        foreach ($this->part->ancestors()->unofficial()->get() as $p) {
             app(PartManager::class)->updatePartImage($p);
         }
     }
