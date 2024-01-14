@@ -38,6 +38,7 @@ class PartManager
         ];
         $upart = Part::create($values);
         $this->updateUnofficialWithOfficialFix($part);
+        \App\Jobs\UpdateParentParts::dispatch($part);
         $upart->setSubparts($part->subparts);
         $upart->setKeywords($part->keywords);
         $upart->setHelp($part->help);
@@ -162,8 +163,6 @@ class PartManager
     {
         Part::unofficial()->whereJsonContains('missing_parts', $filename)->each(function(Part $p) {
             $this->loadSubpartsFromBody($p);
-            $this->updatePartImage($p);
-            \App\Jobs\UpdateParentParts::dispatch($p);
         });
     }
 
@@ -173,8 +172,6 @@ class PartManager
             return $query->where('id', $officialPart->id);
         })->each(function (Part $p) {
             $this->loadSubpartsFromBody($p);
-            $this->updatePartImage($p);
-            \App\Jobs\UpdateParentParts::dispatch($p);
         });    
     }
 
@@ -241,7 +238,8 @@ class PartManager
             $p->body->save();
         }
         $this->updateMissing($part->name());
-        return true;
+        \App\Jobs\UpdateParentParts::dispatch($part);
+    return true;
     }
 
     function loadSubpartsFromBody(Part $part): void
