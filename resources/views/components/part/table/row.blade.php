@@ -28,6 +28,7 @@
     @else
       @isset ($part->unofficial_part_id)
         <a href="{{ route('tracker.show', $part->unofficial_part_id) }}">Updated part on tracker</a>
+	    <x-part.status :part="\App\Models\Part::find($part->unofficial_part_id)" show-status />
       @endisset
     @endif    
   </td>  
