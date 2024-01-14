@@ -141,6 +141,7 @@ class User extends Authenticatable
                 'vote_type_code' => $votetype->code,
             ]);
         }
+        $part->refresh();
         $part->updateVoteData();
     }
 
