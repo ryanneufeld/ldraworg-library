@@ -8,7 +8,7 @@
     </p>
     <div class="ui two column grid">
       <div class="column">
-        <h5 class="ui header"><a href="https://www.ldraw.org/library/tracker/ref/policy/">Parts Tracker Policies</a></h5>
+        <h5 class="ui header"><a href="https://www.ldraw.org/pt-policies.html">Parts Tracker Policies</a></h5>
         <p>
           Policies for users of the Parts Tracker.
         </p>
