@@ -28,24 +28,24 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-      $this->configureRateLimiting();
+        $this->configureRateLimiting();
 
-      $this->routes(function () {
-          Route::middleware('api')
-              ->prefix('api')
-              ->group(base_path('routes/api.php'));
+        $this->routes(function () {
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api.php'));
 
-          Route::middleware('web')
-              ->group(base_path('routes/web.php'));
-      });
-      Route::pattern('officialpart', '[a-z0-9_/-]+\.(dat|png)');
-      Route::pattern('unofficialpart', '[a-z0-9_/-]+\.(dat|png)');
-      Route::bind('officialpart', function ($value) {
-        return Part::official()->where('filename', $value)->firstOrFail();
-      });
-      Route::bind('unofficialpart', function ($value) {
-        return Part::unofficial()->where('filename', $value)->firstOrFail();
-      });
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
+        });
+        Route::pattern('officialpart', '[a-z0-9_/-]+\.(dat|png)');
+        Route::pattern('unofficialpart', '[a-z0-9_/-]+\.(dat|png)');
+        Route::bind('officialpart', fn (string $value): Part =>
+            Part::official()->where('filename', $value)->firstOrFail()
+        );
+        Route::bind('unofficialpart', fn (string $value): Part =>
+            Part::unofficial()->where('filename', $value)->firstOrFail()
+        );
     }
 
     /**
