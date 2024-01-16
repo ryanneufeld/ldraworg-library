@@ -7,12 +7,6 @@
     </x-slot>    
     <h2 class="ui header">Parts Tracker History</h2>
     <div>
-        <canvas id="historyChart" style="height: 5010px; width: 100%;"></canvas>
+        {!! $chart->render() !!}
     </div>
-    @push('scripts')
-        <script src="{{ mix('assets/js/history.js') }}" type="text/javascript"></script>
-        <script>
-            const chartData = {{ Js::from($data) }}            
-        </script>
-    @endpush
 </x-layout.tracker>

@@ -15,6 +15,9 @@ import '../semantic/dist/components/tab.js';
 import '../semantic/dist/components/search.js';
 import './tablesort.js';
 
+import Chart from 'chart.js/auto';
+window.Chart = Chart;
+
 let cal_options = {
 	type: 'datetime',
 	formatter: {
