@@ -233,7 +233,7 @@ class PartController extends Controller
         $partHistory = implode("\n", $partHistory);
         if ($this->manager->parser->getHistory($partHistory) !== $newHistory) {
             $changes['old']['history'] = $partHistory;
-            $part->setHistory($newHistory);
+            $part->setHistory($newHistory ?? []);
             $part->refresh();    
             $changes['new']['history'] = '';
             if ($part->history->count() > 0) {
