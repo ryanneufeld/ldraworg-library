@@ -13,11 +13,6 @@ class Show extends Component
 
     public function mount(Part $part)
     {
-        if (is_null($part) || is_null($part->type)) {
-            Log::debug(request());
-            Log::debug($part);
-        }
-        
         $this->part = $part;
         $this->part->load('events', 'history', 'subparts', 'parents');
         $this->part->events->load('part_event_type', 'user', 'part', 'vote_type');

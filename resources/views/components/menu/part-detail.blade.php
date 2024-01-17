@@ -1,5 +1,5 @@
 @props(['part'])
-<x-menu class="compact stackable">
+<x-menu>
     <x-menu.item label="Download" link="{{route($part->isUnofficial() ? 'unofficial.download' : 'official.download', $part->filename)}}" />
     @if(Auth::check() && $part->isUnofficial() && (Auth::user()->can('create', [\App\Models\Vote::class, $part]) || Auth::user()->can('update', [$part->votes()->firstWhere('user_id', Auth::user()->id)])))
         <x-menu.item label="Review/Comment" link="{{ $part->votes()->firstWhere('user_id', Auth::user()->id) ? route('tracker.vote.edit', $part->votes()->firstWhere('user_id', Auth::user()->id)) : route('tracker.vote.create',$part->id) }}" />   
@@ -8,7 +8,7 @@
         <x-menu.item label="View Patterns/Shortcuts" link="{{route('search.suffix', ['s' => $part->basepart()])}}" />
     @endif
     @canany(['part.edit.header','part.own.edit.header','part.edit.number','part.delete'])
-        <x-menu.item dropdown label="Admin Actions">
+        <x-menu.dropdown dropdown label="Admin Tools">
             @if($part->isUnofficial() && $part->type->folder == 'parts/' && $part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0)
                 @can('vote.admincertify')
                     <x-menu.item label="Admin Certify All" link="{{route('tracker.vote.adminquickvote', $part)}}" />

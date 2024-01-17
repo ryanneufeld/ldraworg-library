@@ -3,6 +3,7 @@
 import preset from './vendor/filament/support/tailwind.config.preset'
 
 export default {
+  darkMode: 'class',
   content: [
     "./app/Filament/**/*.php",
     "./app/Livewire/**/*.php",
