@@ -14,7 +14,7 @@
         @case('warning')
             <x-fas-exclamation-triangle class="w-14 h-14 text-yellow-800" />
             @break
-        @case('error')
+        @case('info')
             <x-fas-info class="w-14 h-14 text-blue-800" />
             @break
     @endswitch

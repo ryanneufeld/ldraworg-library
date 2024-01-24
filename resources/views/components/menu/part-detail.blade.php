@@ -33,5 +33,5 @@
             @endif
         </x-menu.item>
     @endcanany
-    <x-menu.item label="3D View" link="" />
+    <x-menu.item label="3D View" x-show="webgl" x-cloak wire:click="$dispatch('open-modal', { id: 'ldbi' })" />
 </x-menu>

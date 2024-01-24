@@ -43,7 +43,7 @@ class PartEventsShow extends Component implements HasForms, HasTable
                     ->state(
                         function (PartEvent $event) {
                             if (!is_null($event->part)) {
-                                return asset("images/library/{$event->part->libFolder()}" . substr($event->part->filename, 0, -4) . '_thumb.png');
+                                return version("images/library/{$event->part->libFolder()}" . substr($event->part->filename, 0, -4) . '_thumb.png');
                             } else {
                                 return '';
                             }

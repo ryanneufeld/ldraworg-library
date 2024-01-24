@@ -173,11 +173,9 @@ LDrawOrg.Model.prototype.render = function() {
   }
 }
 
-LDrawOrg.Model.prototype.onChange = function(eleW, eleH) {
-  var styles = getComputedStyle(this.container);
-  var w = eleW || this.container.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight);
-  var h = eleH || this.container.clientHeight - parseFloat(styles.paddingTop) - parseFloat(styles.paddingBottom);
-
+LDrawOrg.Model.prototype.onChange = function() {
+  var w = this.container.clientWidth;
+  var h = this.container.clientHeight;
   this.renderer.setSize(w, h);
   this.camera.left = -w/2;
   this.camera.right = w/2;

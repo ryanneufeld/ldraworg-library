@@ -1,3 +1,4 @@
+/*
 var part_paths;
 
 let canvas = document.getElementById('model-canvas');
@@ -93,3 +94,4 @@ $( function() {
   });
 
 });
+*/

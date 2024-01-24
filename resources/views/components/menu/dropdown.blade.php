@@ -18,9 +18,7 @@
         x-show="{{$mname}}" 
         x-transition:enter="transition ease-out duration-100" 
         x-transition:enter-start="transform opacity-0"
-        @if($level > 0)
-            x-cloak
-        @endif
+        x-cloak
     >
     {{$slot}}
     </ul>

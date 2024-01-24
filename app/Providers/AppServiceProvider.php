@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Mail;
@@ -25,9 +27,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if ($this->app->environment('local')) {
-            //Mail::alwaysTo('orion@ldraw.org');
-        }
         Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
         //Model::preventLazyLoading(! $this->app->isProduction());
     }
