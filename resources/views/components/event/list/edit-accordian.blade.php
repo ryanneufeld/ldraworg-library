@@ -1,15 +1,14 @@
 @props(['changes'])
-<div class="ui accordion">
-    <div class="title">
-        <i class="dropdown icon"></i>
+<x-accordion id="officialParts">
+    <x-slot name="header">
         Header Edits
-    </div>
-    <div class="content">
+    </x-slot>
+    <p>
         @foreach($changes['old'] as $field => $value)
             {{$field}}:<br> 
-            <code>{!! nl2br($value) !!}</code><br>
+            <code class="break-words font-mono">{!! nl2br($value) !!}</code><br>
             to<br>
-            <code>{!! nl2br($changes['new'][$field]) !!}</code><br>
+            <code class="break-words font-mono">{!! nl2br($changes['new'][$field]) !!}</code><br>
         @endforeach
-    </div>
-</div>
+    </p>
+</x-accordion>

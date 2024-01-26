@@ -27,10 +27,13 @@
         <meta name="twitter:image" content="{{$image}}">
     @endpush
 
-    <x-menu.part-detail :part="$part" />
-    <div class="flex flex-col space-y-2">
+    <div class="flex flex-col space-y-4">
+        <x-menu.part-detail :part="$part" />
         <div class="text-3xl font-bold">
-            <span class="{{$lib}}">
+            <span @class([
+                'bg-lime-200' => !$part->isUnofficial(),
+                'bg-yellow-200' => $part->isUnofficial()
+            ])>
                 {{ucfirst($lib)}} File <span id="filename">{{ $part->filename }}</span>
             </span>
         </div>
@@ -99,8 +102,12 @@
                 <div class="text-lg font-bold">File Header:</div>
                 <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
             </div>    
-            <div class="px-2 justify-self-end">
-                <a href="{{$image}}">
+            <div @class([
+                'mx-4 place-content-center justify-self-end',
+                'bg-lime-200' => !$part->isUnofficial(),
+                'bg-yellow-200' => $part->isUnofficial()
+            ])>
+                <a class="m-4" href="{{$image}}">
                     <img src="{{$image}}" alt='part image' title="{{ $part->description }}" >
                 </a>
             </div>
@@ -134,20 +141,15 @@
             @else
                 None
             @endif
-        @endif
-        <div class="ui clearing basic segment"></div>
-        @if($part->isUnofficial())
             <livewire:part.detail-table title="Unofficial parent parts" :$part parents/>
             <livewire:part.detail-table title="Unofficial subparts" :$part :missing=" $part->missing_parts" />
-            <div class="ui accordion">
-                <div class="text-md font-bold">
+            <x-accordion id="officialParts">
+                <x-slot name="header" class="text-md font-bold">
                     Official parents and subparts
-                </div>
-                <div class="content">
-                    <livewire:part.detail-table title="Official parent parts" :$part official parents/>
-                    <livewire:part.detail-table title="Official subparts" :$part official/>
-                </div>
-            </div>
+                </x-slot>
+                <livewire:part.detail-table title="Official parent parts" :$part official parents/>
+                <livewire:part.detail-table title="Official subparts" :$part official/>
+            </x-accordion>
         @else
             <livewire:part.detail-table title="Official parent parts" :$part official parents/>
             <livewire:part.detail-table title="Official subparts" :$part official/>
