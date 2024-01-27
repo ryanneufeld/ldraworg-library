@@ -11,10 +11,8 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table as Table;
-use Filament\Support\Markdown;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
 
 class DetailTable extends Component implements HasForms, HasTable
 {
@@ -74,11 +72,15 @@ class DetailTable extends Component implements HasForms, HasTable
                     ->label('Status'),
                 
             ])
+            ->recordUrl(
+                fn (Part $p): string => 
+                    route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
+            )
             ->striped();
     }
 
     public function render(): View
     {
-        return view('livewire.part.table');
+        return view('livewire.part.detail-table');
     }
 }

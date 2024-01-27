@@ -27,7 +27,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::middleware(['auth', 'currentlic'])->get('/submit', [PartController::class, 'create'])->name('submit');
     Route::middleware(['auth', 'currentlic'])->post('/submit', [PartController::class, 'store'])->name('store');
 
-    Route::get('/list', [PartController::class, 'index'])->name('index');
+    Route::get('/list', \App\Livewire\Part\PartList::class)->name('index');
     Route::get('/weekly', \App\Http\Controllers\Part\WeeklyPartController::class)->name('weekly');
     Route::get('/history', \App\Http\Controllers\TrackerHistoryController::class)->name('history');
     Route::get('/summary/{summary}', [\App\Http\Controllers\ReviewSummaryController::class, 'show'])->name('summary');
@@ -57,7 +57,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
     Route::middleware(['auth'])->get('/{part}/adminquickvote', [VoteController::class, 'adminquickvote'])->name('vote.adminquickvote');
 
-    Route::get('/activity', PartEventController::class)->name('activity');
+    Route::get('/activity', \App\Livewire\PartEventsShow::class)->name('activity');
 
     Route::get('/next-release', \App\Http\Controllers\Part\NonAdminReleaseController::class)->name('next-release');
 
@@ -98,7 +98,7 @@ Route::get('/search/suffix', SuffixSearchController::class)->name('search.suffix
 Route::prefix('official')->name('official.')->group(function () {
     Route::redirect('/search', '/search/part');
     Route::redirect('/suffixsearch', '/search/suffix');
-    Route::get('/list', [PartController::class, 'index'])->name('index');
+    Route::get('/list', \App\Livewire\Part\PartList::class)->name('index');
     Route::get('/{officialpart}', \App\Livewire\Part\Show::class)->name('show.filename');
     Route::get('/{part}', \App\Livewire\Part\Show::class)->name('show');
 });
