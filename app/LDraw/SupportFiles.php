@@ -17,7 +17,7 @@ class SupportFiles {
                 continue;
             } 
             $num = basename($part->filename);
-            $csv .= "{$num},{$part->description}," . route(str_replace('/', '', $part->libFolder()) . ".download", $part->filename) . "," . asset('images/library/'. $part->libFolder() . substr($part->filename, 0, -4) . '.png') . "\n";
+            $csv .= "{$num},{$part->description}," . route("{$part->libFolder()}.download", $part->filename) . "," . asset("images/library/{$part->libFolder()}/" . substr($part->filename, 0, -4) . '.png') . "\n";
         }
         return $csv;
     }

@@ -34,7 +34,7 @@
                 'bg-lime-200' => !$part->isUnofficial(),
                 'bg-yellow-200' => $part->isUnofficial()
             ])>
-                {{ucfirst(str_replace('/', '', $part->libFolder()))}} File <span id="filename">{{ $part->filename }}</span>
+                {{ucfirst($part->libFolder())}} File <span id="filename">{{ $part->filename }}</span>
             </span>
         </div>
        

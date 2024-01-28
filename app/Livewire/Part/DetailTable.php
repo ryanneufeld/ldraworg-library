@@ -52,7 +52,7 @@ class DetailTable extends Component implements HasForms, HasTable
             ->columns([
                 ImageColumn::make('image')
                     ->state( 
-                        fn (Part $p): string => asset("images/library/{$p->libFolder()}" . substr($p->filename, 0, -4) . '_thumb.png')
+                        fn (Part $p): string => asset("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
                     )
                     ->extraImgAttributes(['class' => 'object-scale-down']),
                 TextColumn::make('filename')

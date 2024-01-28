@@ -85,9 +85,8 @@ class Show extends Component implements HasForms
         $this->part->load('events', 'history', 'subparts', 'parents');
         $this->part->events->load('part_event_type', 'user', 'part', 'vote_type');
         $this->part->votes->load('user', 'type');
-        $lib = str_replace('/', '', $part->libFolder());
         $this->image = 
-            $part->isTexmap() ? route("{$lib}.download", $part->filename) : version("images/library/{$lib}/" . substr($part->filename, 0, -4) . '.png');
+            $part->isTexmap() ? route("{$part->libFolder()}.download", $part->filename) : version("images/library/{$part->libFolder()}/" . substr($part->filename, 0, -4) . '.png');
     }
 
     public function postVote() {

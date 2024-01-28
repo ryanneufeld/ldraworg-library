@@ -273,7 +273,7 @@ class Part extends Model
       return $matches[1] ?? '';
     }
     public function libFolder(): string {
-      return $this->isUnofficial() ? 'unofficial/' : 'official/';
+      return $this->isUnofficial() ? 'unofficial' : 'official';
     }
         
     public function name(): string {
