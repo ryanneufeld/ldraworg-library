@@ -11,6 +11,7 @@ use App\Http\Requests\PartReleaseCreateStep2Request;
 use App\Models\Part;
 use App\Jobs\MakePartRelease;
 use App\LDraw\Check\PartChecker;
+use App\Models\PartRelease;
 use Illuminate\Database\Eloquent\Collection;
 
 class PartReleaseController extends Controller
@@ -25,7 +26,7 @@ class PartReleaseController extends Controller
         Part::unofficial()->where('vote_sort', 1)
             ->orderBy('part_type_id')
             ->orderBy('filename')
-            ->chunk(100, function (Collection $parts) use (&$results) {
+            ->chunk(50, function (Collection $parts) use (&$results) {
                 foreach($parts as $part) {
                     $check = $this->checker->checkCanRelease($part);
                     $warnings = [];//$this->checker->historyEventsCrossCheck($part);
