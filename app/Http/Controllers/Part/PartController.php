@@ -31,33 +31,6 @@ class PartController extends Controller
     ) {}
     
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
-    {
-        $unofficial = $request->route()->getName() == 'tracker.index';
-
-        return view('part.list', compact('unofficial'));
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Part  $part
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Part $part)
-    {
-        $part->load('events', 'history', 'subparts', 'parents');
-        $part->events->load('part_event_type', 'user', 'part', 'vote_type');
-        $part->user->load('license');
-        $part->votes->load('user', 'type');
-        return view('part.show', compact('part'));
-    }
-
-    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -270,44 +243,5 @@ class PartController extends Controller
 
         return redirect()->route('tracker.show', [$part])->with('status', 'No changes made');
 
-    }
-
-    public function delete(Part $part) {
-        return view('part.delete', compact('part'));
-    }
-    
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Part  $part
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Part $part)
-    {
-        $this->authorize('delete', $part);
-        if (is_null($part->official_part_id) && $part->parents->count() > 0) {
-            return back();
-        }
-        $part->delete();
-        return redirect()->route('tracker.activity');
-    }
-
-    /**
-     * Update the image of the part.
-     *
-     * @param  \App\Models\Part  $part
-     * @return \Illuminate\Http\Response
-     */
-    public function updateimage(Part $part)
-    {
-        $this->authorize('update', $part);
-        $this->manager->updatePartImage($part);
-        return redirect()->route('tracker.show', [$part])->with('status', 'Part image updated');
-    }
-    
-    public function updatesubparts (Part $part) {
-        $this->authorize('update', $part);
-        $this->manager->loadSubpartsFromBody($part);
-        return redirect()->route('tracker.show', [$part])->with('status', 'Part dependencies updated');
     }
 }

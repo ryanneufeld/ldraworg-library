@@ -4,6 +4,7 @@ namespace App\Livewire\Part;
 
 use App\Events\PartComment;
 use App\Events\PartReviewed;
+use App\LDraw\PartManager;
 use App\Models\Part;
 use App\Models\Vote;
 use App\Models\VoteType;
@@ -15,6 +16,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Get;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -89,8 +91,38 @@ class Show extends Component implements HasForms
             $part->isTexmap() ? route("{$part->libFolder()}.download", $part->filename) : version("images/library/{$part->libFolder()}/" . substr($part->filename, 0, -4) . '.png');
     }
 
+    public function deletePart(): void
+    {
+        if (
+            !$this->part->isUnofficial() ||
+            (is_null($this->part->official_part_id) && $this->part->parents->count() > 0) ||
+            !Auth::check() || 
+            Auth::user()->cannot('part.delete')
+        ) {
+            $this->dispatch('close-modal', ['id' => 'delete-part']);
+            return;
+        }
+        $this->part->delete();
+        $this->redirectRoute('tracker.activity');
+    }
+
+    public function updateImage(): void
+    {
+        $this->authorize('update', $this->part);
+        app(PartManager::class)->updatePartImage($this->part);
+        session()->flash('status', 'Image updated');
+        $this->redirectRoute(($this->part->isUnofficial() ? 'tracker' : 'official') . '.show', [$this->part]);
+    }
+    
+    public function updateSubparts(): void 
+    {
+        $this->authorize('update', $this->part);
+        app(PartManager::class)->loadSubpartsFromBody($this->part);
+        $this->redirectRoute(($this->part->isUnofficial() ? 'tracker' : 'official') . '.show', [$this->part]);
+    }
+
     public function postVote() {
-        if (!Auth::check()) {
+        if (!$this->part->isUnofficial() || !Auth::check()) {
             return;
         }
         $u = Auth::user();

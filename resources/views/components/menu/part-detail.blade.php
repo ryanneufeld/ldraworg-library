@@ -20,15 +20,15 @@
                 @endcanany
             @endif
             @can('part.edit.header')
-                <x-menu.item label="Regenerate Image" link="{{route('tracker.updateimage', $part)}}" />
-                <x-menu.item label="Regenerate Subpart List" link="{{route('tracker.updatesubparts', $part)}}" />
+                <x-menu.item label="Regenerate Image" wire:click="updateImage" />
+                <x-menu.item label="Regenerate Subpart List" wire:click="updateSubparts" />
             @endcan  
             @can('part.edit.number')
                 <x-menu.item label="Renumber" link="{{route('tracker.move.edit', $part)}}" />
             @endcan
             @if($part->isUnofficial())
                 @can('part.delete')
-                    <x-menu.item label="Delete" link="{{route('tracker.delete', $part)}}" />
+                    <x-menu.item label="Delete" wire:click="$dispatch('open-modal', { id: 'delete-part' })" />
                 @endcan
             @endif
         </x-menu.item>
