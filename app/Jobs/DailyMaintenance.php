@@ -57,7 +57,6 @@ class DailyMaintenance implements ShouldQueue
             );
         foreach ($images as $image) {
             if (!$in_use_files->contains($image) && !$in_use_files->contains(str_replace('_thumb.png', '.png', $image))) {
-                dd($image);
                 Storage::disk('images')->delete($image);
             }
         }
