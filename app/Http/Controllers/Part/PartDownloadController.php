@@ -17,6 +17,12 @@ class PartDownloadController extends Controller
     public function __invoke(Part $part) {
         return response()->streamDownload(function() use ($part) { 
             echo $part->get(); 
-        }, basename($part->filename), ['Content-Type' => $part->isTexmap() ? 'image/png' : 'text/plain']);
+        }, 
+	basename($part->filename), 
+	[
+	    'Content-Type' => $part->isTexmap() ? 'image/png' : 'text/plain',
+            'Last-Modified' => $part->updated_at
+
+        ]);
     }
 }

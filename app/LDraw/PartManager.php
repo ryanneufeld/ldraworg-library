@@ -13,8 +13,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Image\Image;
+use Spatie\Image\Enums\Fit;
 use Spatie\ImageOptimizer\OptimizerChain;
 use Spatie\ImageOptimizer\Optimizers\Optipng;
+
 class PartManager
 {
     public function __construct(
@@ -155,7 +157,7 @@ class PartManager
         $imageThumbPath = substr($imagePath, 0, -4) . '_thumb.png';
         imagepng($image, $imagePath);
         $this->imageOptimize($imagePath);
-        Image::load($imagePath)->width(config('ldraw.image.thumb.width'))->height(config('ldraw.image.thumb.height'))->save($imageThumbPath);
+        Image::load($imagePath)->fit(Fit::Contain, config('ldraw.image.thumb.width'), config('ldraw.image.thumb.height'))->save($imageThumbPath);
         $this->imageOptimize($imageThumbPath);
     }
 
