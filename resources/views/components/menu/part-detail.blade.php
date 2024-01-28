@@ -2,7 +2,7 @@
 <x-menu>
     <x-menu.item label="Download" link="{{route($part->isUnofficial() ? 'unofficial.download' : 'official.download', $part->filename)}}" />
     @if(Auth::check() && $part->isUnofficial() && (Auth::user()->can('create', [\App\Models\Vote::class, $part]) || Auth::user()->can('update', [$part->votes()->firstWhere('user_id', Auth::user()->id)])))
-        <x-menu.item label="Review/Comment" link="{{ $part->votes()->firstWhere('user_id', Auth::user()->id) ? route('tracker.vote.edit', $part->votes()->firstWhere('user_id', Auth::user()->id)) : route('tracker.vote.create',$part->id) }}" />   
+        <x-menu.item label="Review/Comment" x-on:click="document.getElementById('voteForm').scrollIntoView()" />   
     @endif
     @if($part->hasPatterns() || $part->hasComposites() || $part->hasStickerShortcuts())
         <x-menu.item label="View Patterns/Shortcuts" link="{{route('search.suffix', ['s' => $part->basepart()])}}" />

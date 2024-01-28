@@ -34,7 +34,7 @@
                 'bg-lime-200' => !$part->isUnofficial(),
                 'bg-yellow-200' => $part->isUnofficial()
             ])>
-                {{ucfirst($lib)}} File <span id="filename">{{ $part->filename }}</span>
+                {{ucfirst(str_replace('/', '', $part->libFolder()))}} File <span id="filename">{{ $part->filename }}</span>
             </span>
         </div>
        
@@ -156,6 +156,15 @@
         @endif    
         @if($part->isUnofficial())
             <x-event.list title="File events" :events="$part->events" />
+            <div id="voteForm"></div>
+            @if (Auth::check() && (Auth::user()->can('create', [\App\Models\Vote::class, $part]) || Auth::user()->can('update', [$part->votes()->firstWhere('user_id', Auth::user()->id)])))    
+                <form wire:submit="postVote">
+                    {{ $this->form }}
+                    <button class="border rounded" type="submit">
+                        Submit
+                    </button>
+                </form>
+            @endif
         @endif
         <x-menu.part-detail :part="$part" />
         <x-part.attribution :part="$part" />
