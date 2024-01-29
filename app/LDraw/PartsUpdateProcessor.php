@@ -12,6 +12,7 @@ use App\Models\PartHistory;
 use App\Models\PartType;
 use App\Models\User;
 use App\LDraw\PartManager;
+use Illuminate\Support\Facades\Log;
 
 class PartsUpdateProcessor
 {
@@ -281,17 +282,17 @@ class PartsUpdateProcessor
         $notes .= "\n" . 
             "Moved Parts\n";
         foreach ($data['moved_parts'] as $m) {
-            $notes .= "   {$m['name']}" . str_repeat(' ', 27 - strlen($m['name'])) . "{$m['movedto']}\n"; 
+            $notes .= "   {$m['name']}" . str_repeat(' ', max(27 - strlen($m['name']), 0)) . "{$m['movedto']}\n"; 
         }
         $notes .= "\n" . 
             "Renamed Parts\n";
-        foreach ($data['rename'] as $m) {
-            $notes .= "   {$m['name']}" . str_repeat(' ', 27 - strlen($m['name'])) . "{$m['old_description']}\n" .
+        foreach ($data['rename'] as $m) {    
+            $notes .= "   {$m['name']}" . str_repeat(' ', max(27 - strlen($m['name']), 0)) . "{$m['old_description']}\n" .
             "   changed to    {$m['decription']}\n";    }  
         $notes .= "\n" . 
             "Other Fixed Parts\n";
         foreach ($data['fixed'] as $m) {
-            $notes .= "   {$m['name']}" . str_repeat(' ', 27 - strlen($m['name'])) . "{$m['decription']}\n";
+            $notes .= "   {$m['name']}" . str_repeat(' ', max(27 - strlen($m['name']), 0)) . "{$m['decription']}\n";
         }
         if ($data['minor_edits']['license'] > 0 || $data['minor_edits']['name'] > 0 || $data['minor_edits']['keywords'] > 0) {
             $notes .= "\nMinor Edits\n";
