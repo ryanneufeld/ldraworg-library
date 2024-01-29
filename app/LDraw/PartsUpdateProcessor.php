@@ -3,6 +3,7 @@
 namespace App\LDraw;
 
 use App\Events\PartReleased;
+use App\Jobs\UpdatePartImage;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\PartRelease;
@@ -93,10 +94,10 @@ class PartsUpdateProcessor
     {
         $affectedParts = new Collection;
         foreach($this->release->parts as $part){
-            $affectedParts = $affectedParts->concat($part->parentsAndSelf)->unique();
+            $affectedParts = $affectedParts->concat($part->ancestorsAndSelf)->unique();
         }
         $affectedParts->each(function (Part $p){
-            $this->manager->updatePartImage($p);
+            UpdatePartImage::dispatch($p);
         });
     }
     
