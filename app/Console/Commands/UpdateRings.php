@@ -7,10 +7,13 @@ use App\Events\PartSubmitted;
 use App\Jobs\UpdateZip;
 use Illuminate\Console\Command;
 use App\LDraw\PartManager;
+use App\LDraw\ZipFiles;
 use App\Models\Part;
 use App\Models\PartHistory;
 use App\Models\User;
 use App\Models\VoteType;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class UpdateRings extends Command
 {
@@ -65,7 +68,6 @@ class UpdateRings extends Command
             $newring->refresh();
             $pm->updatePartImage($newring);
             $newring->generateHeader();
-            UpdateZip::dispatch($newring);
             PartSubmitted::dispatch($newring, $u, "Update ring primitives");
 
             // Fast track new ring
@@ -83,12 +85,60 @@ class UpdateRings extends Command
             $oldring->save();
             $oldring->refresh();
             $oldring->generateHeader();
-            UpdateZip::dispatch($oldring);
             PartSubmitted::dispatch($oldring, $u, "Update ring primitives");
 
             // Fast track old rings
             $u->castVote($oldring, $ftVote);
             PartReviewed::dispatch($oldring, $u, 'T');
         }
+
+        $rings = Part::unofficial()
+            ->whereRelation('type', 'folder', 'LIKE', 'p/%')
+            ->whereRaw('filename REGEXP "' . $pattern . '"')
+            ->where('description', 'LIKE', '%(Obsolete)')
+            ->has('parents')
+            ->get();
+        
+        $fixedparts = new Collection();
+        $newfixes = new Collection();
+
+        // Fix all parts that refer to the old rings
+        foreach ($rings as $ring) {
+            $newname = preg_replace("#{$pattern}#", $ring->type->folder . '$2ring$3.dat', $ring->filename);
+            $newring = Part::unofficial()->firstWhere('filename', $newname);
+            if (!is_null($newring)) {
+                foreach($ring->parents as $p) {
+                    if (!$p->isUnofficial() && is_null($p->unofficial_part_id)) {
+                        $p = $pm->addOrChangePartFromText($p->get());
+                        $newfixes->push($p);
+                    }
+                    $p->body->body = str_replace($ring->name(), $newring->name(), $p->body->body);
+                    $p->body->save();
+                    $fixedparts->push($p);                        
+                }
+            }
+        }
+
+        foreach ($fixedparts as $p) {
+            $pm->loadSubpartsFromBody($p);
+            PartHistory::create([
+                'part_id' => $p->id,
+                'user_id' => $u->id,
+                'comment' => "Update ring primitives",
+            ]);
+            $p->refresh();
+            $p->generateHeader();
+        }
+
+        foreach($newfixes as $p) {
+            PartSubmitted::dispatch($p, $u, "Update ring primitives");            
+            $u->castVote($p, $ftVote);
+            PartReviewed::dispatch($p, $u, 'T');
+        }
+
+        // Reset the unofficial zip file
+        Storage::disk('library')->delete('unofficial/ldrawunf.zip');
+        ZipFiles::unofficialZip(Part::unofficial()->first());
+        
     }
 }
