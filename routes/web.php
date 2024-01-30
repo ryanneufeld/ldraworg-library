@@ -23,8 +23,8 @@ Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name(
 Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::view('/', 'tracker.main')->name('main');
 
-    Route::middleware(['auth', 'currentlic'])->get('/submit', [PartController::class, 'create'])->name('submit');
-    Route::middleware(['auth', 'currentlic'])->post('/submit', [PartController::class, 'store'])->name('store');
+    Route::middleware(['auth', 'currentlic'])->get('/submit', \App\Livewire\Part\Submit::class)->name('submit');
+//    Route::middleware(['auth', 'currentlic'])->post('/submit', [PartController::class, 'store'])->name('store');
 
     Route::get('/list', \App\Livewire\Part\PartList::class)->name('index');
     Route::get('/weekly', \App\Http\Controllers\Part\WeeklyPartController::class)->name('weekly');
