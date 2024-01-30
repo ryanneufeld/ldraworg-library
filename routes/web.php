@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Part\PartController;
@@ -12,9 +13,17 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CaConfirmController;
+use App\Http\Controllers\Omr\SetController;
+use App\Http\Controllers\Part\DatDiffController;
+use App\Http\Controllers\Part\NonAdminReleaseController;
 use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartMoveController;
 use App\Http\Controllers\Part\PartDownloadController;
+use App\Http\Controllers\Part\WeeklyPartController;
+use App\Http\Controllers\ReviewSummaryController;
+use App\Http\Controllers\TrackerHistoryController;
+use App\Http\Controllers\UserDashboardController;
+use App\Livewire\Part\Show;
 
 Route::view('/', 'index')->name('index');
 
@@ -28,9 +37,9 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::middleware(['auth', 'currentlic'])->post('/submit', [PartController::class, 'store'])->name('store');
 
     Route::get('/list', [PartController::class, 'index'])->name('index');
-    Route::get('/weekly', \App\Http\Controllers\Part\WeeklyPartController::class)->name('weekly');
-    Route::get('/history', \App\Http\Controllers\TrackerHistoryController::class)->name('history');
-    Route::get('/summary/{summary}', [\App\Http\Controllers\ReviewSummaryController::class, 'show'])->name('summary');
+    Route::get('/weekly', WeeklyPartController::class)->name('weekly');
+    Route::get('/history', TrackerHistoryController::class)->name('history');
+    Route::get('/summary/{summary}', [ReviewSummaryController::class, 'show'])->name('summary');
 
     Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'edit'])->name('edit');
     Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'update'])->name('update');
@@ -59,33 +68,34 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
     Route::get('/activity', PartEventController::class)->name('activity');
 
-    Route::get('/next-release', \App\Http\Controllers\Part\NonAdminReleaseController::class)->name('next-release');
+    Route::get('/next-release', NonAdminReleaseController::class)->name('next-release');
 
     Route::middleware(['can:release.create'])->get('/release/create', [PartReleaseController::class, 'create'])->name('release.create');
     Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');
     Route::middleware(['can:release.store'])->post('/release/store', [PartReleaseController::class, 'store'])->name('release.store');
     
-    Route::get('/{part}/diff/{part2}', [\App\Http\Controllers\Part\DatDiffController::class, 'show'])->name('datdiff.download');
-    Route::get('/diff', [\App\Http\Controllers\Part\DatDiffController::class, 'index'])->name('datdiff');
+    Route::get('/{part}/diff/{part2}', [DatDiffController::class, 'show'])->name('datdiff.download');
+    Route::get('/diff', [DatDiffController::class, 'index'])->name('datdiff');
 
-    Route::get('/{unofficialpart}', \App\Livewire\Part\Show::class)->name('show.filename');
-    Route::get('/{part}', \App\Livewire\Part\Show::class)->name('show');
+    Route::get('/{unofficialpart}', Show::class)->name('show.filename');
+    Route::get('/{part}', Show::class)->name('show');
 });
 
 Route::prefix('omr')->name('omr.')->group(function () {
     Route::view('/', 'omr.main')->name('main');
-    Route::resource('sets', \App\Http\Controllers\Omr\SetController::class)->only(['index', 'show']);
+    Route::resource('sets', SetController::class)->only(['index', 'show']);
+    Route::get('/set/{setnumber}', [SetController::class, 'show'])->name('show.setnumber');
 });
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('dashboard', \App\Http\Controllers\AdminDashboardController::class)->middleware('can:admin.view-dashboard')->name('dashboard');
+    Route::get('dashboard', AdminDashboardController::class)->middleware('can:admin.view-dashboard')->name('dashboard');
     Route::resource('users', UserController::class);
     Route::resource('roles', RoleController::class);
-    Route::resource('review-summaries', \App\Http\Controllers\ReviewSummaryController::class)->except(['create', 'show']);
+    Route::resource('review-summaries', ReviewSummaryController::class)->except(['create', 'show']);
 });
 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
-    Route::get('/', \App\Http\Controllers\UserDashboardController::class)->name('index');
+    Route::get('/', UserDashboardController::class)->name('index');
 });
 
 Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
@@ -99,8 +109,8 @@ Route::prefix('official')->name('official.')->group(function () {
     Route::redirect('/search', '/search/part');
     Route::redirect('/suffixsearch', '/search/suffix');
     Route::get('/list', [PartController::class, 'index'])->name('index');
-    Route::get('/{officialpart}', \App\Livewire\Part\Show::class)->name('show.filename');
-    Route::get('/{part}', \App\Livewire\Part\Show::class)->name('show');
+    Route::get('/{officialpart}', Show::class)->name('show.filename');
+    Route::get('/{part}', Show::class)->name('show');
 });
 
 Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
