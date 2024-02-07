@@ -16,13 +16,17 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Get;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\Rule;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Livewire\Component;
 
-class Show extends Component implements HasForms
+class Show extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
+    use InteractsWithTable;
 
     public Part $part;
     public ?string $comment;
@@ -80,13 +84,28 @@ class Show extends Component implements HasForms
             ->model(Vote::class);
     }
     
+    public function table(Table $table): Table
+    {
+        return $table
+            ->relationship(fn (): HasMany => $this->part->votes())
+            ->columns([
+                TextColumn::make('user.name')
+                    ->label('User'),
+                TextColumn::make('type.name')
+                    ->label('Vote')
+            ])
+            ->heading('Current Reviews:')
+            ->emptyState(view('tables.empty', ['none' => 'None']))
+            ->paginated(false)
+            ->striped();
+    }
+
     public function mount(Part $part)
     {
         $this->form->fill();
         $this->part = $part;
-        $this->part->load('events', 'history', 'subparts', 'parents');
+        $this->part->load('events', 'history');
         $this->part->events->load('part_event_type', 'user', 'part', 'vote_type');
-        $this->part->votes->load('user', 'type');
         $this->image = 
             $part->isTexmap() ? route("{$part->libFolder()}.download", $part->filename) : version("images/library/{$part->libFolder()}/" . substr($part->filename, 0, -4) . '.png');
     }

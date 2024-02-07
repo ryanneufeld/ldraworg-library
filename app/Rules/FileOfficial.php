@@ -52,7 +52,7 @@ class FileOfficial implements DataAwareRule, ValidationRule
         if ($official_exists && !$unofficial_exists && $cannotfix) {
             $fail('partcheck.fix.unofficial')->translate();
         }
-        elseif ($official_exists && !$unofficial_exists && (!array_key_exists('officialfix', $this->data) || $this->data['officialfix'] == false)) {
+        elseif ($official_exists && !$unofficial_exists && (!array_key_exists('officialfix', $this->data['options']) || $this->data['options']['officialfix'] == false)) {
             $fail('partcheck.fix.checked')->translate();
         }  
     }

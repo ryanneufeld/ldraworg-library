@@ -14,6 +14,12 @@ use App\Http\Controllers\CaConfirmController;
 use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartMoveController;
 use App\Http\Controllers\Part\PartDownloadController;
+use App\Http\Controllers\ReviewSummaryController;
+use App\Http\Controllers\TrackerHistoryController;
+use App\Livewire\Part\PartList;
+use App\Livewire\Part\Show;
+use App\Livewire\Part\Submit;
+use App\Livewire\Part\Weekly;
 
 Route::view('/', 'index')->name('index');
 
@@ -23,13 +29,13 @@ Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name(
 Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::view('/', 'tracker.main')->name('main');
 
-    Route::middleware(['auth', 'currentlic'])->get('/submit', \App\Livewire\Part\Submit::class)->name('submit');
+    Route::middleware(['auth', 'currentlic'])->get('/submit', Submit::class)->name('submit');
 //    Route::middleware(['auth', 'currentlic'])->post('/submit', [PartController::class, 'store'])->name('store');
 
-    Route::get('/list', \App\Livewire\Part\PartList::class)->name('index');
-    Route::get('/weekly', \App\Http\Controllers\Part\WeeklyPartController::class)->name('weekly');
-    Route::get('/history', \App\Http\Controllers\TrackerHistoryController::class)->name('history');
-    Route::get('/summary/{summary}', [\App\Http\Controllers\ReviewSummaryController::class, 'show'])->name('summary');
+    Route::get('/list', PartList::class)->name('index');
+    Route::get('/weekly', Weekly::class)->name('weekly');
+    Route::get('/history', TrackerHistoryController::class)->name('history');
+    Route::get('/summary/{summary}', [ReviewSummaryController::class, 'show'])->name('summary');
 
     Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'edit'])->name('edit');
     Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'update'])->name('update');
@@ -59,8 +65,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::get('/{part}/diff/{part2}', [\App\Http\Controllers\Part\DatDiffController::class, 'show'])->name('datdiff.download');
     Route::get('/diff', [\App\Http\Controllers\Part\DatDiffController::class, 'index'])->name('datdiff');
 
-    Route::get('/{unofficialpart}', \App\Livewire\Part\Show::class)->name('show.filename');
-    Route::get('/{part}', \App\Livewire\Part\Show::class)->name('show');
+    Route::get('/{unofficialpart}', Show::class)->name('show.filename');
+    Route::get('/{part}', Show::class)->name('show');
 });
 
 Route::prefix('omr')->name('omr.')->group(function () {

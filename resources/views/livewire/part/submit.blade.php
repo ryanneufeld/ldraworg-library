@@ -13,7 +13,15 @@
         Use this form to upload <span class="fold-bold">new</span> files to the 
         Parts Tracker and to update already-submitted <span class="fold-bold">unofficial</span> files.
     </p>
-
+    <div>
+        @if (count($this->part_errors) > 0)
+            <x-message type="error">
+                @foreach($this->part_errors as $error)
+                    {{$error}}<br>
+                @endforeach
+            </x-message>
+        @endif
+    </div>
     <form wire:submit="create">
         {{ $this->form }}
 
@@ -27,17 +35,30 @@
         <a href="mailto:parts@ldraw.org">parts@ldraw.org</a>, and it will be manually posted to the tracker.
     </p>
     <p>
-        You must be registered as an LDraw.org user and a member of the Submitter group to use this form.  
-        To register as an LDraw user go to the <A HREF="http://www.ldraw.org/user.php?op=check_age&module=NS-NewUser">
-        LDraw.org registration area</A>. 
-        To become a member of the Submitter group please email 
-        <A HREF="mailto:parts@ldraw.org">parts@ldraw.org</A>, including your LDraw username.
-    </p>
-    <p>
-        Or you can submit your files to
-        <A HREF="mailto:parts@ldraw.org">parts@ldraw.org</A>, and they will be manually posted.
-    </p>
-    <p>
         Uploaded files should appear almost immediately in the Parts Tracker list.
     </p>
+    <x-filament::modal id="post-submit" width="5xl" :close-by-clicking-away="false" :close-button="false">
+        <x-slot name="trigger">
+            <x-filament::button>
+                Open modal
+            </x-filament::button>
+        </x-slot>
+        <x-slot name="heading">
+            Submit Successful
+        </x-slot>
+        <p>
+            The following files passed validation checks and have been submitted to the Parts Tracker
+        </p>
+        <div class="grid grid-cols-3">
+            @foreach($submitted_parts as $p)
+                <div class="border px-2"><img src="{{$p['image']}}"></div>
+                <div class="border px-2">{{$p['filename']}}</div>
+                <div class="border px-2"><a href="{{$p['route']}}">{{$p['description']}}</a></div>
+            @endforeach    
+        </div>
+        <x-filament::button wire:click="postSubmit">
+            Ok
+        </x-filament::button>
+    </x-filament::modal>
+
 </div>

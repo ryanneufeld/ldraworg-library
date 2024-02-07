@@ -97,62 +97,38 @@
                 @endcan    
             @endif
         </div>
-        <div class="grid grid-cols-2 justify-stretch">
-            <div class="justify-self-start">
-                <div class="text-lg font-bold">File Header:</div>
-                <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
-            </div>    
+        <div class="flex flex-row-reverse flex-wrap">
             <div @class([
-                'mx-4 place-content-center justify-self-end',
+                'shrink p-4 place-content-center place-self-center border rounded',
                 'bg-lime-200' => !$part->isUnofficial(),
                 'bg-yellow-200' => $part->isUnofficial()
             ])>
-                <a class="m-4" href="{{$image}}">
+                <a href="{{$image}}">
                     <img src="{{$image}}" alt='part image' title="{{ $part->description }}" >
                 </a>
             </div>
+            <div class="justify-self-end">
+                <div class="text-lg font-bold">File Header:</div>
+                <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
+            </div>    
         </div>
         @if($part->isUnofficial())
             <div class="text-lg font-bold">Status:</div>
             <x-part.status :$part show-status /><br>
             <x-part.part-check-message :$part />
-            <div class="text-lg font-bold">Reviewers' certifications:</div>
-            @if ($part->votes->count())
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Vote</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($part->votes as $vote)
-                            <tr>
-                                <td>{{ $vote->user->name }}</td>
-                                    <td @class([
-                                        'green' => $vote->vote_type_code == 'C',
-                                        'red' => $vote->vote_type_code == 'H',
-                                        'olive' => $vote->vote_type_code == 'A' || $vote->vote_type_code == 'T',
-                                    ])>{{ $vote->type->name }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                None
-            @endif
-            <livewire:part.detail-table title="Unofficial parent parts" :$part parents/>
-            <livewire:part.detail-table title="Unofficial subparts" :$part :missing=" $part->missing_parts" />
+            {{$this->table}}
+            <livewire:tables.related-parts title="Unofficial parent parts" :$part parents/>
+            <livewire:tables.related-parts title="Unofficial subparts" :$part />
             <x-accordion id="officialParts">
                 <x-slot name="header" class="text-md font-bold">
                     Official parents and subparts
                 </x-slot>
-                <livewire:part.detail-table title="Official parent parts" :$part official parents/>
-                <livewire:part.detail-table title="Official subparts" :$part official/>
+                <livewire:tables.related-parts title="Official parent parts" :$part official parents/>
+                <livewire:tables.related-parts title="Official subparts" :$part official/>
             </x-accordion>
         @else
-            <livewire:part.detail-table title="Official parent parts" :$part official parents/>
-            <livewire:part.detail-table title="Official subparts" :$part official/>
+            <livewire:tables.related-parts title="Official parent parts" :$part official parents/>
+            <livewire:tables.related-parts title="Official subparts" :$part official/>
         @endif    
         @if($part->isUnofficial())
             <x-event.list title="File events" :events="$part->events" />

@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\DataAwareRule;
 
-use App\Models\PartType;
 use App\Models\Part;
 
 class FileReplace implements DataAwareRule, ValidationRule
@@ -26,6 +25,7 @@ class FileReplace implements DataAwareRule, ValidationRule
      */
     public function setData($data): static
     {
+        dd($data);
         $this->data = $data;
         return $this;
     }
@@ -40,6 +40,7 @@ class FileReplace implements DataAwareRule, ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+        
         if ($value->getMimeType() == 'text/plain') {
             $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
             $unofficial_exists = !is_null(Part::unofficial()->name($part->name)->first());
@@ -47,7 +48,7 @@ class FileReplace implements DataAwareRule, ValidationRule
             $filename = $value->getClientOriginalName();
             $unofficial_exists = !is_null(Part::unofficial()->where('filename', 'LIKE', "%{$filename}")->first());
         }
-        if ($unofficial_exists && (!array_key_exists('replace', $this->data) || $this->data['replace'] == false)) {
+        if ($unofficial_exists && (!array_key_exists('replace', $this->data['options']) || $this->data['options']['replace'] == false)) {
             $fail('partcheck.replace')->translate();
         }  
     }

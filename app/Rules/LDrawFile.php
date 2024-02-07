@@ -41,6 +41,7 @@ class LDrawFile implements ValidationRule, DataAwareRule
         $errors = app(\App\LDraw\Check\PartChecker::class)->check($part);
         foreach($errors ?? [] as $error) {
             $fail($error);
-        }    
+        }
+        dd($errors);    
     }
 }
