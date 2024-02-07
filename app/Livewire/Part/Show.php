@@ -194,6 +194,18 @@ class Show extends Component implements HasForms, HasTable
         }
     }
 
+    public function adminQuickVote()
+    {
+        $this->authorize('admin', [Vote::class, $this->part]);
+        foreach ($this->part->descendantsAndSelf->where('vote_sort', 2) as $p) {
+            Auth::user()->castVote($p, VoteType::firstWhere('code', 'A'));
+            $p->updateVoteData();
+            PartReviewed::dispatch($p, Auth::user(), 'A', null);
+            Auth::user()->notification_parts()->syncWithoutDetaching([$p->id]);
+        }
+        return redirect()->route('tracker.show', $this->part)->with('status', 'Quickvote action complete');
+    }
+
     public function render()
     {
         return view('livewire.part.show')->layout('components.layout.tracker');

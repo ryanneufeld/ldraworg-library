@@ -11,7 +11,7 @@
         <x-menu.dropdown dropdown label="Admin Tools">
             @if($part->isUnofficial() && $part->type->folder == 'parts/' && $part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0)
                 @can('vote.admincertify')
-                    <x-menu.item label="Admin Certify All" link="{{route('tracker.vote.adminquickvote', $part)}}" />
+                    <x-menu.item label="Admin Certify All" wire:click="adminQuickVote" />
                 @endcan
             @endif
             @if($part->isUnofficial() && $part->type->format == 'dat')

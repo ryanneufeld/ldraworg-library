@@ -169,21 +169,23 @@
             </div>
         </div>
     </x-filament::modal>
-    @if($part->isUnofficial())     
-        <x-filament::modal id="delete-part">
-            <x-slot name="heading">
-                Delete Part
-            </x-slot>
-            <p>
-                Are you sure you want to delete {{$part->filename}}? This action cannot be easily undone.
-            </p>
-            <x-filament::button wire:click="deletePart">
-                Yes
-            </x-filament::button>
-            <x-filament::button wire:click="$dispatch('close-modal', { id: 'delete-part' })">
-                No
-            </x-filament::button>
-        </x-filament::modal>
+    @if($part->isUnofficial())
+        @can('part.delete')     
+            <x-filament::modal id="delete-part">
+                <x-slot name="heading">
+                    Delete Part
+                </x-slot>
+                <p>
+                    Are you sure you want to delete {{$part->filename}}? This action cannot be easily undone.
+                </p>
+                <x-filament::button wire:click="deletePart">
+                    Yes
+                </x-filament::button>
+                <x-filament::button wire:click="$dispatch('close-modal', { id: 'delete-part' })">
+                    No
+                </x-filament::button>
+            </x-filament::modal>
+        @endcan
     @endif
     @push('scripts')
         <x-layout.ldbi-scripts />
