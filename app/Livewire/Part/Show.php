@@ -16,6 +16,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -129,15 +130,21 @@ class Show extends Component implements HasForms, HasTable
     {
         $this->authorize('update', $this->part);
         app(PartManager::class)->updatePartImage($this->part);
-        session()->flash('status', 'Image updated');
-        $this->redirectRoute(($this->part->isUnofficial() ? 'tracker' : 'official') . '.show', [$this->part]);
+        Notification::make()
+            ->title('Image Updated')
+            ->success()
+            ->send();
     }
     
     public function updateSubparts(): void 
     {
         $this->authorize('update', $this->part);
         app(PartManager::class)->loadSubpartsFromBody($this->part);
-        $this->redirectRoute(($this->part->isUnofficial() ? 'tracker' : 'official') . '.show', [$this->part]);
+        Notification::make()
+            ->title('Subparts reloaded')
+            ->success()
+            ->send();
+        $this->dispatch('subparts-updated');
     }
 
     public function postVote() {
@@ -203,7 +210,10 @@ class Show extends Component implements HasForms, HasTable
             PartReviewed::dispatch($p, Auth::user(), 'A', null);
             Auth::user()->notification_parts()->syncWithoutDetaching([$p->id]);
         }
-        return redirect()->route('tracker.show', $this->part)->with('status', 'Quickvote action complete');
+        Notification::make()
+        ->title('Quickvote action complete')
+        ->success()
+        ->send();
     }
 
     public function render()

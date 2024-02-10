@@ -14,6 +14,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\On;
 
 class RelatedParts extends Component implements HasForms, HasTable
 {
@@ -25,6 +26,12 @@ class RelatedParts extends Component implements HasForms, HasTable
     public Part $part;
     public bool $parents = false;
     public bool $official = false;
+
+    #[On ('subparts-updated')]
+    public function searchUpdated() {
+        $this->resetTable();
+        $this->render();
+    }
 
     public function table(Table $table): Table
     {

@@ -86,6 +86,8 @@
         </p>
       </div>
     </div>
+
+    @livewire('notifications')
     @filamentScripts
     @stack('scripts')
   </body>
