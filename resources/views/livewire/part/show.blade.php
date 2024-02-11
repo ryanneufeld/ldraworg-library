@@ -28,7 +28,31 @@
     @endpush
 
     <div class="flex flex-col space-y-4">
-        <x-menu.part-detail :part="$part" />
+        <div class="flex flex-row divide-x bg-white border rounded-md w-max cursor-pointer">
+            {{ $this->downloadAction }}
+            @if ($this->adminCertifyAllAction->isVisible())
+                {{ $this->adminCertifyAllAction }}
+            @endif
+            @if ($this->editHeaderAction->isVisible())
+                {{ $this->editHeaderAction }}
+            @endif
+            @if ($this->editNumberAction->isVisible())
+                {{ $this->editNumberAction }}
+            @endif
+            @if ($this->updateImageAction->isVisible())
+                {{ $this->updateImageAction }}
+            @endif
+            @if ($this->updateSubpartsAction->isVisible())
+                {{ $this->updateSubpartsAction }}
+            @endif
+            @if ($this->deleteAction->isVisible())
+                {{ $this->deleteAction }}
+            @endif
+            @if ($this->deleteAction->isVisible())
+                {{ $this->deleteAction }}
+            @endif
+            {{ $this->webglViewAction }}
+        </div>
         <div class="text-3xl font-bold">
             <span @class([
                 'bg-lime-200' => !$part->isUnofficial(),
@@ -142,7 +166,31 @@
                 </form>
             @endif
         @endif
-        <x-menu.part-detail :part="$part" />
+        <div class="flex flex-row divide-x bg-white border rounded-md w-max cursor-pointer">
+            {{ $this->downloadAction }}
+            @if ($this->adminCertifyAllAction->isVisible())
+                {{ $this->adminCertifyAllAction }}
+            @endif
+            @if ($this->editHeaderAction->isVisible())
+                {{ $this->editHeaderAction }}
+            @endif
+            @if ($this->editNumberAction->isVisible())
+                {{ $this->editNumberAction }}
+            @endif
+            @if ($this->updateImageAction->isVisible())
+                {{ $this->updateImageAction }}
+            @endif
+            @if ($this->updateSubpartsAction->isVisible())
+                {{ $this->updateSubpartsAction }}
+            @endif
+            @if ($this->deleteAction->isVisible())
+                {{ $this->deleteAction }}
+            @endif
+            @if ($this->deleteAction->isVisible())
+                {{ $this->deleteAction }}
+            @endif
+            {{ $this->webglViewAction }}
+        </div>
         <x-part.attribution :part="$part" />
     </div>
     <x-filament::modal id="ldbi" alignment="center" width="7xl" >
@@ -169,24 +217,7 @@
             </div>
         </div>
     </x-filament::modal>
-    @if($part->isUnofficial())
-        @can('part.delete')     
-            <x-filament::modal id="delete-part">
-                <x-slot name="heading">
-                    Delete Part
-                </x-slot>
-                <p>
-                    Are you sure you want to delete {{$part->filename}}? This action cannot be easily undone.
-                </p>
-                <x-filament::button wire:click="deletePart">
-                    Yes
-                </x-filament::button>
-                <x-filament::button wire:click="$dispatch('close-modal', { id: 'delete-part' })">
-                    No
-                </x-filament::button>
-            </x-filament::modal>
-        @endcan
-    @endif
+    <x-filament-actions::modals />
     @push('scripts')
         <x-layout.ldbi-scripts />
         <script type="text/javascript">
