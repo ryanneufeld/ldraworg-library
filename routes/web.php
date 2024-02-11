@@ -23,6 +23,7 @@ use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
 use App\Livewire\PartEventsShow;
+use App\Livewire\Search\Parts;
 
 Route::view('/', 'index')->name('index');
 
@@ -80,7 +81,7 @@ Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-updat
 Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view'])->name('part-update.view');
 
 Route::redirect('/search', '/search/part');
-Route::get('/search/part', PartSearchController::class)->name('search.part');
+Route::get('/search/part', Parts::class)->name('search.part');
 Route::get('/search/suffix', SuffixSearchController::class)->name('search.suffix');
 
 Route::prefix('official')->name('official.')->group(function () {
