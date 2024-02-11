@@ -3,7 +3,6 @@
 use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Part\PartController;
 use App\Http\Controllers\Search\PartSearchController;
 use App\Http\Controllers\Search\SuffixSearchController;
 use App\Http\Controllers\Part\PartReleaseController;
@@ -15,7 +14,6 @@ use App\Http\Controllers\Omr\SetController;
 use App\Http\Controllers\Part\DatDiffController;
 use App\Http\Controllers\Part\NonAdminReleaseController;
 use App\Http\Controllers\Part\PartUpdateController;
-use App\Http\Controllers\Part\PartMoveController;
 use App\Http\Controllers\Part\PartDownloadController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
@@ -40,15 +38,6 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::get('/weekly', Weekly::class)->name('weekly');
     Route::get('/history', TrackerHistoryController::class)->name('history');
     Route::get('/summary/{summary}', [ReviewSummaryController::class, 'show'])->name('summary');
-
-    Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'edit'])->name('edit');
-    Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'update'])->name('update');
-
-    Route::middleware(['auth'])->get('/{part}/move', [PartMoveController::class, 'edit'])->name('move.edit');
-    Route::middleware(['auth'])->put('/{part}/move', [PartMoveController::class, 'update'])->name('move.update');
-
-    Route::middleware(['auth'])->get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
-    Route::middleware(['auth'])->get('/{part}/updatesubparts', [PartController::class, 'updatesubparts'])->name('updatesubparts');
 
     Route::middleware(['auth'])->get('/confirmCA', [CaConfirmController::class, 'edit'])->name('confirmCA.show');
     Route::middleware(['auth'])->put('/confirmCA', [CaConfirmController::class, 'update'])->name('confirmCA.store');
