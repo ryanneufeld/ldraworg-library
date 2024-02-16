@@ -1,0 +1,19 @@
+@props(['title', 'image', 'link' => null])
+
+<div class="flex flex-col border rounded p-2">
+    @isset($link)
+        <a href="{{$link}}">
+    @endisset
+    <img class="object-scale-down" src="{{$image}}" />
+    <div class="text-xl font-bold">
+        {{$title}}
+    </div>
+    <div class="text-wrap break-words">
+        <p>
+            {{$slot}}
+        </p>
+    </div>
+    @isset($link)
+        </a>
+    @endisset
+</div>

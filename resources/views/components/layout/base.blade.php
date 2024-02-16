@@ -55,9 +55,9 @@
                 @auth
                     Welcome {{Auth::user()->name}} :: 
                   
-                   <a href="{{route('dashboard.index')}}">User Dashboard</a>
+                   <a href="{{route('filament.user.pages.dashboard')}}">User Dashboard</a>
                     @can('admin.view-dashboard')
-                        :: <a href="{{route('admin.dashboard')}}">Admin Dashboard</a>
+                        :: <a href="{{route('filament.admin.pages.dashboard')}}">Admin Dashboard</a>
                     @endcan
                 @endauth
             </div>
