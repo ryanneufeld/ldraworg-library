@@ -66,6 +66,7 @@ Route::prefix('omr')->name('omr.')->group(function () {
     Route::resource('sets', SetController::class)->only(['index', 'show']);
 });
 
+/*
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('dashboard', AdminDashboardController::class)->middleware('can:admin.view-dashboard')->name('dashboard');
     Route::resource('users', UserController::class);
@@ -76,6 +77,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Route::get('/', UserDashboardController::class)->name('index');
 });
+*/
 
 Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
 Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view'])->name('part-update.view');

@@ -8,12 +8,14 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Traits\HasLicense;
 use App\Models\Traits\HasParts;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, HasParts, HasLicense, HasRoles, Notifiable;
 
@@ -88,6 +90,14 @@ class User extends Authenticatable
         });
     }
     
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($panel->getId() === 'admin') {
+            return $this->canAny('admin.view-dashboard');
+        }
+        return true;
+    }
+
     public function togglePartNotification(Part $part): void 
     {
         $this->notification_parts()->toggle([$part->id]);
