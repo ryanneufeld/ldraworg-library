@@ -1,9 +1,19 @@
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+import preset from './vendor/filament/support/tailwind.config.preset'
+
+export default {
+    presets: [preset],
+    content: [
+        "./app/Filament/**/*.php",
+        "./app/Livewire/**/*.php",
+        "./resources/**/*.blade.php",
+        "./resources/**/*.js",
+        "./vendor/filament/**/*.blade.php",
+    ],
+    theme: {
+        extend: {},
+    },
+    plugins: [],
 }
 

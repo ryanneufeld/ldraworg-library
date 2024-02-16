@@ -2,98 +2,102 @@
 
 namespace App\Livewire\Search;
 
-use Livewire\Component;
-use Livewire\WithPagination;
 use App\Models\Part;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Split;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Form;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Livewire\Component;
+use Illuminate\Contracts\View\View;
 
-class Parts extends Component
+class Parts extends Component implements HasForms
 {
-    use WithPagination;
+    use InteractsWithForms;
 
-    public $search = '';
-    public $scope = 'header';
-    public $user_id = '';
-    public $status = '';
-    public $part_types = '';
-    public $exclude_user = false;
-    public $include_history = false;
-    
-    protected $queryString= [
-        'search' => ['except' => '', 'as' => 's'],
-        'scope' => ['except' => 'header'],
-        'user_id' => ['except' => ''],
-        'exclude_user' => ['except' => false],
-        'include_history' => ['except' => false],
-        'status' => ['except' => ''],
-        'part_types' => ['except' => []],
-    ];
+    public ?array $data = [];
 
-    public function updated() {
-        $this->resetPage('unofficialPage');
-        $this->resetPage('officialPage');
-    }
-
-    public function searchpart() {
-        return;
-    }
-
-    public function render()
+    public function mount(): void
     {
-        $part_types_ids = array_filter(explode(',', $this->part_types), 'is_numeric');
-        
-        if (count($part_types_ids) > 0) {
-            $this->part_types = implode(',', $part_types_ids);
-        } else {
-            $this->part_types = '';
-        }
-
-        $scopeOptions = [
-            'filename' => 'Filename only',
-            'description' => 'Filename and description',
-            'header' => 'File header',
-            'file' => 'Entire file (very slow)'
-        ];
-
-        $scope = array_key_exists($this->scope, $scopeOptions) ? $this->scope : 'header';
-        $uparts = Part::unofficial();
-        $oparts = Part::official();
-        if (!empty($this->user_id) && is_numeric($this->user_id)) {
-            $opr = $this->exclude_user ? '!=' : '=';
-            if ($this->include_history) {
-                $uparts->where(function ($q) use ($opr) {
-                    $q->orWhere('user_id', $opr, $this->user_id)->orWhereHas('history', function($qu) use ($opr) {
-                        $qu->where('user_id', $opr, $this->user_id);
-                    });
-                });
-                $oparts->where(function ($q) use ($opr) {
-                    $q->orWhere('user_id', $opr, $this->user_id)->orWhereHas('history', function($qu) use ($opr) {
-                        $qu->where('user_id', $opr, $this->user_id);
-                    });
-                });
-            } else {
-                $uparts->where('user_id', $opr, $this->user_id);
-                $oparts->where('user_id', $opr, $this->user_id);
-            }
-        }
-        if (!empty($this->status)) {
-            $uparts->partStatus($this->status);
-        }
-        if (count($part_types_ids) > 0) {
-            $uparts->whereIn('part_type_id', $part_types_ids);
-            $oparts->whereIn('part_type_id', $part_types_ids);
-        }
-        
-        if (!empty(trim($this->search))) {
-            $uparts->searchPart($this->search, $this->scope);
-            $oparts->searchPart($this->search, $this->scope);
-        }
-        
-        $ucount = $uparts->count();
-        $ocount = $oparts->count();
-        $uparts = $uparts->orderBy('filename')->paginate('50', ['*'], 'unofficialPage');
-        $oparts = $oparts->orderBy('filename')->paginate('50', ['*'], 'officialPage');
-        $this->dispatch('jquery');
-        return view('livewire.search.parts', compact('ucount', 'ocount', 'uparts', 'oparts', 'scope', 'scopeOptions'));
+        $this->form->fill();
     }
 
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Fieldset::make('Search Parameters')
+                    ->schema([
+                        TextInput::make('search')
+                            ->nullable()
+                            ->string(),
+                        Select::make('scope')
+                            ->options([
+                                'filename' => 'Filename only',
+                                'description' => 'Filename and description',
+                                'header' => 'File header',
+                                'file' => 'Entire file (very slow)'            
+                            ])
+                            ->default('header')
+                            ->selectablePlaceholder(false)
+                            ->native(false),
+                    ]),
+                Fieldset::make('Filters')
+                    ->columns(3)
+                    ->schema([
+                        Section::make([
+                            Select::make('user_id')
+                                ->relationship(
+                                    name: 'user',
+                                    modifyQueryUsing: fn (Builder $query) => $query->orderBy('realname', 'asc')
+                                )
+                                ->getOptionLabelFromRecordUsing(fn (User $u) => "{$u->realname} [{$u->name}]")
+                                ->searchable()
+                                ->preload()
+                                ->native(false)
+                                ->nullable(),
+                            Split::make([
+                                Toggle::make('exclude_user'),
+                                Toggle::make('include_history'),    
+                            ]),
+                        ])
+                            ->columnSpan(1),
+                        Select::make('status')
+                            ->options([
+                                'certified' => 'Certified', 
+                                'adminreview' => 'Needs Admin Review', 
+                                'memberreview' => 'Needs More Votes', 
+                                'held' => 'Hold', 
+                            ])
+                            ->native(false)
+                            ->nullable(),
+                        Select::make('part_type_id')
+                            ->relationship(name: 'type', titleAttribute: 'name')
+                            ->multiple()
+                            ->preload()
+                            ->native(false)
+                            ->nullable(),
+                    ]),
+            ])
+            ->statePath('data')
+            ->model(Part::class);
+    }
+
+    public function doSearch(): void
+    {
+        $this->form->getState();
+        $this->dispatch('search-updated');
+    }
+ 
+    public function render(): View
+    {
+        return view('livewire.search.parts')->layout('components.layout.tracker');
+    }
 }

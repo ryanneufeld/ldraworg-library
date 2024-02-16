@@ -25,19 +25,19 @@ class Status extends Component
         $codes = array_merge(['A' => 0, 'C' => 0, 'H' => 0, 'T' => 0], $this->part->votes->pluck('vote_type_code')->countBy()->all());
         switch($this->part->vote_sort) {
             case 1:
-                $color = 'brtgrn';
+                $color = 'lime-400';
                 $text = 'Certified!';
                 break;
             case 2:
-                $color = 'blue';
+                $color = 'blue-700';
                 $text = 'Needs Admin Review';
                 break;
             case 3:
-                $color = 'gray';
+                $color = 'gray-400';
                 $text = $codes['A'] +  $codes['C'] == 1 ? 'Needs 1 More Vote' : 'Needs 2 More Votes';
                 break;
             case 5:
-                $color = 'red';
+                $color = 'red-600';
                 $text = 'Errors Found';
                 break;
                         

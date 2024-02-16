@@ -1,30 +1,25 @@
-@props([
-    'error' => false, 
-    'warning' => false, 
-    'header' => null, 
-    'message' => null,
-    'centered' => false,
-    'compact' => false,
-])
-<div {{$attributes->class([
-    'ui icon',
-    'center aligned' => $centered !== false,
-    'compact' => $compact !== false,
-    'error' => $error !== false,
-    'warning' => $warning !== false && !$error,
-    'info' => !$warning && !$error,
-    'message'
-])}}>
-    <i @class([
-        'exclamation circle' => $error !== false,
-        'exclamation triangle' => $warning !== false && !$error,
-        'info' => !$warning && !$error,
-        'icon'
-       ])></i>
-    <div class="content">
-        @isset($header)
-            <div class="header">{{$header}}</div>
-        @endisset
-        {{ $slot ?? $message}}    
+<div @class([
+    'p-2 border rounded-md flex items-center',
+    'justify-center text-center' => $centered,
+    'w-full' => !$compact,
+    'w-max' => $compact,
+    'bg-red-200 text-red-800' => $type === 'error',
+    'bg-yellow-200 text-yellow-800' => $type === 'warning',
+    'bg-blue-200 text-blue-800' => $type === 'info',
+])>
+    @switch($type)
+        @case('error')
+            <x-fas-exclamation-circle class="w-14 h-14 text-red-800" />
+            @break
+        @case('warning')
+            <x-fas-exclamation-triangle class="w-14 h-14 text-yellow-800" />
+            @break
+        @case('info')
+            <x-fas-info class="w-14 h-14 text-blue-800" />
+            @break
+    @endswitch
+    <div class="mx-2">
+        <div class="font-bold">{{$header}}</div>
+        <div>{{$slot ?? $message}}</div>
     </div>
 </div>

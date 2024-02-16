@@ -5,16 +5,19 @@
         "build": "vite build"
     },
     "dependencies": {
-        "alpinejs": "^3.12.3",
-        "chart.js": "^4.3.0",
-        "fomantic-ui": "^2.9.3",
-        "jquery": "^3.7.0"
+        "@fortawesome/fontawesome-free": "^6.4.2",
+        "chart.js": "^4.3.0"
     },
     "devDependencies": {
+        "@tailwindcss/forms": "^0.5.7",
+        "@tailwindcss/typography": "^0.5.9",
         "autoprefixer": "^10.4.14",
-        "gulp": "^4.0.2",
-        "gulp-less": "^5.0.0",
-        "gulp-util": "^3.0.8",
-        "laravel-mix": "^6.0.49"
-    }
+        "laravel-vite-plugin": "^1.0.0",
+        "postcss": "^8.4.25",
+        "postcss-nesting": "^12.0.2",
+        "tailwindcss": "^3.4.0",
+        "three": "^0.160.1",
+        "vite": "^5.0.10"
+    },
+    "type": "module"
 }

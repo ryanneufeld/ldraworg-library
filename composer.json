@@ -1,20 +1,28 @@
 {
-    "name": "laravel/laravel",
+    "name": "ldraw-org/library",
     "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "description": "The LDraw.org Library",
+    "keywords": [
+        "framework",
+        "laravel",
+        "ldraw",
+        "lego"
+    ],
     "license": "MIT",
     "require": {
-        "php": "^8.1.0",
+        "php": "^8.2.0",
+        "blade-ui-kit/blade-icons": "^1.5",
         "blade-ui-kit/blade-ui-kit": "^0.4.0",
+        "filament/filament": "^3.1",
         "guzzlehttp/guzzle": "^7.2",
         "icehouse-ventures/laravel-chartjs": "^1.0",
         "laravel/framework": "^10.0",
         "laravel/tinker": "^2.7",
         "laravel/ui": "^4.0",
         "livewire/livewire": "^3.0",
+        "owenvoke/blade-fontawesome": "^2.5",
         "spatie/image": "^3.0",
-        "spatie/laravel-permission": "^5.5",
+        "spatie/laravel-permission": "^6.2",
         "spatie/temporary-directory": "^2.2",
         "staudenmeir/laravel-adjacency-list": "^1.13"
     },
@@ -38,7 +46,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/version.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -48,7 +59,8 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
+            "@php artisan package:discover --ansi",
+            "@php artisan filament:upgrade"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

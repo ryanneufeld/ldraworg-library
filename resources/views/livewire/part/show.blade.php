@@ -1,11 +1,13 @@
-<div>
+<div x-data="{ webgl: true }"> 
+    @if(session('status'))
+        <x-message.toast type="info" header="{{session('status')}}" />
+    @endif
     <x-slot:title>
         File Detail {{ $part->filename }}
     </x-slot>
     <x-slot:breadcrumbs>
         <x-breadcrumb-item class="active" item="Part Detail" />
     </x-slot>    
-    @php($lib = str_replace('/', '', $part->libFolder()))
     @push('meta')
         <meta name="description" content="{{$part->description}}">
 
@@ -14,7 +16,7 @@
         <meta property="og:type" content="website">
         <meta property="og:title" content="File Detail {{ $part->filename }}">
         <meta property="og:description" content="{{$part->description}}">
-        <meta property="og:image" content="{{$part->isTexmap() ? route($lib . '.download', $part->filename) : asset('images/library/' . $lib . '/' . substr($part->filename, 0, -4) . '.png')}}">
+        <meta property="og:image" content="{{$image}}">
 
         <!-- Twitter Meta Tags -->
         <meta name="twitter:card" content="summary_large_image">
@@ -22,127 +24,251 @@
         <meta property="twitter:url" content="{{Request::url()}}">
         <meta name="twitter:title" content="File Detail {{ $part->filename }}">
         <meta name="twitter:description" content="{{$part->description}}">
-        <meta name="twitter:image" content="{{$part->isTexmap() ? route($lib . '.download', $part->filename) : asset('images/library/' . $lib . '/' . substr($part->filename, 0, -4) . '.png')}}">
+        <meta name="twitter:image" content="{{$image}}">
     @endpush
-    @push('css')
-      <link rel="stylesheet" type="text/css" href="{{ mix('assets/css/ldbi.css') }}">
-    @endpush
-    
-    <x-menu.part-detail :part="$part" />
-    @if(session('status'))
-        <div class="ui message success">
-            <div class="header">{{session('status')}}</div>
+
+    <div class="flex flex-col space-y-4">
+        <div class="flex flex-row divide-x bg-white border rounded-md w-max cursor-pointer">
+            {{ $this->downloadAction }}
+            @if ($this->adminCertifyAllAction->isVisible())
+                {{ $this->adminCertifyAllAction }}
+            @endif
+            @if ($this->editHeaderAction->isVisible())
+                {{ $this->editHeaderAction }}
+            @endif
+            @if ($this->editNumberAction->isVisible())
+                {{ $this->editNumberAction }}
+            @endif
+            @if ($this->updateImageAction->isVisible())
+                {{ $this->updateImageAction }}
+            @endif
+            @if ($this->updateSubpartsAction->isVisible())
+                {{ $this->updateSubpartsAction }}
+            @endif
+            @if ($this->deleteAction->isVisible())
+                {{ $this->deleteAction }}
+            @endif
+            @if ($this->deleteAction->isVisible())
+                {{ $this->deleteAction }}
+            @endif
+            {{ $this->webglViewAction }}
         </div>
-    @endif
-    <div class="ui segment main-content">
-        <div class="ui large header">
-            <span class="{{$lib}}">
-                {{ucfirst($lib)}} File <span id="filename">{{ $part->filename }}</span>
+        <div class="text-3xl font-bold">
+            <span @class([
+                'bg-lime-200' => !$part->isUnofficial(),
+                'bg-yellow-200' => $part->isUnofficial()
+            ])>
+                {{ucfirst($part->libFolder())}} File <span id="filename">{{ $part->filename }}</span>
             </span>
         </div>
+       
         <div>
             @isset ($part->unofficial_part_id)
-                <a class="ui labeled icon button" href="{{ route('tracker.show', $part->unofficial_part_id) }}"><i class="ui copy outline icon"></i>View unofficial version of part</a>
+                <x-filament::button 
+                    href="{{ route('tracker.show', $part->unofficial_part_id) }}"
+                    icon="fas-copy"
+                    color="gray"
+                    tag="a"
+                    label="View unofficial version of part"
+                >
+                    View unofficial version of part
+                </x-filament::button>
             @endisset
             @isset ($part->official_part_id)
-                <a class="ui labeled icon button" href="{{ route('official.show', $part->official_part_id) }}"><i class="ui copy outline icon"></i>View official version of part</a>
+                <x-filament::button 
+                    href="{{ route('official.show', $part->official_part_id) }}"
+                    icon="fas-copy"
+                    color="gray"
+                    tag="a"
+                >
+                    View official version of part
+                </x-filament::button>
             @endisset
             @if ($part->isUnofficial() && Auth::check())
-                <button wire:click="toggleTracked" @class(['ui', 'yellow' => Auth::user()->notification_parts->contains($part->id), 'labeled icon button'])>
-                    <i class="bell icon"></i>
+                <x-filament::button
+                    wire:click="toggleTracked" 
+                    icon="fas-bell"
+                    color="{{Auth::user()->notification_parts->contains($part->id) ? 'yellow' : 'gray'}}"
+                >
                     {{Auth::user()->notification_parts->contains($part->id) ? 'Tracking' : 'Track'}}
-                </button>
+                </x-filament::button>
                 @can('part.flag.delete')
-                    <button wire:click="toggleDeleteFlag" @class(['ui', 'red' => $part->delete_flag, 'labeled icon button'])>
-                        <i class="flag icon"></i>
+                    <x-filament::button
+                        wire:click="toggleDeleteFlag" 
+                        icon="fas-flag"
+                        color="{{$part->delete_flag ? 'red' : 'gray'}}"
+                    >
                         {{$part->delete_flag ? 'Flagged' : 'Flag'}} for Deletion
-                    </button>
+                    </x-filament::button>
                 @else
                     @if($part->delete_flag)
-                        <div class="ui red labeled icon button">
-                            <i class="flag icon"></i>
+                        <x-filament::button
+                            icon="fas-flag"
+                            color="danger"
+                        >
                             Flagged for Deletion
-                        </div>
+                        </x-filament::button>
                     @endif       
                 @endcan    
                 @can('part.flag.manual-hold')
-                    <button wire:click="toggleManualHold" @class(['ui', 'red' => $part->manual_hold_flag, 'labeled icon button'])>
-                        <i class="flag icon"></i>
+                    <x-filament::button
+                        wire:click="toggleManualHold" 
+                        icon="fas-flag"
+                        color="{{$part->manual_hold_flag ? 'red' : 'gray'}}"
+                    >
                         {{$part->manual_hold_flag ? 'On' : 'Place on'}} Administrative Hold
-                    </button>
+                    </x-filament::button>
                 @endcan    
             @endif
         </div>
-        <div class="ui right floated center aligned compact {{$lib}} detail-img segment">
-            @if ($part->isTexmap())
-                <a class="ui image" href="{{route("$lib.download", $part->filename)}}">
-                    <img src="{{route("$lib.download", $part->filename)}}" alt='part image' title="{{ $part->description }}" >
+        <div class="flex flex-row-reverse flex-wrap">
+            <div @class([
+                'shrink p-4 place-content-center place-self-center border rounded',
+                'bg-lime-200' => !$part->isUnofficial(),
+                'bg-yellow-200' => $part->isUnofficial()
+            ])>
+                <a href="{{$image}}">
+                    <img src="{{$image}}" alt='part image' title="{{ $part->description }}" >
                 </a>
-            @else
-                <a class="ui part-img image" href="{{asset("images/library/$lib/" . substr($part->filename, 0, -4) . '.png')}}">
-                    <img src="{{asset("images/library/$lib/" . substr($part->filename, 0, -4) . '.png')}}" alt='part image' title="{{ $part->description }}" >
-                </a>
-            @endif  
+            </div>
+            <div class="justify-self-end">
+                <div class="text-lg font-bold">File Header:</div>
+                <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
+            </div>    
         </div>
-        <div class="ui medium header">File Header:</div>
-        <pre class="part-header"><code>{{ $part->header }}</code></pre>
         @if($part->isUnofficial())
-            <div class="ui medium header">Status:</div>
+            <div class="text-lg font-bold">Status:</div>
             <x-part.status :$part show-status /><br>
             <x-part.part-check-message :$part />
-            <div class="ui medium header">Reviewers' certifications:</div>
-            @if ($part->votes->count())
-                <table class="ui collapsing compact celled striped small table">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Vote</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($part->votes as $vote)
-                            <tr>
-                                <td>{{ $vote->user->name }}</td>
-                                    <td @class([
-                                        'green' => $vote->vote_type_code == 'C',
-                                        'red' => $vote->vote_type_code == 'H',
-                                        'olive' => $vote->vote_type_code == 'A' || $vote->vote_type_code == 'T',
-                                    ])>{{ $vote->type->name }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                None
-            @endif
-        @endif
-        <div class="ui clearing basic segment"></div>
-        @if($part->isUnofficial())
-            <x-part.table title="Unofficial parent parts" :parts="$part->parents()->unofficial()->get()" />
-            <x-part.table title="Unofficial subparts" :parts="$part->subparts()->unofficial()->get()" :missing="$part->missing_parts" />
-            <div class="ui accordion">
-                <div class="title">
-                    <i class="dropdown icon"></i>
+            {{$this->table}}
+            <livewire:tables.related-parts title="Unofficial parent parts" :$part parents/>
+            <livewire:tables.related-parts title="Unofficial subparts" :$part />
+            <x-accordion id="officialParts">
+                <x-slot name="header" class="text-md font-bold">
                     Official parents and subparts
-                </div>
-                <div class="content">
-                    <x-part.table title="Official parent parts" :parts="$part->parents()->official()->get()" />
-                    <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
-                </div>
-            </div>
+                </x-slot>
+                <livewire:tables.related-parts title="Official parent parts" :$part official parents/>
+                <livewire:tables.related-parts title="Official subparts" :$part official/>
+            </x-accordion>
         @else
-            <x-part.table title="Official parent parts" :parts="$part->parents()->official()->get()" />
-            <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
+            <livewire:tables.related-parts title="Official parent parts" :$part official parents/>
+            <livewire:tables.related-parts title="Official subparts" :$part official/>
         @endif    
         @if($part->isUnofficial())
             <x-event.list title="File events" :events="$part->events" />
+            <div id="voteForm"></div>
+            @if (Auth::check() && (Auth::user()->can('create', [\App\Models\Vote::class, $part]) || Auth::user()->can('update', [$part->votes()->firstWhere('user_id', Auth::user()->id)])))    
+                <form wire:submit="postVote">
+                    {{ $this->form }}
+                    <button class="border rounded" type="submit">
+                        Submit
+                    </button>
+                </form>
+            @endif
         @endif
-        <x-menu.part-detail :part="$part" />
+        <div class="flex flex-row divide-x bg-white border rounded-md w-max cursor-pointer">
+            {{ $this->downloadAction }}
+            @if ($this->adminCertifyAllAction->isVisible())
+                {{ $this->adminCertifyAllAction }}
+            @endif
+            @if ($this->editHeaderAction->isVisible())
+                {{ $this->editHeaderAction }}
+            @endif
+            @if ($this->editNumberAction->isVisible())
+                {{ $this->editNumberAction }}
+            @endif
+            @if ($this->updateImageAction->isVisible())
+                {{ $this->updateImageAction }}
+            @endif
+            @if ($this->updateSubpartsAction->isVisible())
+                {{ $this->updateSubpartsAction }}
+            @endif
+            @if ($this->deleteAction->isVisible())
+                {{ $this->deleteAction }}
+            @endif
+            @if ($this->deleteAction->isVisible())
+                {{ $this->deleteAction }}
+            @endif
+            {{ $this->webglViewAction }}
+        </div>
         <x-part.attribution :part="$part" />
-        <x-part.3dmodal id="{{$part->id}}" />
     </div>
-     
+    <x-filament::modal id="ldbi" alignment="center" width="7xl" >
+        <x-slot name="heading">
+            3D View
+        </x-slot>
+        <div class="flex flex-col w-full h-full">
+            <div class="flex flex-row space-x-2 p-2 mb-2">
+                <x-filament::icon-button
+                    icon="fas-undo"
+                    size="lg"
+                    label="Normal mode"
+                    class="border"
+                />
+                <x-filament::icon-button
+                    icon="fas-paint-brush"
+                    size="lg"
+                    label="Harlequin (random color) mode"
+                    class="border"
+                />
+            </div>
+            <div id="ldbi-container" class="border w-full min-h-[75vh]"> 
+                <canvas id="ldbi-canvas" class="size-full"></canvas>
+            </div>
+        </div>
+    </x-filament::modal>
+    <x-filament-actions::modals />
     @push('scripts')
         <x-layout.ldbi-scripts />
+        <script type="text/javascript">
+            var scene;
+        </script>    
+        @script
+        <script>
+            let part_id = {{$part->id}};
+            var part_paths;
+
+
+            LDR.Options.bgColor = 0xFFFFFF;
+
+            LDR.Colors.envMapPrefix = '/assets/ldbi/textures/cube/';    
+            LDR.Colors.textureMaterialPrefix = '/assets/ldbi/textures/materials/';
+
+            $wire.on('open-modal', (modal) => {
+                let idToUrl = function(id) {
+                    if (part_paths[id]) {
+                        return [part_paths[id]];
+                    }
+                    else {
+                        return [id];
+                    }
+                };
+
+                let idToTextureUrl = function(id) {
+                    if (part_paths[id]) {
+                        return part_paths[id];
+                    }
+                    else {
+                        return id;
+                    }
+                };
+                if (modal.id == 'ldbi' && WEBGL.isWebGLAvailable() && !scene) {
+                    // pre-fetch the paths to the subfiles used to speed up loading
+                    fetch('/api/' + part_id + '/ldbi')
+                        .then(response => response.json())
+                        .then((response) => {
+                            part_paths = response;
+                            scene = new LDrawOrg.Model(
+                                document.getElementById('ldbi-canvas'), 
+                                document.getElementById('filename').innerHTML.replace(/^(parts\/|p\/)/, ''),
+                                {idToUrl: idToUrl, idToTextureUrl: idToTextureUrl}
+                            );
+                            window.addEventListener('resize', () => scene.onChange());
+                        })
+                }
+            });
+        </script>
+        @endscript
     @endpush
+
 </div>

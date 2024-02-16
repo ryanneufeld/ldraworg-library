@@ -1,5 +1,5 @@
 @if (!$check['can_release'])
-<x-message compact warning>
+<x-message compact type="warning">
     <x-slot:header>
         This part is not releaseable
     </x-slot:header>

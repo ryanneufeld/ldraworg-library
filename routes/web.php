@@ -3,9 +3,6 @@
 use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\Part\PartController;
-use App\Http\Controllers\VoteController;
-use App\Http\Controllers\Part\PartEventController;
 use App\Http\Controllers\Search\PartSearchController;
 use App\Http\Controllers\Search\SuffixSearchController;
 use App\Http\Controllers\Part\PartReleaseController;
@@ -17,13 +14,16 @@ use App\Http\Controllers\Omr\SetController;
 use App\Http\Controllers\Part\DatDiffController;
 use App\Http\Controllers\Part\NonAdminReleaseController;
 use App\Http\Controllers\Part\PartUpdateController;
-use App\Http\Controllers\Part\PartMoveController;
 use App\Http\Controllers\Part\PartDownloadController;
-use App\Http\Controllers\Part\WeeklyPartController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
 use App\Http\Controllers\UserDashboardController;
+use App\Livewire\Part\PartList;
 use App\Livewire\Part\Show;
+use App\Livewire\Part\Submit;
+use App\Livewire\Part\Weekly;
+use App\Livewire\PartEventsShow;
+use App\Livewire\Search\Parts;
 
 Route::view('/', 'index')->name('index');
 
@@ -33,25 +33,12 @@ Route::middleware(['throttle:file'])->get('/library.csv', [SupportFilesControlle
 Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::view('/', 'tracker.main')->name('main');
 
-    Route::middleware(['auth', 'currentlic'])->get('/submit', [PartController::class, 'create'])->name('submit');
-    Route::middleware(['auth', 'currentlic'])->post('/submit', [PartController::class, 'store'])->name('store');
+    Route::middleware(['auth', 'currentlic'])->get('/submit', Submit::class)->name('submit');
 
-    Route::get('/list', [PartController::class, 'index'])->name('index');
-    Route::get('/weekly', WeeklyPartController::class)->name('weekly');
+    Route::get('/list', PartList::class)->name('index');
+    Route::get('/weekly', Weekly::class)->name('weekly');
     Route::get('/history', TrackerHistoryController::class)->name('history');
     Route::get('/summary/{summary}', [ReviewSummaryController::class, 'show'])->name('summary');
-
-    Route::middleware(['auth'])->get('/{part}/edit', [PartController::class, 'edit'])->name('edit');
-    Route::middleware(['auth'])->put('/{part}/edit', [PartController::class, 'update'])->name('update');
-
-    Route::middleware(['auth'])->get('/{part}/move', [PartMoveController::class, 'edit'])->name('move.edit');
-    Route::middleware(['auth'])->put('/{part}/move', [PartMoveController::class, 'update'])->name('move.update');
-
-    Route::middleware(['auth'])->get('/{part}/updateimage', [PartController::class, 'updateimage'])->name('updateimage');
-    Route::middleware(['auth'])->get('/{part}/updatesubparts', [PartController::class, 'updatesubparts'])->name('updatesubparts');
-
-    Route::middleware(['auth'])->get('/{part}/delete', [PartController::class, 'delete'])->withTrashed()->name('delete');
-    Route::middleware(['auth'])->delete('/{part}/delete', [PartController::class, 'destroy'])->withTrashed()->name('destroy');
 
     Route::middleware(['auth'])->get('/confirmCA', [CaConfirmController::class, 'edit'])->name('confirmCA.show');
     Route::middleware(['auth'])->put('/confirmCA', [CaConfirmController::class, 'update'])->name('confirmCA.store');
@@ -59,14 +46,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::redirect('/search', '/search/part');
     Route::redirect('/suffixsearch', '/search/suffix');
 
-    Route::middleware(['auth'])->get('/{part}/vote/create', [VoteController::class, 'create'])->name('vote.create');
-    Route::middleware(['auth'])->get('/vote/{vote}/edit', [VoteController::class, 'edit'])->name('vote.edit');
-    Route::middleware(['auth'])->post('/{part}/vote', [VoteController::class, 'store'])->name('vote.store');
-    Route::middleware(['auth'])->put('/vote/{vote}', [VoteController::class, 'update'])->name('vote.update');
-
-    Route::middleware(['auth'])->get('/{part}/adminquickvote', [VoteController::class, 'adminquickvote'])->name('vote.adminquickvote');
-
-    Route::get('/activity', PartEventController::class)->name('activity');
+    Route::get('/activity', PartEventsShow::class)->name('activity');
 
     Route::get('/next-release', NonAdminReleaseController::class)->name('next-release');
 
@@ -87,6 +67,7 @@ Route::prefix('omr')->name('omr.')->group(function () {
     Route::get('/set/{setnumber}', [SetController::class, 'show'])->name('show.setnumber');
 });
 
+/*
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('dashboard', AdminDashboardController::class)->middleware('can:admin.view-dashboard')->name('dashboard');
     Route::resource('users', UserController::class);
@@ -97,18 +78,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Route::get('/', UserDashboardController::class)->name('index');
 });
+*/
 
 Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
 Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view'])->name('part-update.view');
 
 Route::redirect('/search', '/search/part');
-Route::get('/search/part', PartSearchController::class)->name('search.part');
+Route::get('/search/part', Parts::class)->name('search.part');
 Route::get('/search/suffix', SuffixSearchController::class)->name('search.suffix');
 
 Route::prefix('official')->name('official.')->group(function () {
     Route::redirect('/search', '/search/part');
     Route::redirect('/suffixsearch', '/search/suffix');
-    Route::get('/list', [PartController::class, 'index'])->name('index');
+    Route::get('/list', PartList::class)->name('index');
     Route::get('/{officialpart}', Show::class)->name('show.filename');
     Route::get('/{part}', Show::class)->name('show');
 });

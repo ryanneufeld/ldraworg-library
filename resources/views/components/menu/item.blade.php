@@ -1,17 +1,8 @@
-@props(['label', 'link' => null, 'dropdown' => null])
-
-@isset($dropdown)
-    <div class="ui dropdown item">
-        {{$label}} 
-        <i class="dropdown icon"></i>
-        <x-menu submenu>
-            {{$slot}}
-        </x-menu>    
-    </div>
-@else
+@props(['label', 'link' => null, 'hidden' => null])
+<li {{$attributes->merge(['class'=>'p-2 hover:bg-gray-300'])}}>
     @isset($link)
         <a {{$attributes->merge(['class' => 'item'])}} href="{{$link}}">{{$label}}</a>
     @else
-        <div {{$attributes->merge(['class' => 'item'])}}>{{$label}}</div>
+        {{$label}}
     @endisset
-@endisset
+</li>

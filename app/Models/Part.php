@@ -120,6 +120,16 @@ class Part extends Model
         return $this->hasOne(PartBody::class, 'part_id', 'id');
     }
     
+    public function official_part(): HasOne
+    {
+        return $this->HasOne(Part::class, 'official_part_id', 'id');
+    }
+
+    public function unofficial_part(): HasOne
+    {
+        return $this->HasOne(Part::class, 'unofficial_part_id', 'id');
+    }
+
     public function scopeName(Builder $query, string $name): void
     {
         $name = str_replace('\\', '/', $name);
@@ -273,7 +283,7 @@ class Part extends Model
       return $matches[1] ?? '';
     }
     public function libFolder(): string {
-      return $this->isUnofficial() ? 'unofficial/' : 'official/';
+      return $this->isUnofficial() ? 'unofficial' : 'official';
     }
         
     public function name(): string {

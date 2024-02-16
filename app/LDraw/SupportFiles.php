@@ -18,11 +18,11 @@ class SupportFiles {
             if (in_array($part->description[0], ['~','_','|','='])) {
                 continue;
             }
-            $image = $part->libFolder() . substr($part->filename, 0, -4) . '.png';
+            $image = "{$part->libFolder()}/" . substr($part->filename, 0, -4) . '.png';
             $vals = [
                 basename($part->filename),
                 '"' . str_replace('"', '""', $part->description) . '"',
-                route(substr($part->libFolder(), 0, -1) . ".download", $part->filename),
+                route("{$part->libFolder()}.download", $part->filename),
                 asset("images/library/{$image}"),
                 Carbon::createFromTimestamp(Storage::disk('images')->lastModified("library/{$image}"))->format('Y-m-d')
             ];

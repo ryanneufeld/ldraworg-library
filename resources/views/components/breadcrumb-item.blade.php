@@ -1,3 +1,7 @@
-@props(['item'])
-<div class="divider"><i class="angle double right icon"></i></div>
-<div {{$attributes->merge(['class' => 'section'])}}>{{$item}}</div>
+@props(['item', 'active' => null])
+<x-fas-angle-double-right class="size-4" />
+@isset($active)
+    <strong>{{$item}}</strong>
+@else
+    {{$item}}
+@endisset
