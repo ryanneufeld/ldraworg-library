@@ -4,6 +4,8 @@ namespace App\LDraw;
 
 use App\Models\Part;
 use App\Models\PartCategory;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class SupportFiles {
     public static function categoriesText() {
@@ -11,13 +13,20 @@ class SupportFiles {
     }
 
     public static function libaryCsv(): string {
-        $csv = "part_number,part_description,part_url,image_url\n";
+        $csv = "part_number,part_description,part_url,image_url,image_last_modified\n";
         foreach (Part::whereRelation('type', 'folder', 'parts/')->lazy() as $part) {
             if (in_array($part->description[0], ['~','_','|','='])) {
                 continue;
-            } 
-            $num = basename($part->filename);
-            $csv .= "{$num},{$part->description}," . route(str_replace('/', '', $part->libFolder()) . ".download", $part->filename) . "," . asset('images/library/'. $part->libFolder() . substr($part->filename, 0, -4) . '.png') . "\n";
+            }
+            $image = $part->libFolder() . substr($part->filename, 0, -4) . '.png';
+            $vals = [
+                basename($part->filename),
+                '"' . str_replace('"', '""', $part->description) . '"',
+                route(substr($part->libFolder(), 0, -1) . ".download", $part->filename),
+                asset("images/library/{$image}"),
+                Carbon::createFromTimestamp(Storage::disk('images')->lastModified("library/{$image}"))->format('Y-m-d')
+            ];
+            $csv .= implode(',', $vals) . "\n";
         }
         return $csv;
     }

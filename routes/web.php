@@ -27,8 +27,8 @@ use App\Livewire\Part\Show;
 
 Route::view('/', 'index')->name('index');
 
-Route::get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
-Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
+Route::middleware(['throttle:file'])->get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
+Route::middleware(['throttle:file'])->get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
 
 Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::view('/', 'tracker.main')->name('main');
@@ -116,8 +116,8 @@ Route::prefix('official')->name('official.')->group(function () {
 Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
 Route::redirect('/documentation', 'https://www.ldraw.org/docs-main.html')->name('doc');
 
-Route::get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
-Route::get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');
+Route::middleware(['throttle:file'])->get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
+Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');
 
 
 // Only enable this route for testing
