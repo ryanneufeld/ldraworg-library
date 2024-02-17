@@ -47,7 +47,6 @@
             </x-menu.dropdown>
     </x-menu.dropdown>
     <x-menu.dropdown label="Tools">
-        <x-menu.item label="User Dashboard" link="{{route('dashboard.index')}}" /> 
         <x-menu.item label="Part Search" link="{{route('search.part')}}" />
         <x-menu.item label="Pattern/Shortcut Part Summary" link="{{route('search.suffix')}}" /> 
         @if(!empty($summaries))
