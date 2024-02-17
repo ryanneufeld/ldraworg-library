@@ -1,15 +1,9 @@
 <?php
 
-use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Search\PartSearchController;
 use App\Http\Controllers\Search\SuffixSearchController;
 use App\Http\Controllers\Part\PartReleaseController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupportFilesController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\CaConfirmController;
 use App\Http\Controllers\Omr\SetController;
 use App\Http\Controllers\Part\DatDiffController;
 use App\Http\Controllers\Part\NonAdminReleaseController;
@@ -17,13 +11,13 @@ use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
-use App\Http\Controllers\UserDashboardController;
 use App\Livewire\Part\PartList;
 use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
 use App\Livewire\PartEventsShow;
 use App\Livewire\Search\Parts;
+use App\Livewire\Tracker\ConfirmCA;
 
 Route::view('/', 'index')->name('index');
 
@@ -40,8 +34,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::get('/history', TrackerHistoryController::class)->name('history');
     Route::get('/summary/{summary}', [ReviewSummaryController::class, 'show'])->name('summary');
 
-    Route::middleware(['auth'])->get('/confirmCA', [CaConfirmController::class, 'edit'])->name('confirmCA.show');
-    Route::middleware(['auth'])->put('/confirmCA', [CaConfirmController::class, 'update'])->name('confirmCA.store');
+    Route::middleware(['auth'])->get('/confirmCA', ConfirmCA::class)->name('confirmCA.show');
 
     Route::redirect('/search', '/search/part');
     Route::redirect('/suffixsearch', '/search/suffix');
