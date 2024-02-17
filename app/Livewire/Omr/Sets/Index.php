@@ -15,6 +15,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table as Table;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
@@ -35,11 +36,13 @@ class Index extends Component implements HasForms, HasTable
     {
 
         return $table
+            ->heading('OMR Model List')
             ->query(OmrModel::query())
             ->emptyState(view('tables.empty', ['none' => 'None']))
             ->columns([
                 ImageColumn::make('set.rb_url')
-                    ->extraImgAttributes(['class' => 'object-scale-down']),
+                    ->extraImgAttributes(['class' => 'object-scale-down'])
+                    ->label('Image'),
                 TextColumn::make('set.number')
                     ->label('Set Number')
                     ->searchable()
@@ -55,19 +58,23 @@ class Index extends Component implements HasForms, HasTable
                     ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('user_id')
+                    ->label('Author')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false),
             ], layout: FiltersLayout::AboveContent)
                 ->persistFiltersInSession()
             ->recordUrl(
                 fn (OmrModel $m): string => 
                     route('omr.sets.show', $m->set)
             )
-            ->striped()
-            ->paginated([50, 100, 250, 500])
-            ->defaultPaginationPageOption(50);
+            ->striped();
     }
 
     public function render()
     {
-        return view('livewire.tables.basic-table')->layout('components.layout.omr');
+        return view('livewire.omr.sets.index')->layout('components.layout.omr');
     }
 }

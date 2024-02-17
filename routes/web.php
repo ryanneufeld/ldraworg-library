@@ -11,6 +11,7 @@ use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
+use App\Livewire\Omr\Sets\Index;
 use App\Livewire\Part\PartList;
 use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
@@ -56,7 +57,8 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
 Route::prefix('omr')->name('omr.')->group(function () {
     Route::view('/', 'omr.main')->name('main');
-    Route::resource('sets', SetController::class)->only(['index', 'show']);
+    Route::get('/sets', Index::class)->name('sets.index');
+    Route::resource('sets', SetController::class)->only(['show']);
     Route::get('/set/{setnumber}', [SetController::class, 'show'])->name('show.setnumber');
 });
 
