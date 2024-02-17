@@ -5,7 +5,7 @@
     <x-slot:breadcrumbs>
         <x-breadcrumb-item class="active" item="History" />
     </x-slot>    
-    <h2 class="ui header">Parts Tracker History</h2>
+    <div class="text-2xl font-bold">Parts Tracker History</div>
     <div>
         {!! $chart->render() !!}
     </div>
