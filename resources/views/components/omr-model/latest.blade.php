@@ -8,7 +8,7 @@
             {{$model->alt_model_name ?? 'Main Model'}}
         </div>
         <p>
-            By {{$model->user->authorString()}}
+            By {{$model->user->author_string}}
         </p>
     </x-card>
 @empty

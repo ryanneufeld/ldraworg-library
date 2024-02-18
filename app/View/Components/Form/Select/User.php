@@ -41,7 +41,7 @@ class User extends Component
         ->orderBy('realname')
         ->get()
         ->each(function (\App\Models\User $u) use (&$options) {
-            $options[$u->id] = $u->authorString();
+            $options[$u->id] = $u->author_string;
         });        
         return view('components.form.select.user', compact('options'));
     }

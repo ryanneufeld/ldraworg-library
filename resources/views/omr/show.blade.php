@@ -20,7 +20,7 @@
                             {{$model->alt_model_name ?? 'Main Model'}}
                         </div>
                         <div class="p-2">
-                            <span class="font-bold pr-2">Author:</span>{{$model->user->authorString()}}
+                            <span class="font-bold pr-2">Author:</span>{{$model->user->author_string}}
                         </div>
                         <div class="grid grid-cols-3 p-2">
                             <div>

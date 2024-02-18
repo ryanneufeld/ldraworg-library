@@ -598,7 +598,7 @@ class Part extends Model
     public function statusCode(): string {
         if ($this->isUnofficial()) {
             $code = '(';
-            $codes = array_merge(['A' => 0, 'C' => 0, 'H' => 0, 'T' => 0], $p->votes->pluck('vote_type_code')->countBy()->all());
+            $codes = array_merge(['A' => 0, 'C' => 0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
             foreach(['T', 'A', 'C', 'H'] as $letter) {
                 $code .= str_repeat($letter, $codes[$letter]);
             } 

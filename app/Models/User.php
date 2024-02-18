@@ -11,6 +11,7 @@ use App\Models\Traits\HasParts;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -75,6 +76,20 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsToMany(Part::class, 'user_part_notifications', 'user_id', 'part_id');
     }
     
+    public function authorString(): Attribute
+    {       
+        return Attribute::make(
+            get: function(mixed $value, array $attributes) {
+                if ($attributes['account_type'] === 1) {
+                    return $attributes['realname'];
+                } else if ($this->account_type === 2) {
+                    return "[{$attributes['name']}]";
+                } else {
+                    return "{$attributes['realname']} [{$attributes['name']}]";
+                }        
+            }
+        );
+    }
     public function scopeHasSubmittedPart(Builder $query, Part $part): void
     {
         $query->whereHas('part_histories', function (Builder $q) use ($part) 
@@ -107,18 +122,6 @@ class User extends Authenticatable implements FilamentUser
     {
         return self::firstWhere('name', 'PTadmin');
     }
-    
-    public function authorString(): string
-    {
-        if ($this->account_type === 1) {
-            return $this->realname;
-        }
-        if ($this->account_type === 2) {
-            return "[{$this->name}]";
-        }
-        
-        return trim("{$this->realname} [{$this->name}]");
-    }
 
     public function historyString(): string 
     {
@@ -134,7 +137,7 @@ class User extends Authenticatable implements FilamentUser
     
     public function toString(): string 
     {
-      return "0 Author: " . $this->authorString();
+      return "0 Author: " . $this->author_string;
     }
 
     public function castVote(Part $part, VoteType $votetype): void 

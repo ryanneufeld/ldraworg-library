@@ -5,10 +5,10 @@
         <div class="font-bold">
             @if($event->user->role != 'Synthetic User'  && $event->user->role != 'Legacy User' && $event->user->name != 'PTadmin')
             <a class="text-blue-500 visited:text-violet-500 hover:text-blue-300 hover:underline" href="https://forums.ldraw.org/private.php?action=send&uid={{$event->user->forum_user_id}}&subject=Regarding%20Parts%20Tracker%20file%20{{$event->part->filename}}">
-              {{ $event->user->authorString() }}
+              {{ $event->user->author_string }}
             </a>  
             @else
-              {{ $event->user->authorString() }}
+              {{ $event->user->author_string }}
             @endif
             @switch($event->part_event_type->slug)
               @case('submit')
