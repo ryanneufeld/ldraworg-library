@@ -39,7 +39,12 @@ class ParsedPart
             $releasetype = '';
         }
         if (!is_null($part->category)) {
-            $cat = str_replace(['~','|','=','_'], '', mb_strstr($part->description, " ", true));
+            $d = trim($part->description);
+            if ($d !== '' && in_array($d[0], ['~', '|', '=', '_']))
+            {
+                $d = trim(substr($d, 1));
+            }    
+            $cat = mb_strstr($d, " ", true);
             if ($cat != $part->category->category) {
                 $metaCategory = $part->category->category;
             } else {

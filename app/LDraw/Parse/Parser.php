@@ -224,16 +224,6 @@ class Parser
         return $this->getSingleValueMeta($text, 'category');
     }
 
-    public static function stripDescriptionPrefix(string $description): string
-    {
-        if ($description !== '' && in_array($description[0], ['~', '|', '=', '_']))
-        {
-            $description = trim(substr($description, 1));
-        }
-
-        return $description;
-    }
-
     /**
      * getDescriptionCategory
      *
@@ -245,7 +235,10 @@ class Parser
     {
         $d = $this->getSingleValueMeta($text, 'description');
         if (!is_null($d)) {
-            $d = $this->stripDescriptionPrefix($d);
+            if ($d !== '' && in_array($d[0], ['~', '|', '=', '_']))
+            {
+                $d = trim(substr($d, 1));
+            }
             $dwords = explode(' ', $d);
             $category = trim($dwords[0]);
             if ($category !== '') {

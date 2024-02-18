@@ -475,7 +475,12 @@ class Part extends Model
 
         $addBlank = false;
         if (!is_null($this->category) && ($this->type->type === 'Part' || $this->type->type === 'Shortcut')) {
-            $cat = str_replace(['~','|','=','_'], '', mb_strstr($this->description, " ", true));
+            $d = trim($this->description);
+            if ($d !== '' && in_array($d[0], ['~', '|', '=', '_']))
+            {
+                $d = trim(substr($d, 1));
+            }    
+            $cat = mb_strstr($d, " ", true);
             if ($cat != $this->category->category) {
                 $header[] = $this->category->toString();
                 $addBlank = true;
