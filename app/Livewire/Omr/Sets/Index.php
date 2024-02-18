@@ -38,6 +38,7 @@ class Index extends Component implements HasForms, HasTable
         return $table
             ->heading('OMR Model List')
             ->query(OmrModel::query())
+            ->defaultSort('set.number')
             ->emptyState(view('tables.empty', ['none' => 'None']))
             ->columns([
                 ImageColumn::make('set.rb_url')
@@ -49,6 +50,10 @@ class Index extends Component implements HasForms, HasTable
                     ->sortable(),
                 TextColumn::make('set.name')
                     ->label('Set Name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('set.year')
+                    ->label('Year')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('name')
