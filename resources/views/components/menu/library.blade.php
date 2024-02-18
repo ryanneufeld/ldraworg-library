@@ -1,4 +1,4 @@
-<x-menu class="stackable">
+<x-menu>
     <x-menu.item label="Library Main" link="{{route('index')}}" /> 
     <x-menu.item label="Parts Tracker" link="{{route('tracker.main')}}" />
     <x-menu.item label="Update" link="{{route('part-update.index')}}" />
