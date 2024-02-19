@@ -90,6 +90,7 @@ class User extends Authenticatable implements FilamentUser
             }
         );
     }
+    
     public function scopeHasSubmittedPart(Builder $query, Part $part): void
     {
         $query->whereHas('part_histories', function (Builder $q) use ($part) 
