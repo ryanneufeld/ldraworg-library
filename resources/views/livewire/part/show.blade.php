@@ -1,7 +1,4 @@
 <div x-data="{ webgl: true }"> 
-    @if(session('status'))
-        <x-message.toast type="info" header="{{session('status')}}" />
-    @endif
     <x-slot:title>
         File Detail {{ $part->filename }}
     </x-slot>
