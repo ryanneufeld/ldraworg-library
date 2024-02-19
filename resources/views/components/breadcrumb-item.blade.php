@@ -1,7 +1,7 @@
 @props(['item', 'active' => null])
-<x-fas-angle-double-right class="size-4" />
-@isset($active)
-    <strong>{{$item}}</strong>
-@else
+<div class="px-2">
+    <x-fas-angle-double-right class="size-4" />
+</div>
+<div @class(["font-bold" => !is_null($active)])>
     {{$item}}
-@endisset
+</div>
