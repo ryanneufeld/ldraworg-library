@@ -1,1 +1,0 @@
-<x-form.select {{$attributes}} label="{{$label}}" :$options />
