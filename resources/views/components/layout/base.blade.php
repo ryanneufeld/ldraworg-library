@@ -69,7 +69,7 @@
       </div>
     
   
-      <div class="ui basic segment footer">
+      <div class="flex flex-col p-2">
         <p>
           Website copyright &copy;2003-{{date_format(now(),"Y")}} LDraw.org, see 
           <a href="/legal-info">Legal Info</a> for details.
