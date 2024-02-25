@@ -27,5 +27,5 @@
             <a href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a>
         </p>
     </div>
-    <x-filament::button wire:click="updateLicense" class="w-max">I agree</x-filament::button>
+    <x-filament::button wire:click="updateLicense" class="w-fit">I agree</x-filament::button>
 </div>

@@ -36,7 +36,7 @@
                                 {{$model->missing_stickers ? 'Yes' : 'No'}}
                             </div>    
                         </div>
-                        <a class="rounded-lg border bg-blue-500 font-bold px-4 py-2 text-white m-2 w-max" href="{{asset('library/omr/' . $model->filename())}}">Download</a>
+                        <a class="rounded-lg border bg-blue-500 font-bold px-4 py-2 text-white m-2 w-fit" href="{{asset('library/omr/' . $model->filename())}}">Download</a>
                     </div>
                 @endforeach    
             </div>

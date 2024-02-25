@@ -4,7 +4,7 @@
     <div class="flex flex-col space-y-2">
         @isset($release->part_list) 
             @foreach($release->part_list as list($description, $filename))
-                <div class="rounded border w-max">
+                <div class="rounded border w-fit">
                     <div class="font-bold bg-gray-200 p-2">
                         {{$filename}} - {{$description}}
                     </div>
