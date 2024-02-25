@@ -202,7 +202,7 @@ class Part extends Model
 
     public function scopePatterns(Builder $query, string $basepart): void 
     {
-        $query->where(function(Builder $q) use ($basepart) {
+        $query->where(function(Builder $q) use ($basepart): void {
             $q->where('filename', 'like', "parts/{$basepart}p__.dat")->orWhere('filename', 'like', "parts/{$basepart}p___.dat");
         });
     }

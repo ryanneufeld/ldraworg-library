@@ -18,6 +18,7 @@ use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
 use App\Livewire\PartEventsShow;
 use App\Livewire\Search\Parts;
+use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
 
 Route::view('/', 'index')->name('index');
@@ -80,7 +81,7 @@ Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view']
 
 Route::redirect('/search', '/search/part');
 Route::get('/search/part', Parts::class)->name('search.part');
-Route::get('/search/suffix', SuffixSearchController::class)->name('search.suffix');
+Route::get('/search/suffix', Suffix::class)->name('search.suffix');
 
 Route::prefix('official')->name('official.')->group(function () {
     Route::redirect('/search', '/search/part');
