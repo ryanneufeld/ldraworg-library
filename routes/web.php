@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Search\SuffixSearchController;
 use App\Http\Controllers\Part\PartReleaseController;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\Omr\SetController;
@@ -34,7 +33,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::get('/list', PartList::class)->name('index');
     Route::get('/weekly', Weekly::class)->name('weekly');
     Route::get('/history', TrackerHistoryController::class)->name('history');
-    Route::get('/summary/{summary}', [ReviewSummaryController::class, 'show'])->name('summary');
+    Route::get('/summary/{summary}', ReviewSummaryController::class)->name('summary');
 
     Route::middleware(['auth'])->get('/confirmCA', ConfirmCA::class)->name('confirmCA.show');
 
