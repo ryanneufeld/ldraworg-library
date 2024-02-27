@@ -25,7 +25,7 @@
     @endpush
 
     <div class="flex flex-col space-y-4">
-        <div class="flex flex-row divide-x bg-white border rounded-md w-max cursor-pointer">
+        <div class="flex flex-row divide-x bg-white border rounded-md w-fit cursor-pointer">
             {{ $this->downloadAction }}
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
@@ -41,9 +41,6 @@
             @endif
             @if ($this->updateSubpartsAction->isVisible())
                 {{ $this->updateSubpartsAction }}
-            @endif
-            @if ($this->deleteAction->isVisible())
-                {{ $this->deleteAction }}
             @endif
             @if ($this->deleteAction->isVisible())
                 {{ $this->deleteAction }}
@@ -118,17 +115,16 @@
                 @endcan    
             @endif
         </div>
-        <div class="flex flex-row-reverse flex-wrap">
-            <div @class([
-                'shrink p-4 place-content-center place-self-center border rounded',
-                'bg-lime-200' => !$part->isUnofficial(),
-                'bg-yellow-200' => $part->isUnofficial()
-            ])>
-                <a href="{{$image}}">
-                    <img src="{{$image}}" alt='part image' title="{{ $part->description }}" >
-                </a>
-            </div>
-            <div class="justify-self-end">
+        <div class="flex flex-row-reverse gap-2">
+            <img @class([
+                    'w-fit h-fit p-4 jusitfy-self-top border rounded',
+                    'bg-lime-200' => !$part->isUnofficial(),
+                    'bg-yellow-200' => $part->isUnofficial()
+                ])
+                wire:click="$dispatch('open-modal', { id: 'ldbi' })"
+                src="{{$image}}" alt="{{ $part->description }}" title="{{ $part->description }}"
+            >
+            <div class="justify-self-end shrink">
                 <div class="text-lg font-bold">File Header:</div>
                 <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
             </div>    
@@ -163,7 +159,7 @@
                 </form>
             @endif
         @endif
-        <div class="flex flex-row divide-x bg-white border rounded-md w-max cursor-pointer">
+        <div class="flex flex-row divide-x bg-white border rounded-md w-fit cursor-pointer">
             {{ $this->downloadAction }}
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
@@ -183,9 +179,6 @@
             @if ($this->deleteAction->isVisible())
                 {{ $this->deleteAction }}
             @endif
-            @if ($this->deleteAction->isVisible())
-                {{ $this->deleteAction }}
-            @endif
             {{ $this->webglViewAction }}
         </div>
         <x-part.attribution :part="$part" />
@@ -201,15 +194,45 @@
                     size="lg"
                     label="Normal mode"
                     class="border"
+                    wire:click="$dispatch('ldbi-normal-mode')"
                 />
                 <x-filament::icon-button
                     icon="fas-paint-brush"
                     size="lg"
                     label="Harlequin (random color) mode"
                     class="border"
+                    wire:click="$dispatch('ldbi-harlequin-mode')"
+                />
+                <x-filament::icon-button
+                    icon="fas-leaf"
+                    size="lg"
+                    label="Back Face Culling (BFC) mode"
+                    class="border"
+                    wire:click="$dispatch('ldbi-bfc-mode')"
+                />
+                <x-filament::icon-button
+                    icon="fas-dot-circle"
+                    size="lg"
+                    label="Toggle Stud Logos"
+                    class="border"
+                    wire:click="$dispatch('ldbi-stud-logos')"
+                />
+                <x-filament::icon-button
+                    icon="fas-arrows-alt"
+                    size="lg"
+                    label="Toggle Show Origin"
+                    class="border"
+                    wire:click="$dispatch('ldbi-show-origin')"
+                />
+                <x-filament::icon-button
+                    icon="fas-eye"
+                    size="lg"
+                    label="Toggle Photo Mode"
+                    class="border"
+                    wire:click="$dispatch('ldbi-physical-mode')"
                 />
             </div>
-            <div id="ldbi-container" class="border w-full min-h-[75vh]"> 
+            <div id="ldbi-container" class="border w-full min-h-[85vh]"> 
                 <canvas id="ldbi-canvas" class="size-full"></canvas>
             </div>
         </div>
@@ -262,6 +285,41 @@
                             );
                             window.addEventListener('resize', () => scene.onChange());
                         })
+                }
+            });
+
+            $wire.on('ldbi-default-mode', () => {
+                scene.default_mode();
+            });
+
+            $wire.on('ldbi-harlequin-mode', () => {
+                scene.harlequin_mode();
+            });
+
+            $wire.on('ldbi-bfc-mode', () => {
+                scene.bfc_mode();
+            });
+
+            $wire.on('ldbi-stud-logo', () => {
+                if (LDR.Options.studLogo == 1) {
+                    LDR.Options.studLogo = 0;
+                } else {
+                    LDR.Options.studLogo = 1;
+                }
+                scene.reload();
+            });
+
+            $wire.on('ldbi-show-origin', () => {
+                scene.axesHelper.visible = !scene.axesHelper.visible;
+                scene.reload();
+            });
+
+            $wire.on('ldbi-physical-mode', () => {
+                if (scene.loader.physicalRenderingAge > 0) {
+                    scene.setPhysicalRenderingAge(0);
+                }
+                else {
+                    scene.setPhysicalRenderingAge(20);
                 }
             });
         </script>
