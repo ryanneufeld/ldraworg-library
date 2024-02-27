@@ -13,7 +13,7 @@
         @class([
             'flex flex-col bg-white absolute divide-y border rounded-md w-max z-50',
             'mt-2 left-0 end-0' => $level == 0,
-            'left-3/4 end-0' => $level > 0
+            'left-0 end-0 md:left-1/4 md:end-0' => $level > 0
         ])
         x-show="{{$mname}}" 
         x-transition:enter="transition ease-out duration-100" 
