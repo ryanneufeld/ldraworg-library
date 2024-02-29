@@ -25,7 +25,7 @@
     @endpush
 
     <div class="flex flex-col space-y-4">
-        <div class="flex flex-row divide-x bg-white border rounded-md w-fit cursor-pointer">
+        <div class="flex flex-col md:flex-row divide-y md:divide-x bg-white border rounded-md w-fit cursor-pointer">
             {{ $this->downloadAction }}
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
@@ -47,15 +47,13 @@
             @endif
             {{ $this->webglViewAction }}
         </div>
-        <div class="text-3xl font-bold">
-            <span @class([
-                'bg-lime-200' => !$part->isUnofficial(),
+        <div @class([
+                'text-3xl font-bold p-2 w-fit',
+                'bg-green-200' => !$part->isUnofficial(),
                 'bg-yellow-200' => $part->isUnofficial()
             ])>
                 {{ucfirst($part->libFolder())}} File <span id="filename">{{ $part->filename }}</span>
-            </span>
         </div>
-       
         <div>
             @isset ($part->unofficial_part_id)
                 <x-filament::button 
@@ -115,10 +113,10 @@
                 @endcan    
             @endif
         </div>
-        <div class="flex flex-row-reverse gap-2">
+        <div class="flex flex-col md:flex-row-reverse gap-2">
             <img @class([
                     'w-fit h-fit p-4 jusitfy-self-top border rounded',
-                    'bg-lime-200' => !$part->isUnofficial(),
+                    'bg-green-200' => !$part->isUnofficial(),
                     'bg-yellow-200' => $part->isUnofficial()
                 ])
                 wire:click="$dispatch('open-modal', { id: 'ldbi' })"
@@ -133,33 +131,34 @@
             <div class="text-lg font-bold">Status:</div>
             <x-part.status :$part show-status /><br>
             <x-part.part-check-message :$part />
-            {{$this->table}}
-            <livewire:tables.related-parts title="Unofficial parent parts" :$part parents/>
-            <livewire:tables.related-parts title="Unofficial subparts" :$part />
+            <div class="text-md font-bold">Current Votes:</div>
+            <x-vote.table :votes="$part->votes" />
+            <x-part.table title="Unofficial parent parts" :parts="$part->parents()->unofficial()->get()" />
+            <x-part.table title="Unofficial subparts" :parts="$part->subparts()->unofficial()->get()" />
             <x-accordion id="officialParts">
                 <x-slot name="header" class="text-md font-bold">
                     Official parents and subparts
                 </x-slot>
-                <livewire:tables.related-parts title="Official parent parts" :$part official parents/>
-                <livewire:tables.related-parts title="Official subparts" :$part official/>
+                <x-part.table title="Official parent parts" :parts="$part->parents()->official()->get()" />
+                <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
             </x-accordion>
         @else
-            <livewire:tables.related-parts title="Official parent parts" :$part official parents/>
-            <livewire:tables.related-parts title="Official subparts" :$part official/>
-        @endif    
+            <x-part.table title="Official parent parts" :parts="$part->parents()->official()->get()" />
+            <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
+        @endif
+        <x-event.list :$part />
         @if($part->isUnofficial())
-            <x-event.list title="File events" :events="$part->events" />
             <div id="voteForm"></div>
             @if (Auth::check() && (Auth::user()->can('create', [\App\Models\Vote::class, $part]) || Auth::user()->can('update', [$part->votes()->firstWhere('user_id', Auth::user()->id)])))    
                 <form wire:submit="postVote">
                     {{ $this->form }}
-                    <button class="border rounded" type="submit">
+                    <button class="border rounded mt-2 py-2 px-4 bg-yellow-500" type="submit">
                         Submit
                     </button>
                 </form>
             @endif
         @endif
-        <div class="flex flex-row divide-x bg-white border rounded-md w-fit cursor-pointer">
+        <div class="flex flex-col md:flex-row divide-y md:divide-x bg-white border rounded-md w-fit cursor-pointer">
             {{ $this->downloadAction }}
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
@@ -183,7 +182,7 @@
         </div>
         <x-part.attribution :part="$part" />
     </div>
-    <x-filament::modal id="ldbi" alignment="center" width="7xl" >
+    <x-filament::modal id="ldbi" alignment="center" width="7xl">
         <x-slot name="heading">
             3D View
         </x-slot>
@@ -232,7 +231,7 @@
                     wire:click="$dispatch('ldbi-physical-mode')"
                 />
             </div>
-            <div id="ldbi-container" class="border w-full min-h-[85vh]"> 
+            <div id="ldbi-container" class="border w-full h-[80vh]"> 
                 <canvas id="ldbi-canvas" class="size-full"></canvas>
             </div>
         </div>

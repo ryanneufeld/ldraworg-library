@@ -1,6 +1,6 @@
 @props(['part'])
-<tr>
-  <td class="center aligned">
+<tr class="*:p-2">
+  <td>
     @if($part->isUnofficial())
     <img class="ui centered image" src="{{asset('images/library/unofficial/' . substr($part->filename, 0, -4) . '_thumb.png')}}" alt='part thumb image' title="part_thumb">
     @else
@@ -15,7 +15,7 @@
     <a href="{{ route('official.show',$part->id) }}">{{ $part->description }}</a>
     @endif
   </td>
-  <td class="center aligned">
+  <td>
     @if($part->isUnofficial())
     <a href="{{route('unofficial.download', $part->filename)}}">[DAT]</a>
     @else

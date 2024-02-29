@@ -1,25 +1,27 @@
-@props(['parts', 'title' => '', 'hsize' => 'medium', 'none' => 'None', 'missing' => []])
-<div class="ui {{$hsize}} header">{{$title}}</div>
+@props(['parts', 'title' => '', 'none' => 'None', 'missing' => []])
+<div class="text-lg font-bold">{{$title}}</div>
 @if ($parts->count() > 0 || !empty($missing))
-<table class="ui sortable celled table">
-  <thead>
-    <tr>
-      <th class="one wide">Image</th>
-      <th class="three wide">Part</th>
-      <th class="nine wide">Description</th>
-      <th class="one wide">DAT</th>
-      <th class="two wide">Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    @foreach ($parts as $part)
-      <x-part.table.row :part="$part" />
-    @endforeach 
-    @foreach ($missing as $m)
-      <tr class="red"><td></td><td>{{$m}}</td><td>Missing</td><td></td><td></td></tr>
-    @endforeach
-  </tbody>
+<table class="border rounded-lg w-full">
+    <thead class="border-b-2 border-b-black">
+        <tr class="*:bg-gray-200 *:font-bold *:justify-self-start *:p-2">
+            <th>Image</th>
+            <th>Part</th>
+            <th>Description</th>
+            <th>DAT</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody class="divide-y">
+        @foreach ($parts as $part)
+            <x-part.table.row :part="$part" wire:key="part-{{$part->id}}"/>
+        @endforeach 
+        @foreach ($missing as $m)
+            <tr wire:key="missing-{{str_replace('/', '', $m)}}"><td></td><td>{{$m}}</td><td>Missing</td><td></td><td></td></tr>
+        @endforeach
+    </tbody>
 </table>
 @else
-{{$none}}
+<p>
+    {{$none}}
+</p>
 @endif
