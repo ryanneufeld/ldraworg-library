@@ -465,7 +465,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                 ])
                 ->successNotificationTitle('Renumber/Move Successful')
                 ->using(fn(Part $p, array $data) => $this->updateMove($p, $data))
-                ->visible(Auth::user()?->can('part.edit.number'))
+                ->visible(Auth::user()?->can('part.edit.number') ?? false)
         );
     }
 
@@ -511,7 +511,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                 ->visible(
                     $this->part->isUnofficial() &&
                     (!is_null($this->part->official_part_id) || $this->part->parents->count() === 0) &&
-                    Auth::user()?->can('part.delete')
+                    Auth::user()?->can('part.delete') ?? false
                 )
                 ->modalDescription('Are you sure you\'d like to delete this part? This cannot be easily undone.')
                 ->successRedirectUrl(route('tracker.activity'))
@@ -531,7 +531,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                         ->success()
                         ->send();    
                 })
-                ->visible(Auth::user()?->can('update', $this->part))
+                ->visible(Auth::user()?->can('update', $this->part) ?? false)
         );
     }
     
@@ -547,7 +547,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                         ->success()
                         ->send();    
                 })
-                ->visible(Auth::user()?->can('update', $this->part))
+                ->visible(Auth::user()?->can('update', $this->part) ?? false)
         );
     }
 
@@ -589,7 +589,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                     $this->part->isUnofficial() && 
                     $this->part->type->folder == 'parts/' && 
                     $this->part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0 &&
-                    Auth::user()?->can('vote.admincertify')
+                    Auth::user()?->can('vote.admincertify') ?? false
                 )
         );
     }

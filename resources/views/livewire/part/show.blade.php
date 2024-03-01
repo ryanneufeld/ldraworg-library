@@ -147,9 +147,13 @@
             <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
         @endif
         <x-event.list :$part />
-        @if($part->isUnofficial())
+        @if($part->isUnofficial() && Auth::check())
             <div id="voteForm"></div>
-            @if (Auth::check() && (Auth::user()->can('create', [\App\Models\Vote::class, $part]) || Auth::user()->can('update', [$part->votes()->firstWhere('user_id', Auth::user()->id)])))    
+            @if (
+                    Auth::user()->can('part.comment') ||
+                    (Auth::user()->id === $part->user_id && Auth::user->canAny(['part.own.vote.hold', 'part.own.vote.certify'])) ||
+                    Auth::user->canAny(['part.vote.hold', 'part.vote.certify', 'part.vote.admincertify', 'part.vote.fasttrack'])
+                )
                 <form wire:submit="postVote">
                     {{ $this->form }}
                     <button class="border rounded mt-2 py-2 px-4 bg-yellow-500" type="submit">
