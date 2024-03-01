@@ -36,8 +36,9 @@
                 </div>
             @endisset
         </div>
-        <nav class="bg-white rounded">   
+        <nav class="bg-white rounded flex flex-col md:flex-row">   
             {{$menu ?? ''}}
+            <livewire:search.menu-item />
         </nav>
         <div class="grid grid-cols-2 justify-stretch items-center">
             <div class="justify-self-start">

@@ -24,6 +24,10 @@ class Parts extends Component implements HasForms
 
     public ?array $data = [];
 
+    protected $queryString= [
+        'search' => ['except' => '', 'as' => 's'],
+    ];
+
     public function mount(): void
     {
         $this->form->fill();
