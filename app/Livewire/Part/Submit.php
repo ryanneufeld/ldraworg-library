@@ -118,7 +118,7 @@ class Submit extends Component implements HasForms
         $manager = app(PartManager::class);;
         $this->part_errors = [];
         $data = $this->form->getState();
-        if (!is_null($data['user_id']) && Auth::user()->can('part.submit.proxy')) {
+        if (array_key_exists('user_id', $data) && Auth::user()->can('part.submit.proxy')) {
             $user = User::find($data['user_id']);
         } else {
             $user = Auth::user();
