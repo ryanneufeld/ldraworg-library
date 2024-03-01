@@ -49,13 +49,28 @@
         <p>
             The following files passed validation checks and have been submitted to the Parts Tracker
         </p>
-        <div class="grid grid-cols-3">
-            @foreach($submitted_parts as $p)
-                <div class="border px-2"><img src="{{$p['image']}}"></div>
-                <div class="border px-2">{{$p['filename']}}</div>
-                <div class="border px-2"><a href="{{$p['route']}}">{{$p['description']}}</a></div>
-            @endforeach    
-        </div>
+        <table class="border rounded-lg w-full">
+            <thead class="border-b-2 border-b-black">
+                <tr class="*:bg-gray-200 *:font-bold *:justify-self-start *:p-2">
+                    <th>Image</th>
+                    <th>Part</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                @foreach ($submitted_parts as $p)
+                    <tr class="*:p-2">
+                        <td>
+                            <img class="ui centered image" src="{{$p['image']}}" alt='part thumb image' title="part_thumb">
+                        </td>
+                        <td>{{$p['filename']}}</td>
+                        <td>
+                            <a href="{{$p['route']}}">{{$p['description']}}</a>
+                        </td>
+                    </tr>
+                @endforeach 
+            </tbody>
+        </table>
         <x-filament::button wire:click="postSubmit">
             Ok
         </x-filament::button>

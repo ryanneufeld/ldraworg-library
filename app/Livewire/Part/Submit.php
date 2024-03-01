@@ -29,20 +29,7 @@ class Submit extends Component implements HasForms
 
     public ?array $data = [];
     public array $part_errors = [];
-    public array $submitted_parts = [
-        [
-            'image' => 'https://librarydev.ldraw.org/images/library/unofficial/parts/s/40598as01_thumb.png?v=1706676604',
-            'filename' => 'parts/s/40598as01.dat',
-            'description' => '~Minifig Weapon Venting Disc - Vent Quarter',
-            'route' => 'https://librarydev.ldraw.org/tracker/27870'
-        ],
-        [
-            'image' => 'https://librarydev.ldraw.org/images/library/unofficial/parts/40598a_thumb.png?v=1706676604',
-            'filename' => 'parts/40598a.dat',
-            'description' => 'Minifig Weapon Venting Disc',
-            'route' => 'https://librarydev.ldraw.org/tracker/27879'
-        ]
-    ];
+    public array $submitted_parts = [];
 
     public function mount(): void
     {
