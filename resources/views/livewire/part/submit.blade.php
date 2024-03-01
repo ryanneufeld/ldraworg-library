@@ -38,11 +38,6 @@
         Uploaded files should appear almost immediately in the Parts Tracker list.
     </p>
     <x-filament::modal id="post-submit" width="5xl" :close-by-clicking-away="false" :close-button="false">
-        <x-slot name="trigger">
-            <x-filament::button>
-                Open modal
-            </x-filament::button>
-        </x-slot>
         <x-slot name="heading">
             Submit Successful
         </x-slot>
