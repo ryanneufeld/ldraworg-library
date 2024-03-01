@@ -114,7 +114,7 @@ class Submit extends Component implements HasForms
 
     public function create(): void
     {
-        $this->authorize('create', Part::class);
+        $this->authorize('part.submit.regular');
         $manager = app(PartManager::class);;
         $this->part_errors = [];
         $data = $this->form->getState();

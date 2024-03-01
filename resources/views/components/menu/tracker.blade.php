@@ -6,7 +6,7 @@
             <x-menu.item label="Update Archive" link="{{route('part-update.index')}}" />
             <x-menu.item label="OMR" link="{{route('omr.main')}}" />
     </x-menu.dropdown>    
-    @can('create', App\Models\Part::class)
+    @can('part.submit.regular')
         <x-menu.item label="Submit" link="{{route('tracker.submit')}}" />
     @endcan
     <x-menu.item label="Parts List" link="{{route('tracker.index')}}" /> 
