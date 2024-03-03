@@ -1,22 +1,39 @@
 <div @class([
     'flex',
-    'flex-row divide-x divide-solid divide-black space-x-2' => $small,
+    'flex-row space-x-4 place-content-center' => $small,
     'flex-col space-y-2' => !$small,
+    'w-fit'
 ])>
-    <div>
-        <x-fas-square class="inline w-5 fill-lime-400" />
-        <span class="inline">{{$summary['1']}}{{$small ? '' : " certified files"}}</span>
+    <div @class([
+        'flex',
+        'flex-col place-items-center' => $small,
+        'flex-row space-x-2 items-center justify-items-start' => !$small
+    ])>
+        <x-fas-square class="w-5 fill-lime-400" />
+        <div>{{$summary['1']}}{{$small ? '' : " certified files"}}</div>
     </div>
-    <div>
-        <x-fas-square class="ml-2 inline w-5 fill-blue-700" />
-        <span class="inline">{{$summary['2']}}{{$small ? '' : " files need admin review"}}</span>
+    <div @class([
+        'flex',
+        'flex-col place-items-center' => $small,
+        'flex-row space-x-2 items-center justify-items-start' => !$small
+    ])>
+        <x-fas-square class="w-5 fill-blue-700" />
+        <div>{{$summary['2']}}{{$small ? '' : " files need admin review"}}</div>
     </div>
-    <div>
-        <x-fas-square class="ml-2 inline w-5 fill-gray-400" />
-        <span class="inline">{{$summary['3']}}{{$small ? '' : " files need more votes"}}</span>
+    <div @class([
+        'flex',
+        'flex-col place-items-center' => $small,
+        'flex-row space-x-2 items-center justify-items-start' => !$small
+    ])>
+        <x-fas-square class="w-5 fill-gray-400" />
+        <div>{{$summary['3']}}{{$small ? '' : " files need more votes"}}</div>
     </div>
-    <div>
-        <x-fas-square class="ml-2 inline w-5 fill-red-600" />
-        <span>{{$summary['5']}}{{$small ? '' : " files are held for errors"}}</span>
+    <div @class([
+        'flex',
+        'flex-col place-items-center' => $small,
+        'flex-row space-x-2 items-center justify-items-start' => !$small
+    ])>
+        <x-fas-square class="w-5 fill-red-600" />
+        <div>{{$summary['5']}}{{$small ? '' : " files are held for errors"}}</div>
     </div>
 </div>
