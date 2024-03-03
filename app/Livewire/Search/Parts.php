@@ -14,6 +14,7 @@ use Filament\Forms\Components\Split;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Livewire\Attributes\Url; 
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
@@ -23,14 +24,36 @@ class Parts extends Component implements HasForms
     use InteractsWithForms;
 
     public ?array $data = [];
-
-    protected $queryString= [
-        'search' => ['except' => '', 'as' => 's'],
-    ];
+    
+    #[Url(as: 's')]
+    public ?string $search = '';
+    #[Url(except: 'header')]
+    public ?string $scope = 'header';
+    #[Url]
+    public ?int $user_id = null;
+    #[Url]
+    public ?bool $exclude_user = false;
+    #[Url]
+    public ?bool $include_history = false;
+    #[Url]
+    public ?string $status = '';
+    #[Url]
+    public ?array $part_type_id = [];
+    
 
     public function mount(): void
     {
-        $this->form->fill();
+        $this->data = [
+            'search' => $this->search, 
+            'scope' => $this->scope,
+            'user_id' => $this->user_id,
+            'exclude_user' => $this->exclude_user,
+            'include_history' => $this->include_history,
+            'status' => $this->status,
+            'part_type_id' => $this->part_type_id,
+        ];
+        $this->form->fill($this->data);
+        //$this->doSearch();
     }
 
     public function form(Form $form): Form
@@ -90,13 +113,21 @@ class Parts extends Component implements HasForms
                             ->nullable(),
                     ]),
             ])
-            ->statePath('data')
             ->model(Part::class);
     }
 
     public function doSearch(): void
     {
         $this->form->getState();
+        $this->data = [
+            'search' => $this->search, 
+            'scope' => $this->scope,
+            'user_id' => $this->user_id,
+            'exclude_user' => $this->exclude_user,
+            'include_history' => $this->include_history,
+            'status' => $this->status,
+            'part_type_id' => $this->part_type_id,
+        ];
         $this->dispatch('search-updated');
     }
  
