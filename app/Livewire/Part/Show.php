@@ -69,7 +69,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                                 foreach(VoteType::orderBy('sort')->get() as $vt) {
                                     switch($vt->code) {
                                         case 'N':
-                                            if (!is_null($v)) {
+                                            if (!is_null($v) && $u->can('update', [$v, $vt->code])) {
                                                 $options[$vt->code] = $vt->name;
                                             }
                                             break;
@@ -81,7 +81,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                                         default:
                                             if (
                                                 (is_null($v) && $u->can('create', [Vote::class, $this->part, $vt->code])) ||
-                                                $u->can('update', [$this->part->votes->firstWhere('user_id', $u->id), $this->part, $vt->code])
+                                                $u->can('update', [$v, $vt->code])
                                             ) {
                                                 if (is_null($v) || $v->vote_type_code != $vt->code )
                                                 $options[$vt->code] = $vt->name;
@@ -613,25 +613,22 @@ class Show extends Component implements HasForms, HasTable, HasActions
             return;
         }
         $u = Auth::user();
+        $v = $this->part->votes()->firstWhere('user_id', $u->id);
         switch($this->vote_type_code) {
             case 'N':
-                if (is_null($this->part->votes()->firstWhere('user_id', $u->id))) {
-                    return;
-                }
+                $this->authorize('update', [$v, $this->vote_type_code]);
                 $u->cancelVote($this->part);
                 PartReviewed::dispatch($this->part, $u, null, $this->comment ?? null);
                 break;
             case 'M':
-                if (! ($u->can('part.comment') || ($u->id == $this->part->user_id && $u()->can('part.own.comment')))) {
-                    return;
-                }
+                $this->authorize('part.comment');
                 PartComment::dispatch($this->part, Auth::user(), $this->comment ?? null);
                 break;
             default:
-                if (is_null($this->part->votes->firstWhere('user_id', $u->id))) {
+                if (is_null($v)) {
                     $this->authorize('create', [Vote::class, $this->part, $this->vote_type_code]);
                 } else {
-                    $this->authorize('update', [$this->part->votes->firstWhere('user_id', $u->id), $this->vote_type_code]);
+                    $this->authorize('update', [$v, $this->vote_type_code]);
                 }
                 $vt = VoteType::find($this->vote_type_code);
                 $u->castVote($this->part, $vt);

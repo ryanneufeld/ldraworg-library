@@ -17,50 +17,67 @@ class VotePolicy
      * @param  \App\Models\User  $user
      * @return mixed
      */
-    public function create(User $user, Part $part)
+    public function create(User $user, Part $part, string $vote_type): bool
     {
-        if ($part->user_id == $user->id) {
-            return $user->hasAnyPermission([
-                'part.vote.certify', 
-                'part.vote.admincertify',
-                'part.vote.fasttrack',
-                'part.vote.hold',
-                'part.comment',
-                'part.own.vote.certify', 
-                'part.own.vote.hold',
-                'part.own.comment',
-            ]);
+        switch ($vote_type) {
+            case 'A': 
+                return $user->can('part.vote.admincertify');
+                break;
+            case 'T':
+                return $user->can('part.vote.fasttrack');
+                break;
+            case 'C':
+                if ($part->user_id === $user->id) {
+                    return $user->can('part.own.vote.certify');
+                } else {
+                    return $user->can('part.vote.certify');
+                }
+                break;
+            case 'H':
+                if ($part->user_id !== $user->id) {
+                    return $user->hasPermissionTo('part.vote.hold');
+                } else {
+                    return $user->hasAnyPermission(['part.vote.hold', 'part.own.vote.hold']);
+                }
+                break;
         }
-        return $user->hasAnyPermission([
-            'part.vote.certify', 
-            'part.vote.admincertify',
-            'part.vote.fasttrack',
-            'part.vote.hold',
-            'part.vote.novote',
-            'part.comment',
-        ]); 
+        return false;
     }
 
-    /**
-     * Determine whether the user can update the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Vote  $vote
-     * @return mixed
-     */
-    public function update(User $user, Vote $vote)
+    public function update(User $user, Vote $vote, string $vote_type): bool
     {
-        return $vote->user_id === $user->id;
+        if ($vote->user_id !== $user->id) {
+            return false;
+        }
+        switch ($vote_type) {
+            case 'N':
+                return true;
+                break;
+            case 'A': 
+                return $user->can('part.vote.admincertify');
+                break;
+            case 'T':
+                return $user->can('part.vote.fasttrack');
+                break;
+            case 'C':
+                if ($vote->part->user_id === $user->id) {
+                    return $user->can('part.own.vote.certify');
+                } else {
+                    return $user->can('part.vote.certify');
+                }
+                break;
+            case 'H':
+                if ($vote->part->user_id !== $user->id) {
+                    return $user->can('part.vote.hold');
+                } else {
+                    return $user->canAny(['part.vote.hold', 'part.own.vote.hold']);
+                }
+                break;
+        }
+        return false;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Vote  $vote
-     * @return mixed
-     */
-    public function delete(User $user, Vote $vote)
+    public function delete(User $user, Vote $vote): bool
     {
         return $vote->user_id === $user->id;
     }
