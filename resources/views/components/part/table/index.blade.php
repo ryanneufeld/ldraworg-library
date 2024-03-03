@@ -6,7 +6,6 @@
         <tr class="*:bg-gray-200 *:font-bold *:justify-self-start *:p-2">
             <th>Image</th>
             <th>Part</th>
-            <th>Description</th>
             <th>DAT</th>
             <th>Status</th>
         </tr>
@@ -16,7 +15,7 @@
             <x-part.table.row :part="$part" wire:key="part-{{$part->id}}"/>
         @endforeach 
         @foreach ($missing as $m)
-            <tr wire:key="missing-{{str_replace('/', '', $m)}}"><td></td><td>{{$m}}</td><td>Missing</td><td></td><td></td></tr>
+            <tr class="bg-red-200" wire:key="missing-{{str_replace('/', '', $m)}}"><td></td><td><p>{{$m}}<p><p>Missing<p></td><td></td><td></td></tr>
         @endforeach
     </tbody>
 </table>

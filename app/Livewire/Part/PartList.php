@@ -5,7 +5,9 @@ namespace App\Livewire\Part;
 use App\Models\Part;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -37,30 +39,23 @@ class PartList extends Component implements HasForms, HasTable
             ->defaultSort('vote_sort', 'asc')
             ->emptyState(view('tables.empty', ['none' => 'None']))
             ->columns([
-                ImageColumn::make('image')
-                    ->state( 
-                        fn (Part $p): string => asset("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
-                    )
-                    ->extraImgAttributes(['class' => 'object-scale-down']),
-                TextColumn::make('filename')
-                    ->wrap()
-                    ->sortable(),
-                TextColumn::make('description')
-                    ->wrap()
-                    ->sortable(),
-                 TextColumn::make('download')
-                    ->state( 
-                        fn (Part $p): string => 
-                            "<a href=\"" .
-                            route($p->isUnofficial() ? 'unofficial.download' : 'official.download', $p->filename) . 
-                            "\">[DAT]</a>"
-                    )
-                    ->html(),
-                ViewColumn::make('vote_sort')
-                    ->view('tables.columns.part-status')
-                    ->sortable()
-                    ->label('Status'),
-                
+                Split::make([
+                    ImageColumn::make('image')
+                        ->state( 
+                            fn (Part $p): string => asset("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
+                        )
+                        ->grow(false)
+                        ->extraImgAttributes(['class' => 'object-scale-down w-[35px] max-h-[75px]']),
+                    TextColumn::make('filename')
+                        ->sortable(),
+                    TextColumn::make('description')
+                        ->sortable(),
+                    ViewColumn::make('vote_sort')
+                        ->view('tables.columns.part-status')
+                        ->sortable()
+                        ->grow(false)
+                        ->label('Status'),
+                ])
             ])
             ->filters([
                 SelectFilter::make('vote_sort')
@@ -88,7 +83,13 @@ class PartList extends Component implements HasForms, HasTable
                     ->preload()
                     ->label('Part Type'),
             ], layout: FiltersLayout::AboveContent)
-                ->persistFiltersInSession()
+            ->persistFiltersInSession()
+            ->actions([
+                Action::make('download')
+                    ->url(fn(Part $part) => route($part->isUnofficial() ? 'unofficial.download' : 'official.download', $part->filename))
+                    ->button()
+                    ->color('info')
+            ])
             ->recordUrl(
                 fn (Part $p): string => 
                     route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
