@@ -126,7 +126,6 @@ class Show extends Component implements HasForms, HasTable, HasActions
 
     public function mount(?Part $part, ?Part $unofficialpart, ?Part $officialpart)
     {
-        //dd($part, $unofficialpart, $officialpart);
         if ($part->exists) {
             $this->part = $part;
         } elseif ($unofficialpart->exists) {
@@ -285,6 +284,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                             }                    
                         ]),
                     TextArea::make('editcomment')
+                        ->label('Comemnt')
                         ->extraAttributes(['class' => 'font-mono'])
                         ->rows(3)
                         ->nullable()
@@ -342,7 +342,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
             $part->part_type_id = $pt->id;
         }
         
-        if (!is_null($data['part_type_qualifier_id'])) {
+        if (!is_null($data['part_type_qualifier_id'] ?? null)) {
             $pq = PartTypeQualifier::find($data['part_type_qualifier_id']);
         } else {
             $pq = null;
@@ -353,7 +353,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
             $part->part_type_qualifier_id = $pq->id ?? null;
         }
 
-        if (!is_null($data['help']) && trim($data['help']) !== '') {
+        if (!is_null($data['help'] ?? nul) && trim($data['help']) !== '') {
             $newHelp = "0 !HELP " . str_replace(["\n","\r"], ["\n0 !HELP ",''], $data['help']);
             $newHelp = $manager->parser->getHelp($newHelp);
         } else {
@@ -367,7 +367,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
             $part->setHelp($newHelp);    
         }
 
-        if (!is_null($data['keywords'])) {
+        if (!is_null($data['keywords'] ?? null)) {
             $newKeywords = '0 !KEYWORDS ' . str_replace(["\n","\r"], [', ',''], $data['keywords']);
             $newKeywords = $manager->parser->getKeywords($newKeywords);
         } else {
