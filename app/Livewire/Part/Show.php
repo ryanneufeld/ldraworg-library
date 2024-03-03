@@ -284,7 +284,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                             }                    
                         ]),
                     TextArea::make('editcomment')
-                        ->label('Comemnt')
+                        ->label('Comment')
                         ->extraAttributes(['class' => 'font-mono'])
                         ->rows(3)
                         ->nullable()
@@ -353,7 +353,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
             $part->part_type_qualifier_id = $pq->id ?? null;
         }
 
-        if (!is_null($data['help'] ?? nul) && trim($data['help']) !== '') {
+        if (!is_null($data['help'] ?? null) && trim($data['help']) !== '') {
             $newHelp = "0 !HELP " . str_replace(["\n","\r"], ["\n0 !HELP ",''], $data['help']);
             $newHelp = $manager->parser->getHelp($newHelp);
         } else {
