@@ -124,14 +124,24 @@ class Show extends Component implements HasForms, HasTable, HasActions
             ->striped();
     }
 
-    public function mount(Part $part)
+    public function mount(?Part $part, ?Part $unofficialpart, ?Part $officialpart)
     {
-        $this->form->fill();
-        $this->part = $part;
+        //dd($part, $unofficialpart, $officialpart);
+        if ($part->exists) {
+            $this->part = $part;
+        } elseif ($unofficialpart->exists) {
+            $this->part = $unofficialpart;
+        } elseif ($officialpart->exists) {
+            $this->part = $officialpart;
+        } else {
+            return response(404);
+        }
+        
         $this->part->load('events', 'history');
         $this->part->events->load('part_event_type', 'user', 'part', 'vote_type');
         $this->image = 
-            $part->isTexmap() ? route("{$part->libFolder()}.download", $part->filename) : version("images/library/{$part->libFolder()}/" . substr($part->filename, 0, -4) . '.png');
+            $this->part->isTexmap() ? route("{$this->part->libFolder()}.download", $this->part->filename) : version("images/library/{$this->part->libFolder()}/" . substr($this->part->filename, 0, -4) . '.png');
+        $this->form->fill();
     }
 
     protected function menuAction(Action $a): Action 
@@ -469,7 +479,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                 ])
                 ->successNotificationTitle('Renumber/Move Successful')
                 ->using(fn(Part $p, array $data) => $this->updateMove($p, $data))
-                ->visible(Auth::user()?->can('part.edit.number') ?? false)
+                ->visible(Auth::user()?->can('updateNumber', $this->part) ?? false)
         );
     }
 
