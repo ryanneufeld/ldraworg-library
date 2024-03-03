@@ -37,30 +37,6 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $this->call('migrate');
-        foreach(VoteType::all() as $vt) {
-            $vt->sort = match ($vt->code) {
-                'A' => 3,
-                'C' => 4,
-                'H' => 5,
-                'T' => 6,
-            };
-            $vt->save();
-        }
-        VoteType::create([
-            'code' => 'M', 
-            'short'=>'comment', 
-            'name' => 'Comment', 
-            'phrase' => 'Comment.  Comment on this part without voting or changing your vote.',
-            'sort' => 1
-        ]);
-        VoteType::create([
-            'code' => 'N', 
-            'short'=>'cancel', 
-            'name' => 'Cancel Vote', 
-            'phrase' => 'Cancel Vote.  This will clear your vote on this part.',
-            'sort' => 2
-        ]);
         /*;
         Permission::create(['name' => 'omr.create']);
         Permission::create(['name' => 'omr.update']);
