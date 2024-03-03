@@ -115,14 +115,14 @@
         </div>
         <div class="flex flex-col md:flex-row-reverse gap-2">
             <img @class([
-                    'w-fit h-fit p-4 jusitfy-self-top border rounded',
+                    'w-fit h-fit p-4 border rounded',
                     'bg-green-200' => !$part->isUnofficial(),
                     'bg-yellow-200' => $part->isUnofficial()
                 ])
                 wire:click="$dispatch('open-modal', { id: 'ldbi' })"
                 src="{{$image}}" alt="{{ $part->description }}" title="{{ $part->description }}"
             >
-            <div class="justify-self-end shrink">
+            <div class="justify-self-start w-full">
                 <div class="text-lg font-bold">File Header:</div>
                 <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
             </div>    
@@ -157,7 +157,7 @@
                 <form wire:submit="postVote">
                     {{ $this->form }}
                     <button class="border rounded mt-2 py-2 px-4 bg-yellow-500" type="submit">
-                        Submit
+                        Send
                     </button>
                 </form>
             @endif
