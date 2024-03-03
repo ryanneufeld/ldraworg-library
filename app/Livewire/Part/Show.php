@@ -65,7 +65,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                                 if (!Auth::check()) return [];
                                 $options = [];                                
                                 $u = Auth::user();
-                                $v = $this->part->votes()->firstWhere('user_id', $u->id);
+                                $v = $this->part->votes->firstWhere('user_id', $u->id);
                                 foreach(VoteType::orderBy('sort')->get() as $vt) {
                                     switch($vt->code) {
                                         case 'N':
@@ -74,12 +74,15 @@ class Show extends Component implements HasForms, HasTable, HasActions
                                             }
                                             break;
                                         case 'M':
-                                            if ($u->can('part.comment') || ($u->id == $this->part->user_id && $u()->can('part.own.comment'))) {
+                                            if ($u->can('part.comment')) {
                                                 $options[$vt->code] = $vt->name;
                                             }
                                             break;
                                         default:
-                                            if ($u->can('part.vote.' . $vt->short) || ($u->id == $this->part->user_id && $u->can('part.own.vote.' . $vt->short))) {
+                                            if (
+                                                (is_null($v) && $u->can('create', [Vote::class, $this->part, $vt->code])) ||
+                                                $u->can('update', [$this->part->votes->firstWhere('user_id', $u->id), $this->part, $vt->code])
+                                            ) {
                                                 if (is_null($v) || $v->vote_type_code != $vt->code )
                                                 $options[$vt->code] = $vt->name;
                                             }    
@@ -280,6 +283,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                 ->mutateRecordDataUsing(function (array $data): array {
                     $data['help'] = $this->part->help()->orderBy('order')->get()->implode('text', "\n");
                     $data['keywords'] = $this->part->keywords()->orderBy('keyword')->get()->implode('keyword', ", ");
+                    $data['history'] = '';
                     foreach($this->part->history as $h) {
                         $data['history'] .= $h->toString() . "\n";
                     }
@@ -604,8 +608,8 @@ class Show extends Component implements HasForms, HasTable, HasActions
                 if (is_null($this->part->votes()->firstWhere('user_id', $u->id))) {
                     return;
                 }
-                Auth::user()->cancelVote($this->part);
-                PartReviewed::dispatch($this->part, Auth::user(), null, $this->comment ?? null);
+                $u->cancelVote($this->part);
+                PartReviewed::dispatch($this->part, $u, null, $this->comment ?? null);
                 break;
             case 'M':
                 if (! ($u->can('part.comment') || ($u->id == $this->part->user_id && $u()->can('part.own.comment')))) {
@@ -614,10 +618,12 @@ class Show extends Component implements HasForms, HasTable, HasActions
                 PartComment::dispatch($this->part, Auth::user(), $this->comment ?? null);
                 break;
             default:
+                if (is_null($this->part->votes->firstWhere('user_id', $u->id))) {
+                    $this->authorize('create', [Vote::class, $this->part, $this->vote_type_code]);
+                } else {
+                    $this->authorize('update', [$this->part->votes->firstWhere('user_id', $u->id), $this->vote_type_code]);
+                }
                 $vt = VoteType::find($this->vote_type_code);
-                if (is_null($vt) || !($u->can('part.vote.' . $vt->short) || ($u->id == $this->part->user_id && $u->can('part.own.vote.' . $vt->short)))) {
-                    return;
-                }    
                 $u->castVote($this->part, $vt);
                 PartReviewed::dispatch($this->part, $u, $this->vote_type_code, $this->comment ?? null);
         }
