@@ -12,10 +12,12 @@ use Closure;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Livewire\Component;
@@ -73,10 +75,10 @@ class Submit extends Component implements HasForms
                                 if ($official_exists && !$unofficial_exists && $cannotfix) {
                                     $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.fix.unofficial');
                                 }
-                                elseif ($official_exists && !$unofficial_exists && !in_array('officialfix', $get('options'))) {
+                                elseif ($official_exists && !$unofficial_exists && $get('officialfix') !== true) {
                                     $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.fix.checked');
                                 }  
-                                if ($unofficial_exists && !in_array('replace', $get('options'))) {
+                                if ($unofficial_exists && $get('replace') !== true) {
                                     $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.replace');
                                 }
                             }
@@ -85,14 +87,11 @@ class Submit extends Component implements HasForms
                             }  
                         },
                     ]),
-                CheckboxList::make('options')
-                    ->options(function () {
-                            $options = ['replace' => 'Replace existing file(s)'];
-                            if (Auth::user()->can('part.submit.fix')) {
-                                $options['officialfix'] = 'New version of official file(s)';
-                            }
-                            return $options;
-                        }),
+                Toggle::make('replace')
+                    ->label('Replace existing file(s)'),
+                Toggle::make('officialfix')
+                    ->label('New version of official file(s)')
+                    ->visible(Auth::user()->can('part.submit.fix')),
                 Select::make('user_id')
                     ->relationship(name: 'user')
                     ->getOptionLabelFromRecordUsing(fn (User $u) => "{$u->realname} [{$u->name}]")
