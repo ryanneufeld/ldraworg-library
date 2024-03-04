@@ -96,14 +96,20 @@ Route::redirect('/documentation', 'https://www.ldraw.org/docs-main.html')->name(
 Route::middleware(['throttle:file'])->get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
 Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');
 
-
-// Only enable this route for testing
-/*
-Route::get('/login-user-291', function () {
-  Auth::logout();
-  Auth::login(\App\Models\User::find(291));
-  return back();
+Route::middleware(['auth'])->get('/logout', function () {
+    auth()->logout();
+    return back();
 });
-*/
+
+Route::middleware(['can:assume-user'])->get('/login-user-{number}', function (int $number) {
+    if (app()->environment() === 'local') {
+        auth()->logout();
+        auth()->login(\App\Models\User::find($number));
+        return back();      
+    }
+    
+    return back();
+});
+
 
 
