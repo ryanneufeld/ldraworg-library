@@ -16,10 +16,9 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table as Table;
 use Livewire\Component;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 
-class PartList extends Component implements HasForms, HasTable
+class Index extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;

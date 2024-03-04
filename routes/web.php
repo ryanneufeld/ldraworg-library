@@ -11,7 +11,7 @@ use App\Http\Controllers\Part\PartDownloadController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
 use App\Livewire\Omr\Sets\Index;
-use App\Livewire\Part\PartList;
+use App\Livewire\Part\Index as PartIndex;
 use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
@@ -30,7 +30,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
     Route::middleware(['auth', 'currentlic'])->get('/submit', Submit::class)->name('submit');
 
-    Route::get('/list', PartList::class)->name('index');
+    Route::get('/list', PartIndex::class)->name('index');
     Route::get('/weekly', Weekly::class)->name('weekly');
     Route::get('/history', TrackerHistoryController::class)->name('history');
     Route::get('/summary/{summary}', ReviewSummaryController::class)->name('summary');
@@ -85,7 +85,7 @@ Route::get('/search/suffix', Suffix::class)->name('search.suffix');
 Route::prefix('official')->name('official.')->group(function () {
     Route::redirect('/search', '/search/part');
     Route::redirect('/suffixsearch', '/search/suffix');
-    Route::get('/list', PartList::class)->name('index');
+    Route::get('/list', PartIndex::class)->name('index');
     Route::get('/{officialpart}', Show::class)->name('show.filename');
     Route::get('/{part}', Show::class)->name('show');
 });
