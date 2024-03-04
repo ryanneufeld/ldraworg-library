@@ -1,13 +1,13 @@
 <?php
 
-namespace App\View\Components\Part;
+namespace App\View\Components\Message;
 
 use App\Models\Part;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class PartCheckMessage extends Component
+class PartReleasable extends Component
 {
     /**
      * Create a new component instance.
@@ -23,6 +23,6 @@ class PartCheckMessage extends Component
     public function render(): View|Closure|string
     {
         $check = $this->checker->checkCanRelease($this->part);
-        return view('components.part.part-check-message', compact('check'));
+        return view('components.message.part-releaseable', compact('check'));
     }
 }

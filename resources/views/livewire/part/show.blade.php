@@ -129,8 +129,8 @@
         </div>
         @if($part->isUnofficial())
             <div class="text-lg font-bold">Status:</div>
-            <x-part.status :$part show-status /><br>
-            <x-part.part-check-message :$part />
+            <x-part.status :$part show-status />
+            <x-message.part-releasable :$part />
             <div class="text-md font-bold">Current Votes:</div>
             <x-vote.table :votes="$part->votes" />
             <x-part.table title="Unofficial parent parts" :parts="$part->parents->whereNull('part_release_id')" />
