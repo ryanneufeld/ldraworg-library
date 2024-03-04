@@ -12,7 +12,7 @@
     <a class="item" data-tab="queue">My Queue</a>
   </div>
   <div class="ui bottom attached tab segment active" data-tab="activity">
-    <x-event.table :events="$events" />
+{{--    <x-event.table :events="$events" /> --}}
   </div>
   <div class="ui bottom attached tab segment" data-tab="submits">
     <x-part.table :parts="$submits" />
