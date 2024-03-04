@@ -12,7 +12,7 @@ class PartPolicy
 
     public function create(User $user)
     {
-        return $user->canAny('part.submit.regular', 'part.submit.fix', 'part.submit.proxy');
+        return $user->canAny(['part.submit.regular', 'part.submit.fix']);
     }
 
     public function update(User $user, Part $part)
@@ -20,7 +20,7 @@ class PartPolicy
         return $part->isUnofficial() && $user->can('part.edit.header');
     }
 
-    public function updateNumber(User $user, Part $part)
+    public function move(User $user, Part $part)
     {
         return $user->can('part.edit.number');
     }

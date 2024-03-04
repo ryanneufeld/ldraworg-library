@@ -6,10 +6,10 @@
     </x-slot>
     <x-slot:breadcrumbs>
         @isset($breadcrumbs)
-            <x-breadcrumb-item item="Official Model Repository" />
+            <x-breadcrumb-item item="OMR" />
             {{$breadcrumbs}}
         @else   
-            <x-breadcrumb-item class="active" item="Official Model Repository" />
+            <x-breadcrumb-item class="active" item="OMR" />
         @endisset
     </x-slot>      
     {{ $slot ?? '' }}

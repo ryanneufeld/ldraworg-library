@@ -1,5 +1,11 @@
-<x-layout.tracker>
+<x-layout.base>
     <x-slot:title>LDraw.org Library Updates</x-slot>
+    <x-slot:menu>
+        <x-menu.library />
+    </x-slot>
+    <x-slot:breadcrumbs>
+        <x-breadcrumb-item class="active" item="Updates" />
+    </x-slot>    
     <div class="flex flex-col space-y-2">
         @if($latest)
             <x-release.table :release="$releases"/>   
@@ -13,4 +19,4 @@
             @endforeach
         @endif  
     </div>
-</x-layout.tracker>
+</x-layout.base>

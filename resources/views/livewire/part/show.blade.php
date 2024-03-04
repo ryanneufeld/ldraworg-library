@@ -133,35 +133,29 @@
             <x-part.part-check-message :$part />
             <div class="text-md font-bold">Current Votes:</div>
             <x-vote.table :votes="$part->votes" />
-            <x-part.table title="Unofficial parent parts" :parts="$part->parents()->unofficial()->get()" />
-            <x-part.table title="Unofficial subparts" :parts="$part->subparts()->unofficial()->get()" />
+            <x-part.table title="Unofficial parent parts" :parts="$part->parents->whereNull('part_release_id')" />
+            <x-part.table title="Unofficial subparts" :parts="$part->subparts->whereNull('part_release_id')" :missing="$part->missing_parts"/>
             <x-accordion id="officialParts">
                 <x-slot name="header" class="text-md font-bold">
                     Official parents and subparts
                 </x-slot>
-                <x-part.table title="Official parent parts" :parts="$part->parents()->official()->get()" />
-                <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
+                <x-part.table title="Official parent parts" :parts="$part->parents->whereNotNull('part_release_id')" />
+                <x-part.table title="Official subparts" :parts="$part->subparts->whereNotNull('part_release_id')" />
             </x-accordion>
         @else
-            <x-part.table title="Official parent parts" :parts="$part->parents()->official()->get()" />
-            <x-part.table title="Official subparts" :parts="$part->subparts()->official()->get()" />
+            <x-part.table title="Official parent parts" :parts="$part->parents->whereNotNull('part_release_id')" />
+            <x-part.table title="Official subparts" :parts="$part->subparts->whereNotNull('part_release_id')" />
         @endif
         <x-event.list :$part />
-        @if($part->isUnofficial() && Auth::check())
+        @can('vote', [\App\Models\Vote::class, $this->part])
             <div id="voteForm"></div>
-            @if (
-                    Auth::user()->can('part.comment') ||
-                    (Auth::user()->id === $part->user_id && Auth::user->canAny(['part.own.vote.hold', 'part.own.vote.certify'])) ||
-                    Auth::user->canAny(['part.vote.hold', 'part.vote.certify', 'part.vote.admincertify', 'part.vote.fasttrack'])
-                )
-                <form wire:submit="postVote">
-                    {{ $this->form }}
-                    <button class="border rounded mt-2 py-2 px-4 bg-yellow-500" type="submit">
-                        Send
-                    </button>
-                </form>
-            @endif
-        @endif
+            <form wire:submit="postVote">
+                {{ $this->form }}
+                <button class="border rounded mt-2 py-2 px-4 bg-yellow-500" type="submit">
+                    Send
+                </button>
+            </form>
+        @endcan
         <div class="flex flex-col md:flex-row divide-y md:divide-x bg-white border rounded-md w-fit cursor-pointer">
             {{ $this->downloadAction }}
             @if ($this->adminCertifyAllAction->isVisible())

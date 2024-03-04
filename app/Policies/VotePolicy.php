@@ -11,15 +11,40 @@ class VotePolicy
 {
     use HandlesAuthorization;
     
-    /**
-     * Determine whether the user can create models.
-     *
-     * @param  \App\Models\User  $user
-     * @return mixed
-     */
+    public function vote(User $user, Part $part): bool
+    {
+        return true;
+        if (!$part->isUnofficial()) {
+            return false;
+        }
+        if ($part->user_id !== $user->id) {
+            return $user->canAny([
+                    'part.vote.admincertify',
+                    'part.vote.fasttrack',
+                    'part.vote.certify',
+                    'part.vote.hold',
+                    'part.comment',
+            ]);
+        }
+        
+        return $user->canAny([
+                'part.vote.admincertify',
+                'part.vote.fasttrack',
+                'part.vote.own.certify',
+                'part.vote.own.hold',
+                'part.comment',
+            ]);
+    }
+
     public function create(User $user, Part $part, string $vote_type): bool
     {
+        if (!$part->isUnofficial()) {
+            return false;
+        }
         switch ($vote_type) {
+            case 'M':
+                return $user->can('part.comment');
+                break;
             case 'A': 
                 return $user->can('part.vote.admincertify');
                 break;
@@ -35,9 +60,9 @@ class VotePolicy
                 break;
             case 'H':
                 if ($part->user_id !== $user->id) {
-                    return $user->hasPermissionTo('part.vote.hold');
+                    return $user->can('part.vote.hold');
                 } else {
-                    return $user->hasAnyPermission(['part.vote.hold', 'part.own.vote.hold']);
+                    return $user->canAny(['part.vote.hold', 'part.own.vote.hold']);
                 }
                 break;
         }
@@ -46,10 +71,13 @@ class VotePolicy
 
     public function update(User $user, Vote $vote, string $vote_type): bool
     {
-        if ($vote->user_id !== $user->id) {
+        if (!$vote->part->isUnofficial() || $vote->user_id !== $user->id) {
             return false;
         }
         switch ($vote_type) {
+            case 'M':
+                return $user->can('part.comment');
+                break;
             case 'N':
                 return true;
                 break;

@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Part;
+use App\Models\Vote;
+use App\Policies\PartPolicy;
+use App\Policies\VotePolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +18,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        App\Models\Part::class => App\Policies\PartPolicy::class,
+        Part::class => PartPolicy::class,
+        Vote::class => VotePolicy::class
     ];
 
     /**

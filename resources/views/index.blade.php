@@ -2,6 +2,9 @@
     <x-slot:title>
         LDraw.org Library Main
     </x-slot>
+    <x-slot:menu>
+        <x-menu.library />
+    </x-slot>
     <div class="space-y-2">
         <div class="border rounded p-2">
             Welcome to the LDraw.org library. Here you will find the Parts Tracker, parts updates, 

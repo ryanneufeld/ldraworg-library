@@ -43,10 +43,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Livewire\Component;
 
-class Show extends Component implements HasForms, HasTable, HasActions
+class Show extends Component implements HasForms, HasActions
 {
     use InteractsWithForms;
-    use InteractsWithTable;
     use InteractsWithActions;
 
     public Part $part;
@@ -70,11 +69,6 @@ class Show extends Component implements HasForms, HasTable, HasActions
                                     switch($vt->code) {
                                         case 'N':
                                             if (!is_null($v) && $u->can('update', [$v, $vt->code])) {
-                                                $options[$vt->code] = $vt->name;
-                                            }
-                                            break;
-                                        case 'M':
-                                            if ($u->can('part.comment')) {
                                                 $options[$vt->code] = $vt->name;
                                             }
                                             break;
@@ -108,22 +102,6 @@ class Show extends Component implements HasForms, HasTable, HasActions
             ->model(Vote::class);
     }
     
-    public function table(Table $table): Table
-    {
-        return $table
-            ->relationship(fn (): HasMany => $this->part->votes())
-            ->columns([
-                TextColumn::make('user.name')
-                    ->label('User'),
-                TextColumn::make('type.name')
-                    ->label('Vote')
-            ])
-            ->heading('Current Reviews:')
-            ->emptyState(view('tables.empty', ['none' => 'None']))
-            ->paginated(false)
-            ->striped();
-    }
-
     public function mount(?Part $part, ?Part $unofficialpart, ?Part $officialpart)
     {
         if ($part->exists) {
@@ -301,10 +279,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                 })
                 ->using(fn(Part $p, array $data) => $this->updateHeader($p, $data))
                 ->successNotificationTitle('Header updated')
-                ->visible(
-                    $this->part->isUnofficial() &&
-                    Auth::user()?->can('part.edit.header')
-                )
+                ->visible(Auth::user()?->can('update', $this->part) ?? false)
         );
     }
 
@@ -479,7 +454,7 @@ class Show extends Component implements HasForms, HasTable, HasActions
                 ])
                 ->successNotificationTitle('Renumber/Move Successful')
                 ->using(fn(Part $p, array $data) => $this->updateMove($p, $data))
-                ->visible(Auth::user()?->can('updateNumber', $this->part) ?? false)
+                ->visible(Auth::user()?->can('move', $this->part) ?? false)
         );
     }
 
@@ -609,27 +584,23 @@ class Show extends Component implements HasForms, HasTable, HasActions
     }
 
     public function postVote() {
-        if (!$this->part->isUnofficial() || !Auth::check()) {
-            return;
-        }
-        $u = Auth::user();
+        $u = Auth::user();        
         $v = $this->part->votes()->firstWhere('user_id', $u->id);
+        if (is_null($v)) {
+            $this->authorize('create', [Vote::class, $this->part, $this->vote_type_code]);
+        } else {
+            $this->authorize('update', [$v, $this->vote_type_code]);
+        }
+
         switch($this->vote_type_code) {
             case 'N':
-                $this->authorize('update', [$v, $this->vote_type_code]);
                 $u->cancelVote($this->part);
                 PartReviewed::dispatch($this->part, $u, null, $this->comment ?? null);
                 break;
             case 'M':
-                $this->authorize('part.comment');
                 PartComment::dispatch($this->part, Auth::user(), $this->comment ?? null);
                 break;
             default:
-                if (is_null($v)) {
-                    $this->authorize('create', [Vote::class, $this->part, $this->vote_type_code]);
-                } else {
-                    $this->authorize('update', [$v, $this->vote_type_code]);
-                }
                 $vt = VoteType::find($this->vote_type_code);
                 $u->castVote($this->part, $vt);
                 PartReviewed::dispatch($this->part, $u, $this->vote_type_code, $this->comment ?? null);

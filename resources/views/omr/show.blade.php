@@ -1,9 +1,6 @@
 <x-layout.omr>
     <x-slot:title>LDraw.org Official Model Repository - {{$set->name}}</x-slot>
-    @push('css')
-    <link rel="stylesheet" type="text/css" href="{{ mix('assets/css/ldbi.css') }}">
-    @endpush
-      <x-slot:breadcrumbs>
+    <x-slot:breadcrumbs>
       <x-breadcrumb-item class="active" item="Set Detail" />
     </x-slot>
     <div class="flex flex-col space-y-2">    
