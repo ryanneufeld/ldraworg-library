@@ -93,6 +93,7 @@ class SearchParts extends Component implements HasForms, HasTable
             fn (Part $p): string => 
                 route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
         )
+        ->queryStringIdentifier($this->unofficial === true ? 'unofficialPartSearch' : 'officialPartSearch')
         ->striped();
     }
 
