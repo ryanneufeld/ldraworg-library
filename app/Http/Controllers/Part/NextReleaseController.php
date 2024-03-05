@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Part;
 
 use App\Http\Controllers\Controller;
+use App\LDraw\Check\PartChecker;
 use App\Models\Part;
 
-class NonAdminReleaseController extends Controller
+class NextReleaseController extends Controller
 {
-    public function __construct(
-        protected \App\LDraw\Check\PartChecker $checker
-    ) {}
-
     public function __invoke() {
         $parts = Part::with('descendants', 'ancestors')
             ->unofficial()
@@ -19,7 +16,7 @@ class NonAdminReleaseController extends Controller
             ->orderBy('filename')
             ->get()
             ->reject(function (Part $part) {
-                $check = $this->checker->checkCanRelease($part);
+                $check = app(PartChecker::class)->checkCanRelease($part);
                 return !$check['can_release'];
             });
         return view('part.nextrelease', compact('parts'));

@@ -72,5 +72,4 @@ class PartReleaseController extends Controller
         MakePartRelease::dispatch($release_parts, Auth::user());
         return redirect()->route('tracker.activity');
     }
-  
 }

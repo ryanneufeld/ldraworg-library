@@ -4,8 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Part\PartReleaseController;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\Omr\SetController;
-use App\Http\Controllers\Part\DatDiffController;
-use App\Http\Controllers\Part\NonAdminReleaseController;
+use App\Http\Controllers\Part\NextReleaseController;
 use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
 use App\Http\Controllers\ReviewSummaryController;
@@ -24,6 +23,7 @@ Route::view('/', 'index')->name('index');
 
 Route::middleware(['throttle:file'])->get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
 Route::middleware(['throttle:file'])->get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
+Route::middleware(['throttle:file'])->get('/ptreleases/{output}', [SupportFilesController::class, 'ptreleases'])->name('ptreleases');
 
 Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::view('/', 'tracker.main')->name('main');
@@ -42,15 +42,12 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
     Route::get('/activity', PartEventsShow::class)->name('activity');
 
-    Route::get('/next-release', NonAdminReleaseController::class)->name('next-release');
+    Route::get('/next-release', NextReleaseController::class)->name('next-release');
 
     Route::middleware(['can:release.create'])->get('/release/create', [PartReleaseController::class, 'create'])->name('release.create');
     Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');
     Route::middleware(['can:release.store'])->post('/release/store', [PartReleaseController::class, 'store'])->name('release.store');
     
-    Route::get('/{part}/diff/{part2}', [DatDiffController::class, 'show'])->name('datdiff.download');
-    Route::get('/diff', [DatDiffController::class, 'index'])->name('datdiff');
-
     Route::get('/{unofficialpart}', Show::class)->name('show.filename');
     Route::get('/{part}', Show::class)->name('show');
 });
