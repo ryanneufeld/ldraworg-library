@@ -33,7 +33,7 @@ class UpdateParentParts implements ShouldQueue
     public function handle()
     {
         if (!is_null($this->part->official_part_id)) {
-            foreach (Part::find($this->part->official_part_id)->parents()->official()->get() as $p) {
+            foreach ($this->part->official_part->parents()->official()->get() as $p) {
                 app(PartManager::class)->loadSubpartsFromBody($p);
             }
         }

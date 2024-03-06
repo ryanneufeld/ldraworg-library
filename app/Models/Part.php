@@ -122,12 +122,12 @@ class Part extends Model
     
     public function official_part(): HasOne
     {
-        return $this->HasOne(Part::class, 'official_part_id', 'id');
+        return $this->HasOne(Part::class, 'id', 'official_part_id');
     }
 
     public function unofficial_part(): HasOne
     {
-        return $this->HasOne(Part::class, 'unofficial_part_id', 'id');
+        return $this->HasOne(Part::class, 'id', 'unofficial_part_id');
     }
 
     public function scopeName(Builder $query, string $name): void
@@ -563,13 +563,13 @@ class Part extends Model
         $this->subparts()->sync([]);
         $this->notification_users()->sync([]);
         if (!is_null($this->unofficial_part_id)) {
-            $p = self::find($this->unofficial_part_id);
-            $p->official_part_id = null;
+            $p = $this->unofficial_part;
+            $p->official_part->dissociate();
             $p->save();
         }
         if (!is_null($this->official_part_id)) {
-            $p = self::find($this->official_part_id);
-            $p->unofficial_part_id = null;
+            $p = $this->official_part;
+            $p->unofficial_part->dissociate();
             $p->save();
         }
     }

@@ -483,8 +483,8 @@ class Show extends Component implements HasForms, HasActions
                 PartSubmitted::dispatch($upart, Auth::user());
             }
             $mpart = $manager->addMovedTo($part, $upart);
-            $mpart->official_part_id = $part->id;
-            $part->unofficial_part_id = $mpart->id;
+            $mpart->official_part->associate($part);
+            $part->unofficial_part->associate($mpart);
             $part->save();
             $mpart->save();
             PartSubmitted::dispatch($mpart, Auth::user());

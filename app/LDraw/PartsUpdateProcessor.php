@@ -185,9 +185,8 @@ class PartsUpdateProcessor
             ->whereNotNull('official_part_id')
             ->where('category.category', '!=', 'Moved');
         foreach ($notMoved as $part) {
-            $op = Part::find($part->official_part_id);
-            if ($part->description != $op->description) {
-                $data['rename'][] = ['name' => $part->name(), 'decription' => $part->description, 'old_description' => $op->description];
+            if ($part->description != $part->official_part->description) {
+                $data['rename'][] = ['name' => $part->name(), 'decription' => $part->description, 'old_description' => $part->official_part->description];
             }
             else {
                 $data['fixed'][] = ['name' => $part->name(), 'decription' => $part->description];
@@ -222,7 +221,7 @@ class PartsUpdateProcessor
         PartReleased::dispatch($part, $this->user, $this->release);
  
         if (!is_null($part->official_part_id)) {
-            $opart = $this->updateOfficialWithUnofficial($part, Part::find($part->official_part_id));
+            $opart = $this->updateOfficialWithUnofficial($part, $part->official_part);
             // Update events with official part id
             PartEvent::where('part_release_id', $this->release->id)
                 ->where('part_id', $part->id)
