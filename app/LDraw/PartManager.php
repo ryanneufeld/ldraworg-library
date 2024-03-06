@@ -123,9 +123,10 @@ class PartManager
             $upart->votes()->delete();
             $upart->fill($values);
         } elseif (!is_null($opart)) {
-            $values['official_part_id'] = $opart->id;
+            //$values['official_part_id'] = $opart->id;
             $upart = Part::create($values);
-            $opart->unofficial_part->associate($upart);
+            $upart->official_part()->associate($opart);
+            $opart->unofficial_part()->associate($upart);
             $opart->save();
             $this->updateUnofficialWithOfficialFix($opart);
         } else {
@@ -203,7 +204,7 @@ class PartManager
         $upart->subparts()->sync([$newPart->id]);
         $upart->refresh();
         $this->finalizePart($upart);
-        $oldPart->unofficial_part->associate($upart);
+        $oldPart->unofficial_part()->associate($upart);
         $oldPart->save();
         return $upart;    
     }
