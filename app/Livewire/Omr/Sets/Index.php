@@ -52,7 +52,6 @@ class Index extends Component implements HasForms, HasTable
                             ->whereRelation('user', 'name', 'like', "%{$search}%")
                             ->orWhereRelation('user', 'realname', 'like', "%{$search}%");
                     })
-                    ->sortable(),
             ])
             ->recordUrl(
                 fn (OmrModel $m): string => 
