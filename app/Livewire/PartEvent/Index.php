@@ -1,7 +1,8 @@
 <?php
-namespace App\Livewire;
+namespace App\Livewire\PartEvent;
  
 use App\Models\PartEvent;
+use App\Models\User;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\DatePicker;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
 use Livewire\Attributes\Url;
 
-class PartEventsShow extends Component implements HasForms, HasTable
+class Index extends Component implements HasForms, HasTable
 {
     use InteractsWithTable;
     use InteractsWithForms;
@@ -80,6 +81,7 @@ class PartEventsShow extends Component implements HasForms, HasTable
                     ->label('Event Type'),
                 SelectFilter::make('user_id')
                     ->relationship('user', 'name')
+                    ->getOptionLabelFromRecordUsing(fn (User $u) => "{$u->realname} [{$u->name}]")
                     ->native(false)
                     ->searchable()
                     ->preload()
@@ -114,6 +116,6 @@ class PartEventsShow extends Component implements HasForms, HasTable
     
     public function render(): View
     {
-        return view('livewire.part-events-show')->layout('components.layout.tracker');
+        return view('livewire.part-event.index')->layout('components.layout.tracker');
     }
 }

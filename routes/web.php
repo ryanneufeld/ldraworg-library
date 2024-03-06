@@ -9,12 +9,12 @@ use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
-use App\Livewire\Omr\Sets\Index;
+use App\Livewire\Omr\Set\Index;
 use App\Livewire\Part\Index as PartIndex;
 use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
-use App\Livewire\PartEventsShow;
+use App\Livewire\PartEvent\Index as PartEventIndex;
 use App\Livewire\Search\Parts;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
@@ -40,7 +40,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::redirect('/search', '/search/part');
     Route::redirect('/suffixsearch', '/search/suffix');
 
-    Route::get('/activity', PartEventsShow::class)->name('activity');
+    Route::get('/activity', PartEventIndex::class)->name('activity');
 
     Route::get('/next-release', NextReleaseController::class)->name('next-release');
 

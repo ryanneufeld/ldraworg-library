@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Omr\Sets;
+namespace App\Livewire\Omr\Set;
 
 use App\Models\Omr\OmrModel;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -9,8 +9,6 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table as Table;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
@@ -62,6 +60,6 @@ class Index extends Component implements HasForms, HasTable
 
     public function render()
     {
-        return view('livewire.omr.sets.index')->layout('components.layout.omr');
+        return view('livewire.omr.set.index')->layout('components.layout.omr');
     }
 }
