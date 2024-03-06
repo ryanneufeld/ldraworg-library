@@ -140,7 +140,7 @@ class UserResource extends Resource
                             Log::debug("User update job run for {$user->name}");
                         }
                     }),
-                Tables\Actions\DeleteAction::make(),
+//                Tables\Actions\DeleteAction::make(),
             ]);
     }
 
