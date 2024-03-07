@@ -14,7 +14,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 class PartTable
@@ -57,7 +59,16 @@ class PartTable
                     ->searchable()
                     ->preload()
                     ->label('Part License'),
-                    
+                TernaryFilter::make('exclude_fixes')
+                    ->label('Fix Status')
+                    ->placeholder('All Parts')
+                    ->trueLabel($official ? 'Exclude parts with active fixes' : 'Exclude official part fixes')
+                    ->falseLabel($official ? 'Only parts with active fixes' : 'Only official part fixes')
+                    ->queries(
+                        true: fn (Builder $q) => $q->whereNull($official ? 'unofficial_part_id' : 'official_part_id'),
+                        false: fn (Builder $q) => $q->whereNotNull($official ? 'unofficial_part_id' : 'official_part_id'),
+                        blank: fn (Builder $q) => $q,
+                    ),
             ], layout: FiltersLayout::AboveContent)
             ->actions(self::actions())
             ->recordUrl(
