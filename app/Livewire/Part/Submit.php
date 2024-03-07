@@ -53,13 +53,12 @@ class Submit extends Component implements HasForms
                         fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get) {
                             if ($value->getMimeType() == 'text/plain') {
                                 $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
-                                $official_exists = !is_null(Part::official()->name($part->name)->first());
-                                $unofficial_exists = !is_null(Part::unofficial()->name($part->name)->first());
+                                $official_exists = !is_null(Part::official()->name($part->name ?? '')->first());
+                                $unofficial_exists = !is_null(Part::unofficial()->name($part->name ?? '')->first());
                                 $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
                                 $errors = app(\App\LDraw\Check\PartChecker::class)->check($part);
                                 foreach($errors ?? [] as $error) {
                                     $this->part_errors[] = "{$value->getClientOriginalName()}: {$error}";
-                                    //$this->addError($value->getClientOriginalName(), $error);
                                 }
                             } elseif ($value->getMimeType() == 'image/png') {
                                 $filename = $value->getClientOriginalName();

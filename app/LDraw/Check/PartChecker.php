@@ -65,12 +65,13 @@ class PartChecker
     public function checkFile(ParsedPart $part): ?array
     {
         $errors = [];
-        if (! $this->checkLibraryApprovedName($part->name)) {
-            $errors[] = __('partcheck.name.invalidchars' );
-        } elseif (! $this->checkUnknownPartNumber($part->name)) {
-            $errors[] = __('partcheck.name.xparts' );
+        if (!is_null($part->name)) {
+            if (! $this->checkLibraryApprovedName($part->name)) {
+                $errors[] = __('partcheck.name.invalidchars' );
+            } elseif (! $this->checkUnknownPartNumber($part->name)) {
+                $errors[] = __('partcheck.name.xparts' );
+            }
         }
-
         $text = explode("\n", $part->body);
         
         foreach ($text as $index => $line) {
