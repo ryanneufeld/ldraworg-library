@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Collection;
-
 use App\Models\Traits\HasPartRelease;
 use App\Models\Traits\HasLicense;
 use App\Models\Traits\HasUser;
@@ -524,33 +523,6 @@ class Part extends Model
         $this->header = implode("\n", $header);
         $this->save();
     }
-/*  
-    public function allSubparts(): Collection
-    {
-        $parts = new Collection();
-        if ($this->subparts->count() == 0) {
-            return $parts;
-        }
-        $parts = $parts->concat($this->subparts);
-        foreach ($this->subparts as $s) {
-            $parts = $parts->concat($s->allSubparts());
-        }
-        return $parts->unique();
-    }
-
-    public function allParents(): Collection
-    {
-        $parts = new Collection();
-        if ($this->parents->count() == 0) {
-            return $parts;
-        }
-        $parts = $parts->concat($this->parents);
-        foreach ($this->parents as $s) {
-            $parts = $parts->concat($s->allParents());
-        }
-        return $parts->unique();
-    }
-*/
 
     public function deleteRelationships(): void 
     {

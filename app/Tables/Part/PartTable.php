@@ -4,7 +4,6 @@ namespace App\Tables\Part;
 
 use App\Models\Part;
 use App\Tables\Filters\AuthorFilter;
-use Filament\Forms\Get;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\Action;
@@ -16,7 +15,6 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 
 class PartTable
