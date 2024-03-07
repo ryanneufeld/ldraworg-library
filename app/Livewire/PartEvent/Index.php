@@ -82,7 +82,12 @@ class Index extends Component implements HasForms, HasTable
                 AuthorFilter::make('user_id'),
                 Filter::make('created_at')
                     ->form([
-                        DatePicker::make('created_until'),
+                        DatePicker::make('created_until')
+                        ->native(false)
+                        ->displayFormat('Y-m-d')
+                        ->label('Start Date')
+                        ->prefix('From')
+                        ->suffix('At Midnight'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
@@ -90,8 +95,7 @@ class Index extends Component implements HasForms, HasTable
                                 $data['created_until'],
                                 fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
-                    })
-                    ->label('Start Date/Time'),
+                    }),
                 Filter::make('part_release_id')
                     ->query(fn (Builder $query): Builder => $query->whereNull('part_release_id'))
                     ->toggle()
