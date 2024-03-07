@@ -3,6 +3,7 @@
 namespace App\Livewire\Part;
 
 use App\Models\Part;
+use App\Tables\Part\PartTable;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\ImageColumn;
@@ -30,27 +31,12 @@ class Weekly extends Component implements HasForms, HasTable
             ->query(Part::unofficial()->whereNull('official_part_id'))
             ->defaultSort('created_at', 'asc')
             ->emptyState(view('tables.empty', ['none' => 'None']))
-            ->columns([
-                ImageColumn::make('image')
-                    ->state( 
-                        fn (Part $p): string => asset("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
-                    )
-                    ->extraImgAttributes(['class' => 'object-scale-down']),
-                TextColumn::make('filename')
-                    ->description(fn (Part $p): string => $p->description)
-                    ->wrap(),
-                TextColumn::make('download')
-                    ->state('[DAT]')
-                    ->url(fn (Part $p) => route($p->isUnofficial() ? 'unofficial.download' : 'official.download', $p->filename)),
-                ViewColumn::make('vote_sort')
-                    ->view('tables.columns.part-status')
-                    ->label('Status'),
-                
-            ])
+            ->columns(PartTable::columns())
             ->groups([
                 Group::make('week')
                     ->date(),
-            ]) 
+            ])
+            ->actions(PartTable::actions()) 
             ->defaultGroup('week')   
             ->recordUrl(
                 fn (Part $p): string => 
