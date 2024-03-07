@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Part;
+use App\Tables\Part\PartTable;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\ImageColumn;
@@ -67,28 +68,8 @@ class SearchParts extends Component implements HasForms, HasTable
         ->heading($this->unofficial ? 'Unofficial Part Results' : 'Official Part Results')
         ->defaultSort('filename', 'asc')
         ->emptyState(view('tables.empty', ['none' => 'None']))
-        ->columns([
-            ImageColumn::make('image')
-                ->state( 
-                    fn (Part $p): string => asset("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
-                )
-                ->extraImgAttributes(['class' => 'object-scale-down']),
-            TextColumn::make('filename')
-                ->wrap()
-                ->sortable(),
-            TextColumn::make('description')
-                ->wrap()
-                ->sortable(),
-            TextColumn::make('download')
-                ->state('[DAT]')
-                ->url(fn (Part $p) => route($p->isUnofficial() ? 'unofficial.download' : 'official.download', $p->filename)),
-            ViewColumn::make('vote_sort')
-                ->view('tables.columns.part-status')
-                ->sortable()
-                ->label('Status')
-                ->visible($this->unofficial === true),
-            
-        ])
+        ->columns(PartTable::columns())
+        ->actions(PartTable::actions())
         ->recordUrl(
             fn (Part $p): string => 
                 route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])

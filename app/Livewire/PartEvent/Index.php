@@ -2,7 +2,7 @@
 namespace App\Livewire\PartEvent;
  
 use App\Models\PartEvent;
-use App\Models\User;
+use App\Tables\Filters\AuthorFilter;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\DatePicker;
@@ -60,7 +60,7 @@ class Index extends Component implements HasForms, HasTable
                             }
                         }
                     )
-                    ->extraImgAttributes(['class' => 'object-scale-down']),
+                    ->extraImgAttributes(['class' => 'object-scale-down w-[35px] max-h-[75px]']),
                 TextColumn::make('part.filename')
                     ->state(
                         fn (PartEvent $e) =>
@@ -79,13 +79,7 @@ class Index extends Component implements HasForms, HasTable
                     ->multiple()
                     ->preload()
                     ->label('Event Type'),
-                SelectFilter::make('user_id')
-                    ->relationship('user', 'name')
-                    ->getOptionLabelFromRecordUsing(fn (User $u) => "{$u->realname} [{$u->name}]")
-                    ->native(false)
-                    ->searchable()
-                    ->preload()
-                    ->label('Author'),
+                AuthorFilter::make('user_id'),
                 Filter::make('created_at')
                     ->form([
                         DatePicker::make('created_until'),
