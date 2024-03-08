@@ -87,7 +87,8 @@ class Index extends Component implements HasForms, HasTable
                         ->displayFormat('Y-m-d')
                         ->label('Start Date')
                         ->prefix('From')
-                        ->suffix('At Midnight'),
+                        ->suffix('until now')
+                        ->closeOnDateSelection(),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
