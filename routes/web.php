@@ -18,6 +18,7 @@ use App\Livewire\PartEvent\Index as PartEventIndex;
 use App\Livewire\Search\Parts;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
+use App\Livewire\User\Manage;
 
 Route::view('/', 'index')->name('index');
 
@@ -59,18 +60,16 @@ Route::prefix('omr')->name('omr.')->group(function () {
     Route::get('/set/{setnumber}', [SetController::class, 'show'])->name('show.setnumber');
 });
 
-/*
+
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('dashboard', AdminDashboardController::class)->middleware('can:admin.view-dashboard')->name('dashboard');
-    Route::resource('users', UserController::class);
-    Route::resource('roles', RoleController::class);
-    Route::resource('review-summaries', ReviewSummaryController::class)->except(['create', 'show']);
+    Route::get('/users', Manage::class)->name('users.index');
 });
 
+
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
-    Route::get('/', UserDashboardController::class)->name('index');
+//    Route::get('/', UserDashboardController::class)->name('index');
 });
-*/
+
 
 Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
 Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view'])->name('part-update.view');

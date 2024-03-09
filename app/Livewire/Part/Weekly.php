@@ -6,17 +6,12 @@ use App\Models\Part;
 use App\Tables\Part\PartTable;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table as Table;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Illuminate\Support\Facades\Route;
 
 class Weekly extends Component implements HasForms, HasTable
 {
@@ -47,8 +42,9 @@ class Weekly extends Component implements HasForms, HasTable
             ->defaultPaginationPageOption(50);
     }
 
+    #[Layout('components.layout.tracker')]
     public function render()
     {
-        return view('livewire.part.weekly')->layout('components.layout.tracker');
+        return view('livewire.part.weekly');
     }
 }

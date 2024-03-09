@@ -41,6 +41,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 class Show extends Component implements HasForms, HasActions
@@ -632,8 +633,9 @@ class Show extends Component implements HasForms, HasActions
         }
     }
 
+    #[Layout('components.layout.tracker')]
     public function render()
     {
-        return view('livewire.part.show')->layout('components.layout.tracker');
+        return view('livewire.part.show');
     }
 }

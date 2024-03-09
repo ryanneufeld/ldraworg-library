@@ -17,6 +17,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\Attributes\Url;
 
@@ -113,8 +114,9 @@ class Index extends Component implements HasForms, HasTable
             ->recordClasses(fn (PartEvent $e) => !is_null($e->part) && !$e->part->isUnofficial() ? 'bg-green-300' : '' );
     }
     
+    #[Layout('components.layout.tracker')]
     public function render(): View
     {
-        return view('livewire.part-event.index')->layout('components.layout.tracker');
+        return view('livewire.part-event.index');
     }
 }

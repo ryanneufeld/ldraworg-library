@@ -4,24 +4,12 @@ namespace App\Livewire\Tables;
 
 use App\Models\Part;
 use App\Tables\Part\PartTable;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Livewire\Component;
-use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Modelable;
 use Livewire\Attributes\On;
 
-class SearchParts extends Component implements HasForms, HasTable
+class SearchParts extends BasicTable
 {
-    use InteractsWithForms;
-    use InteractsWithTable;
-
     #[Modelable]
     public array $data;
     public $unofficial;
@@ -76,10 +64,5 @@ class SearchParts extends Component implements HasForms, HasTable
         )
         ->queryStringIdentifier($this->unofficial === true ? 'unofficialPartSearch' : 'officialPartSearch')
         ->striped();
-    }
-
-    public function render(): View
-    {
-        return view('livewire.tables.basic-table');
     }
 }

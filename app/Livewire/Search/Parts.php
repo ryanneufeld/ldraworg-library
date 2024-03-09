@@ -17,6 +17,7 @@ use Livewire\Attributes\Url;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Layout;
 
 class Parts extends Component implements HasForms
 {
@@ -130,8 +131,9 @@ class Parts extends Component implements HasForms
         $this->dispatch('search-updated');
     }
  
+    #[Layout('components.layout.tracker')]
     public function render(): View
     {
-        return view('livewire.search.parts')->layout('components.layout.tracker');
+        return view('livewire.search.parts');
     }
 }

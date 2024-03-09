@@ -24,6 +24,7 @@ use Livewire\Component;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 
 class Submit extends Component implements HasForms
 {
@@ -181,8 +182,9 @@ class Submit extends Component implements HasForms
         $this->dispatch('close-modal', id: 'post-submit');
     }
 
+    #[Layout('components.layout.tracker')]
     public function render(): View
     {
-        return view('livewire.part.submit')->layout('components.layout.tracker');
+        return view('livewire.part.submit');
     }
 }

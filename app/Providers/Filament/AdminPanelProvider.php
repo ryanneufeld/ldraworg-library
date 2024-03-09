@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->viteTheme('resources/css/app.css')
             ->font('', provider: LocalFontProvider::class)
             ->brandLogo(asset('images/banners/tracker.png'))
             ->brandLogoHeight('75px')

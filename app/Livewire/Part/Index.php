@@ -10,6 +10,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table as Table;
 use Livewire\Component;
 use Illuminate\Support\Facades\Route;
+use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 
 class Index extends Component implements HasForms, HasTable
@@ -38,8 +39,9 @@ class Index extends Component implements HasForms, HasTable
         return PartTable::table($table, !$this->unofficial);
     }
 
+    #[Layout('components.layout.tracker')]
     public function render()
     {
-        return view('livewire.part.part-list')->layout('components.layout.tracker');
+        return view('livewire.part.part-list');
     }
 }

@@ -11,6 +11,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table as Table;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 class Index extends Component implements HasForms, HasTable
@@ -58,8 +59,9 @@ class Index extends Component implements HasForms, HasTable
             ->striped();
     }
 
+    #[Layout('components.layout.omr')]
     public function render()
     {
-        return view('livewire.omr.set.index')->layout('components.layout.omr');
+        return view('livewire.omr.set.index');
     }
 }

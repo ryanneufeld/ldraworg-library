@@ -8,6 +8,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 class Suffix extends Component implements HasForms
@@ -47,12 +48,13 @@ class Suffix extends Component implements HasForms
         $this->basepart = is_null($part) ? '' : $part->basePart();
     }
 
+    #[Layout('components.layout.tracker')]
     public function render()
     {
         $offset = $this->basepart !== '' ? strlen($this->basepart) + 1 : 0;
         $patterns = Part::patterns($this->basepart)->orderBy('filename')->get()->groupBy(fn(Part $item, int $key) => $item->name()[$offset]);
         $composites = Part::composites($this->basepart)->orderBy('filename')->get();
         $shortcuts = Part::stickerShortcuts($this->basepart)->orderBy('filename')->get();
-        return view('livewire.search.suffix', compact('patterns', 'composites', 'shortcuts'))->layout('components.layout.tracker');
+        return view('livewire.search.suffix', compact('patterns', 'composites', 'shortcuts'));
     }
 }

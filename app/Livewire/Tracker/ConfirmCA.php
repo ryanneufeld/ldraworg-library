@@ -5,6 +5,7 @@ namespace App\Livewire\Tracker;
 use App\Jobs\UserChangePartUpdate;
 use App\Models\PartLicense;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 class ConfirmCA extends Component
@@ -19,8 +20,9 @@ class ConfirmCA extends Component
         return $this->redirectRoute(session('ca_route_redirect'));   
     }
 
+    #[Layout('components.layout.tracker')]
     public function render()
     {
-        return view('livewire.tracker.confirm-c-a')->layout('components.layout.tracker');
+        return view('livewire.tracker.confirm-c-a');
     }
 }
