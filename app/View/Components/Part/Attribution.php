@@ -6,6 +6,7 @@ use Illuminate\View\Component;
 
 use App\Models\Part;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class Attribution extends Component
 {
@@ -25,7 +26,9 @@ class Attribution extends Component
      */
     public function render()
     {
-        $editusers = User::where('id', '<>', $this->part->user->id)->where('account_type', '<>', 2)->hasSubmittedPart($this->part)->get();
+        $editusers = User::where('id', '<>', $this->part->user->id)
+            ->whereAll(['is_ptadmin', 'is_synthetic'], false)
+            ->whereHas('part_history', fn (Builder $q) => $q->where('part_id', $this->part->id));
         $copyuser = $this->part->user;
         return view('components.part.attribution', compact('copyuser', 'editusers'));
     }

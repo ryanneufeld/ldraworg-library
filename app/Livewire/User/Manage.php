@@ -2,11 +2,12 @@
 
 namespace App\Livewire\User;
 
-use App\Jobs\UpdateMybbUser;
-use App\Jobs\UserChangePartUpdate;
 use App\Models\MybbUser;
 use App\Models\PartLicense;
 use App\Models\User;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -20,7 +21,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table as Table;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -52,6 +52,7 @@ class Manage extends Component implements HasForms, HasTable
                 TextColumn::make('parts_count')
                     ->counts('parts')
                     ->sortable()
+                    ->url(fn (User $u) => route('search.part', ['s' => $u->name, 'user_id' => $u->id]))
             ])
             ->filters([
                 SelectFilter::make('license')
@@ -67,71 +68,23 @@ class Manage extends Component implements HasForms, HasTable
             ])
             ->headerActions([
                 CreateAction::make()
-                ->form($this->formSchema())
-                ->mutateFormDataUsing(function (array $data): array {
-                    $data['password'] = bcrypt(Str::random(40));
-                    return $data;            
-                })
-                ->after(function (User $user) {
-                    if (app()->environment() == 'production') {
-                        UpdateMybbUser::dispatch($user);
-                    } else {
-                        Log::debug("User update job run for {$user->name}");
-                    }
-                })
-                ->visible(Auth::user()?->can('user.add'))
+                    ->form($this->formSchema())
+                    ->mutateFormDataUsing(function (array $data): array {
+                        $data['password'] = bcrypt(Str::random(40));
+                        return $data;            
+                    })
+                    ->visible(fn (User $u) => Auth::user()?->can('create', $u))
             ])
             ->actions([
                 EditAction::make()
                     ->form($this->formSchema())
-                    ->afterFormValidated(function (array $data, User $user) {
-                        $olddata = [];
-                        if ($data['name'] != $user->name) {
-                            $olddata['name'] = $user->name;
-                        }
-                        if ($data['realname'] != $user->realname) {
-                            $olddata['realname'] = $user->realname;
-                        }
-                        if ($data['part_license_id'] != $user->part_license_id) {
-                            $olddata['part_license_id'] = $user->part_license_id;
-                        }
-                        if (app()->environment() == 'production') {
-                           if (!empty($olddata)) {
-                                UserChangePartUpdate::dispatch($user, $olddata);
-                            }
-                        } else {
-                            Log::debug('User data update', ['newdata' => $data, 'olddata' => $olddata]);
-                        }             
-                    })
-                    ->visible(Auth::user()?->can('user.modify'))
-                    ->after(function (User $user) {
-                        if (app()->environment() == 'production') {
-                            UpdateMybbUser::dispatch($user);
-                        } else {
-                            Log::debug("User update job run for {$user->name}");
-                        }
-                    }),
+                    ->visible(fn (User $u) => Auth::user()?->can('update', $u))
             ]);
     }
 
     protected function formSchema(): array
     {
         return [
-            TextInput::make('name')
-                ->required()
-                ->maxLength(255),
-            TextInput::make('realname')
-                ->required()
-                ->maxLength(255),
-            TextInput::make('email')
-                ->email()
-                ->required()
-                ->maxLength(255),
-            Select::make('part_license_id')
-                ->relationship('license', titleAttribute: 'name')
-                ->default(PartLicense::default()->id)
-                ->native(false)
-                ->required(),
             Select::make('forum_user_id')
                 ->label('Forum User Name')
                 ->options(
@@ -151,13 +104,38 @@ class Manage extends Component implements HasForms, HasTable
                         }
                 })
                 ->hiddenOn('edit'),
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+            TextInput::make('realname')
+                ->required()
+                ->maxLength(255),
+            TextInput::make('email')
+                ->email()
+                ->required()
+                ->maxLength(255),
+            Select::make('part_license_id')
+                ->relationship('license', titleAttribute: 'name')
+                ->default(PartLicense::default()->id)
+                ->native(false)
+                ->required(),
             Select::make('roles')
                 ->relationship('roles', titleAttribute: 'name')
                 ->multiple()
                 ->native(false)
                 ->preload()
                 ->required(),
-            ];
+            Fieldset::make('Special Account Types')
+                ->schema([
+                    Checkbox::make('is_legacy')
+                        ->label('Legacy User'),
+                    Checkbox::make('is_synthetic')
+                        ->label('Synthetic User'),
+                    Checkbox::make('is_ptadmin')
+                        ->label('Parts Tracker Automated User'),        
+                ])
+                ->columns(3),
+        ];
     }
 
     #[Layout('components.layout.base')]

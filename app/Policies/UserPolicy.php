@@ -59,9 +59,6 @@ class UserPolicy
             'user.modify',
             'user.modify.email',
             'user.modify.role.nonadmin',
-            'role.add',
-            'role.modify',
-            'role.delete',
         ]);
     }
 }

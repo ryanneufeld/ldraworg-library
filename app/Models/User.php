@@ -8,15 +8,16 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use App\Models\Traits\HasLicense;
 use App\Models\Traits\HasParts;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
+use App\Observers\UserObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends Authenticatable implements FilamentUser
+#[ObservedBy([UserObserver::class])]
+class User extends Authenticatable
 {
     use HasFactory, HasParts, HasLicense, HasRoles, Notifiable;
 
@@ -32,6 +33,9 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'part_license_id',
         'forum_user_id',
+        'is_legacy',
+        'is_synthetic',
+        'is_ptadmin'
     ];
 
     protected $with = ['license'];
@@ -55,7 +59,7 @@ class User extends Authenticatable implements FilamentUser
         'email_verified_at' => 'datetime',
         'profile_settings' => 'array',
     ];
-   
+
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
@@ -66,7 +70,7 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(PartEvent::class);
     }
 
-    public function part_histories(): HasMany
+    public function part_history(): HasMany
     {
         return $this->hasMany(PartHistory::class);
     }
@@ -80,9 +84,9 @@ class User extends Authenticatable implements FilamentUser
     {       
         return Attribute::make(
             get: function(mixed $value, array $attributes) {
-                if ($attributes['account_type'] === 1) {
+                if ($attributes['is_legacy'] === true) {
                     return $attributes['realname'];
-                } else if ($this->account_type === 2) {
+                } else if ($attributes['is_ptadmin'] === true) {
                     return "[{$attributes['name']}]";
                 } else {
                     return "{$attributes['realname']} [{$attributes['name']}]";
@@ -91,14 +95,6 @@ class User extends Authenticatable implements FilamentUser
         );
     }
     
-    public function scopeHasSubmittedPart(Builder $query, Part $part): void
-    {
-        $query->whereHas('part_histories', function (Builder $q) use ($part) 
-        {
-            $q->where('part_id', $part->id);
-        });
-    }
-
     public function scopeFromAuthor(Builder $query, string $username, ?string $realname = null): void
     {
         $query->where(function (Builder $q) use ($username, $realname) {
@@ -106,14 +102,6 @@ class User extends Authenticatable implements FilamentUser
         });
     }
     
-    public function canAccessPanel(Panel $panel): bool
-    {
-        if ($panel->getId() === 'admin') {
-            return $this->canAny('admin.view-dashboard');
-        }
-        return true;
-    }
-
     public function togglePartNotification(Part $part): void 
     {
         $this->notification_parts()->toggle([$part->id]);
@@ -126,10 +114,10 @@ class User extends Authenticatable implements FilamentUser
 
     public function historyString(): string 
     {
-        if ($this->account_type === 1) {
+        if ($this->is_synthetic === true) {
             return "{{$this->realname}}";
         }
-        if ($this->account_type === 2 && $this->name !== 'PTadmin') {
+        if ($this->is_legacy === true) {
             return "{{$this->name}}";
         }
 

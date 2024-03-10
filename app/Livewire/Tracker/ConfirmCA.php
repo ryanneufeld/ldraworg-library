@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Tracker;
 
-use App\Jobs\UserChangePartUpdate;
 use App\Models\PartLicense;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -13,10 +12,8 @@ class ConfirmCA extends Component
     public function updateLicense()
     {
         $user = Auth::user();
-        $olddata['part_license_id'] = $user->part_license_id;
         $user->license()->associate(PartLicense::default());
         $user->save();
-        UserChangePartUpdate::dispatch($user, $olddata);
         return $this->redirectRoute(session('ca_route_redirect'));   
     }
 

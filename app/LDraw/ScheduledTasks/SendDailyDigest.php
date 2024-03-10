@@ -17,7 +17,7 @@ class SendDailyDigest {
     public function __invoke(): void {
         $next = date_add(clone $this->date, new \DateInterval('P1D'));
         foreach (User::all() as $user) {
-            if ($user->hasRole(['Legacy User', 'Synthetic User']) || $user->name == 'PTadmin') {
+            if ($user->is_legacy || $user->is_synthetic || $user->is_ptadmin) {
                 continue;
             } 
             $events = PartEvent::whereBetween('created_at', [$this->date, $next])

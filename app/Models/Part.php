@@ -521,7 +521,7 @@ class Part extends Model
         }
 
         $this->header = implode("\n", $header);
-        $this->save();
+        $this->saveQuietly();
     }
 
     public function deleteRelationships(): void 

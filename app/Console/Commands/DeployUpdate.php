@@ -10,6 +10,7 @@ use App\Models\Part;
 use App\Models\VoteType;
 use Spatie\Permission\Models\Role;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -37,6 +38,9 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        User::role('Legacy User')->update(['is_legacy' => true]);
+        User::role('Synthetic User')->update(['is_synthetic' => true]);
+        User::where('name', 'PTAdmin')->update(['is_ptadmin' => true]);
         /*;
         Permission::create(['name' => 'omr.create']);
         Permission::create(['name' => 'omr.update']);
