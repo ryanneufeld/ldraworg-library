@@ -52,7 +52,7 @@
         @if(!empty($summaries))
             <x-menu.dropdown label="Review Summaries" level="1">
                 @foreach($summaries as $summary)
-                    <x-menu.item label="{{$summary->header}}" link="{{route('tracker.summary', $summary)}}" /> 
+                    <x-menu.item label="{{$summary->header}}" link="{{route('tracker.summary.view', $summary)}}" /> 
                 @endforeach
             </x-menu.dropdown>
         @endif

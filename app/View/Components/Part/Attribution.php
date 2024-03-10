@@ -28,7 +28,8 @@ class Attribution extends Component
     {
         $editusers = User::where('id', '<>', $this->part->user->id)
             ->whereAll(['is_ptadmin', 'is_synthetic'], false)
-            ->whereHas('part_history', fn (Builder $q) => $q->where('part_id', $this->part->id));
+            ->whereHas('part_history', fn (Builder $q) => $q->where('part_id', $this->part->id))
+            ->get();
         $copyuser = $this->part->user;
         return view('components.part.attribution', compact('copyuser', 'editusers'));
     }

@@ -5,17 +5,35 @@ namespace App\Observers;
 use App\Events\PartDeleted;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Part;
+use App\Models\ReviewSummaryItem;
 
 class PartObserver
 {
-    /**
-     * Handle the Part "deleting" event.
-     */
+/*
+    public function saved(Part $part)
+    {
+        if ($part->wasChanged([
+            'user_id',
+            'part_category_id',
+            'part_license_id',
+            'part_type_id',
+            'part_release_id',
+            'part_type_qualifier_id',
+            'description',
+            'filename',
+            'header',
+            'cmdline',
+            'bfc',
+        ])) {
+            $part->generateHeader();
+        }
+    }
+*/
     public function deleting(Part $part): void
     {
         $part->putDeletedBackup();
         $part->deleteRelationships();
-        \App\Models\ReviewSummaryItem::where('part_id', $part->id)->delete();
+        ReviewSummaryItem::where('part_id', $part->id)->delete();
         PartDeleted::dispatch(Auth::user(), $part->filename, $part->description, $part->parents()->unofficial()->pluck('id')->all());
     }
 }

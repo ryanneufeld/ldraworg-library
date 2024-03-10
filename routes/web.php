@@ -15,6 +15,7 @@ use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
 use App\Livewire\PartEvent\Index as PartEventIndex;
+use App\Livewire\ReviewSummary\Manage as ReviewSummaryManage;
 use App\Livewire\Search\Parts;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
@@ -34,7 +35,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::get('/list', PartIndex::class)->name('index');
     Route::get('/weekly', Weekly::class)->name('weekly');
     Route::get('/history', TrackerHistoryController::class)->name('history');
-    Route::get('/summary/{summary}', ReviewSummaryController::class)->name('summary');
+    Route::get('/summary/{summary}', ReviewSummaryController::class)->name('summary.view');
 
     Route::middleware(['auth'])->get('/confirmCA', ConfirmCA::class)->name('confirmCA.show');
 
@@ -63,6 +64,7 @@ Route::prefix('omr')->name('omr.')->group(function () {
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', Manage::class)->name('users.index');
+    Route::middleware(['can:reviewsummary.modify'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
 });
 
 
