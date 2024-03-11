@@ -23,7 +23,7 @@ class Weekly extends Component implements HasForms, HasTable
     {
 
         return $table
-            ->query(Part::unofficial()->whereNull('official_part_id'))
+            ->query(Part::unofficial()->whereRelation('type', 'folder', 'parts/')->whereNull('official_part_id'))
             ->defaultSort('created_at', 'asc')
             ->emptyState(view('tables.empty', ['none' => 'None']))
             ->columns(PartTable::columns())
