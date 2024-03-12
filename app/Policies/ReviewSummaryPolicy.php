@@ -8,43 +8,8 @@ use Illuminate\Auth\Access\Response;
 
 class ReviewSummaryPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    public function manage(User $user, ReviewSummary $summary): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, ReviewSummary $summary): bool
-    {
-        return true;
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, ReviewSummary $reviewSummary): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, ReviewSummary $reviewSummary): bool
-    {
-        return false;
+        return $user->can('reviewsummary.manage');
     }
 }

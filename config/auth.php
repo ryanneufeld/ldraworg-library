@@ -68,11 +68,6 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
     ],
 
     /*
@@ -112,4 +107,6 @@ return [
 
     'password_timeout' => 10800,
 
+    // A list of user ids that cannot be edited except by themselves
+    'superusers' => explode(',', env('APP_SUPERUSERS')),
 ];

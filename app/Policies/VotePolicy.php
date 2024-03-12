@@ -13,7 +13,6 @@ class VotePolicy
     
     public function vote(User $user, Part $part): bool
     {
-        return true;
         if (!$part->isUnofficial()) {
             return false;
         }

@@ -99,16 +99,6 @@ class User extends Authenticatable
         });
     }
     
-    public function togglePartNotification(Part $part): void 
-    {
-        $this->notification_parts()->toggle([$part->id]);
-    }
-
-    public static function ptadmin(): self
-    {
-        return self::firstWhere('name', 'PTadmin');
-    }
-
     public function historyString(): string 
     {
         if ($this->is_synthetic === true) {

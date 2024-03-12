@@ -8,10 +8,12 @@ use App\Models\User;
 use App\Models\Vote;
 use App\Policies\PartPolicy;
 use App\Policies\ReviewSummaryPolicy;
+use App\Policies\RolePolicy;
 use App\Policies\UserPolicy;
 use App\Policies\VotePolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Spatie\Permission\Models\Role;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -24,7 +26,8 @@ class AuthServiceProvider extends ServiceProvider
         Part::class => PartPolicy::class,
         Vote::class => VotePolicy::class,
         User::class => UserPolicy::class,
-        ReviewSummary::class => ReviewSummaryPolicy:: class
+        ReviewSummary::class => ReviewSummaryPolicy:: class,
+        Role::class => RolePolicy::class,
     ];
 
     /**

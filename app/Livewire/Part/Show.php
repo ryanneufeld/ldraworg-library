@@ -501,7 +501,7 @@ class Show extends Component implements HasForms, HasActions
                 ->visible(
                     $this->part->isUnofficial() &&
                     (!is_null($this->part->official_part_id) || $this->part->parents->count() === 0) &&
-                    Auth::user()?->can('part.delete') ?? false
+                    Auth::user()?->can('delete', $this->part) ?? false
                 )
                 ->modalDescription('Are you sure you\'d like to delete this part? This cannot be easily undone.')
                 ->successRedirectUrl(route('tracker.activity'))
@@ -579,7 +579,7 @@ class Show extends Component implements HasForms, HasActions
                     $this->part->isUnofficial() && 
                     $this->part->type->folder == 'parts/' && 
                     $this->part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0 &&
-                    Auth::user()?->can('vote.admincertify') ?? false
+                    Auth::user()?->can('create', [Vote::class, 'A']) ?? false
                 )
         );
     }
@@ -610,27 +610,45 @@ class Show extends Component implements HasForms, HasActions
         $this->form->fill();
     }
 
-    public function toggleTracked()
+    public function toggleTrackedAction(): Action
     {
-        if (Auth::check()) {
-            Auth::user()->togglePartNotification($this->part);
-        }
+        return Action::make('toggleTracked')
+            ->button()
+            ->color(Auth::user()->notification_parts->contains($this->part->id) ? 'yellow' : 'gray')
+            ->icon('fas-bell')
+            ->label(Auth::user()->notification_parts->contains($this->part->id) ? 'Tracking' : 'Track')
+            ->action(function() {
+                Auth::user()->notification_parts()->toggle([$this->part->id]);
+            })
+            ->visible(Auth::check());
     }
 
-    public function toggleDeleteFlag()
+    public function toggleDeleteFlagAction(): Action
     {
-        if (Auth::check() && Auth::user()->can('part.flag.delete')) {
-            $this->part->delete_flag = !$this->part->delete_flag;
-            $this->part->save();
-        }
+        return Action::make('toggleDeleteFlag')
+            ->button()
+            ->color($this->part->delete_flag ? 'red' : 'gray')
+            ->icon('fas-flag')
+            ->label($this->part->delete_flag ? 'Flagged for Deletion' : 'Flag for Deletion')
+            ->action(function() {
+                $this->part->delete_flag = !$this->part->delete_flag;
+                $this->part->save();
+            })
+            ->visible(Auth::user()?->can('flagDelete', $this->part));
     }
 
-    public function toggleManualHold()
+    public function toggleManualHoldAction(): Action
     {
-        if (Auth::check() && Auth::user()->can('part.flag.manual-hold')) {
-            $this->part->manual_hold_flag = !$this->part->manual_hold_flag;
-            $this->part->save();
-        }
+        return Action::make('toggleManualHold')
+            ->button()
+            ->color($this->part->manual_hold_flag ? 'red' : 'gray')
+            ->icon('fas-flag')
+            ->label($this->part->manual_hold_flag ? 'On Administrative Hold' : 'Place on Administrative Hold')
+            ->action(function() {
+                $this->part->manual_hold_flag = !$this->part->manual_hold_flag;
+                $this->part->save();
+            })
+            ->visible(Auth::user()?->can('flagMaualHold', $this->part));
     }
 
     #[Layout('components.layout.tracker')]

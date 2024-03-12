@@ -76,41 +76,23 @@
                     View official version of part
                 </x-filament::button>
             @endisset
-            @if ($part->isUnofficial() && Auth::check())
-                <x-filament::button
-                    wire:click="toggleTracked" 
-                    icon="fas-bell"
-                    color="{{Auth::user()->notification_parts->contains($part->id) ? 'yellow' : 'gray'}}"
-                >
-                    {{Auth::user()->notification_parts->contains($part->id) ? 'Tracking' : 'Track'}}
-                </x-filament::button>
-                @can('part.flag.delete')
+            @if ($part->isUnofficial())
+                @if ($this->toggleTrackedAction->isVisible())
+                    {{ $this->toggleTrackedAction }}
+                @endif
+                @if ($this->toggleDeleteFlagAction->isVisible())
+                    {{ $this->toggleDeleteFlagAction }}
+                @elseif($part->delete_flag)
                     <x-filament::button
-                        wire:click="toggleDeleteFlag" 
                         icon="fas-flag"
-                        color="{{$part->delete_flag ? 'red' : 'gray'}}"
+                        color="danger"
                     >
-                        {{$part->delete_flag ? 'Flagged' : 'Flag'}} for Deletion
+                        Flagged for Deletion
                     </x-filament::button>
-                @else
-                    @if($part->delete_flag)
-                        <x-filament::button
-                            icon="fas-flag"
-                            color="danger"
-                        >
-                            Flagged for Deletion
-                        </x-filament::button>
-                    @endif       
-                @endcan    
-                @can('part.flag.manual-hold')
-                    <x-filament::button
-                        wire:click="toggleManualHold" 
-                        icon="fas-flag"
-                        color="{{$part->manual_hold_flag ? 'red' : 'gray'}}"
-                    >
-                        {{$part->manual_hold_flag ? 'On' : 'Place on'}} Administrative Hold
-                    </x-filament::button>
-                @endcan    
+                @endif
+                @if ($this->toggleManualHoldAction->isVisible())
+                    {{ $this->toggleManualHold }}
+                @endif
             @endif
         </div>
         <div class="flex flex-col md:flex-row-reverse gap-2">
