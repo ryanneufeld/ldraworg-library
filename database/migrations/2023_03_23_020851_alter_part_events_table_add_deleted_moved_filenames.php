@@ -15,7 +15,7 @@ return new class extends Migration
         $table->string('deleted_filename')->nullable();
         $table->string('deleted_description')->nullable();
         $table->string('moved_from_filename')->nullable();
-        $table->foreignIdFor(\App\Models\Part::class)->nullable()->change();
+        $table->foreignIdFor(\App\Models\Part::class)->nullable()->change()->constrained();
       });
     }
 
@@ -28,7 +28,7 @@ return new class extends Migration
         $table->dropColumn('deleted_filename');
         $table->dropColumn('deleted_description');
         $table->dropColumn('moved_from_filename');
-        $table->foreignIdFor(\App\Models\Part::class)->change();
+        $table->foreignIdFor(\App\Models\Part::class)->change()->constrained();
       });
   }
 };

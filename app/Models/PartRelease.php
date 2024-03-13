@@ -22,10 +22,13 @@ class PartRelease extends Model
         'part_data'
     ];
 
-    protected $casts = [
-        'part_list' => 'array',
-        'part_data' => AsArrayObject::class,
-    ];
+    protected function casts(): array
+    {
+        return  [
+            'part_list' => 'array',
+            'part_data' => AsArrayObject::class,
+        ];
+    }
     
     public function notes(): Attribute
     {

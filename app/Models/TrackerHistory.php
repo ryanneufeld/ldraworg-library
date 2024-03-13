@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 
 class TrackerHistory extends Model
 {
-    protected $casts = [
-        'history_data' => AsArrayObject::class,
-    ];  
+    protected function casts(): array
+    {
+        return [
+            'history_data' => AsArrayObject::class,
+        ]; 
+    } 
 }

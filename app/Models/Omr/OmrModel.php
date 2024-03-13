@@ -17,13 +17,16 @@ class OmrModel extends Model
         'set',
     ];
 
-    protected $casts = [
-        'notes' => 'array',
-        'missing_parts' => 'boolean',
-        'missing_patterns' => 'boolean',
-        'missing_stickers' => 'boolean',
-        'approved' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'notes' => 'array',
+            'missing_parts' => 'boolean',
+            'missing_patterns' => 'boolean',
+            'missing_stickers' => 'boolean',
+            'approved' => 'boolean',
+        ];
+    }
 
     
     public function set(): BelongsTo 

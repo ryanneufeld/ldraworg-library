@@ -30,10 +30,13 @@ class PartEvent extends Model
         'header_changes',
     ];
 
-    protected $casts = [
-        'initial_submit' => 'boolean',
-        'header_changes' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return  [
+            'initial_submit' => 'boolean',
+            'header_changes' => 'array',
+        ];
+    }
   
     public function part_event_type(): BelongsTo 
     {

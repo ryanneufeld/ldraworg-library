@@ -42,12 +42,15 @@ class Part extends Model
 
     protected $with = ['release', 'type'];
 
-    protected $casts = [
-        'delete_flag' => 'boolean',
-        'manual_hold_flag' => 'boolean',
-        'minor_edit_data' => AsArrayObject::class,
-        'missing_parts' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'delete_flag' => 'boolean',
+            'manual_hold_flag' => 'boolean',
+            'minor_edit_data' => AsArrayObject::class,
+            'missing_parts' => 'array',
+        ];
+    }
 
     public function getPivotTableName(): string
     {

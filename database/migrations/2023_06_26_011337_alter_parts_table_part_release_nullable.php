@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('parts', function (Blueprint $table) {
-            $table->foreignIdFor(\App\Models\PartRelease::class)->nullable()->change();
+            $table->foreignIdFor(\App\Models\PartRelease::class)->nullable()->change()->constrained();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('parts', function (Blueprint $table) {
-            $table->foreignIdFor(\App\Models\PartRelease::class)->change();
+            $table->foreignIdFor(\App\Models\PartRelease::class)->change()->constrained();
         });
     }
 };
