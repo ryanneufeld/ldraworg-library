@@ -14,6 +14,9 @@ class PartsFlaggedForDeletionTable extends BasicTable
             ->query(
                 Part::where('delete_flag', true)->orderby('filename')
             )
-            ->columns(PartTable::columns());
+            ->heading('Parts Flagged For Deletion')
+            ->columns(PartTable::columns())
+            ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
+            ->queryStringIdentifier('deleteFlagged');
     }
 }

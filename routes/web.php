@@ -4,9 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Part\PartReleaseController;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\Omr\SetController;
+use App\Http\Controllers\Part\LatestPartsController;
 use App\Http\Controllers\Part\NextReleaseController;
 use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
+use App\Http\Controllers\Part\PartWebGLController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
 use App\Livewire\Omr\Set\Index;
@@ -24,9 +26,14 @@ use App\Livewire\User\Manage;
 
 Route::view('/', 'index')->name('index');
 
-Route::middleware(['throttle:file'])->get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
-Route::middleware(['throttle:file'])->get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
-Route::middleware(['throttle:file'])->get('/ptreleases/{output}', [SupportFilesController::class, 'ptreleases'])->name('ptreleases');
+// Rate limited Routes
+Route::middleware(['throttle:file'])->group(function () {
+    Route::get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
+    Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
+    Route::get('/ptreleases/{output}', [SupportFilesController::class, 'ptreleases'])->name('ptreleases');
+    Route::get('/ldbi/part/{part}', PartWebGLController::class)->name('part.ldbi');    
+    Route::get('/tracker/latest-parts', LatestPartsController::class)->name('part.latest');
+});
 
 Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::view('/', 'tracker.main')->name('main');
@@ -64,6 +71,7 @@ Route::prefix('omr')->name('omr.')->group(function () {
 
 
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::view('/', 'admin.index');
     Route::get('/users', Manage::class)->name('users.index');
     Route::middleware(['can:create,reviewsummary'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
     Route::middleware(['can:create,role'])->get('/roles', RoleManage::class)->name('roles.index');

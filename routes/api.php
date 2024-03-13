@@ -15,8 +15,5 @@ use App\Http\Controllers\Part\PartWebGLController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('/search/quicksearch', QuickSearchController::class)->name('search.quicksearch');
-Route::get('/{part}/ldbi', PartWebGLController::class)->name('part.ldbi');
-Route::get('/tracker/latest-parts', LatestPartsController::class)->name('part.latest');
-Route::get('/omr/models/{model}/ldbi', OmrModelWebGLController::class)->name('omrmodel.ldbi');
 
+// None yet

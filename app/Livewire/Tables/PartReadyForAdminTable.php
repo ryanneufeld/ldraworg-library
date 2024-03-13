@@ -13,11 +13,12 @@ class PartReadyForAdminTable extends BasicTable
         return $table
             ->query(
                 Part::adminReady()
-                    ->orderby('vote_sort')
-                    ->orderBy('part_type_id')
-                    ->oldest()
             )
-            ->columns(PartTable::columns());
+            ->defaultSort('created_at', 'asc')
+            ->heading('Parts Ready For Admin')
+            ->columns(PartTable::columns())
+            ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
+            ->queryStringIdentifier('readyForAdmin');
     }
 
 }

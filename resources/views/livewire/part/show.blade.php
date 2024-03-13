@@ -253,7 +253,7 @@
                 };
                 if (modal.id == 'ldbi' && WEBGL.isWebGLAvailable() && !scene) {
                     // pre-fetch the paths to the subfiles used to speed up loading
-                    fetch('/api/' + part_id + '/ldbi')
+                    fetch('/ldbi/part/' + part_id)
                         .then(response => response.json())
                         .then((response) => {
                             part_paths = response;

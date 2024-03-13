@@ -27,6 +27,7 @@ class Manage extends Component implements HasForms, HasTable
         return $table
             ->query(Role::query())
             ->defaultSort('name')
+            ->heading('Role Management')
             ->paginated(false)
             ->columns([
                 TextColumn::make('name')
@@ -53,10 +54,10 @@ class Manage extends Component implements HasForms, HasTable
         ];
     }
 
-    #[Layout('components.layout.base')]
+    #[Layout('components.layout.admin')]
     public function render()
     {
-        return view('livewire.user.manage');
+        return view('livewire.role.manage');
     }
 
 }

@@ -29,6 +29,7 @@ class Manage extends Component implements HasForms, HasTable
             ->query(ReviewSummary::query())
             ->defaultSort('order')
             ->reorderable('order')
+            ->heading('Part Review Summary Management')
             ->columns([
                 TextColumn::make('header')
             ])
@@ -93,10 +94,10 @@ class Manage extends Component implements HasForms, HasTable
         return $summary;
     }
 
-    #[Layout('components.layout.base')]
+    #[Layout('components.layout.admin')]
     public function render()
     {
-        return view('livewire.user.manage');
+        return view('livewire.review-summary.manage');
     }
 
 }

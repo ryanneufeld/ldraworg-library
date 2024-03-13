@@ -35,6 +35,7 @@ class Manage extends Component implements HasForms, HasTable
         return $table
             ->query(User::query())
             ->defaultSort('realname', 'asc')
+            ->heading('User Management')
             ->columns([
                 TextColumn::make('realname')
                     ->sortable()
@@ -138,7 +139,7 @@ class Manage extends Component implements HasForms, HasTable
         ];
     }
 
-    #[Layout('components.layout.base')]
+    #[Layout('components.layout.admin')]
     public function render()
     {
         return view('livewire.user.manage');
