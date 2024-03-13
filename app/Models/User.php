@@ -42,6 +42,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'profile_settings' => 'array',
+'is_legacy' => 'boolean',
+'is_synthetic' => 'boolean',
+'is_ptadmin' => 'boolean'
         ];
     }
 
