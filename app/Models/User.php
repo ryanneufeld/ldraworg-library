@@ -42,9 +42,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'profile_settings' => 'array',
-'is_legacy' => 'boolean',
-'is_synthetic' => 'boolean',
-'is_ptadmin' => 'boolean'
+            'is_legacy' => 'boolean',
+            'is_synthetic' => 'boolean',
+            'is_ptadmin' => 'boolean'
         ];
     }
 
@@ -72,9 +72,9 @@ class User extends Authenticatable
     {       
         return Attribute::make(
             get: function(mixed $value, array $attributes) {
-                if ($attributes['is_legacy'] === true) {
+                if ($attributes['is_legacy'] === 1) {
                     return $attributes['realname'];
-                } else if ($attributes['is_ptadmin'] === true) {
+                } else if ($attributes['is_ptadmin'] === 1) {
                     return "[{$attributes['name']}]";
                 } else {
                     return "{$attributes['realname']} [{$attributes['name']}]";
