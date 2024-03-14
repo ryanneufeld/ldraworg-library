@@ -614,9 +614,9 @@ class Show extends Component implements HasForms, HasActions
     {
         return Action::make('toggleTracked')
             ->button()
-            ->color(Auth::user()->notification_parts->contains($this->part->id) ? 'yellow' : 'gray')
+            ->color(Auth::user()?->notification_parts->contains($this->part->id) ? 'yellow' : 'gray')
             ->icon('fas-bell')
-            ->label(Auth::user()->notification_parts->contains($this->part->id) ? 'Tracking' : 'Track')
+            ->label(Auth::user()?->notification_parts->contains($this->part->id) ? 'Tracking' : 'Track')
             ->action(function() {
                 Auth::user()->notification_parts()->toggle([$this->part->id]);
             })
@@ -634,7 +634,7 @@ class Show extends Component implements HasForms, HasActions
                 $this->part->delete_flag = !$this->part->delete_flag;
                 $this->part->save();
             })
-            ->visible(Auth::user()?->can('flagDelete', $this->part));
+            ->visible(Auth::user()?->can('flagDelete', $this->part) ?? false);
     }
 
     public function toggleManualHoldAction(): Action
@@ -648,7 +648,7 @@ class Show extends Component implements HasForms, HasActions
                 $this->part->manual_hold_flag = !$this->part->manual_hold_flag;
                 $this->part->save();
             })
-            ->visible(Auth::user()?->can('flagMaualHold', $this->part));
+            ->visible(Auth::user()?->can('flagMaualHold', $this->part) ?? false);
     }
 
     #[Layout('components.layout.tracker')]
