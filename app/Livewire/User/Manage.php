@@ -74,7 +74,7 @@ class Manage extends Component implements HasForms, HasTable
                         $data['password'] = bcrypt(Str::random(40));
                         return $data;            
                     })
-                    ->visible(fn (User $u) => Auth::user()?->can('create', $u))
+                    ->visible(fn () => Auth::user()?->can('create', User::class))
             ])
             ->actions([
                 EditAction::make()

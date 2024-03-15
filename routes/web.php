@@ -70,11 +70,11 @@ Route::prefix('omr')->name('omr.')->group(function () {
 });
 
 
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('/', 'admin.index');
+Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('admin.')->group(function () {
+    Route::view('/', 'admin.index')->name('index');
     Route::get('/users', Manage::class)->name('users.index');
-    Route::middleware(['can:create,reviewsummary'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
-    Route::middleware(['can:create,role'])->get('/roles', RoleManage::class)->name('roles.index');
+    Route::middleware(['can:viewAny,reviewsummary'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
+    Route::middleware(['can:viewAny,role'])->get('/roles', RoleManage::class)->name('roles.index');
 });
 
 

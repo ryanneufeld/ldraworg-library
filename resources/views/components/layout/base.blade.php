@@ -54,13 +54,13 @@
             </div>
             <div class="justify-self-end">
                 @auth
-                    Welcome {{Auth::user()->name}}{{-- :: 
-                  
+                    Welcome {{Auth::user()->name}} 
+{{--                  
                    <a href="{{route('filament.user.pages.dashboard')}}">User Dashboard</a>
-                    @can('admin.view-dashboard')
-                        :: <a href="{{route('filament.admin.pages.dashboard')}}">Admin Dashboard</a>
-                    @endcan
 --}}
+                    @can('admin.view-dashboard')
+                        :: <a href="{{route('admin.index')}}">Admin Dashboard</a>
+                    @endcan
                 @endauth
             </div>
         </div>
