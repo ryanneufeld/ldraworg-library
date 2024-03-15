@@ -32,5 +32,6 @@ class RefreshCache extends Command
         $this->call('view:cache');
         $this->call('route:cache');
         $this->call('config:cache');
+        $this->call('queue:restart');
     }
 }
