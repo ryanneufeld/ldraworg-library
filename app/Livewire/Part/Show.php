@@ -579,7 +579,7 @@ class Show extends Component implements HasForms, HasActions
                     $this->part->isUnofficial() && 
                     $this->part->type->folder == 'parts/' && 
                     $this->part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0 &&
-                    Auth::user()?->can('create', [Vote::class, 'A']) ?? false
+                    Auth::user()?->can('create', [Vote::class, $this->part,'A']) ?? false
                 )
         );
     }
