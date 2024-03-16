@@ -35,12 +35,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -444,8 +439,10 @@ class Show extends Component implements HasForms, HasActions
                                     $p = Part::find($this->part->id);
                                     if (!empty($pt) && !empty($p)) {
                                         $fname = !empty($value) ? $value : basename($p->filename);
-                                        $fname = $pt->folder . $fname;
-                                        if (!empty(Part::firstWhere('filename', $fname)))  {
+                                        $ext = $p->isTexmap() ? '.png' : '.dat';
+                                        $fname = $pt->folder . $fname . $ext;
+                                        $oldp = Part::firstWhere('filename', $fname);
+                                        if (!is_null($oldp))  {
                                             $fail($fname . " already exists");
                                         }          
                                     }    
@@ -464,7 +461,7 @@ class Show extends Component implements HasForms, HasActions
         $manager = app(PartManager::class);
         $newType = PartType::find($data['part_type_id']);
         $newName = basename($data['newname'], ".{$part->type->format}");
-        $newName .= ".{$newType->format}";
+        $newName = "{$newName}.{$newType->format}";
         if ($part->isUnofficial()) {
             $oldname = $part->filename;
             $manager->movePart($part, $newName, $newType);
