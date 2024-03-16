@@ -34,6 +34,10 @@ class PartObserver
         $part->putDeletedBackup();
         $part->deleteRelationships();
         ReviewSummaryItem::where('part_id', $part->id)->delete();
+    }
+
+    public function deleted(Part $part)
+    {
         PartDeleted::dispatch(Auth::user(), $part->filename, $part->description, $part->parents()->unofficial()->pluck('id')->all());
     }
 }
