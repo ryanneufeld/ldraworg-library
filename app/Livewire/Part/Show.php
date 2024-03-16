@@ -435,15 +435,14 @@ class Show extends Component implements HasForms, HasActions
                             fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get)
                             {
                                 if (!empty($get('part_type_id'))) {
-                                    $pt = PartType::find($get('part_type_id'));
+                                    $newType = PartType::find($get('part_type_id'));
                                     $p = Part::find($this->part->id);
-                                    if (!empty($pt) && !empty($p)) {
-                                        $fname = !empty($value) ? $value : basename($p->filename);
-                                        $ext = $p->isTexmap() ? '.png' : '.dat';
-                                        $fname = $pt->folder . $fname . $ext;
-                                        $oldp = Part::firstWhere('filename', $fname);
+                                    if (!empty($newType) && !empty($p)) {
+                                        $newName = basename($value, ".{$p->type->format}");
+                                        $newName = "{$newType->folder}{$newName}.{$newType->format}";
+                                        $oldp = Part::firstWhere('filename', $newName);
                                         if (!is_null($oldp))  {
-                                            $fail($fname . " already exists");
+                                            $fail($newName . " already exists");
                                         }          
                                     }    
                                 }
