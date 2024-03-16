@@ -36,7 +36,6 @@ class Part extends Model
         'header',
         'cmdline',
         'bfc',
-        'official_part_id',
         'unofficial_part_id',
     ];
 
@@ -122,14 +121,14 @@ class Part extends Model
         return $this->hasOne(PartBody::class, 'part_id', 'id');
     }
     
-    public function official_part(): BelongsTo
-    {
-        return $this->BelongsTo(Part::class, 'official_part_id', 'id');
-    }
-
     public function unofficial_part(): BelongsTo
     {
         return $this->BelongsTo(Part::class, 'unofficial_part_id', 'id');
+    }
+
+    public function official_part(): HasOne
+    {
+        return $this->HasOne(Part::class, 'unofficial_part_id', 'id');
     }
 
     public function scopeName(Builder $query, string $name): void
@@ -537,14 +536,9 @@ class Part extends Model
         $this->keywords()->sync([]);
         $this->subparts()->sync([]);
         $this->notification_users()->sync([]);
-        if (!is_null($this->unofficial_part_id)) {
-            $p = $this->unofficial_part;
-            $p->official_part()->dissociate();
-            $p->save();
-        }
-        if (!is_null($this->official_part_id)) {
+        if (!is_null($this->official_part)) {
             $p = $this->official_part;
-            $p->unofficial_part()->dissociate();
+            $this->official_part->unofficial_part()->dissociate();
             $p->save();
         }
     }
@@ -577,7 +571,7 @@ class Part extends Model
             foreach(['T', 'A', 'C', 'H'] as $letter) {
                 $code .= str_repeat($letter, $codes[$letter]);
             } 
-            return $code .= is_null($this->official_part_id) ? 'N)' : 'F)';
+            return $code .= is_null($this->official_part) ? 'N)' : 'F)';
         } else {
             return $this->partStatusText($this);
         }  

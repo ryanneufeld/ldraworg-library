@@ -47,7 +47,7 @@ class Status extends Component
         foreach(['T', 'A', 'C', 'H'] as $letter) {
             $code .= str_repeat($letter, $codes[$letter]);
         } 
-        $code .= is_null($this->part->official_part_id) ? 'N)' : 'F)';
+        $code .= is_null($this->part->official_part) ? 'N)' : 'F)';
 
         return view('components.part.status', compact('text', 'code', 'color'));
     }

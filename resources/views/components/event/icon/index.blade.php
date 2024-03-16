@@ -1,6 +1,6 @@
 @props(['event'])
 @php
-    $is_fix = $event->initial_submit && !is_null($event->part->official_part_id);
+    $is_fix = $event->initial_submit && !is_null($event->part->official_part);
     $stack = (!is_null($event->comment) && $event->part_event_type->slug != 'comment') || $is_fix;
 @endphp
 <div class="relative w-6">

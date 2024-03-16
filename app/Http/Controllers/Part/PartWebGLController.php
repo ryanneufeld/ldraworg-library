@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Part;
 
 use App\Models\Part;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Builder;
 
 class PartWebGLController extends Controller
 {
     public function __invoke(Part $part) {
-        $parts = $part->descendantsAndSelf;
+        $parts = $part->descendantsAndSelf();
         if ($part->isUnofficial()) {
-            $parts = $parts->whereNull('unofficial_part_id');
+            $parts = $parts->doesntHave('unofficial_part');
         } else {
             $parts = $parts->whereNotNull('part_release_id');
         }

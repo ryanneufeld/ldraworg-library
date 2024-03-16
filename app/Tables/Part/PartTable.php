@@ -65,8 +65,8 @@ class PartTable
                     ->trueLabel($official ? 'Exclude parts with active fixes' : 'Exclude official part fixes')
                     ->falseLabel($official ? 'Only parts with active fixes' : 'Only official part fixes')
                     ->queries(
-                        true: fn (Builder $q) => $q->whereNull($official ? 'unofficial_part_id' : 'official_part_id'),
-                        false: fn (Builder $q) => $q->whereNotNull($official ? 'unofficial_part_id' : 'official_part_id'),
+                        true: fn (Builder $q) => $q->doesntHave($official ? 'unofficial_part' : 'official_part'),
+                        false: fn (Builder $q) => $q->has($official ? 'unofficial_part' : 'official_part'),
                         blank: fn (Builder $q) => $q,
                     ),
             ], layout: FiltersLayout::AboveContent)
@@ -115,11 +115,11 @@ class PartTable
                 ->outlined()
                 ->color('info'),
             Action::make('updated')
-                ->url(fn(Part $part) => route('tracker.show', $part->unofficial_part_id))
+                ->url(fn(Part $part) => route('tracker.show', $part->unofficial_part->id))
                 ->label(fn(Part $part) => ' Tracker Update: ' . $part->unofficial_part->statusCode())
                 ->button()
                 ->outlined()
-                ->visible(fn(Part $part) => !is_null($part->unofficial_part_id)),
+                ->visible(fn(Part $part) => !is_null($part->unofficial_part)),
         ];
     }
 }

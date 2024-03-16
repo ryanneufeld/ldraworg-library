@@ -36,7 +36,7 @@ class PartChecker
         if (!$part->isTexmap()) {
             $errors = $this->check(ParsedPart::fromPart($part)) ?? [];
         }  
-        $hascertparents = !is_null($part->official_part_id) || 
+        $hascertparents = !is_null($part->official_part) || 
             $part->type->folder == 'parts/' || 
             $this->hasCertifiedParentInParts($part);
         if (!$hascertparents) {

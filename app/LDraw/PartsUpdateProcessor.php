@@ -116,7 +116,7 @@ class PartsUpdateProcessor
 
     protected function updatePartsList(Part $part): void
     {
-        if (is_null($part->official_part_id) && $part->type->folder == 'parts/') {
+        if (is_null($part->official_part) && $part->type->folder == 'parts/') {
             $pl = $this->release->part_list ?? [];
             $pl[] = [$part->description, $part->filename];
             $f = substr($part->filename, 0, -4);
@@ -155,18 +155,18 @@ class PartsUpdateProcessor
     protected function getReleaseData(): array {
         $data = [];
         $data['total_files'] = $this->parts->count();
-        $data['new_files'] = $this->parts->whereNull('official_part_id')->count();
+        $data['new_files'] = $this->parts->whereNull('official_part')->count();
         $data['new_types'] = [];
         foreach (PartType::where('type', '!=', 'Shortcut')->get() as $type) {
             if ($type->folder == 'parts/') {
                 $count = $this->parts
-                    ->whereNull('official_part_id')
+                    ->whereNull('official_part')
                     ->where('type.folder', 'parts/')
                     ->count();
             }
             else {
                 $count = $this->parts
-                    ->whereNull('official_part_id')
+                    ->whereNull('official_part')
                     ->where('part_type_id', $type->id)
                     ->count();
             } 
@@ -182,7 +182,7 @@ class PartsUpdateProcessor
         $data['fixes'] = [];
         $data['rename'] = [];
         $notMoved = $this->parts
-            ->whereNotNull('official_part_id')
+            ->whereNotNull('official_part')
             ->where('category.category', '!=', 'Moved');
         foreach ($notMoved as $part) {
             if ($part->description != $part->official_part->description) {
@@ -220,7 +220,7 @@ class PartsUpdateProcessor
 
         PartReleased::dispatch($part, $this->user, $this->release);
  
-        if (!is_null($part->official_part_id)) {
+        if (!is_null($part->official_part)) {
             $opart = $this->updateOfficialWithUnofficial($part, $part->official_part);
             // Update events with official part id
             PartEvent::where('part_release_id', $this->release->id)

@@ -480,7 +480,6 @@ class Show extends Component implements HasForms, HasActions
                 PartSubmitted::dispatch($upart, Auth::user());
             }
             $mpart = $manager->addMovedTo($part, $upart);
-            $mpart->official_part->associate($part);
             $part->unofficial_part->associate($mpart);
             $part->save();
             $mpart->save();
@@ -496,7 +495,7 @@ class Show extends Component implements HasForms, HasActions
                 ->record($this->part)
                 ->visible(
                     $this->part->isUnofficial() &&
-                    (!is_null($this->part->official_part_id) || $this->part->parents->count() === 0) &&
+                    (!is_null($this->part->official_part) || $this->part->parents->count() === 0) &&
                     Auth::user()?->can('delete', $this->part) ?? false
                 )
                 ->modalDescription('Are you sure you\'d like to delete this part? This cannot be easily undone.')
@@ -541,16 +540,18 @@ class Show extends Component implements HasForms, HasActions
     {
         return $this->menuAction(
             Action::make('retieFix')
-                ->label('Retie official part')
+                ->label('Retie part fix')
                 ->action(function() {
                     if ($this->part->isUnofficial()) {
                         $fixpart = Part::official()->firstWhere('filename', $this->part->filename);
-                        $this->part->official_part()->associate($fixpart);
+                        $fixpart->unofficial_part()->associate($this->part);
+                        $fixpart->save();
                     } else {
                         $fixpart = Part::unofficial()->firstWhere('filename', $this->part->filename);
                         $this->part->unofficial_part()->associate($fixpart);
+                        $this->part->save();
                     }
-                    $this->part->save();
+                    $this->part->refresh();
                 })
                 ->visible(function (): bool {
                     if (!Auth::check() || 
@@ -559,13 +560,7 @@ class Show extends Component implements HasForms, HasActions
                     ) {
                         return false;
                     }
-                    if ($this->part->isUnofficial() && is_null($this->part->official_part_id)) {
-                        return true;
-                    }
-                    if (!$this->part->isUnofficial() && is_null($this->part->unofficial_part_id)) {
-                        return true;
-                    }
-                    return false;
+                    return is_null($this->part->unofficial_part) && is_null($this->part->official_part);
                 })
         );
     }
@@ -689,16 +684,11 @@ class Show extends Component implements HasForms, HasActions
             ->url(function () {
                 if ($this->part->isUnofficial())
                 {
-                    return route('official.show', $this->part->official_part_id ?? 0);
+                    return route('official.show', $this->part->official_part->id ?? 0);
                 }
-                return route('tracker.show', $this->part->unofficial_part_id ?? 0);
+                return route('tracker.show', $this->part->unofficial_part->id ?? 0);
             })
-            ->visible(function (): bool {
-                if ($this->part->isUnofficial()) {
-                    return !is_null($this->part->official_part_id);
-                }
-                return !is_null($this->part->unofficial_part_id);
-            });
+            ->visible(!is_null($this->part->unofficial_part) || !is_null($this->part->official_part));
     }
 
     #[Layout('components.layout.tracker')]

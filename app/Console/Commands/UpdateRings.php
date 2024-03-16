@@ -46,7 +46,7 @@ class UpdateRings extends Command
         $rings = Part::official()
             ->whereRelation('license', 'name', 'CC_BY_4')
             ->whereRelation('type', 'folder', 'LIKE', 'p/%')
-            ->whereNull('unofficial_part_id')
+            ->doesntHave('unofficial_part')
             ->whereRaw('filename REGEXP "' . $pattern . '"')
             ->where('description', 'NOT LIKE', '%(Obsolete)')
             ->where('description', 'NOT LIKE', '~Moved%')
@@ -108,7 +108,7 @@ class UpdateRings extends Command
             $newring = Part::unofficial()->firstWhere('filename', $newname);
             if (!is_null($newring)) {
                 foreach($ring->parents as $p) {
-                    if (!$p->isUnofficial() && is_null($p->unofficial_part_id)) {
+                    if (!$p->isUnofficial() && is_null($p->unofficial_part)) {
                         $p = $pm->addOrChangePartFromText($p->get());
                         $newfixes->push($p);
                     }

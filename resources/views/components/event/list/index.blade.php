@@ -1,7 +1,7 @@
 @props(['part'])
 <div class="text-lg font-bold">Part Events:</div>
 <div class="flex flex-col space-y-4">
-    @if (!$part->isUnofficial() || !is_null($part->official_part_id))
+    @if (!$part->isUnofficial() || !is_null($part->official_part))
         <x-accordion id="archiveEvents">
             <x-slot name="header">
                 Archived Part Events:

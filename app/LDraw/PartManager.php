@@ -125,7 +125,6 @@ class PartManager
         } elseif (!is_null($opart)) {
             //$values['official_part_id'] = $opart->id;
             $upart = Part::create($values);
-            $upart->official_part()->associate($opart);
             $opart->unofficial_part()->associate($upart);
             $opart->save();
             $this->updateUnofficialWithOfficialFix($opart);
@@ -182,7 +181,7 @@ class PartManager
         if (
             $oldPart->isUnofficial() || 
             !$newPart->isUnofficial() || 
-            !is_null($oldPart->unofficial_part_id) || 
+            !is_null($oldPart->unofficial_part) || 
             $oldPart->type->folder != 'parts/'
         ) {
             return null;

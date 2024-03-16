@@ -17,13 +17,13 @@ class LDrawModelMaker
 
         $topModelName = pathinfo($part->filename, PATHINFO_FILENAME) . '.ldr';
         $file = "0 FILE {$topModelName}\r\n1 16 0 0 0 {$matrix} {$part->name()}\r\n0 FILE {$part->name()}\r\n{$part->get()}\r\n";
-        $sparts = $part->descendants;
+        $sparts = $part->descendants();
         if ($part->isUnofficial()) {
-            $sparts = $sparts->whereNull('unofficial_part_id');
+            $sparts = $sparts->doesntHave('unofficial_part');
         } else {
             $sparts = $sparts->whereNotNull('part_release_id');
         }
-        foreach ($sparts ?? [] as $s) {
+        foreach ($sparts->get() ?? [] as $s) {
             if ($s->isTexmap()) {
                 $file .= $s->get(true, true);
             } else {
