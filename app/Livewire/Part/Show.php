@@ -543,13 +543,30 @@ class Show extends Component implements HasForms, HasActions
             Action::make('retieFix')
                 ->label('Retie official part')
                 ->action(function() {
-
+                    if ($this->part->isUnofficial()) {
+                        $fixpart = Part::official()->firstWhere('filename', $this->part->filename);
+                        $this->part->official_part()->associate($fixpart);
+                    } else {
+                        $fixpart = Part::unofficial()->firstWhere('filename', $this->part->filename);
+                        $this->part->unofficial_part()->associate($fixpart);
+                    }
+                    $this->part->save();
                 })
-                ->visible(
-                    Auth::user()?->can('retie', $this->part) ?? false
-                    && Part::where('filename', $this->part->filename)->count() > 1
-                    && is_null($this->part->official_part_id)
-                )
+                ->visible(function (): bool {
+                    if (!Auth::check() || 
+                        Auth::user()?->cannot('retie', $this->part) || 
+                        Part::where('filename', $this->part->filename)->count() > 1
+                    ) {
+                        return false;
+                    }
+                    if ($this->part->isUnofficial() && is_null($this->part->official_part_id)) {
+                        return true;
+                    }
+                    if (!$this->part->isUnofficial() && is_null($this->part->unofficial_part_id)) {
+                        return true;
+                    }
+                    return false;
+                })
         );
     }
     public function downloadAction(): Action 
@@ -668,14 +685,20 @@ class Show extends Component implements HasForms, HasActions
             ->button()
             ->color('gray')
             ->icon('fas-copy')
-            ->label('View' . ($this->part->isUnofficial() ? 'official' : 'unofficial')  . 'version of part')
-            ->url(
-                route(
-                    $this->part->isUnofficial() ? 'official.show' : 'tracker.show', 
-                    $this->part->isUnofficial() ? $this->part->official_part_id ?? 0 : $this->part->unofficial_part_id ?? 0
-                )
-            )
-            ->visible(!is_null($this->part->isUnofficial() ? $this->part->official_part_id : $this->part->unofficial_part_id));
+            ->label('View ' . ($this->part->isUnofficial() ? 'official' : 'unofficial')  . ' version of part')
+            ->url(function () {
+                if ($this->part->isUnofficial())
+                {
+                    return route('official.show', $this->part->official_part_id ?? 0);
+                }
+                return route('tracker.show', $this->part->unofficial_part_id ?? 0);
+            })
+            ->visible(function (): bool {
+                if ($this->part->isUnofficial()) {
+                    return !is_null($this->part->official_part_id);
+                }
+                return !is_null($this->part->unofficial_part_id);
+            });
     }
 
     #[Layout('components.layout.tracker')]
