@@ -42,6 +42,9 @@
             @if ($this->updateSubpartsAction->isVisible())
                 {{ $this->updateSubpartsAction }}
             @endif
+            @if ($this->retieFixAction->isVisible())
+                {{ $this->retieFixAction }}
+            @endif
             @if ($this->deleteAction->isVisible())
                 {{ $this->deleteAction }}
             @endif
@@ -55,27 +58,9 @@
                 {{ucfirst($part->libFolder())}} File <span id="filename">{{ $part->filename }}</span>
         </div>
         <div>
-            @isset ($part->unofficial_part_id)
-                <x-filament::button 
-                    href="{{ route('tracker.show', $part->unofficial_part_id) }}"
-                    icon="fas-copy"
-                    color="gray"
-                    tag="a"
-                    label="View unofficial version of part"
-                >
-                    View unofficial version of part
-                </x-filament::button>
-            @endisset
-            @isset ($part->official_part_id)
-                <x-filament::button 
-                    href="{{ route('official.show', $part->official_part_id) }}"
-                    icon="fas-copy"
-                    color="gray"
-                    tag="a"
-                >
-                    View official version of part
-                </x-filament::button>
-            @endisset
+            @if ($this->viewFixAction->isVisible())
+                {{ $this->viewFixAction }}
+            @endif
             @if ($part->isUnofficial())
                 @if ($this->toggleTrackedAction->isVisible())
                     {{ $this->toggleTrackedAction }}
@@ -154,6 +139,9 @@
             @endif
             @if ($this->updateSubpartsAction->isVisible())
                 {{ $this->updateSubpartsAction }}
+            @endif
+            @if ($this->retieFixAction->isVisible())
+                {{ $this->retieFixAction }}
             @endif
             @if ($this->deleteAction->isVisible())
                 {{ $this->deleteAction }}

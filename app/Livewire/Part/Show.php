@@ -537,6 +537,21 @@ class Show extends Component implements HasForms, HasActions
         );
     }
 
+    public function retieFixAction(): Action
+    {
+        return $this->menuAction(
+            Action::make('retieFix')
+                ->label('Retie official part')
+                ->action(function() {
+
+                })
+                ->visible(
+                    Auth::user()?->can('retie', $this->part) ?? false
+                    && Part::where('filename', $this->part->filename)->count() > 1
+                    && is_null($this->part->official_part_id)
+                )
+        );
+    }
     public function downloadAction(): Action 
     {
         return $this->menuAction(
@@ -645,6 +660,22 @@ class Show extends Component implements HasForms, HasActions
                 $this->part->save();
             })
             ->visible(Auth::user()?->can('flagMaualHold', $this->part) ?? false);
+    }
+
+    public function viewFixAction(): Action
+    {
+        return Action::make('viewFix')
+            ->button()
+            ->color('gray')
+            ->icon('fas-copy')
+            ->label('View' . ($this->part->isUnofficial() ? 'official' : 'unofficial')  . 'version of part')
+            ->url(
+                route(
+                    $this->part->isUnofficial() ? 'official.show' : 'tracker.show', 
+                    $this->part->isUnofficial() ? $this->part->official_part_id ?? 0 : $this->part->unofficial_part_id ?? 0
+                )
+            )
+            ->visible(!is_null($this->part->isUnofficial() ? $this->part->official_part_id : $this->part->unofficial_part_id));
     }
 
     #[Layout('components.layout.tracker')]
