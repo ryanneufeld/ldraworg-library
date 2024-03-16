@@ -554,8 +554,8 @@ class Show extends Component implements HasForms, HasActions
                 })
                 ->visible(function (): bool {
                     if (!Auth::check() || 
-                        Auth::user()?->cannot('retie', $this->part) || 
-                        Part::where('filename', $this->part->filename)->count() > 1
+                        Auth::user()?->cannot('update', $this->part) || 
+                        Part::where('filename', $this->part->filename)->count() <= 1
                     ) {
                         return false;
                     }
