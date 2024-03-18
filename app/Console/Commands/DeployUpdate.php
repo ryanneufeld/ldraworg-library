@@ -38,9 +38,10 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        User::role('Legacy User')->update(['is_legacy' => true]);
-        User::role('Synthetic User')->update(['is_synthetic' => true]);
-        User::where('name', 'PTAdmin')->update(['is_ptadmin' => true]);
+        $manager = app(\App\LDraw\PartManager::class);
+        Part::each(function (Part $part) use ($manager) {
+            $manager->checkPart($part);
+        });
         /*;
         Permission::create(['name' => 'omr.create']);
         Permission::create(['name' => 'omr.update']);

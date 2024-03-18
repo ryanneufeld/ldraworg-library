@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Part;
 use App\LDraw\Parse\ParsedPart;
 use App\Models\PartCategory;
+use App\Models\PartLicense;
 
 class PartChecker
 {
@@ -47,6 +48,9 @@ class PartChecker
         }
         if ($part->manual_hold_flag) {
             $errors[] = 'Manual hold back by admin';
+        }
+        if ($part->license->id <> PartLicense::default()->id) {
+            $errors[] = 'Part License not ' . PartLicense::default()->name;
         }
         $can_release = count($errors) == 0;
         return compact('can_release', 'errors');

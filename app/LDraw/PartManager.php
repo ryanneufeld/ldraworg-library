@@ -241,11 +241,29 @@ class PartManager
         }
         $this->updateMissing($part->name());
         \App\Jobs\UpdateParentParts::dispatch($part);
-    return true;
+        return true;
     }
 
     function loadSubpartsFromBody(Part $part): void
     {
         $part->setSubparts($this->parser->getSubparts($part->body->body) ?? []);
+    }
+
+    function checkPart(Part $part): void
+    {
+        if (!$part->isUnofficial()) {
+            $part->can_release == true;
+            $part->part_check_messages = ['errors' => [], 'warnings' => []];
+            $part->save();
+            return;
+        }
+        $check = app(\App\LDraw\Check\PartChecker::class)->checkCanRelease($part);
+        $warnings = [];
+        if (isset($part->category) && $part->category->category == "Minifig") {
+            $warnings[] = "Check Minifig category: {$part->category->category}";
+        }
+        $part->can_release = $check['can_release'];
+        $part->part_check_messages = ['errors' => $check['errors'], 'warnings' => $warnings];
+        $part->save();
     }
 }

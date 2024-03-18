@@ -97,7 +97,18 @@
         @if($part->isUnofficial())
             <div class="text-lg font-bold">Status:</div>
             <x-part.status :$part show-status />
-            <x-message.part-releasable :$part />
+            @if (!$part->can_release)
+                <x-message compact type="warning">
+                    <x-slot:header>
+                        This part is not releaseable
+                    </x-slot:header>
+                    <ul>
+                        @foreach($part->part_check_messages['errors'] as $error)
+                            <li>{{$error}}</li>
+                        @endforeach
+                    </ul>
+                </x-message>        
+            @endif
             <div class="text-md font-bold">Current Votes:</div>
             <x-vote.table :votes="$part->votes" />
             <x-part.table title="Unofficial parent parts" :parts="$part->parents->whereNull('part_release_id')" />

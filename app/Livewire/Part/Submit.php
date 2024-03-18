@@ -52,35 +52,25 @@ class Submit extends Component implements HasForms
                     ->label('Files')
                     ->rules([
                         fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get) {
+                            if ($value->getMimeType() != 'text/plain' && $value->getMimeType() != 'image/png') {
+                                $this->part_errors[] = "{$value->getClientOriginalName()}: Incorrect file type";
+                                $fail('File errors');
+                                return;
+                            }
                             if ($value->getMimeType() == 'text/plain') {
                                 $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
-                                $official_exists = !is_null(Part::official()->name($part->name ?? '')->first());
                                 $unofficial_exists = !is_null(Part::unofficial()->name($part->name ?? '')->first());
-                                $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
                                 $errors = app(\App\LDraw\Check\PartChecker::class)->check($part);
                                 foreach($errors ?? [] as $error) {
                                     $this->part_errors[] = "{$value->getClientOriginalName()}: {$error}";
                                 }
                             } elseif ($value->getMimeType() == 'image/png') {
                                 $filename = $value->getClientOriginalName();
-                                $official_exists = !is_null(Part::official()->where('filename', 'LIKE', "%{$filename}")->first());
                                 $unofficial_exists = !is_null(Part::unofficial()->where('filename', 'LIKE', "%{$filename}")->first());
                             }
-                            else {
-                                $part_errors[] = "{$value->getClientOriginalName()}: Incorrect file type";
-                            }
-                            if ($value->getMimeType() == 'text/plain' || $value->getMimeType() == 'image/png')
+                            if ($unofficial_exists && $get('replace') !== true)
                             {
-                                $cannotfix = !Auth::check() || Auth::user()->cannot('part.submit.fix');
-                                if ($official_exists && !$unofficial_exists && $cannotfix) {
-                                    $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.fix.unofficial');
-                                }
-                                elseif ($official_exists && !$unofficial_exists && $get('officialfix') !== true) {
-                                    $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.fix.checked');
-                                }  
-                                if ($unofficial_exists && $get('replace') !== true) {
-                                    $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.replace');
-                                }
+                                $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.replace');
                             }
                             if (count($this->part_errors) > 0) {
                                 $fail('File errors');
@@ -89,9 +79,6 @@ class Submit extends Component implements HasForms
                     ]),
                 Toggle::make('replace')
                     ->label('Replace existing file(s)'),
-                Toggle::make('officialfix')
-                    ->label('New version of official file(s)')
-                    ->visible(Auth::user()->can('part.submit.fix')),
                 Select::make('user_id')
                     ->relationship(name: 'user')
                     ->getOptionLabelFromRecordUsing(fn (User $u) => "{$u->realname} [{$u->name}]")
