@@ -389,7 +389,7 @@ class Show extends Component implements HasForms, HasActions
             $part->save();
             $part->refresh();
             $part->generateHeader();
-            
+            $manager->checkPart($part);
             // Post an event
             PartHeaderEdited::dispatch($part, Auth::user(), $changes, $data['editcomment'] ?? null);
             Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);

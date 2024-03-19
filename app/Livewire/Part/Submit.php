@@ -100,36 +100,29 @@ class Submit extends Component implements HasForms
 
     public function create(): void
     {
-        $this->authorize('part.submit.regular');
-        $manager = app(PartManager::class);;
-        $this->part_errors = [];
+        $this->authorize('create', Part::class);
+        $manager = app(PartManager::class);
         $data = $this->form->getState();
         if (array_key_exists('user_id', $data) && Auth::user()->can('part.submit.proxy')) {
             $user = User::find($data['user_id']);
         } else {
             $user = Auth::user();
         }
-        $parts = new Collection();
+        $files = [];
         foreach($data['partfiles'] as $file) {
             if ($file->getMimeType() == 'text/plain') {
-                $part = $manager->addOrChangePartFromText($file->get());
-            } else {
-                $image = imagecreatefrompng($file->path());
-                imagesavealpha($image, true);
-                $part = $manager->addOrChangePartFromImage(
-                    $file->path(),
-                    basename($file->getClientOriginalName()),
-                    $user,
-                    $this->guessPartType($file->getClientOriginalName(), $data['partfiles'])
-                );
+                $files[] = ['type' => 'text', 'filename' => $file->getClientOriginalName(), 'contents' => $file->get()];
             }
-            $user->notification_parts()->syncWithoutDetaching([$part->id]);
-            UpdateZip::dispatch($part);
-            PartSubmitted::dispatch($part, $user, $data['comments']);
-            $parts->add($part);
+            else if ($file->getMimeType() == 'image/png') {
+                $files[] = ['type' => 'png', 'filename' => $file->getClientOriginalName(), 'contents' => $file->get()];
+            }
         }
-        $parts->each(function (Part $p) use ($manager) {
-            $manager->loadSubpartsFromBody($p);
+        $parts = $manager->submit($files, $user);
+
+        $parts->each(function (Part $p) use ($user, $data) {
+            $user->notification_parts()->syncWithoutDetaching([$p->id]);
+            UpdateZip::dispatch($p);
+            PartSubmitted::dispatch($p, $user, $data['comments']);
             $this->submitted_parts[] = [
                 'image' => version("images/library/unofficial/" . substr($p->filename, 0, -4) . '_thumb.png'),
                 'description' => $p->description,
@@ -142,27 +135,6 @@ class Submit extends Component implements HasForms
         $this->dispatch('open-modal', id: 'post-submit');
     }
  
-    protected function guessPartType(string $filename, array $partfiles): PartType
-    {
-        $p = Part::firstWhere('filename', 'LIKE', "%{$filename}");
-        //Texmap exists, use that type
-        if (!is_null($p)) {
-            return $p->type;
-        }
-        // Texmap is used in one of the submitted files, use the type appropriate for that part
-        foreach ($partfiles as $file) {
-            if ($file->getMimeType() == 'text/plain' && stripos($filename, $file->get() !== false)) {
-                $type = $this->manager->parser->parse($file->get())->type;
-                $pt = PartType::firstWhere('type', $type);
-                $textype = PartType::firstWhere('type', "{$pt->type}_Texmap");
-                if (!is_null($textype)) {
-                    return $textype;
-                }
-            }
-        }
-        return PartType::firstWhere('type', 'Part_Texmap');
-    }
-
     public function postSubmit()
     {
         $this->submitted_parts = [];
