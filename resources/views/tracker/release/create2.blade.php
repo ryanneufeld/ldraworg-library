@@ -3,7 +3,7 @@
   <form class="ui form" action="{{route('tracker.release.store')}}" method="post">
     @csrf
     @foreach($parts as $part)
-      <input type="hidden" name="ids[]" value="{{$part->id}}">
+      <input name="ids[]" value="{{$part->id}}">
     @endforeach
     <x-part.table title="File to be release" :parts="$parts" />
     <h4 class="ui header">Files for ldraw folder:</h4>

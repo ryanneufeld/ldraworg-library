@@ -25,7 +25,7 @@
       <td>
         <div class="field">
           <div class="ui toggle checkbox">
-            <input type="checkbox" name="ids[]" value="{{$id}}" class="hidden" @checked($check['can_release'])>
+            <input type="checkbox" name="ids[]" value="{{$id}}" @checked($check['can_release'])>
           </div>
         </div>  
       </td>
@@ -40,7 +40,7 @@
           {{$warning}}<br>
         @endforeach 
       </td>
-      <td><a href="{{route('tracker.edit', $id)}}">Edit</a></td>
+      <td>{{--<a href="{{route('tracker.edit', $id)}}">Edit</a>--}}</td>
     </tr>      
   @if($loop->last)
   </tbody>  
