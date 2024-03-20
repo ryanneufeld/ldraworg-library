@@ -5,11 +5,13 @@ namespace App\Console\Commands;
 use App\Events\PartReviewed;
 use App\Events\PartSubmitted;
 use App\Jobs\UpdateZip;
+use App\LDraw\Check\PartChecker;
 use Illuminate\Console\Command;
 use App\LDraw\PartManager;
 use App\LDraw\ZipFiles;
 use App\Models\Part;
 use App\Models\PartHistory;
+use App\Models\PartType;
 use App\Models\User;
 use App\Models\VoteType;
 use Illuminate\Database\Eloquent\Collection;
@@ -51,12 +53,16 @@ class UpdateRings extends Command
             ->where('description', 'NOT LIKE', '%(Obsolete)')
             ->where('description', 'NOT LIKE', '~Moved%')
             ->get();
-            
+
+
+        echo 'Fixing ' . $rings->count() . " Official Rings\n";
         foreach($rings as $ring) {
             $text = $ring->get();
 
             // Add correctly named rings to tracker
             $newring = $pm->addOrChangePartFromText($text);
+            $newring->official_part->unofficial_part()->dissociate();
+            $newring->official_part->save();
             $newname = preg_replace("#{$pattern}#", $newring->type->folder . '$2ring$3.dat', $newring->filename);
             $newring->filename = $newname;
             PartHistory::create([
@@ -68,7 +74,7 @@ class UpdateRings extends Command
             $newring->refresh();
             $pm->updatePartImage($newring);
             $newring->generateHeader();
-            PartSubmitted::dispatch($newring, $u, "Update ring primitives");
+            PartSubmitted::dispatch($newring, $u, "Update ring primitive name via script. Do not hold.");
 
             // Fast track new ring
             $u->castVote($newring, $ftVote);
@@ -85,12 +91,13 @@ class UpdateRings extends Command
             $oldring->save();
             $oldring->refresh();
             $oldring->generateHeader();
-            PartSubmitted::dispatch($oldring, $u, "Update ring primitives");
+            PartSubmitted::dispatch($oldring, $u, "Obsolete old ring primitive via script. Do not hold.");
 
             // Fast track old rings
             $u->castVote($oldring, $ftVote);
             PartReviewed::dispatch($oldring, $u, 'T');
         }
+        echo "Official Rings Fixed\n";
 
         $rings = Part::unofficial()
             ->whereRelation('type', 'folder', 'LIKE', 'p/%')
@@ -111,30 +118,37 @@ class UpdateRings extends Command
                     if (!$p->isUnofficial() && is_null($p->unofficial_part)) {
                         $p = $pm->addOrChangePartFromText($p->get());
                         $newfixes->push($p);
+                    } else {
+                        $fixedparts->push($p);
                     }
                     $p->body->body = str_replace($ring->name(), $newring->name(), $p->body->body);
                     $p->body->save();
-                    $fixedparts->push($p);                        
+                                            
                 }
             }
         }
 
+        echo 'Fixing ring refs for ' . $fixedparts->count() . " parts on tracker\n";
         foreach ($fixedparts as $p) {
             $pm->loadSubpartsFromBody($p);
             PartHistory::create([
                 'part_id' => $p->id,
                 'user_id' => $u->id,
-                'comment' => "Update ring primitives",
+                'comment' => "Updated ring primitives",
             ]);
             $p->refresh();
             $p->generateHeader();
+            PartSubmitted::dispatch($p, $u, "Update ring primitives via script. This will not reset the vote status of the part");
         }
+        echo "Parts on tracker ring refs fixed\n";
 
+        echo 'Fixing ring refs for ' . $newfixes->count() . " official parts\n";
         foreach($newfixes as $p) {
-            PartSubmitted::dispatch($p, $u, "Update ring primitives");            
+            PartSubmitted::dispatch($p, $u, "Update ring primitives via script. Do not hold.");            
             $u->castVote($p, $ftVote);
             PartReviewed::dispatch($p, $u, 'T');
         }
+        echo "Official part ring refs fixed\n";
 
         // Reset the unofficial zip file
         Storage::disk('library')->delete('unofficial/ldrawunf.zip');
