@@ -6,14 +6,18 @@ use App\Events\PartReviewed;
 use App\Events\PartSubmitted;
 use App\Jobs\UpdateZip;
 use App\LDraw\Check\PartChecker;
+use App\LDraw\Parse\Parser;
 use Illuminate\Console\Command;
 use App\LDraw\PartManager;
 use App\LDraw\ZipFiles;
 use App\Models\Part;
+use App\Models\PartCategory;
 use App\Models\PartHistory;
 use App\Models\PartType;
+use App\Models\PartTypeQualifier;
 use App\Models\User;
 use App\Models\VoteType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 
@@ -43,7 +47,7 @@ class UpdateRings extends Command
         $ftVote = VoteType::find('T');
 
         $pattern = 'p(\/4?8)?\/([0-9]{1,2}-[0-9]{1,2})rin?([0-9]{1,2})\.dat';
-
+        $namepattern = '(4?8\\\\)?([0-9]{1,2}-[0-9]{1,2})rin?([0-9]{1,2})\.dat';
         // Find all CC_BY_4 rings that haven't been converted
         $rings = Part::official()
             ->whereRelation('license', 'name', 'CC_BY_4')
@@ -55,16 +59,12 @@ class UpdateRings extends Command
             ->get();
 
 
-        echo 'Fixing ' . $rings->count() . " Official Rings\n";
+        $headerpattern = '#^\h*0\h+Name:\h+'. $namepattern . '\h*$#um';
+        $this->info("Fixing {$rings->count()} Official Rings");
         foreach($rings as $ring) {
-            $text = $ring->get();
-
+            $text = preg_replace($headerpattern, '0 Name: $1$2ring$3.dat', $ring->header);
             // Add correctly named rings to tracker
-            $newring = $pm->addOrChangePartFromText($text);
-            $newring->official_part->unofficial_part()->dissociate();
-            $newring->official_part->save();
-            $newname = preg_replace("#{$pattern}#", $newring->type->folder . '$2ring$3.dat', $newring->filename);
-            $newring->filename = $newname;
+            $newring = $this->addpart("{$text}\n{$ring->body->body}");
             PartHistory::create([
                 'part_id' => $newring->id,
                 'user_id' => $u->id,
@@ -72,7 +72,6 @@ class UpdateRings extends Command
             ]);
             $newring->save();
             $newring->refresh();
-            $pm->updatePartImage($newring);
             $newring->generateHeader();
             PartSubmitted::dispatch($newring, $u, "Update ring primitive name via script. Do not hold.");
 
@@ -81,7 +80,7 @@ class UpdateRings extends Command
             PartReviewed::dispatch($newring, $u, 'T');
 
             // Obsolete and add old rings to tracker
-            $oldring = $pm->addOrChangePartFromText($text);
+            $oldring = $this->addpart($ring->get());
             $oldring->description = "~{$oldring->description} (Obsolete)";
             PartHistory::create([
                 'part_id' => $oldring->id,
@@ -97,39 +96,72 @@ class UpdateRings extends Command
             $u->castVote($oldring, $ftVote);
             PartReviewed::dispatch($oldring, $u, 'T');
         }
-        echo "Official Rings Fixed\n";
+        $this->info('Official Rings Fixed');
 
-        $rings = Part::unofficial()
+        $rings = Part::with('parents')
+            ->unofficial()
             ->whereRelation('type', 'folder', 'LIKE', 'p/%')
             ->whereRaw('filename REGEXP "' . $pattern . '"')
             ->where('description', 'LIKE', '%(Obsolete)')
             ->has('parents')
             ->get();
         
-        $fixedparts = new Collection();
-        $newfixes = new Collection();
+        $official = [];
+        $unofficial = [];
 
-        // Fix all parts that refer to the old rings
         foreach ($rings as $ring) {
             $newname = preg_replace("#{$pattern}#", $ring->type->folder . '$2ring$3.dat', $ring->filename);
             $newring = Part::unofficial()->firstWhere('filename', $newname);
             if (!is_null($newring)) {
                 foreach($ring->parents as $p) {
-                    if (!$p->isUnofficial() && is_null($p->unofficial_part)) {
-                        $p = $pm->addOrChangePartFromText($p->get());
-                        $newfixes->push($p);
-                    } else {
-                        $fixedparts->push($p);
+                    if (in_array($p->id, $official) || in_array($p->id, $unofficial)) {
+                        continue;
                     }
-                    $p->body->body = str_replace($ring->name(), $newring->name(), $p->body->body);
-                    $p->body->save();
-                                            
+                    if (!$p->isUnofficial() && is_null($p->unofficial_part)) {
+                        $official[] = $p->id;
+                    }
+                    elseif ($p->isUnofficial()) {
+                        $unofficial[] = $p->id;
+                    }
+                    else {
+                        $this->error("Error. Unmatched official part fix {$p->filename}");
+                    }
                 }
+            }
+            else {
+                $this->error("Error. {$ring->filename} has unmatched {$newname}");
             }
         }
 
-        echo 'Fixing ring refs for ' . $fixedparts->count() . " parts on tracker\n";
-        foreach ($fixedparts as $p) {
+        $pattern = '(4?8\\\\)?([0-9]{1,2}-[0-9]{1,2})rin?([0-9]{1,2})\.dat';
+
+        $oparts = Part::whereIn('id', $official)->get();
+        $this->info("Fixing {$oparts->count()} official parts");
+        foreach ($oparts as $p) {
+            $text = $p->body->body;
+            $text = preg_replace("#{$pattern}#", '$1$2ring$3.dat', $text);
+            $np = $this->addpart("{$p->header}\n{$text}");
+            PartHistory::create([
+                'part_id' => $np->id,
+                'user_id' => $u->id,
+                'comment' => "Updated ring primitives",
+            ]);
+            $np->refresh();
+            $np->generateHeader();
+            if (!is_null($np->part_release_id)) {
+                $this->error("Error with {$np->filename}");
+                return;
+            }
+            PartSubmitted::dispatch($np, $u, "Update ring primitives via script. Do not hold.");
+            $u->castVote($np, $ftVote);
+            PartReviewed::dispatch($np, $u, 'T');
+        }
+
+        $uparts = Part::whereIn('id', $unofficial)->get();
+        $this->info("Fixing {$uparts->count()} unofficial parts");
+        foreach ($uparts as $p) {
+            $p->body->body = preg_replace("#{$pattern}#", '$1$2ring$3.dat', $p->body->body);
+            $p->body->save();
             $pm->loadSubpartsFromBody($p);
             PartHistory::create([
                 'part_id' => $p->id,
@@ -138,21 +170,67 @@ class UpdateRings extends Command
             ]);
             $p->refresh();
             $p->generateHeader();
-            PartSubmitted::dispatch($p, $u, "Update ring primitives via script. This will not reset the vote status of the part");
+            PartSubmitted::dispatch($p, $u, "Update ring primitives via script. This will not reset the vote status of the part.");            
         }
-        echo "Parts on tracker ring refs fixed\n";
-
-        echo 'Fixing ring refs for ' . $newfixes->count() . " official parts\n";
-        foreach($newfixes as $p) {
-            PartSubmitted::dispatch($p, $u, "Update ring primitives via script. Do not hold.");            
-            $u->castVote($p, $ftVote);
-            PartReviewed::dispatch($p, $u, 'T');
-        }
-        echo "Official part ring refs fixed\n";
 
         // Reset the unofficial zip file
         Storage::disk('library')->delete('unofficial/ldrawunf.zip');
         ZipFiles::unofficialZip(Part::unofficial()->first());
         
+    }
+
+    protected function addPart($text)
+    {
+        $pm = app(PartManager::class);
+        $part = app(Parser::class)->parse($text);
+        
+        $user = User::fromAuthor($part->username, $part->realname)->first();
+        $type = PartType::firstWhere('type', $part->type);
+        $qual = PartTypeQualifier::firstWhere('type', $part->qual);
+        $cat = PartCategory::firstWhere('category', $part->metaCategory ?? $part->descriptionCategory);
+        $filename = $type->folder . basename(str_replace('\\', '/', $part->name));
+        $values = [
+            'description' => $part->description,
+            'filename' => $filename,
+            'user_id' => $user->id,
+            'part_type_id' => $type->id,
+            'part_type_qualifier_id' => $qual->id ?? null,
+            'part_license_id' => $user->license->id,
+            'bfc' => $part->bfcwinding ?? null,
+            'part_category_id' => $cat->id ?? null,
+            'cmdline' => $part->cmdline,
+            'header' => ''
+        ];
+        $upart = Part::unofficial()->firstWhere('filename', $values['filename']);
+        $opart = Part::official()->firstWhere('filename', $values['filename']);
+        if (!is_null($upart)) {
+            $upart->fill($values);
+        } elseif (!is_null($opart)) {
+            $upart = Part::create($values);
+            $opart->unofficial_part()->associate($upart);
+            $opart->save();
+            Part::unofficial()
+                ->whereHas('subparts', fn (Builder $query) => $query->where('id', $opart->id))
+                ->each(fn (Part $p) => $pm->loadSubpartsFromBody($p));    
+        } else {
+            $upart = Part::create($values);
+        }
+        $upart->setKeywords($part->keywords ?? []);
+        $upart->setHelp($part->help ?? []);
+        $upart->setHistory($part->history ?? []);
+        $upart->setSubparts($part->subparts ?? []);
+        $upart->setBody($part->body);       
+        $upart->save();
+        $upart->refresh();
+        $upart->generateHeader();
+        $upart->updateVoteData();
+        $pm->updatePartImage($upart);
+        $upart->refresh();
+        if (!is_null($upart->official_part)) {
+            foreach ($upart->official_part->parents()->official()->get() as $p) {
+                $pm->loadSubpartsFromBody($p);
+            }
+        }
+        return $upart;
     }
 }
