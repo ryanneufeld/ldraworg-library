@@ -17,8 +17,6 @@ class LDView
     public function __construct(
         public readonly array $options,
         public readonly array $altCameraPositions,
-        public readonly string $tempDisk,
-        public readonly string $tempPath,
         public readonly string $ldconfigPath,
         public readonly int $maxHeight,
         public readonly int $maxWidth,
