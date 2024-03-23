@@ -3,7 +3,7 @@
   <x-message.session-error />
   <form class="ui form" enctype="multipart/form-data" action="{{route('tracker.release.create2')}}" method="POST">
   @csrf
-  @forelse ($parts as ['id' => $id, 'description' => $description, 'name' => $name, 'filename' => $filename, 'check' => $check, 'warnings' => $warnings])
+  @forelse ($parts as ['id' => $id, 'description' => $description, 'name' => $name, 'filename' => $filename, 'check' => $check, 'warnings' => $warnings, 'fix' => $fix])
   @if($loop->first)
   <table class="ui celled table">
   <thead>
@@ -13,14 +13,16 @@
       <th>Name</th>
       <th>Description</th>
       <th>Notes</th>
+      <th>Fix</th>
       <th>Edit</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody >
   @endif  
     <tr @class([
-      'red' => !$check['can_release'],
-      'green' => $check['can_release'],
+        '*:border *:border-black *:p-2',
+      'bg-red-200' => !$check['can_release'],
+      'bg-green-200' => $check['can_release'],
     ])>
       <td>
         <div class="field">
@@ -40,7 +42,8 @@
           {{$warning}}<br>
         @endforeach 
       </td>
-      <td>{{--<a href="{{route('tracker.edit', $id)}}">Edit</a>--}}</td>
+      <td>{{$fix ? 'Yes' : 'No'}}
+      <td><a href="{{route('tracker.show', $id)}}">Edit</a></td>
     </tr>      
   @if($loop->last)
   </tbody>  

@@ -40,6 +40,7 @@ class PartReleaseController extends Controller
                         'filename' => $part->filename,
                         'warnings' => $warnings,
                         'check' => $check,
+                        'fix' => !is_null($part->official_part)
                     ];
                 }        
             });        
