@@ -25,7 +25,7 @@
                 @if(is_null($event->vote_type_code))
                   cancelled their vote.
                 @else
-                  posted a vote of {{$event->vote_type()->first()->name}}.
+                  posted a vote of {{$event->vote_type->name}}.
                 @endif
               @break
               @case('comment')
