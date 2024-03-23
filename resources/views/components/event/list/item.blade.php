@@ -22,11 +22,11 @@
               edited the part header.
               @break
               @case('review')
-                @empty($event->vote_type_code)
+                @if(is_null($event->vote_type_code))
                   cancelled their vote.
                 @else
-                  posted a vote of {{$event->vote_type->name}}.
-                @endempty
+                  posted a vote of {{$event->vote_type()->first()->name}}.
+                @endif
               @break
               @case('comment')
               made the following comment.
