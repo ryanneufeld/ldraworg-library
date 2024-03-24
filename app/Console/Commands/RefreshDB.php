@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Storage;
 
 class RefreshDB extends Command
 {
@@ -29,15 +30,9 @@ class RefreshDB extends Command
         if (app()->environment('local') && file_exists(env('LIBRARY_SQL_FILE'))) {
             $sql = env('LIBRARY_SQL_FILE');
 
-            $db = [
-                'username' => env('DB_USERNAME'),
-                'password' => env('DB_PASSWORD'),
-                'host' => env('DB_HOST'),
-                'database' => env('DB_DATABASE'),
-            ];
-
-            $this->call('migrate:fresh');
-            Process::run("mysql --user={$db['username']} --password={$db['password']} --host={$db['host']} --database {$db['database']} < {$sql}");
+            $db = config('database.connections.sqlite.database');
+            $backup = Storage::disk('local')->path('db/database.sqlite');
+            copy($backup, $db);
             $this->call('lib:update');
         } else {
             $this->info('This command cannot be run the the production environment');
