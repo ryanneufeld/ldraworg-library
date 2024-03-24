@@ -5,7 +5,7 @@
     @foreach($parts as $part)
       <input name="ids[]" value="{{$part->id}}" type="hidden">
     @endforeach
-    <x-part.table title="File to be release" :parts="$parts" />
+    <x-part.table title="Files to be release ({{$count}})" :parts="$parts" />
     <h4 class="ui header">Files for ldraw folder:</h4>
     @foreach($files as $file)
     <a href="{{$file}}">{{basename($file)}}</a><br>

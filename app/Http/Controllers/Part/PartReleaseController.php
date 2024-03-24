@@ -40,7 +40,8 @@ class PartReleaseController extends Controller
                         'filename' => $part->filename,
                         'warnings' => $warnings,
                         'check' => $check,
-                        'fix' => !is_null($part->official_part)
+                        'fix' => !is_null($part->official_part),
+                        'ft' => $part->votes()->where('vote_type_code', 'T')->count() > 0
                     ];
                 }        
             });        
@@ -63,7 +64,7 @@ class PartReleaseController extends Controller
             Storage::disk($sdisk)->put($filename, $file->get());
             $filelist[] = Storage::disk($sdisk)->url($filename);
         }
-        return view('tracker.release.create2', ['parts' => Part::whereIn('id', $data['ids'])->lazy(), 'files' => $filelist]);
+        return view('tracker.release.create2', ['parts' => Part::whereIn('id', $data['ids'])->lazy(), 'files' => $filelist, 'count' => count($data['ids'])]);
     }
 
     protected function store(PartReleaseCreateStep2Request $request) {
