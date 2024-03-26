@@ -38,6 +38,10 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        $manager = app(\App\LDraw\PartManager::class);
+        Part::each(function (Part $part) use ($manager) {
+            $manager->checkPart($part);
+        });
         /*;
         Permission::create(['name' => 'omr.create']);
         Permission::create(['name' => 'omr.update']);

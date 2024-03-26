@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Part;
 use App\LDraw\Parse\ParsedPart;
 use App\Models\PartCategory;
+use App\Models\PartLicense;
 
 class PartChecker
 {
@@ -43,10 +44,13 @@ class PartChecker
             $errors[] = 'No certified parents in the parts directory';
         }
         if (!$this->hasAllSubpartsCertified($part)) {
-            $errors[] = 'Has uncertified subfiles';
+            $errors[] = 'Has uncertified/missing subfiles';
         }
         if ($part->manual_hold_flag) {
             $errors[] = 'Manual hold back by admin';
+        }
+        if ($part->license->id <> PartLicense::default()->id) {
+            $errors[] = 'Part License not ' . PartLicense::default()->name;
         }
         $can_release = count($errors) == 0;
         return compact('can_release', 'errors');
@@ -59,7 +63,7 @@ class PartChecker
 
     public function hasAllSubpartsCertified(Part $part): bool
     {
-        return $part->descendants->where('vote_sort', '!=', 1)->count() == 0;
+        return $part->descendants->where('vote_sort', '!=', 1)->count() == 0 && count($part->missing_parts) == 0;
     }
 
     public function checkFile(ParsedPart $part): ?array

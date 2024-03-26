@@ -37,6 +37,8 @@ class Part extends Model
         'cmdline',
         'bfc',
         'unofficial_part_id',
+        'can_release',
+        'part_check_messages',
     ];
 
     protected $with = ['release', 'type'];
@@ -48,6 +50,8 @@ class Part extends Model
             'manual_hold_flag' => 'boolean',
             'minor_edit_data' => AsArrayObject::class,
             'missing_parts' => 'array',
+            'can_release' => 'boolean',
+            'part_check_messages' => AsArrayObject::class,
         ];
     }
 

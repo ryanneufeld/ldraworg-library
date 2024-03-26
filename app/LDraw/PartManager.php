@@ -2,6 +2,7 @@
 
 namespace App\LDraw;
 
+use App\Jobs\UpdateParentParts;
 use App\LDraw\Parse\Parser;
 use App\LDraw\Render\LDView;
 use App\Models\Part;
@@ -10,12 +11,14 @@ use App\Models\PartType;
 use App\Models\PartTypeQualifier;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Image\Image;
 use Spatie\Image\Enums\Fit;
 use Spatie\ImageOptimizer\OptimizerChain;
 use Spatie\ImageOptimizer\Optimizers\Optipng;
+use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class PartManager
 {
@@ -24,35 +27,62 @@ class PartManager
         public LDView $render,
     ) {}
 
-    public function copyOfficialToUnofficialPart(Part $part): Part
+    public function submit(array $files, User $user): Collection
     {
-        $values = [
-            'description' => $part->description,
-            'filename' => $part->filename,
-            'user_id' => $part->user_id,
-            'part_type_id' => $part->part_type_id,
-            'part_type_qualifier_id' => $part->part_type_qualifier_id,
-            'part_license_id' => $part->part_license_id,
-            'bfc' => $part->bfc,
-            'part_category_id' => $part->part_category_id,
-            'cmdline' => $part->cmdline,
-            'header' => $part->header,
+        $parts = new Collection();
+        // Parse each part into the tracker
+        foreach ($files as $file) {
+            if ($file['type'] == 'image') {
+                $parts->add($this->makePartFromImage($file['filename'], $file['contents'], $user, $this->guessPartType($file['filename'], $files)));
+            } elseif ($file['type'] == 'text') {
+                $parts->add($this->makePartFromText($file['contents']));
+            }
+        }
+
+        $parts->each(function (Part $p) {
+            $this->finalizePart($p);
+        });
+        return $parts;
+    }
+
+    protected function guessPartType(string $filename, array $partfiles): PartType
+    {
+        $p = Part::firstWhere('filename', 'LIKE', "%{$filename}");
+        //Texmap exists, use that type
+        if (!is_null($p)) {
+            return $p->type;
+        }
+        // Texmap is used in one of the submitted files, use the type appropriate for that part
+        foreach ($partfiles as list($type, $fn, $contents)) {
+            if ($type == 'text' && stripos($filename, $contents !== false)) {
+                $type = $this->parser->parse($contents)->type;
+                $pt = PartType::firstWhere('type', $type);
+                $textype = PartType::firstWhere('type', "{$pt->type}_Texmap");
+                if (!is_null($textype)) {
+                    return $textype;
+                }
+            }
+        }
+        return PartType::firstWhere('type', 'Part_Texmap');
+    }
+
+    protected function makePartFromImage(string $filename, string $contents, User $user, PartType $type): Part
+    {
+        $attributes = [
+            'user_id' => $user->id,
+            'part_license_id' => $user->license->id,
+            'filename' => $type->folder . $filename,
+            'description' => "{$type->name} {$filename}",
+            'part_type_id' => $type->id,
+            'header' => '',
         ];
-        $upart = Part::create($values);
-        $this->updateUnofficialWithOfficialFix($part);
-        \App\Jobs\UpdateParentParts::dispatch($part);
-        $upart->setSubparts($part->subparts);
-        $upart->setKeywords($part->keywords);
-        $upart->setHelp($part->help);
-        $upart->setHistory($part->history);
-        $upart->setBody($part->body);
-        $upart->save();
+        $upart = $this->makePart($attributes);
+        $upart->setBody(base64_encode($contents));
         $upart->refresh();
-        $this->finalizePart($upart);
         return $upart;
     }
 
-    public function addOrChangePartFromText(string $text): Part
+    protected function makePartFromText(string $text): Part
     {
         $part = $this->parser->parse($text);
         
@@ -77,8 +107,46 @@ class PartManager
         $upart->setKeywords($part->keywords ?? []);
         $upart->setHelp($part->help ?? []);
         $upart->setHistory($part->history ?? []);
-        $upart->setSubparts($part->subparts ?? []);
-        $upart->setBody($part->body);       
+        $upart->setBody($part->body);
+        $upart->refresh();
+        return $upart;
+    }
+    protected function makePart(array $values): Part
+    {
+        $upart = Part::unofficial()->firstWhere('filename', $values['filename']);
+        $opart = Part::official()->firstWhere('filename', $values['filename']);
+        if (!is_null($upart)) {
+            $upart->votes()->delete();
+            $upart->fill($values);
+        } elseif (!is_null($opart)) {
+            $upart = Part::create($values);
+            $opart->unofficial_part()->associate($upart);
+            $opart->save();
+        } else {
+            $upart = Part::create($values);
+        }
+        return $upart;
+    }
+
+    public function copyOfficialToUnofficialPart(Part $part): Part
+    {
+        $values = [
+            'description' => $part->description,
+            'filename' => $part->filename,
+            'user_id' => $part->user_id,
+            'part_type_id' => $part->part_type_id,
+            'part_type_qualifier_id' => $part->part_type_qualifier_id,
+            'part_license_id' => $part->part_license_id,
+            'bfc' => $part->bfc,
+            'part_category_id' => $part->part_category_id,
+            'cmdline' => $part->cmdline,
+            'header' => $part->header,
+        ];
+        $upart = Part::create($values);
+        $upart->setKeywords($part->keywords);
+        $upart->setHelp($part->help);
+        $upart->setHistory($part->history);
+        $upart->setBody($part->body);
         $upart->save();
         $upart->refresh();
         $this->finalizePart($upart);
@@ -94,54 +162,19 @@ class PartManager
             $optimizerChain->optimize($path);
         }
     }
-
-    public function addOrChangePartFromImage(string $path, string $filename, User $user, PartType $type): Part
-    {
-        $this->imageOptimize($path);
-        $image_data = file_get_contents($path);
-        $values = [
-            'user_id' => $user->id,
-            'part_license_id' => $user->license->id,
-            'filename' => $type->folder . $filename,
-            'description' => "{$type->name} {$filename}",
-            'part_type_id' => $type->id,
-            'header' => '',
-        ];
-        $upart = $this->makePart($values);
-        $upart->setBody(base64_encode($image_data));       
-        $upart->save();
-        $upart->refresh();
-        $this->finalizePart($upart);
-        return $upart;
-    }
-    
-    protected function makePart(array $values): Part
-    {
-        $upart = Part::unofficial()->firstWhere('filename', $values['filename']);
-        $opart = Part::official()->firstWhere('filename', $values['filename']);
-        if (!is_null($upart)) {
-            $upart->votes()->delete();
-            $upart->fill($values);
-        } elseif (!is_null($opart)) {
-            //$values['official_part_id'] = $opart->id;
-            $upart = Part::create($values);
-            $opart->unofficial_part()->associate($upart);
-            $opart->save();
-            $this->updateUnofficialWithOfficialFix($opart);
-        } else {
-            $upart = Part::create($values);
-        }
-        return $upart;
-    }
-
+   
     public function finalizePart(Part $part): void
     {
-        $part->generateHeader();
         $part->updateVoteData();
-        $this->updatePartImage($part);
+        $part->generateHeader();
         $this->updateMissing($part->name());
-        $part->refresh();
-        \App\Jobs\UpdateParentParts::dispatch($part);
+        $this->loadSubpartsFromBody($part);
+        if (!is_null($part->official_part)) {
+            $this->updateUnofficialWithOfficialFix($part->official_part);
+        };
+        $this->updatePartImage($part);
+        $this->checkPart($part);
+        UpdateParentParts::dispatch($part);        
     }
     
     public function updatePartImage(Part $part): void
@@ -200,11 +233,10 @@ class PartManager
         ];
         $upart = Part::create($values);
         $upart->setBody("1 16 0 0 0 1 0 0 0 1 0 0 0 1 {$newPart->name()}\n");
-        $upart->subparts()->sync([$newPart->id]);
-        $upart->refresh();
-        $this->finalizePart($upart);
         $oldPart->unofficial_part()->associate($upart);
         $oldPart->save();
+        $upart->refresh();
+        $this->finalizePart($upart);
         return $upart;    
     }
 
@@ -240,12 +272,31 @@ class PartManager
             $p->body->save();
         }
         $this->updateMissing($part->name());
-        \App\Jobs\UpdateParentParts::dispatch($part);
-    return true;
+        $this->checkPart($part);
+        UpdateParentParts::dispatch($part);
+        return true;
     }
 
     function loadSubpartsFromBody(Part $part): void
     {
         $part->setSubparts($this->parser->getSubparts($part->body->body) ?? []);
+    }
+
+    function checkPart(Part $part): void
+    {
+        if (!$part->isUnofficial()) {
+            $part->can_release == true;
+            $part->part_check_messages = ['errors' => [], 'warnings' => []];
+            $part->save();
+            return;
+        }
+        $check = app(\App\LDraw\Check\PartChecker::class)->checkCanRelease($part);
+        $warnings = [];
+        if (isset($part->category) && $part->category->category == "Minifig") {
+            $warnings[] = "Check Minifig category: {$part->category->category}";
+        }
+        $part->can_release = $check['can_release'];
+        $part->part_check_messages = ['errors' => $check['errors'], 'warnings' => $warnings];
+        $part->save();
     }
 }
