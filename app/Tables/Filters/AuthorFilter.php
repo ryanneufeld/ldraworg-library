@@ -3,14 +3,14 @@ namespace App\Tables\Filters;
 
 use App\Models\User;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 
-class AuthorFilter extends SelectFilter
+class AuthorFilter
 {
-    public static function make(?string $name = null): static
+    public static function make(?string $name = null): SelectFilter
     {
-        return parent::make($name)
-            ->relationship('user', 'name')
-            ->getOptionLabelFromRecordUsing(fn (User $u) => "{$u->realname} [{$u->name}]")
+        return SelectFilter::make($name)
+            ->options(fn () => User::orderBy('realname', 'asc')->get()->pluck('authorString', 'id'))
             ->native(false)
             ->searchable()
             ->preload()
