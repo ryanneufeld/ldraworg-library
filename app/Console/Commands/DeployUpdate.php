@@ -11,6 +11,7 @@ use App\Models\VoteType;
 use Spatie\Permission\Models\Role;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -39,8 +40,16 @@ class DeployUpdate extends Command
     public function handle(): void
     {
         $manager = app(\App\LDraw\PartManager::class);
-        Part::each(function (Part $part) use ($manager) {
-            $manager->checkPart($part);
+        $count = Part::count();
+        $div = 50;
+        $num = intdiv($count, $div) + 1;
+        $iter = 1;
+        Part::chunkById($div, function (Collection $parts) use ($manager, $num, &$iter) {
+            $this->info("Processing chunk {$iter} of {$num}");
+            foreach($parts as $part) {
+                $manager->checkPart($part);
+            }
+            $iter += 1;
         });
         /*;
         Permission::create(['name' => 'omr.create']);

@@ -36,21 +36,23 @@ class PartChecker
         $errors = [];
         if (!$part->isTexmap()) {
             $errors = $this->check(ParsedPart::fromPart($part)) ?? [];
-        }  
-        $hascertparents = !is_null($part->official_part) || 
-            $part->type->folder == 'parts/' || 
-            $this->hasCertifiedParentInParts($part);
-        if (!$hascertparents) {
-            $errors[] = 'No certified parents in the parts directory';
         }
-        if (!$this->hasAllSubpartsCertified($part)) {
-            $errors[] = 'Has uncertified/missing subfiles';
-        }
-        if ($part->manual_hold_flag) {
-            $errors[] = 'Manual hold back by admin';
-        }
-        if ($part->license->id <> PartLicense::default()->id) {
-            $errors[] = 'Part License not ' . PartLicense::default()->name;
+        if ($part->isUnofficial()) {  
+            $hascertparents = !is_null($part->official_part) || 
+                $part->type->folder == 'parts/' || 
+                $this->hasCertifiedParentInParts($part);
+            if (!$hascertparents) {
+                $errors[] = 'No certified parents in the parts directory';
+            }
+            if (!$this->hasAllSubpartsCertified($part)) {
+                $errors[] = 'Has uncertified/missing subfiles';
+            }
+            if ($part->manual_hold_flag) {
+                $errors[] = 'Manual hold back by admin';
+            }
+            if ($part->license->id <> PartLicense::default()->id) {
+                $errors[] = 'Part License not ' . PartLicense::default()->name;
+            }
         }
         $can_release = count($errors) == 0;
         return compact('can_release', 'errors');
@@ -80,9 +82,9 @@ class PartChecker
         
         foreach ($text as $index => $line) {
             if (! $this->validLine($line)) {
-                $errors[] = __('partcheck.line.invalid', ['value' => $index] );
+                $errors[] = __('partcheck.line.invalid', ['value' => $index + $part->header_length] );
             } elseif (! $this->checkLineAllowedBodyMeta($line)) {
-                $errors[] = __('partcheck.line.invalidmeta', ['value' => $index] );
+                $errors[] = __('partcheck.line.invalidmeta', ['value' => $index + $part->header_length] );
             }
         }  
         return count($errors) > 0 ? $errors : null; 

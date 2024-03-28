@@ -286,7 +286,8 @@ class PartManager
     {
         if (!$part->isUnofficial()) {
             $part->can_release == true;
-            $part->part_check_messages = ['errors' => [], 'warnings' => []];
+            $check = app(\App\LDraw\Check\PartChecker::class)->checkCanRelease($part);
+            $part->part_check_messages = ['errors' => $check['errors'], 'warnings' => []];
             $part->save();
             return;
         }

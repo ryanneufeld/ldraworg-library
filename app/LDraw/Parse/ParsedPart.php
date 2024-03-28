@@ -27,6 +27,7 @@ class ParsedPart
         public ?array $subparts,
         public ?string $body,
         public ?string $rawText,
+        public int $header_length = 0,
     ) {}
     
     public static function fromPart(Part $part): self
@@ -88,6 +89,7 @@ class ParsedPart
             $subs,
             $part->body->body,
             $part->get(),
+            count(explode("\n", $part->header) + 2)
         );
     }
 }

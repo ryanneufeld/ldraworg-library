@@ -28,11 +28,12 @@ class RefreshDB extends Command
     public function handle()
     {
         if (app()->environment('local') && file_exists(env('LIBRARY_SQL_FILE'))) {
-            $sql = env('LIBRARY_SQL_FILE');
-
+            $this->info('Copying production db backup');
             $db = config('database.connections.sqlite.database');
             $backup = Storage::disk('local')->path('db/database.sqlite');
             copy($backup, $db);
+            $this->call('migrate');
+            $this->info('Running update');
             $this->call('lib:update');
         } else {
             $this->info('This command cannot be run the the production environment');

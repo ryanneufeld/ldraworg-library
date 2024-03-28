@@ -447,4 +447,22 @@ class Parser
         }
         return implode("\n", array_slice($lines, $index));
     }
+
+    public function getBodyStart(string $text): int {
+        $text = $this->formatText($text);
+        $lines = explode("\n", $text);
+        $index = 1;
+        while ($index < count($lines)) {
+            $l = explode(' ', $lines[$index]);
+            $isEmptyLine = $lines[$index] === '' || $lines[$index] === '0';
+            $isHeaderBFC = count($l) >= 2 && $l[1] === 'BFC' && in_array($lines[$index], ['0 BFC CERTIFY CCW', '0 BFC CERTIFY CW', '0 BFC NOCERTIFY']);
+            $isHeaderMeta = count($l) >= 2 && $l[1] !== 'BFC' && in_array($l[1], $this->header_metas);
+            $headerend = !$isEmptyLine && !($isHeaderMeta || $isHeaderBFC);
+            if ($headerend) {
+                break;
+            }
+            $index++;    
+        }
+        return $index;
+    }
 }
