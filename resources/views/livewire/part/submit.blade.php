@@ -26,6 +26,7 @@
         {{ $this->form }}
 
         <x-filament::button type="submit">
+            <x-filament::loading-indicator wire:loading class="h-5 w-5" />
             Submit
         </x-filament::button>
     </form>
@@ -70,5 +71,4 @@
             Ok
         </x-filament::button>
     </x-filament::modal>
-
 </div>

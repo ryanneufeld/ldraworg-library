@@ -37,7 +37,8 @@ class Parser
             $this->getHistory($text),
             $this->getSubparts($text),
             $this->getBody($text),
-            $part
+            $part,
+            $this->getBodyStart($text)
         );
     }
 
@@ -463,6 +464,6 @@ class Parser
             }
             $index++;    
         }
-        return $index;
+        return $index + 1;
     }
 }

@@ -6,14 +6,10 @@ use App\Events\PartSubmitted;
 use App\Jobs\UpdateZip;
 use App\LDraw\PartManager;
 use App\Models\Part;
-use App\Models\PartType;
 use App\Models\User;
 use Closure;
-use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -22,7 +18,6 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 
@@ -102,6 +97,7 @@ class Submit extends Component implements HasForms
     {
         $this->authorize('create', Part::class);
         $manager = app(PartManager::class);
+        $this->part_errors = [];
         $data = $this->form->getState();
         if (array_key_exists('user_id', $data) && Auth::user()->can('part.submit.proxy')) {
             $user = User::find($data['user_id']);

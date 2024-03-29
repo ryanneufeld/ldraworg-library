@@ -89,7 +89,7 @@ class ParsedPart
             $subs,
             $part->body->body,
             $part->get(),
-            count(explode("\n", $part->header) + 2)
+            count(explode("\n", $part->header)) + 2
         );
     }
 }
