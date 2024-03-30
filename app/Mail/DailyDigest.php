@@ -6,12 +6,12 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
+use MailerSend\LaravelDriver\MailerSendTrait;
 
 class DailyDigest extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, MailerSendTrait;
 
     /**
      * Create a new message instance.
@@ -31,7 +31,6 @@ class DailyDigest extends Mailable
     public function envelope()
     {
         return new Envelope(
-            from: new Address('parts@ldraw.org', 'LDraw.org Parts Tracker'),
             subject: 'Parts Tracker Daily Summary for ' . date_format($this->date, 'Y-m-d'),
         );
     }
@@ -43,6 +42,7 @@ class DailyDigest extends Mailable
      */
     public function content()
     {
+        $this->mailersend(template_id: null);
         return new Content(
             text: 'emails.dailydigest',
         );
