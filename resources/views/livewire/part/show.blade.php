@@ -172,7 +172,7 @@
                     size="lg"
                     label="Normal mode"
                     class="border"
-                    wire:click="$dispatch('ldbi-normal-mode')"
+                    wire:click="$dispatch('ldbi-default-mode')"
                 />
                 <x-filament::icon-button
                     icon="fas-paint-brush"
@@ -278,7 +278,7 @@
                 scene.bfc_mode();
             });
 
-            $wire.on('ldbi-stud-logo', () => {
+            $wire.on('ldbi-stud-logos', () => {
                 if (LDR.Options.studLogo == 1) {
                     LDR.Options.studLogo = 0;
                 } else {
