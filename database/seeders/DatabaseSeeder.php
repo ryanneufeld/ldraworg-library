@@ -22,7 +22,6 @@ class DatabaseSeeder extends Seeder
         PartEventTypeSeeder::class,
         PartLicenseSeeder::class,
         PermissionSeeder::class,
-        RoleSeeder::class,
       ]);
     }
 }

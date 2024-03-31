@@ -85,6 +85,7 @@ test('get description category', function (string $input, ?string $expected) {
     'with line ending' => ["0 Test Description\n", "Test"],
     'normal, with prefix' => ["0 ~Test Description", 'Test'],
     'normal, with multiple prefixes' => ["0 ~|Test Description", 'Test'],
+    'normal, with prefix space' => ["0 ~| Test Description", 'Test'],
     'empty file' => ['', null],
 ]);
 
