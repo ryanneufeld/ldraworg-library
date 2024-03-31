@@ -37,7 +37,7 @@
                     <x-menu.item label="Parts Reviewing FAQ" link="https://www.ldraw.org/reviewfaq.html" />
             </x-menu.dropdown>
             <x-menu.dropdown label="Quick Reference Guides" level="1">
-                    <x-menu.item label="Primitive Reference" link="http://www.ldraw.org/library/primref/" />
+                    <x-menu.item label="Primitive Reference" link="https://wiki.ldraw.org/wiki/Primitives_Reference" />
                     <x-menu.item label="Colour Definition Reference" link="https://www.ldraw.org/article/547.html" />
                     <x-menu.item label="Common Error Check Messages" link="https://www.ldraw.org/docs-main/ldraw-org-quick-reference-guides/common-error-check-messages.html" />
             </x-menu.dropdown>
