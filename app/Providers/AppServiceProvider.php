@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
-        Model::preventLazyLoading(! $this->app->isProduction());
+        // Model::preventLazyLoading(! $this->app->isProduction());
 
         // Route bindings
         Route::pattern('officialpart', '[a-z0-9_/-]+\.(dat|png)');
