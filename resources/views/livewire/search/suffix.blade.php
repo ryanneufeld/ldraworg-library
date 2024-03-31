@@ -26,7 +26,7 @@
                 wire:click="$set('activeTab', 'patterns')"
             >
                 <x-slot name="badge">
-                    {{$patterns->count()}}
+                    {{$pcount}}
                 </x-slot>
                 Patterns
             </x-filament::tabs.item>
@@ -54,7 +54,7 @@
         
         <div @class(["rounded border p-2", 'hidden' => $activeTab !== 'patterns'])>
             @forelse($patterns as $psuffix => $pitems)
-                <div class="text-lg font-bold p-2">{{$psuffix}}</div>
+                <div class="text-lg font-bold p-2">{{config("ldraw.pattern-codes.{$psuffix}")}}</div>
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
                     @foreach($pitems as $id => $ppart)
                         <x-part.suffixitem :part="$ppart" wire:key="patternpart-{{$id}}" />

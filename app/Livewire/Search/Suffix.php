@@ -52,9 +52,11 @@ class Suffix extends Component implements HasForms
     public function render()
     {
         $offset = $this->basepart !== '' ? strlen($this->basepart) + 1 : 0;
-        $patterns = Part::patterns($this->basepart)->orderBy('filename')->get()->groupBy(fn(Part $item, int $key) => $item->name()[$offset]);
+        $patterns = Part::patterns($this->basepart)->orderBy('filename')->get();
+        $pcount = $patterns->count();
+        $patterns = $patterns->groupBy(fn(Part $item, int $key) => $item->name()[$offset]);
         $composites = Part::composites($this->basepart)->orderBy('filename')->get();
         $shortcuts = Part::stickerShortcuts($this->basepart)->orderBy('filename')->get();
-        return view('livewire.search.suffix', compact('patterns', 'composites', 'shortcuts'));
+        return view('livewire.search.suffix', compact('patterns', 'composites', 'shortcuts', 'pcount'));
     }
 }
