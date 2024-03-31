@@ -39,18 +39,6 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $manager = app(\App\LDraw\PartManager::class);
-        $count = Part::count();
-        $div = 50;
-        $num = intdiv($count, $div) + 1;
-        $iter = 1;
-        Part::chunkById($div, function (Collection $parts) use ($manager, $num, &$iter) {
-            $this->info("Processing chunk {$iter} of {$num}");
-            foreach($parts as $part) {
-                $manager->checkPart($part);
-            }
-            $iter += 1;
-        });
         /*;
         Permission::create(['name' => 'omr.create']);
         Permission::create(['name' => 'omr.update']);
