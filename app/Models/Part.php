@@ -10,12 +10,15 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Models\Traits\HasPartRelease;
 use App\Models\Traits\HasLicense;
 use App\Models\Traits\HasUser;
+use App\Observers\PartObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasGraphRelationships;
 
+#[ObservedBy([PartObserver::class])]
 class Part extends Model
 {
     use 
