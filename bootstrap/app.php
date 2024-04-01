@@ -10,7 +10,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->web(append: [
+        $middleware->alias([
+            'currentlic' => App\Http\Middleware\CurrentLicense::class
+        ]);
+            $middleware->web(append: [
             App\Http\Middleware\LoginMybbUser::class,
         ]);
         $middleware->encryptCookies(except: [
