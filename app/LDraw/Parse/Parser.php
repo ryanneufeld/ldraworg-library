@@ -236,7 +236,7 @@ class Parser
     {
         $d = $this->getSingleValueMeta($text, 'description');
         if (!is_null($d)) {
-            if ($d !== '' && in_array($d[0], ['~', '|', '=', '_']))
+            while ($d !== '' && in_array($d[0], ['~', '|', '=', '_', ' ']))
             {
                 $d = trim(substr($d, 1));
             }
