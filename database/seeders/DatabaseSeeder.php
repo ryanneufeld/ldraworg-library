@@ -2,8 +2,14 @@
 
 namespace Database\Seeders;
 
+use App\LDraw\LibraryConfig;
+use App\Models\PartCategory;
+use App\Models\PartEventType;
+use App\Models\PartLicense;
+use App\Models\PartType;
+use App\Models\PartTypeQualifier;
+use App\Models\VoteType;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Cache;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,14 +20,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-      $this->call([
-        PartCategorySeeder::class,
-        PartTypeSeeder::class,
-        PartTypeQualifierSeeder::class,
-        VoteTypeSeeder::class,
-        PartEventTypeSeeder::class,
-        PartLicenseSeeder::class,
-        PermissionSeeder::class,
-      ]);
+        PartType::insert(LibraryConfig::partTypes());
+        PartTypeQualifier::insert(LibraryConfig::partTypeQualifiers());
+        PartLicense::insert(LibraryConfig::partLicenses());
+        PartCategory::insert(LibraryConfig::partCategories());
+        PartEventType::insert(LibraryConfig::partEventTypes());
+        VoteType::insert(LibraryConfig::voteTypes());
     }
 }
