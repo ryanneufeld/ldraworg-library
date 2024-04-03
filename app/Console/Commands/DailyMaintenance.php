@@ -1,41 +1,41 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Console\Commands;
 
+use App\Jobs\UpdatePartImage;
 use App\LDraw\PartManager;
 use App\Models\Part;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
-class DailyMaintenance implements ShouldQueue
+class DailyMaintenance extends Command
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'lib:daily-maintenance';
 
     /**
-     * Create a new job instance.
+     * The console command description.
+     *
+     * @var string
      */
-    public function __construct()
-    {
-        //
-    }
+    protected $description = 'Run Daily Maintenance';
 
     /**
-     * Execute the job.
+     * Execute the console command.
      */
-    public function handle(): void
+    public function handle()
     {
-        // Reload all subparts
+        $this->info('Reloading all subparts');
         Part::lazy()->each(fn (Part $p) => app(PartManager::class)->loadSubpartsFromBody($p));
 
-        // Recount all votes
+        $this->info('Recounting all votes');
         Part::unofficial()->lazy()->each(fn (Part $p) => $p->updateVoteData());
 
-        // Find and remove orphan images
+        $this->info('Removing orphan images');
         $images = Storage::disk('images')->allFiles('library/unofficial');
         $files = collect($images)
             ->map( function(string $file): string {
@@ -61,14 +61,15 @@ class DailyMaintenance implements ShouldQueue
             }
         }
 
-        // Find unofficial parts without images and regenerate them
+        $this->info('Regenerating missing images');
         Part::unofficial()->lazy()->each(function (Part $p) {
-            $image = str_replace('dat', '.png', "library/unofficial/{$p->filename}");
+            $image = str_replace('.dat', '.png', "library/unofficial/{$p->filename}");
             $thumb = str_replace('.png', '_thumb.png', $image);
             if (!Storage::disk('images')->exists($image) || !Storage::disk('images')->exists($thumb)) {
-                app(PartManager::class)->updatePartImage($p);
+                UpdatePartImage::dispatch($p);
             }
         });
 
+        
     }
 }
