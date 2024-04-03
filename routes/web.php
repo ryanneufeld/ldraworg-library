@@ -31,6 +31,7 @@ Route::middleware(['throttle:file'])->group(function () {
     Route::get('/categories.txt', [SupportFilesController::class, 'categories'])->name('categories-txt');
     Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
     Route::get('/ptreleases/{output}', [SupportFilesController::class, 'ptreleases'])->name('ptreleases');
+    Route::redirect('/ptreleases', '/ptreleases/tab');
     Route::get('/ldbi/part/{part}', PartWebGLController::class)->name('part.ldbi');    
     Route::get('/tracker/latest-parts', LatestPartsController::class)->name('part.latest');
 });
