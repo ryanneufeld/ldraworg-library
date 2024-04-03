@@ -2,11 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\LDraw\Parse\Parser;
+use App\LDraw\PartManager;
 use App\Models\MybbUser;
 use App\Models\PartLicense;
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use App\Models\Part;
+use App\Models\PartRelease;
 use App\Models\VoteType;
 use Spatie\Permission\Models\Role;
 use Illuminate\Console\Command;
