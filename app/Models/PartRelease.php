@@ -15,8 +15,8 @@ class PartRelease extends Model
     protected $fillable = [
         'name', 
         'short', 
-        'notes', 
-        'created_at', 
+        'created_at',
+        'part_list', 
         'part_data'
     ];
 
