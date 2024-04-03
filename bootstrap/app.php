@@ -13,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'currentlic' => App\Http\Middleware\CurrentLicense::class
         ]);
-            $middleware->web(append: [
+        $middleware->web(append: [
             App\Http\Middleware\LoginMybbUser::class,
         ]);
         $middleware->encryptCookies(except: [
