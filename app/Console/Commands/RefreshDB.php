@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,9 +30,14 @@ class RefreshDB extends Command
     {
         if (app()->environment('local') && file_exists(env('LIBRARY_SQL_FILE'))) {
             $this->info('Copying production db backup');
-            $db = config('database.connections.sqlite.database');
-            $backup = Storage::disk('local')->path('db/database.sqlite');
-            copy($backup, $db);
+            $this->call('migrate:fresh');
+            DB::table('migrations')->truncate();
+            $db = config('database.connections.mysql.database');
+            $db_user = config('database.connections.mysql.username');
+            $db_pw = config('database.connections.mysql.password');
+            $backup = Storage::disk('local')->path('db/lib.sql');
+            $result = Process::run("mysql --user={$db_user} --password={$db_pw} --database={$db} < {$backup}");
+            $this->info($result->output());
             $this->call('migrate');
             $this->info('Running update');
             $this->call('lib:update');
