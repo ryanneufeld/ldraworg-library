@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('parts', function (Blueprint $table) {
-            $table->foreignId('official_part_id')->change()->references('id')->on('parts')->nullable()->constrained();
-            $table->foreignId('unofficial_part_id')->change()->references('id')->on('parts')->nullable()->constrained();
+            $table->foreignId('official_part_id')->nullable()->change()->references('id')->on('parts')->constrained();
+            $table->foreignId('unofficial_part_id')->nullable()->change()->references('id')->on('parts')->constrained();
         });
     }
 
