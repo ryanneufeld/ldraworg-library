@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
       Schema::table('part_releases', function (Blueprint $table) {
-        $table->mediumtext('part_data')->nullable();
+        $table->json('part_data')->nullable();
         $table->dropColumn('notes');
       });
     }
