@@ -564,11 +564,25 @@ class Show extends Component implements HasForms, HasActions
                 })
         );
     }
+
     public function downloadAction(): Action 
     {
         return $this->menuAction(
             Action::make('download')
                 ->url(fn() => route($this->part->isUnofficial() ? 'unofficial.download' : 'official.download', $this->part->filename))
+        );
+    }
+
+    public function downloadZipAction(): Action 
+    {
+        return $this->menuAction(
+            Action::make('zipdownload')
+                ->label('Download ZIP rollup')
+                ->url(fn() => route('unofficial.download.zip', str_replace('.zip', '.dat', $this->part->filename)))
+                ->visible($this->part->isUnofficial() && 
+                    $this->part->type->folder == 'parts/' &&
+                    $this->part->subparts->whereNull('part_release_id')->count() > 0
+                )
         );
     }
 

@@ -27,6 +27,9 @@
     <div class="flex flex-col space-y-4">
         <div class="flex flex-col md:flex-row divide-y md:divide-x bg-white border rounded-md w-fit cursor-pointer">
             {{ $this->downloadAction }}
+            @if ($this->downloadZipAction->isVisible())
+                {{ $this->downloadZipAction }}
+            @endif
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
             @endif
@@ -136,6 +139,9 @@
         @endcan
         <div class="flex flex-col md:flex-row divide-y md:divide-x bg-white border rounded-md w-fit cursor-pointer">
             {{ $this->downloadAction }}
+            @if ($this->downloadZipAction->isVisible())
+                {{ $this->downloadZipAction }}
+            @endif
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
             @endif
