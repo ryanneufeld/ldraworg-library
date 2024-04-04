@@ -8,6 +8,7 @@ use App\Http\Controllers\Part\LatestPartsController;
 use App\Http\Controllers\Part\NextReleaseController;
 use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
+use App\Http\Controllers\Part\PartDownloadZipController;
 use App\Http\Controllers\Part\PartWebGLController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
@@ -104,6 +105,7 @@ Route::redirect('/documentation', 'https://www.ldraw.org/docs-main.html')->name(
 
 Route::middleware(['throttle:file'])->get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
 Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');
+Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpartzip}', PartDownloadZipController::class)->name('unofficial.download.zip');
 
 Route::middleware(['auth'])->get('/logout', function () {
     auth()->logout();

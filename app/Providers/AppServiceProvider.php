@@ -39,12 +39,20 @@ class AppServiceProvider extends ServiceProvider
         // Route bindings
         Route::pattern('officialpart', '[a-z0-9_/-]+\.(dat|png)');
         Route::pattern('unofficialpart', '[a-z0-9_/-]+\.(dat|png)');
+        Route::pattern('unofficialpartzip', '[a-z0-9_/-]+\.zip');
         Route::pattern('setnumber', '[a-z0-9]+(-\d+)?');
         Route::bind('officialpart', fn (string $value): Part =>
             Part::official()->where('filename', $value)->firstOrFail()
         );
         Route::bind('unofficialpart', fn (string $value): Part =>
             Part::unofficial()->where('filename', $value)->firstOrFail()
+        );
+        Route::bind('unofficialpartzip', fn (string $value): Part =>
+            Part::unofficial()
+                ->where('filename', str_replace('.zip', '.dat', $value))
+                ->whereRelation('type', 'folder', 'parts/')
+                ->has('subparts')
+                ->firstOrFail()
         );
         Route::bind('setnumber', fn (string $value): Set =>
             Set::where(fn (Builder $q) =>
