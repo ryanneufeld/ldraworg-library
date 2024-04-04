@@ -28,7 +28,7 @@ class RefreshDB extends Command
      */
     public function handle()
     {
-        if (app()->environment('local') && file_exists(env('LIBRARY_SQL_FILE'))) {
+        if (app()->environment('local') && Storage::disk('local')->exists('db/lib.sql')) {
             $this->info('Copying production db backup');
             $this->call('migrate:fresh');
             DB::table('migrations')->truncate();
