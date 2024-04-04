@@ -16,8 +16,9 @@ class PartDownloadZipController extends Controller
      */
 
     public function __invoke(Part $part) {
-        if ($part->type->folder !== 'parts/') {
-            return;
+        if ($part->type->folder !== 'parts/' ||
+            $part->subparts->whereNull('part_release_id')->count() == 0) {
+            return response()->redirectToRoute('unofficial.download', $part->filename);
         }
         $dir = TemporaryDirectory::make()->deleteWhenDestroyed();
         $zip = new \ZipArchive();

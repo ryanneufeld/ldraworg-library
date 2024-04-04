@@ -50,8 +50,6 @@ class AppServiceProvider extends ServiceProvider
         Route::bind('unofficialpartzip', fn (string $value): Part =>
             Part::unofficial()
                 ->where('filename', str_replace('.zip', '.dat', $value))
-                ->whereRelation('type', 'folder', 'parts/')
-                ->has('subparts')
                 ->firstOrFail()
         );
         Route::bind('setnumber', fn (string $value): Set =>
