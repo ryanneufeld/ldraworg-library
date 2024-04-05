@@ -577,11 +577,10 @@ class Show extends Component implements HasForms, HasActions
     {
         return $this->menuAction(
             Action::make('zipdownload')
-                ->label('Download ZIP rollup')
+                ->label('Download zip file')
                 ->url(fn() => route('unofficial.download.zip', str_replace('.dat', '.zip', $this->part->filename)))
                 ->visible($this->part->isUnofficial() && 
-                    $this->part->type->folder == 'parts/' &&
-                    $this->part->subparts->whereNull('part_release_id')->count() > 0
+                    $this->part->type->folder == 'parts/'
                 )
         );
     }

@@ -14,7 +14,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -114,6 +113,13 @@ class PartTable
                 ->button()
                 ->outlined()
                 ->color('info'),
+            Action::make('download')
+                ->label('Download zip')
+                ->url(fn(Part $part) => route('unofficial.download.zip', str_replace('.dat', '.zip', $part->filename)))
+                ->button()
+                ->outlined()
+                ->color('info')
+                ->visible(fn(Part $part) => $part->isUnofficial() && $part->type->folder == 'parts/'),
             Action::make('updated')
                 ->url(fn(Part $part) => route('tracker.show', $part->unofficial_part->id))
                 ->label(fn(Part $part) => ' Tracker Update: ' . $part->unofficial_part->statusCode())
