@@ -11,5 +11,5 @@
         parts on this list will generally be released in the next update, some of them 
         may be manually held back by the the Library Admin for various other reasons.
     </p>  
-    <x-part.table :parts="$parts" title="Next Release" />
+    <livewire:tables.next-release-parts-table />
 </x-layout.tracker>

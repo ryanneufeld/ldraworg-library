@@ -5,7 +5,6 @@ use App\Http\Controllers\Part\PartReleaseController;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\Omr\SetController;
 use App\Http\Controllers\Part\LatestPartsController;
-use App\Http\Controllers\Part\NextReleaseController;
 use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
 use App\Http\Controllers\Part\PartDownloadZipController;
@@ -54,7 +53,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
     Route::get('/activity', PartEventIndex::class)->name('activity');
 
-    Route::get('/next-release', NextReleaseController::class)->name('next-release');
+    Route::view('/next-release', 'part.nextrelease')->name('next-release');
 
     Route::middleware(['can:release.create'])->get('/release/create', [PartReleaseController::class, 'create'])->name('release.create');
     Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');
