@@ -114,18 +114,18 @@
             @endif
             <div class="text-md font-bold">Current Votes:</div>
             <x-vote.table :votes="$part->votes" />
-            <x-part.table title="Unofficial parent parts" :parts="$part->parents->whereNull('part_release_id')" />
-            <x-part.table title="Unofficial subparts" :parts="$part->subparts->whereNull('part_release_id')" :missing="$part->missing_parts"/>
+            <livewire:tables.part-dependencies-table :$part parents />
+            <livewire:tables.part-dependencies-table :$part/>
             <x-accordion id="officialParts">
                 <x-slot name="header" class="text-md font-bold">
                     Official parents and subparts
                 </x-slot>
-                <x-part.table title="Official parent parts" :parts="$part->parents->whereNotNull('part_release_id')" />
-                <x-part.table title="Official subparts" :parts="$part->subparts->whereNotNull('part_release_id')" />
-            </x-accordion>
+                <livewire:tables.part-dependencies-table :$part official parents />
+                <livewire:tables.part-dependencies-table :$part official />
+                </x-accordion>
         @else
-            <x-part.table title="Official parent parts" :parts="$part->parents->whereNotNull('part_release_id')" />
-            <x-part.table title="Official subparts" :parts="$part->subparts->whereNotNull('part_release_id')" />
+            <livewire:tables.part-dependencies-table :$part official parents />
+            <livewire:tables.part-dependencies-table :$part official />
         @endif
         <x-event.list :$part />
         @can('vote', [\App\Models\Vote::class, $this->part])
