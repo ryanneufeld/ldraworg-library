@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Foundation\Application;
 use App\LDraw\Parse\Parser;
 use App\LDraw\PartManager;
+use App\LDraw\Rebrickable;
 use App\LDraw\Render\LDView;
 use Illuminate\Support\Facades\Storage;
 
@@ -49,6 +50,12 @@ class LDrawServiceProvider extends ServiceProvider
             return new PartManager(
                 $app->make(Parser::class),
                 $app->make(LDView::class),
+            );
+        });
+        $this->app->singleton(Rebrickable::class, function (Application $app) {
+            return new Rebrickable(
+                config('ldraw.rebrickable.api.key'),
+                config('ldraw.rebrickable.api.url'),
             );
         });
     } 
