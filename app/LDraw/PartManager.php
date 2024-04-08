@@ -119,6 +119,7 @@ class PartManager
         if (!is_null($upart)) {
             $upart->votes()->delete();
             $upart->fill($values);
+            $upart->save();
         } elseif (!is_null($opart)) {
             $upart = Part::create($values);
             $opart->unofficial_part()->associate($upart);
