@@ -34,7 +34,7 @@ class Rebrickable
         
         $this->limiter->hit();
 
-        if ($response->failed()) {
+        if (!$response->successful()) {
             return null;
         }
 
@@ -54,4 +54,14 @@ class Rebrickable
     public function getSet(string $setnumber): array {
         return $this->makeApiCall("{$this->api_url}/sets/{$setnumber}/");
     }  
+
+    public function getPart(string $partnumber): array {
+        return $this->makeApiCall("{$this->api_url}/parts/{$partnumber}/");
+    }  
+
+    public function getParts(array $partnumbers): array {
+        $parts = implode(',', $partnumbers);
+        return $this->makeApiCall("{$this->api_url}/parts/?part_nums={$parts}");
+    }  
+
 }
