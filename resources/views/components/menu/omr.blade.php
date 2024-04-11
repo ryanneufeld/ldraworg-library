@@ -1,11 +1,5 @@
 <x-menu>
-    <x-menu.dropdown label="Library">
-        <x-menu.item label="Library Main" link="{{route('index')}}" />
-        <x-menu.item label="Parts Tracker" link="{{route('tracker.main')}}" />
-        <x-menu.item label="Latest Update" link="{{route('part-update.index', ['latest'])}}" />
-        <x-menu.item label="Update Archive" link="{{route('part-update.index')}}" />
-        <x-menu.item label="OMR" link="{{route('omr.main')}}" />
-    </x-menu.dropdown>
+    <x-menu.library-dropdown />
     @can('create', App\Models\Omr\OmrModel::class)
         <x-menu.item label="Submit" link="" />
     @endcan

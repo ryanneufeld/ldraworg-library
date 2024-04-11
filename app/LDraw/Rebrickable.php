@@ -47,19 +47,19 @@ class Rebrickable
         return $response->json();   
     }
 
-    public function getSetParts(string $setnumber): array {
+    public function getSetParts(string $setnumber): ?array {
         return $this->makeApiCall("{$this->api_url}/sets/{$setnumber}/parts/?inc_minifig_parts=1");
     }
 
-    public function getSet(string $setnumber): array {
+    public function getSet(string $setnumber): ?array {
         return $this->makeApiCall("{$this->api_url}/sets/{$setnumber}/");
     }  
 
-    public function getPart(string $partnumber): array {
+    public function getPart(string $partnumber): ?array {
         return $this->makeApiCall("{$this->api_url}/parts/{$partnumber}/");
     }  
 
-    public function getParts(array $partnumbers): array {
+    public function getParts(array $partnumbers): ?array {
         $parts = implode(',', $partnumbers);
         return $this->makeApiCall("{$this->api_url}/parts/?part_nums={$parts}");
     }  

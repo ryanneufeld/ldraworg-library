@@ -17,6 +17,7 @@ use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
 use App\Livewire\PartEvent\Index as PartEventIndex;
+use App\Livewire\PbgGenerator;
 use App\Livewire\ReviewSummary\Manage as ReviewSummaryManage;
 use App\Livewire\Role\Manage as RoleManage;
 use App\Livewire\Search\Parts;
@@ -35,6 +36,8 @@ Route::middleware(['throttle:file'])->group(function () {
     Route::get('/ldbi/part/{part}', PartWebGLController::class)->name('part.ldbi');    
     Route::get('/tracker/latest-parts', LatestPartsController::class)->name('part.latest');
 });
+
+Route::get('/pbg', PbgGenerator::class)->name('pbg');
 
 Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::view('/', 'tracker.main')->name('main');
