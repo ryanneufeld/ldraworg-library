@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\Traits\HasPartRelease;
@@ -267,13 +268,13 @@ class Part extends Model
         return is_null($this->part_release_id);
     }
 
-    public function lastChangeTimestamp(): int
+    public function lastChange(): Carbon
     {
         $recent_change = $this->events()->whereHas('part_event_type', fn ($q) => $q->whereIn('slug', ['submit', 'rename', 'edit', 'release']))->latest()->first();
         if (is_null($recent_change)) {
-            return $this->isUnofficial() ? $this->created_at->format('U') : $this->release->created_at->format('U');
+            return $this->isUnofficial() ? $this->created_at : $this->release->created_at;
         }
-        return $recent_change->created_at->format('U');
+        return $recent_change->created_at;
     }
     
     public function hasPatterns(): bool 
