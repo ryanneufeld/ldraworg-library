@@ -257,67 +257,87 @@ class Part extends Model
             });
     }
 
-    public function isTexmap(): bool {
-      return $this->type->format == 'png';
+    public function isTexmap(): bool 
+    {
+        return $this->type->format == 'png';
     }
 
-    public function isUnofficial(): bool {
-      return is_null($this->part_release_id);
+    public function isUnofficial(): bool 
+    {
+        return is_null($this->part_release_id);
     }
 
-    public function hasPatterns(): bool {
-      $basepart = $this->basePart();
-      return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
-        $q->where('filename', 'like', "parts/{$basepart}p__.dat")->orWhere('filename', 'like', "parts/{$basepart}p___.dat");
-      })->count() > 0;
+    public function lastChangeTimestamp(): int
+    {
+        $recent_change = $this->events()->whereHas('part_event_type', fn ($q) => $q->whereIn('slug', ['submit', 'rename', 'edit', 'release']))->latest()->first();
+        if (is_null($recent_change)) {
+            return $this->isUnofficial() ? $this->created_at->format('U') : $this->release->created_at->format('U');
+        }
+        return $recent_change->created_at->format('U');
+    }
+    
+    public function hasPatterns(): bool 
+    {
+        $basepart = $this->basePart();
+        return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
+            $q->where('filename', 'like', "parts/{$basepart}p__.dat")->orWhere('filename', 'like', "parts/{$basepart}p___.dat");
+        })->count() > 0;
     }
 
-    public function hasComposites(): bool {
-      $basepart = $this->basePart();
-      return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
-        $q->where('filename', 'like', "parts/{$basepart}c__.dat")->orWhere('filename', 'like', "parts/{$basepart}c___.dat");
-      })->count() > 0;
+    public function hasComposites(): bool 
+    {
+        $basepart = $this->basePart();
+        return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
+            $q->where('filename', 'like', "parts/{$basepart}c__.dat")->orWhere('filename', 'like', "parts/{$basepart}c___.dat");
+        })->count() > 0;
     }
-    public function hasStickerShortcuts(): bool {
-      $basepart = $this->basePart();
-      return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
-        $q->where('filename', 'like', "parts/{$basepart}d__.dat")->orWhere('filename', 'like', "parts/{$basepart}d___.dat");
-      })->count() > 0;
+    
+    public function hasStickerShortcuts(): bool 
+    {
+        $basepart = $this->basePart();
+        return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
+            $q->where('filename', 'like', "parts/{$basepart}d__.dat")->orWhere('filename', 'like', "parts/{$basepart}d___.dat");
+        })->count() > 0;
     }
 
-    public function basePart(): string {
-      $number = basename($this->filename);
-      preg_match(config('ldraw.patterns.basepart'), $number, $matches);
-      return $matches[1] ?? '';
+    public function basePart(): string 
+    {
+        $number = basename($this->filename);
+        preg_match(config('ldraw.patterns.basepart'), $number, $matches);
+        return $matches[1] ?? '';
     }
-    public function libFolder(): string {
-      return $this->isUnofficial() ? 'unofficial' : 'official';
+    
+    public function libFolder(): string 
+    {
+        return $this->isUnofficial() ? 'unofficial' : 'official';
     }
         
-    public function name(): string {
-      return str_replace('/', '\\', str_replace(["parts/", "p/"], '', $this->filename));
+    public function name(): string 
+    {
+        return str_replace('/', '\\', str_replace(["parts/", "p/"], '', $this->filename));
     }
 
-    public function get(bool $dos = true, bool $dataFile = false): string {
-      if ($this->isTexmap()) {
-        if ($dataFile === true) {
-            $data = str_split($this->body->body, 80);
-            $file = "0 !DATA " . str_replace(['parts/textures/', 'p/textures/'], '', $this->filename) . "\n";
-            $file .= "0 !: " . implode("\n0 !: ", $data) . "\n";
+    public function get(bool $dos = true, bool $dataFile = false): string 
+    {
+        if ($this->isTexmap()) {
+            if ($dataFile === true) {
+                $data = str_split($this->body->body, 80);
+                $file = "0 !DATA " . str_replace(['parts/textures/', 'p/textures/'], '', $this->filename) . "\n";
+                $file .= "0 !: " . implode("\n0 !: ", $data) . "\n";
+                if ($dos === true) {
+                    $file = preg_replace('#\R#us', "\r\n", $file);
+                }
+            } else {
+                $file = base64_decode($this->body->body);
+            }
+        }
+        else {
+            $file = rtrim($this->header) . "\n\n" . ($this->body->body ?? '');
             if ($dos === true) {
                 $file = preg_replace('#\R#us', "\r\n", $file);
             }
-        } else {
-            $file = base64_decode($this->body->body);
         }
-      }
-      else {
-        $file = rtrim($this->header) . "\n\n" . ($this->body->body ?? '');
-        if ($dos === true) {
-            $file = preg_replace('#\R#us', "\r\n", $file);
-        }
-      }
-      return $file;
+        return $file;
     }
     
     public function updateVoteData(): void 

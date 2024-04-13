@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Jobs\UpdateZip;
+use App\LDraw\ZipFiles;
 use App\Models\Part;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class RefreshZip extends Command
 {
@@ -27,6 +29,7 @@ class RefreshZip extends Command
      */
     public function handle()
     {
-        UpdateZip::dispatch(Part::unofficial()->first());
+        Storage::disk('library')->delete('unofficial/ldrawunf.zip');
+        ZipFiles::unofficialZip(Part::unofficial()->first());
     }
 }
