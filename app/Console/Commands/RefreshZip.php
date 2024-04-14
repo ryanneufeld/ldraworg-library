@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\UpdateZip;
 use App\LDraw\ZipFiles;
 use App\Models\Part;
 use Illuminate\Console\Command;
