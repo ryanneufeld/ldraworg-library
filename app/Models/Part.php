@@ -274,6 +274,11 @@ class Part extends Model
         if (is_null($recent_change)) {
             return $this->isUnofficial() ? $this->created_at : $this->release->created_at;
         }
+        // Zip files only save in 2 sec, even increments
+        // This ensures consistancy in time reporting
+        if ($recent_change->created_at->format('U') % 2 == 1) {
+            return $recent_change->created_at->subSecond();
+        }
         return $recent_change->created_at;
     }
     
