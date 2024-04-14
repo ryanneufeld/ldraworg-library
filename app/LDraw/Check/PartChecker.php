@@ -45,7 +45,10 @@ class PartChecker
                 $errors[] = 'No certified parents in the parts directory';
             }
             if (!$this->hasAllSubpartsCertified($part)) {
-                $errors[] = 'Has uncertified/missing subfiles';
+                $errors[] = 'Has uncertified subfiles';
+            }
+            if (count($part->missing_parts) > 0) {
+                $errors[] = 'Has missing part references';
             }
             if ($part->manual_hold_flag) {
                 $errors[] = 'Manual hold back by admin';
@@ -65,7 +68,7 @@ class PartChecker
 
     public function hasAllSubpartsCertified(Part $part): bool
     {
-        return $part->descendants->where('vote_sort', '!=', 1)->count() == 0 && count($part->missing_parts) == 0;
+        return $part->descendants->where('vote_sort', '!=', 1)->count() == 0;
     }
 
     public function checkFile(ParsedPart $part): ?array

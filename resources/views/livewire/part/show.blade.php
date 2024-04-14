@@ -114,6 +114,12 @@
             @endif
             <div class="text-md font-bold">Current Votes:</div>
             <x-vote.table :votes="$part->votes" />
+            @if (count($part->missing_parts) > 0)
+                <div class="text-md font-bold">Missing Part References:</div>
+                @foreach($part->missing_parts as $missing)
+                    <div class="text-red-500">{{ $missing }}</div>
+                @endforeach
+            @endif
             <livewire:tables.part-dependencies-table :$part parents />
             <livewire:tables.part-dependencies-table :$part/>
             <x-accordion id="officialParts">
