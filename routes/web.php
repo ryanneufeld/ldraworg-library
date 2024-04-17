@@ -114,15 +114,5 @@ Route::middleware(['auth'])->get('/logout', function () {
     return back();
 });
 
-Route::middleware(['can:assume-user'])->get('/login-user-{number}', function (int $number) {
-    if (app()->environment() === 'local') {
-        auth()->logout();
-        auth()->login(\App\Models\User::find($number));
-        return back();      
-    }
-    
-    return back();
-});
-
 
 

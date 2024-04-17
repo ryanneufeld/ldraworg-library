@@ -5,6 +5,7 @@
         "watch": "vite build --watch"
     },
     "dependencies": {
+        "ace-builds": "^1.33.0",
         "chart.js": "^3.0"
     },
     "devDependencies": {

@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Listeners\PartEventSubscriber;
 use App\Models\Omr\Set;
 use App\Models\Part;
+use ArtisanSdk\RateLimiter\Buckets\Leaky;
+use ArtisanSdk\RateLimiter\Contracts\Bucket;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
@@ -66,6 +68,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('file', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+
+
+        // Bind the leaky bucket to the bucket interface;
+        $this->app->bind(Bucket::class, Leaky::class);
 
         // Allow Super Users full access
         Gate::before(function ($user, $ability) {
