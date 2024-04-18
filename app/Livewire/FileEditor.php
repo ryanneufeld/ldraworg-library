@@ -2,18 +2,24 @@
 
 namespace App\Livewire;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RecursiveRegexIterator;
+use RegexIterator;
 
 class FileEditor extends Component implements HasForms
 {
     use InteractsWithForms;
 
     public ?string $filepath = null;
+    public ?string $file = null;
     public string $text = '';
 
     protected array $dir_whitelist = [
@@ -21,7 +27,6 @@ class FileEditor extends Component implements HasForms
         '/app',
         '/resources',
         '/database',
-        '/storage',
         '/routes',
         '/lang',
         '/tests',
@@ -47,23 +52,18 @@ class FileEditor extends Component implements HasForms
     {
         return $form
             ->schema([
-                TextInput::make('filepath')
-                    ->label('File Path')
-                    ->required()
-                    ->string()
+                Select::make('file')
+                    ->options($this->fileList())
+                    ->required(),
             ]);
     }
 
     public function getFile()
     {
         $this->form->getState();
-        $path = pathinfo($this->filepath);
-        $isWhitelist = false;
-        foreach ($this->dir_whitelist as $dir) {
-            if (str_starts_with($path['dirname'], $dir) && in_array($path['extension'], $this->ext_whitelist)) {
-                $isWhitelist = true;
-            }
-        }
+        $files = $this->fileList();
+        $file = $files[$this->file];
+        $path = pathinfo($file);
         if (str_ends_with($path['filename'], '.blade') && $path['extension'] == 'php') {
             $mode = 'php_laravel_blade';
         } else {
@@ -82,24 +82,53 @@ class FileEditor extends Component implements HasForms
                     $mode = $path['extension'];
             }
         }
-        if (file_exists(base_path($this->filepath)) &&
-            $isWhitelist == true &&
+        if (file_exists(base_path($file)) &&
+            $this->fileInWhitelist() === true &&
             auth()->user()->can('edit-files')
         ) {
-            $contents = file_get_contents(base_path($this->filepath));
+            $contents = file_get_contents(base_path($file));
             $this->dispatch('file-loaded', contents: $contents, mode: $mode);
         } else {
             $this->dispatch('file-loaded', contents: '', mode: 'text');
         }
     }
-
+    
+    protected function fileInWhitelist(): bool {
+        $files = $this->fileList();
+        $file = $files[$this->file];
+        $path = pathinfo($file);
+        foreach ($this->dir_whitelist as $dir) {
+            if (str_starts_with($path['dirname'], $dir) && in_array($path['extension'], $this->ext_whitelist)) {
+                return true;
+            }
+        }
+        return false;
+    }
     public function saveFile(string $contents)
     {
-        if (file_exists(base_path($this->filepath)) &&
+        $files = $this->fileList();
+        $file = $files[$this->file];
+        if (file_exists(base_path($file)) &&
+            $this->fileInWhitelist() === true &&
             auth()->user()->can('edit-files')
         ) {
-            file_put_contents(base_path($this->filepath), $contents);
+            file_put_contents(base_path($file), $contents);
         }
+    }
+    
+    public function fileList(): array
+    {
+        $files = [];
+        foreach ($this->dir_whitelist as $dir) {
+            $file_dir = new RecursiveDirectoryIterator(base_path($dir));
+            $iterator = new RecursiveIteratorIterator($file_dir);
+            $file_list = new RegexIterator($iterator, '/^.+\.('. implode('|', $this->ext_whitelist). ')$/i', RecursiveRegexIterator::GET_MATCH);
+            foreach($file_list as $file => $results) {
+                $files[] = str_replace(base_path(), '', $file);
+            }
+        }
+        sort($files);
+        return $files;
     }
     #[Layout('components.layout.base')]
     public function render()

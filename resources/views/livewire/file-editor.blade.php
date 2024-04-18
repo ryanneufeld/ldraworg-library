@@ -1,5 +1,13 @@
 <x-slot:title>File Editor</x-slot>
 <x-slot:menu><x-menu.library /></x-slot>
+@push('css')
+<style>
+  #editor *{
+    font-family: "Courier New", monospace !important;
+    font-size: 10pt !important;
+  }
+</style>
+@endpush
 <div>
     <form wire:submit="getFile">
         {{ $this->form }}
@@ -14,7 +22,7 @@
         </x-filament::button>
     </form>
     <div class="relative w-100 h-[90vh]">
-        <div id="editor" wire:ignore class="absolute top-0 bottom-0 left-0 right-0 *:!font-mono *:!text-[10pt]"></div>
+        <div id="editor" wire:ignore class="absolute top-0 bottom-0 left-0 right-0"></div>
     </div>
 </div>
 
