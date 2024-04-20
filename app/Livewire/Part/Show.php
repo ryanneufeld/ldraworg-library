@@ -3,22 +3,13 @@
 namespace App\Livewire\Part;
 
 use App\Events\PartComment;
-use App\Events\PartHeaderEdited;
-use App\Events\PartRenamed;
 use App\Events\PartReviewed;
-use App\Events\PartSubmitted;
-use App\Jobs\UpdateZip;
-use App\LDraw\Parse\Parser;
+use App\Filament\Actions\Part\EditHeaderAction;
+use App\Filament\Actions\Part\EditNumberAction;
 use App\LDraw\PartManager;
 use App\Models\Part;
-use App\Models\PartCategory;
-use App\Models\PartHistory;
-use App\Models\PartType;
-use App\Models\PartTypeQualifier;
-use App\Models\User;
 use App\Models\Vote;
 use App\Models\VoteType;
-use Closure;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -27,15 +18,12 @@ use Filament\Actions\EditAction;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -130,362 +118,15 @@ class Show extends Component implements HasForms, HasActions
     public function editHeaderAction(): EditAction
     {
         return $this->menuAction(
-            EditAction::make('editHeader')
-                ->label('Edit Header')
-                ->record($this->part)
-                ->form([
-                    TextInput::make('description')
-                        ->required()
-                        ->string()
-                        ->rules([
-                            fn (): Closure => function (string $attribute, mixed $value, Closure $fail)
-                            {
-                                if (! app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedDescription($value)) {
-                                    $fail('partcheck.description.invalidchars')->translate();
-                                }
-                                if (
-                                    $this->part->type->folder == 'parts/' && 
-                                    ! app(\App\LDraw\Check\PartChecker::class)->checkDescriptionForPatternText($this->part->name(), $value)
-                                ) {
-                                    $fail('partcheck.description.patternword')->translate();
-                                }
-                            }
-                        ]),
-                    Select::make('part_type_id')
-                        ->relationship(
-                            name: 'type',
-                            titleAttribute: 'name',
-                            modifyQueryUsing: fn (Builder $query) => $query->where('folder', 'parts/'),
-                        )
-                        ->hidden($this->part->type->folder !== 'parts/')
-                        ->disabled($this->part->type->folder !== 'parts/')
-                        ->selectablePlaceholder(false)
-                        ->native(false),
-                    Select::make('part_type_qualifier_id')
-                        ->relationship(
-                            name: 'type_qualifier',
-                            titleAttribute: 'name',
-                        )
-                        ->nullable()
-                        ->hidden($this->part->type->folder !== 'parts/')
-                        ->disabled($this->part->type->folder !== 'parts/')
-                        ->native(false),
-                    TextArea::make('help')
-                        ->helperText('Do not include 0 !HELP; each line will be a separate help line')
-                        ->extraAttributes(['class' => 'font-mono'])
-                        ->rows(6)
-                        ->nullable()
-                        ->string(),
-                    Select::make('part_category_id')
-                        ->relationship(
-                            name: 'category',
-                            titleAttribute: 'category',
-                        )
-                        ->helperText('A !CATEGORY meta will be added only if this differs from the first word in the description')
-                        ->hidden($this->part->type->folder !== 'parts/')
-                        ->disabled($this->part->type->folder !== 'parts/')
-                        ->selectablePlaceholder(false)
-                        ->native(false)
-                        ->rules([
-                            fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get)
-                            {
-                                if($this->part->type->folder == 'parts/') {
-                                    $c = app(\App\LDraw\Parse\Parser::class)->getDescriptionCategory($get('description'));
-                                    $cat = PartCategory::firstWhere('category', $c);
-                                    if (is_null($cat) && is_null($value)) {
-                                        $fail('partcheck.category.invalid')->translate(['value' => $c]);
-                                    } 
-                                }
-                            }
-                        ]),
-                    TextArea::make('keywords')
-                        ->helperText('Do not include 0 !KEYWORDS; the number of keyword lines and keyword order will not be preserved')
-                        ->extraAttributes(['class' => 'font-mono'])
-                        ->rows(3)
-                        ->nullable()
-                        ->string()
-                        ->rules([
-                            fn (): Closure => function (string $attribute, mixed $value, Closure $fail)
-                            {
-                                $keywords = "0 !KEYWORDS " . str_replace(["\n","\r"], [', ',''], $value);
-                                $keywords = app(\App\LDraw\Parse\Parser::class)->getKeywords($keywords) ?? [];
-                                if (
-                                    $this->part->type->folder == 'parts/' && 
-                                    ! app(\App\LDraw\Check\PartChecker::class)->checkPatternForSetKeyword($this->part->name(), $keywords)
-                                ) {
-                                    $fail('partcheck.keywords')->translate();
-                                }
-                            }
-                        ]),
-                    TextInput::make('cmdline')
-                        ->nullable()
-                        ->string(),
-                    TextArea::make('history')
-                        ->helperText('Must include 0 !HISTORY; ALL changes to existing history must be documented with a comment')
-                        ->extraAttributes(['class' => 'font-mono'])
-                        ->rows(6)
-                        ->nullable()
-                        ->string()
-                        ->rules([
-                            fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get)
-                            {
-                                $value = Parser::dos2unix(trim($value));
-                                if (!is_null($value)) {
-                                    $lines = explode("\n", $value);
-                                    if ($value !== '' && count($lines) != mb_substr_count($value, '0 !HISTORY')) {
-                                        $fail('partcheck.history.invalid')->translate();
-                                        return;
-                                    }  
-                        
-                                    $history = app(\App\LDraw\Parse\Parser::class)->getHistory($value);
-                                    if (! is_null($history)) {
-                                        foreach ($history as $hist) {
-                                            if (is_null(User::fromAuthor($hist['user'])->first())) {
-                                                $fail('partcheck.history.author')->translate();
-                                            }
-                                        }
-                                    }
-                                }
-                                                        
-                                $hist = '';
-                                foreach ($this->part->history()->oldest()->get() as $h) {
-                                    $hist .= $h->toString() . "\n";
-                                }
-                                $hist = Parser::dos2unix(trim($hist));
-                                if (((!empty($hist) && empty($value)) || $hist !== $value) && empty($get('editcomment'))) {
-                                    $fail('partcheck.history.alter')->translate();
-                                }
-                            }                    
-                        ]),
-                    TextArea::make('editcomment')
-                        ->label('Comment')
-                        ->extraAttributes(['class' => 'font-mono'])
-                        ->rows(3)
-                        ->nullable()
-                        ->string()
-                ])
-                ->mutateRecordDataUsing(function (array $data): array {
-                    $data['help'] = $this->part->help()->orderBy('order')->get()->implode('text', "\n");
-                    $data['keywords'] = $this->part->keywords()->orderBy('keyword')->get()->implode('keyword', ", ");
-                    $data['history'] = '';
-                    foreach($this->part->history as $h) {
-                        $data['history'] .= $h->toString() . "\n";
-                    }
-                    return $data;
-                })
-                ->using(fn(Part $p, array $data) => $this->updateHeader($p, $data))
-                ->successNotificationTitle('Header updated')
-                ->visible(Auth::user()?->can('update', $this->part) ?? false)
+            EditHeaderAction::make('editHeader', $this->part)
         );
-    }
-
-    protected function updateHeader(Part $part, array $data): Part
-    {
-        $manager = app(PartManager::class);
-        $changes = ['old' => [], 'new' => []];
-        if ($data['description'] !== $part->description) {
-            $changes['old']['description'] = $part->description;
-            $changes['new']['description'] = $data['description'];
-            $part->description = $data['description'];
-            if ($part->type->folder === 'parts/') {
-                $cat = $manager->parser->getDescriptionCategory($part->description);
-                $cat = PartCategory::firstWhere('category', $cat);
-                if (!is_null($cat) && $part->part_category_id !== $cat->id) {
-                    $part->part_category_id = $cat->id;
-                }    
-            }
-        }
-
-        if ($part->type->folder === 'parts/' && 
-            !is_null($data['part_category_id']) && 
-            $part->part_category_id !== (int)$data['part_category_id']
-        ) {
-            $cat = PartCategory::find($data['part_category_id']);
-            $changes['old']['category'] = $part->category->category;
-            $changes['new']['category'] = $cat->category;
-            $part->part_category_id = $cat->id;
-        }
-
-        if ($part->type->folder === 'parts/' && (int)$data['part_type_id'] !== $part->part_type_id) {
-            $pt = PartType::find($data['part_type_id']);
-            $changes['old']['type'] = $part->type->type;
-            $changes['new']['type'] = $pt->type;
-            $part->part_type_id = $pt->id;
-        }
-        
-        if (!is_null($data['part_type_qualifier_id'] ?? null)) {
-            $pq = PartTypeQualifier::find($data['part_type_qualifier_id']);
-        } else {
-            $pq = null;
-        }
-        if ($part->part_type_qualifier_id !== ($pq->id ?? null)) {
-            $changes['old']['qual'] = $part->type_qualifier->type ?? '';
-            $changes['new']['qual'] = $pq->type ?? '';
-            $part->part_type_qualifier_id = $pq->id ?? null;
-        }
-
-        if (!is_null($data['help'] ?? null) && trim($data['help']) !== '') {
-            $newHelp = "0 !HELP " . str_replace(["\n","\r"], ["\n0 !HELP ",''], $data['help']);
-            $newHelp = $manager->parser->getHelp($newHelp);
-        } else {
-            $newHelp = [];
-        }
-
-        $partHelp = $part->help->pluck('text')->all();
-        if ($partHelp !== $newHelp) {
-            $changes['old']['help'] = "0 !HELP " . implode("\n0 !HELP ", $partHelp);
-            $changes['new']['help'] = "0 !HELP " . implode("\n0 !HELP ", $newHelp);
-            $part->setHelp($newHelp);    
-        }
-
-        if (!is_null($data['keywords'] ?? null)) {
-            $newKeywords = '0 !KEYWORDS ' . str_replace(["\n","\r"], [', ',''], $data['keywords']);
-            $newKeywords = $manager->parser->getKeywords($newKeywords);
-        } else {
-            $newKeywords = [];
-        }
-
-        $partKeywords = $part->keywords->pluck('keyword')->all();
-        if ($partKeywords !== $newKeywords) {
-            $changes['old']['keywords'] = implode(", ", $partKeywords);
-            $changes['new']['keywords'] = implode(", ", $newKeywords);
-            $part->setKeywords($newKeywords);    
-        }
-
-        $newHistory = $manager->parser->getHistory($data['history'] ?? '');
-        $partHistory = [];
-        if ($part->history->count() > 0) {
-            foreach($part->history as $h) {
-                $partHistory[] = $h->toString();
-            }
-        }
-        $partHistory = implode("\n", $partHistory);
-        if ($manager->parser->getHistory($partHistory) !== $newHistory) {
-            $changes['old']['history'] = $partHistory;
-            $part->setHistory($newHistory);
-            $part->refresh();    
-            $changes['new']['history'] = '';
-            if ($part->history->count() > 0) {
-                foreach($part->history as $h) {
-                    $changes['new']['history'] .= $h->toString() . "\n";
-                }
-            }
-        }
-
-        if ($part->cmdline !== ($data['cmdline'] ?? null)) {
-            $changes['old']['cmdline'] = $part->cmdline ?? '';
-            $changes['new']['cmdline'] = $data['cmdline'] ?? '';
-            $part->cmdline = $data['cmdline'] ?? null;
-            $partHistory = [];
-            if ($part->history->count() > 0) {
-                foreach($part->history as $h) {
-                    $partHistory[] = $h->toString();
-                }
-            }
-            $partHistory = implode("\n", $partHistory);
-        }
-
-        if (count($changes['new']) > 0) {
-            $part->save();
-            $part->refresh();
-            $part->generateHeader();
-            $manager->checkPart($part);
-            // Post an event
-            PartHeaderEdited::dispatch($part, Auth::user(), $changes, $data['editcomment'] ?? null);
-            Auth::user()->notification_parts()->syncWithoutDetaching([$part->id]);
-            UpdateZip::dispatch($part);    
-        }
-
-        return $part;
     }
 
     public function editNumberAction(): EditAction
     {
         return $this->menuAction(
-            EditAction::make('editNumber')
-                ->label('Renumber/Move')
-                ->modalHeading('Move/Renumber Part')
-                ->record($this->part)
-                ->form([
-                    TextInput::make('folder')
-                        ->label('Current Location')
-                        ->placeholder($this->part->type->folder)
-                        ->disabled(),
-                    TextInput::make('name')
-                        ->label('Current Name')
-                        ->placeholder(basename($this->part->filename))
-                        ->disabled(),
-                    Radio::make('part_type_id')
-                        ->label('Select destination folder:')
-                        ->options(function(): array 
-                        {
-                            $options = [];
-                            foreach (PartType::where('format', $this->part->type->format)->pluck('folder', 'id')->unique() as $id => $option) {
-                                $types = implode(', ', PartType::where('folder', $option)->pluck('name')->all());
-                                $options[$id] = "{$option} ({$types})"; 
-                            }
-                            return $options;                   
-                        }),
-                    TextInput::make('newname')
-                        ->label('New Name')
-                        ->helperText('Exclude the folder from the name')
-                        ->nullable()
-                        ->string()
-                        ->rules([
-                            fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get)
-                            {
-                                if (!empty($get('part_type_id'))) {
-                                    $newType = PartType::find($get('part_type_id'));
-                                    $p = Part::find($this->part->id);
-                                    if (!empty($newType) && !empty($p)) {
-                                        $newName = basename($value, ".{$p->type->format}");
-                                        $newName = "{$newType->folder}{$newName}.{$newType->format}";
-                                        $oldp = Part::firstWhere('filename', $newName);
-                                        if (!is_null($oldp))  {
-                                            $fail($newName . " already exists");
-                                        }          
-                                    }    
-                                }
-                            }
-                        ]),
-                ])
-                ->successNotificationTitle('Renumber/Move Successful')
-                ->using(fn(Part $p, array $data) => $this->updateMove($p, $data))
-                ->visible(Auth::user()?->can('move', $this->part) ?? false)
+            EditNumberAction::make('editNumber', $this->part)
         );
-    }
-
-    protected function updateMove(Part $part, array $data): Part
-    {
-        $manager = app(PartManager::class);
-        $newType = PartType::find($data['part_type_id']);
-        $newName = basename($data['newname'], ".{$part->type->format}");
-        $newName = "{$newName}.{$newType->format}";
-        if ($part->isUnofficial()) {
-            $oldname = $part->filename;
-            $manager->movePart($part, $newName, $newType);
-            $part->refresh();
-            PartRenamed::dispatch($part, Auth::user(), $oldname, $part->filename);
-        } else {
-            $upart = Part::unofficial()->where('filename', "{$newType->folder}$newName")->first();
-            if (is_null($upart)) {
-                $upart = $manager->copyOfficialToUnofficialPart($part);
-                PartHistory::create([
-                    'part_id' => $upart->id,
-                    'user_id' => Auth::user()->id,
-                    'comment' => 'Moved from ' . $part->name(),
-                ]);
-                $upart->refresh();
-                $manager->movePart($upart, $newName, $newType);
-                PartSubmitted::dispatch($upart, Auth::user());
-            }
-            $mpart = $manager->addMovedTo($part, $upart);
-            $part->unofficial_part->associate($mpart);
-            $part->save();
-            $mpart->save();
-            PartSubmitted::dispatch($mpart, Auth::user());
-        }
-        return $part;
     }
 
     public function deleteAction(): DeleteAction
