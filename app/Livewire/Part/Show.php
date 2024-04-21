@@ -283,6 +283,11 @@ class Show extends Component implements HasForms, HasActions
                 $u->castVote($this->part, $vt);
                 PartReviewed::dispatch($this->part, $u, $this->vote_type_code, $this->comment ?? null);
         }
+        if ((!is_null($v) && $v->vote_type_code === 'A' &&  $this->vote_type_code === 'N') || $this->vote_type_code === 'A') {
+            foreach($this->part->parentsAndSelf as $p) {
+                app(PartManager::class)->checkPart($p);
+            }
+        }
         $u->notification_parts()->syncWithoutDetaching([$this->part->id]);
         $this->form->fill();
     }
