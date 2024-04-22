@@ -18,6 +18,7 @@ use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
 use App\Livewire\PartEvent\Index as PartEventIndex;
 use App\Livewire\PbgGenerator;
+use App\Livewire\Release\Create;
 use App\Livewire\ReviewSummary\Manage as ReviewSummaryManage;
 use App\Livewire\Role\Manage as RoleManage;
 use App\Livewire\Search\Parts;
@@ -58,9 +59,9 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
 
     Route::view('/next-release', 'part.nextrelease')->name('next-release');
 
-    Route::middleware(['can:release.create'])->get('/release/create', [PartReleaseController::class, 'create'])->name('release.create');
-    Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');
-    Route::middleware(['can:release.store'])->post('/release/store', [PartReleaseController::class, 'store'])->name('release.store');
+    Route::middleware(['can:release.create'])->get('/release/create', Create::class)->name('release.create');
+//    Route::middleware(['can:release.create'])->post('/release/create/2', [PartReleaseController::class, 'createStep2'])->name('release.create2');
+//    Route::middleware(['can:release.store'])->post('/release/store', [PartReleaseController::class, 'store'])->name('release.store');
     
     Route::get('/{unofficialpart}', Show::class)->name('show.filename');
     Route::get('/{part}', Show::class)->name('show');
