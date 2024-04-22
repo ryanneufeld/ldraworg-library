@@ -8,13 +8,6 @@ use App\Models\Part;
 
 class PartDownloadController extends Controller
 {
-    /**
-     * Stream download from database.
-     *
-     * @param  \App\Models\Part  $part
-     * @return \Illuminate\Http\Response
-     */
-
     public function __invoke(Part $part) {
         $if_mod_since = new Carbon(request()->header('If-Modified-Since', date('r', 0)));
         $last_change = $part->lastChange();

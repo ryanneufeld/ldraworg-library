@@ -8,13 +8,6 @@ use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class PartDownloadZipController extends Controller
 {
-    /**
-     * Stream download from database.
-     *
-     * @param  \App\Models\Part  $part
-     * @return \Illuminate\Http\Response
-     */
-
     public function __invoke(Part $part) {
         if ($part->type->folder !== 'parts/') {
             return response()->redirectToRoute('unofficial.download', $part->filename);

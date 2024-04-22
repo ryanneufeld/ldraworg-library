@@ -2,28 +2,26 @@
 
 namespace App\LDraw;
 
-use ArtisanSdk\RateLimiter\Buckets\Leaky;
+use ArtisanSdk\RateLimiter\Contracts\Bucket;
 use ArtisanSdk\RateLimiter\Limiter;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 
 class Rebrickable
 {
     protected Limiter $limiter;
-    protected Leaky $bucket;
 
     public function __construct(
         public readonly string $api_key,
         public readonly string $api_url
     ) {
-        $this->bucket = new Leaky('rebrickable', 2, 1);
-        $this->limiter = new Limiter(Cache::store(), $this->bucket);
+        $this->limiter = app(Limiter::class, ['bucket' => app(Bucket::class, ['rebrickable', 2, 1])]);
     }
 
     protected function makeApiCall(string $url): ?array
     {
         if ($this->limiter->exceeded()) {
-            sleep($this->bucket->rate());
+            sleep($this->limiter->backoff());
         }
 
         $response = Http::withHeaders([
@@ -47,21 +45,70 @@ class Rebrickable
         return $response->json();   
     }
 
-    public function getSetParts(string $setnumber): ?array {
-        return $this->makeApiCall("{$this->api_url}/sets/{$setnumber}/parts/?inc_minifig_parts=1");
+    public function getSetParts(string $setnumber): ?Collection 
+    {
+        $parts = $this->makeApiCall("{$this->api_url}/sets/{$setnumber}/parts/?inc_minifig_parts=1");
+        if (is_null($parts)) {
+            return null;
+        }
+        $parts = collect($parts);
+        $parts = $parts->map(fn (array $part, int $key) =>
+            [
+                'rb_part_number' => $part['part']['part_num'],
+                'rb_part_name' => $part['part']['name'],
+                'rb_part_url' => $part['part']['part_url'],
+                'color_name' => $part['color']['name'],
+                'ldraw_color_number' => $part['color']['external_ids']['LDraw']['ext_ids'][0] ?? null,
+                'ldraw_part_number' => $part['part']['external_ids']['LDraw'][0] ?? null,
+                'bricklink_part_number' => $part['part']['external_ids']['BrickLink'][0] ?? null,
+                'quantity' => $part['quantity'],
+                'print_of' => $part['part']['print_of'] ?? null,
+            ]
+        );
+        return $parts;
     }
 
-    public function getSet(string $setnumber): ?array {
+    public function getSet(string $setnumber): ?array 
+    {
         return $this->makeApiCall("{$this->api_url}/sets/{$setnumber}/");
     }  
 
-    public function getPart(string $partnumber): ?array {
-        return $this->makeApiCall("{$this->api_url}/parts/{$partnumber}/");
+    public function getPart(string $partnumber): ?array 
+    {
+        $part = $this->makeApiCall("{$this->api_url}/parts/{$partnumber}/");
+        if (is_null($part)) {
+            return null;
+        }
+        $part = [
+            'rb_part_number' => $part['part_num'],
+            'rb_part_name' => $part['name'],
+            'rb_part_url' => $part['part_url'],
+            'ldraw_part_number' => $part['external_ids']['LDraw'][0] ?? null,
+            'bricklink_part_number' => $part['external_ids']['BrickLink'][0] ?? null,
+            'print_of' => $part['print_of'] ?? null,
+        ];
+        return $part;
     }  
 
-    public function getParts(array $partnumbers): ?array {
+    public function getParts(array $partnumbers): ?Collection 
+    {
         $parts = implode(',', $partnumbers);
-        return $this->makeApiCall("{$this->api_url}/parts/?part_nums={$parts}");
-    }  
-
+        $parts = $this->makeApiCall("{$this->api_url}/parts/?part_nums={$parts}");
+        if (is_null($parts)) {
+            return null;
+        }
+        $parts = collect($parts);
+        $parts = $parts->map(fn (array $part, int $key) =>
+            [
+                'rb_part_number' => $part['part_num'],
+                'rb_part_name' => $part['name'],
+                'rb_part_url' => $part['part_url'],
+                'ldraw_part_number' => $part['external_ids']['LDraw'][0] ?? null,
+                'bricklink_part_number' => $part['external_ids']['BrickLink'][0] ?? null,
+                'print_of' => $part['print_of'] ?? null,
+            ]
+        );
+        return $parts;
+    }
+    
 }

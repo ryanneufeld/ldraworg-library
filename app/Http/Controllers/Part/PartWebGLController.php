@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Part;
 
 use App\Models\Part;
 use App\Http\Controllers\Controller;
-use Illuminate\Database\Eloquent\Builder;
 
 class PartWebGLController extends Controller
 {
