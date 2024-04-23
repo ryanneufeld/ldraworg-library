@@ -110,10 +110,10 @@ class VotePolicy
     }
 
     public function all(User $user): bool {
-        return $user->can('certify.all');
+        return $user->can('part.vote.certify.all');
     }
 
     public function allAdmin(User $user): bool {
-        return $user->can('admincertify.all');
+        return $user->can('part.vote.admincertify.all');
     }
 }
