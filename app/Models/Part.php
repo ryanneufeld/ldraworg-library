@@ -606,7 +606,7 @@ class Part extends Model
             } 
             return $code .= is_null($this->official_part) ? 'N)' : 'F)';
         } else {
-            return $this->partStatusText($this);
+            return $this->statusText();
         }  
     }
 
