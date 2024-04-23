@@ -110,28 +110,4 @@ class User extends Authenticatable
       return "0 Author: " . $this->author_string;
     }
 
-    public function castVote(Part $part, VoteType $votetype): void 
-    {
-        $vote = $this->votes()->firstWhere('part_id', $part->id);
-        if (!empty($vote)) {
-            $vote->vote_type_code = $votetype->code;
-            $vote->save();
-        }
-        else {
-            Vote::create([
-                'part_id' => $part->id,
-                'user_id' => $this->id,
-                'vote_type_code' => $votetype->code,
-            ]);
-        }
-        $part->refresh();
-        $part->updateVoteData();
-    }
-
-    public function cancelVote(Part $part): void 
-    {
-        $this->votes()->where('part_id', $part->id)->delete();
-        $part->updateVoteData();
-    }
-
 }

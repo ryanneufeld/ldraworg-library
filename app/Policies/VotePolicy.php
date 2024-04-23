@@ -108,4 +108,12 @@ class VotePolicy
     {
         return $vote->user_id === $user->id;
     }
+
+    public function all(User $user): bool {
+        return $user->can('certify.all');
+    }
+
+    public function allAdmin(User $user): bool {
+        return $user->can('admincertify.all');
+    }
 }

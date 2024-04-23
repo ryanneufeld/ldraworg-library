@@ -5,12 +5,19 @@ namespace App\Livewire\Tables;
 use App\Models\Part;
 use App\Tables\Part\PartTable;
 use Filament\Tables\Table;
+use Livewire\Attributes\On;
 
 class PartDependenciesTable extends BasicTable
 {
     public bool $official = false;
     public bool $parents = false;
     public Part $part;
+
+    #[On ('mass-vote')]
+    public function searchUpdated() {
+        $this->resetTable();
+        $this->render();
+    }
 
     public function table(Table $table): Table
     {

@@ -33,6 +33,9 @@
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
             @endif
+            @if ($this->certifyAllAction->isVisible())
+                {{ $this->certifyAllAction }}
+            @endif
             @if ($this->editHeaderAction->isVisible())
                 {{ $this->editHeaderAction }}
             @endif
@@ -150,6 +153,9 @@
             @endif
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
+            @endif
+            @if ($this->certifyAllAction->isVisible())
+                {{ $this->certifyAllAction }}
             @endif
             @if ($this->editHeaderAction->isVisible())
                 {{ $this->editHeaderAction }}

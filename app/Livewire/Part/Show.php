@@ -7,6 +7,7 @@ use App\Events\PartReviewed;
 use App\Filament\Actions\Part\EditHeaderAction;
 use App\Filament\Actions\Part\EditNumberAction;
 use App\LDraw\PartManager;
+use App\LDraw\VoteManager;
 use App\Models\Part;
 use App\Models\Vote;
 use App\Models\VoteType;
@@ -33,8 +34,8 @@ class Show extends Component implements HasForms, HasActions
     use InteractsWithActions;
 
     public Part $part;
-    public ?string $comment;
-    public ?string $vote_type_code;
+    public ?string $comment = null;
+    public ?string $vote_type_code = null;
     public string $image;
 
     public function form(Form $form): Form
@@ -240,55 +241,52 @@ class Show extends Component implements HasForms, HasActions
         return $this->menuAction(
             Action::make('adminCertifyAll')
                 ->action(function () {
-                    $this->authorize('admin', [Vote::class, $this->part]);
-                    foreach ($this->part->descendantsAndSelf->where('vote_sort', 2) as $p) {
-                        Auth::user()->castVote($p, VoteType::firstWhere('code', 'A'));
-                        $p->updateVoteData();
-                        PartReviewed::dispatch($p, Auth::user(), 'A', null);
-                        Auth::user()->notification_parts()->syncWithoutDetaching([$p->id]);
-                    }
+                    $vm = new VoteManager();
+                    $vm->adminCertifyAll($this->part, Auth::user());
+                    $this->dispatch('mass-vote');
                     Notification::make()
-                    ->title('Quickvote action complete')
-                    ->success()
-                    ->send();            
+                        ->title('Quickvote action complete')
+                        ->success()
+                        ->send();            
                 })
                 ->visible(
                     $this->part->isUnofficial() && 
                     $this->part->type->folder == 'parts/' && 
                     $this->part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0 &&
-                    Auth::user()?->can('create', [Vote::class, $this->part,'A']) ?? false
+                    Auth::user()?->can('create', [Vote::class, $this->part, 'A']) ?? false &&
+                    Auth::user()?->can('allAdmin', Vote::class)
+                )
+        );
+    }
+
+    public function certifyAllAction(): Action
+    {
+        return $this->menuAction(
+            Action::make('certifyAll')
+                ->action(function () {
+                    $vm = new VoteManager();
+                    $vm->certifyAll($this->part, Auth::user());
+                    $this->dispatch('mass-vote');
+                    Notification::make()
+                        ->title('Quickvote action complete')
+                        ->success()
+                        ->send();            
+                })
+                ->visible(
+                    $this->part->isUnofficial() && 
+                    $this->part->type->folder == 'parts/' && 
+                    $this->part->descendantsAndSelf->where('vote_sort', '>', 3)->count() == 0 &&
+                    Auth::user()?->can('create', [Vote::class, $this->part, 'C']) ?? false &&
+                    Auth::user()?->can('all', Vote::class) ?? false
+                    //&& !$this->adminCertifyAllAction->isVisible()
                 )
         );
     }
 
     public function postVote() {
-        $u = Auth::user();        
-        $v = $this->part->votes()->firstWhere('user_id', $u->id);
-        if (is_null($v)) {
-            $this->authorize('create', [Vote::class, $this->part, $this->vote_type_code]);
-        } else {
-            $this->authorize('update', [$v, $this->vote_type_code]);
-        }
-
-        switch($this->vote_type_code) {
-            case 'N':
-                $u->cancelVote($this->part);
-                PartReviewed::dispatch($this->part, $u, null, $this->comment ?? null);
-                break;
-            case 'M':
-                PartComment::dispatch($this->part, Auth::user(), $this->comment ?? null);
-                break;
-            default:
-                $vt = VoteType::find($this->vote_type_code);
-                $u->castVote($this->part, $vt);
-                PartReviewed::dispatch($this->part, $u, $this->vote_type_code, $this->comment ?? null);
-        }
-        if ((!is_null($v) && $v->vote_type_code === 'A' &&  $this->vote_type_code === 'N') || $this->vote_type_code === 'A') {
-            foreach($this->part->parentsAndSelf as $p) {
-                app(PartManager::class)->checkPart($p);
-            }
-        }
-        $u->notification_parts()->syncWithoutDetaching([$this->part->id]);
+        $this->form->getState();
+        $vm = new VoteManager();
+        $vm->postVote($this->part, Auth::user(), $this->vote_type_code, $this->comment);
         $this->form->fill();
     }
 
