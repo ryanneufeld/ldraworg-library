@@ -253,8 +253,9 @@ class Show extends Component implements HasForms, HasActions
                     $this->part->isUnofficial() && 
                     $this->part->type->folder == 'parts/' && 
                     $this->part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0 &&
+                    $this->part->descendantsAndSelf->where('vote_sort', 2)->count() > 0 &&
                     Auth::user()?->can('create', [Vote::class, $this->part, 'A']) ?? false &&
-                    Auth::user()?->can('allAdmin', Vote::class)
+                    Auth::user()?->can('allAdmin', Vote::class) ?? false
                 )
         );
     }
@@ -276,9 +277,9 @@ class Show extends Component implements HasForms, HasActions
                     $this->part->isUnofficial() && 
                     $this->part->type->folder == 'parts/' && 
                     $this->part->descendantsAndSelf->where('vote_sort', '>', 3)->count() == 0 &&
+                    $this->part->descendantsAndSelf->where('vote_sort', 3)->count() > 0 &&
                     Auth::user()?->can('create', [Vote::class, $this->part, 'C']) ?? false &&
-                    Auth::user()?->can('all', Vote::class) ?? false &&
-                    !$this->adminCertifyAllAction->isVisible()
+                    Auth::user()?->can('all', Vote::class) ?? false
                 )
         );
     }

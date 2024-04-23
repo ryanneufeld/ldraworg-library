@@ -54,9 +54,11 @@ class VoteManager
         $part->refresh();
         $part->updateVoteData();
         if (($oldVoteIsAdminCert && $vote_type_code === 'N') || $newVoteIsAdminCert) {
-            foreach($part->parentsAndSelf as $p) {
-                app(PartManager::class)->checkPart($p);
-            }
+            $part
+                ->parentsAndSelf
+                ->merge($part->descendants)
+                ->unofficial()
+                ->each(fn (Part $p) => app(PartManager::class)->checkPart($p));
         }
         $user->notification_parts()->syncWithoutDetaching([$part->id]);
     }
@@ -70,7 +72,7 @@ class VoteManager
             $user->cannot('allAdmin', Vote::class)) {
             return;
         }
-        $part->descendantsAndSelf->where('vote_sort', 2)->each(fn (Part $p) => $this->postVote($p, $user, 'A'));
+        $part->descendantsAndSelf->unofficial()->where('vote_sort', 2)->each(fn (Part $p) => $this->postVote($p, $user, 'A'));
     }
 
     public function certifyAll(Part $part, User $user): void
@@ -86,6 +88,7 @@ class VoteManager
             ->descendantsAndSelf()
             ->where('vote_sort', 3)
             ->whereDoesntHave('votes', fn(Builder $q) => $q->where('user_id', $user->id)->whereIn('vote_type_code', ['A', 'T']))
+            ->unofficial()
             ->each(fn (Part $p) => $this->postVote($p, $user, 'C'));
         
     }

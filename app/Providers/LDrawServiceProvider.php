@@ -10,6 +10,7 @@ use App\LDraw\Parse\Parser;
 use App\LDraw\PartManager;
 use App\LDraw\Rebrickable;
 use App\LDraw\Render\LDView;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class LDrawServiceProvider extends ServiceProvider
@@ -67,5 +68,11 @@ class LDrawServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Collection::macro('unofficial', function () {
+            return $this->whereNull('part_release_id');
+        });
+        Collection::macro('official', function () {
+            return $this->whereNotNull('part_release_id');
+        });    
     }
 }    

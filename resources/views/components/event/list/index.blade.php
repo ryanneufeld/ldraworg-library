@@ -6,7 +6,7 @@
             <x-slot name="header">
                 Archived Part Events:
             </x-slot>
-            @forelse ($part->events->whereNotNull('part_release_id')->sortBy('created_at') as $event)
+            @forelse ($part->events->official()->sortBy('created_at') as $event)
                 <x-event.list.item :event="$event"/>
             @empty
                 <div>None</div>
@@ -14,7 +14,7 @@
         </x-accordion>
     @endif
     @if ($part->isUnofficial())
-        @forelse ($part->events->whereNull('part_release_id')->sortBy('created_at') as $event)
+        @forelse ($part->events->unofficial()->sortBy('created_at') as $event)
             <x-event.list.item :event="$event"/>
         @empty
             <div>No Events</div>

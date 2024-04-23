@@ -99,7 +99,7 @@ class Index extends Component implements HasForms, HasTable
                             );
                     }),
                 Filter::make('part_release_id')
-                    ->query(fn (Builder $query): Builder => $query->whereNull('part_release_id'))
+                    ->query(fn (Builder $query): Builder => $query->unofficial())
                     ->toggle()
                     ->label('Only unofficial part events'),
             ], layout: FiltersLayout::AboveContent)
