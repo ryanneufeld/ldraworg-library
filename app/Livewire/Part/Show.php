@@ -243,6 +243,7 @@ class Show extends Component implements HasForms, HasActions
                 ->action(function () {
                     $vm = new VoteManager();
                     $vm->adminCertifyAll($this->part, Auth::user());
+                    $this->part->refresh();
                     $this->dispatch('mass-vote');
                     Notification::make()
                         ->title('Quickvote action complete')
@@ -267,6 +268,7 @@ class Show extends Component implements HasForms, HasActions
                 ->action(function () {
                     $vm = new VoteManager();
                     $vm->certifyAll($this->part, Auth::user());
+                    $this->part->refresh();
                     $this->dispatch('mass-vote');
                     Notification::make()
                         ->title('Quickvote action complete')
