@@ -54,10 +54,24 @@ class Submit extends Component implements HasForms
                             }
                             if ($value->getMimeType() == 'text/plain') {
                                 $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
+                                $pparts = Part::query()->name($part->name)->get();
                                 $unofficial_exists = !is_null(Part::unofficial()->name($part->name ?? '')->first());
                                 $errors = app(\App\LDraw\Check\PartChecker::class)->check($part);
                                 foreach($errors ?? [] as $error) {
                                     $this->part_errors[] = "{$value->getClientOriginalName()}: {$error}";
+                                }
+                                if (!is_null($pparts) && 
+                                    !is_null($part->type) && 
+                                    !is_null($part->name) && 
+                                    $pparts->where('filename', "p/{$part->name}")->count() > 0 && 
+                                    ($part->type == 'Part' || $part->type == 'Shortcut')) {
+                                    $this->part_errors[] = "{$value->getClientOriginalName()}: A primitive aready exits with that name";
+                                } elseif(!is_null($pparts) && 
+                                    !is_null($part->type) && 
+                                    !is_null($part->name) && 
+                                    $pparts->where('filename', "parts/{$part->name}")->count() > 0 && 
+                                    $part->type == 'Primitive') {
+                                    $this->part_errors[] = "{$value->getClientOriginalName()}: A part aready exits with that name";
                                 }
                             } elseif ($value->getMimeType() == 'image/png') {
                                 $filename = $value->getClientOriginalName();
