@@ -40,8 +40,8 @@
             {{$menu ?? ''}}
             <livewire:search.menu-item />
         </nav>
-        <div class="grid grid-cols-2 justify-stretch items-center">
-            <div class="justify-self-start">
+        <div class="grid grid-cols-1 md:grid-cols-2 justify-stretch items-center">
+            <div class="invisible md:visible justify-self-start">
                 <div class="flex flex-row items-center">
                     <a href="https://www.ldraw.org">LDraw.org</a>
                     @isset($breadcrumbs)
