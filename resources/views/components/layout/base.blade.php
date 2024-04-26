@@ -55,9 +55,9 @@
             <div class="justify-self-end">
                 @auth
                     Welcome {{Auth::user()->name}}                   
-                    <a href="{{route('dashboard.index')}}">User Dashboard</a>
+                    <a class="underline decoration-dotted hover:decoration-solid hover:text-gray-500" href="{{route('dashboard.index')}}">User Dashboard</a>
                     @can('admin.view-dashboard')
-                        :: <a href="{{route('admin.index')}}">Admin Dashboard</a>
+                        :: <a class="underline decoration-dotted hover:decoration-solid hover:text-gray-500" href="{{route('admin.index')}}">Admin Dashboard</a>
                     @endcan
                 @endauth
             </div>
