@@ -31,13 +31,13 @@ class FilamentServiceProvider extends ServiceProvider
         
         Select::configureUsing(function (Select $select): void {
             $select
-                ->optionsLimit(-1)
+                ->optionsLimit(1000)
                 ->native(false);
         });
 
         SelectFilter::configureUsing(function (SelectFilter $selectfilter): void {
             $selectfilter
-                ->optionsLimit(-1)
+                ->optionsLimit(1000)
                 ->native(false);
         });
     }
