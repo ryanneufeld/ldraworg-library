@@ -47,40 +47,45 @@ class Submit extends Component implements HasForms
                     ->label('Files')
                     ->rules([
                         fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get) {
+                            // Check if the fileformat is text or png
                             if ($value->getMimeType() != 'text/plain' && $value->getMimeType() != 'image/png') {
                                 $this->part_errors[] = "{$value->getClientOriginalName()}: Incorrect file type";
                                 $fail('File errors');
                                 return;
                             }
+                            
+                            // Error check based on file type
                             if ($value->getMimeType() == 'text/plain') {
                                 $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
-                                $pparts = Part::query()->name($part->name)->get();
-                                $unofficial_exists = !is_null(Part::unofficial()->name($part->name ?? '')->first());
+                                $pparts = Part::query()->name($part->name ?? '')->get();
+                                $unofficial_exists = $pparts->unofficial()->count() > 0;
                                 $errors = app(\App\LDraw\Check\PartChecker::class)->check($part);
-                                foreach($errors ?? [] as $error) {
-                                    $this->part_errors[] = "{$value->getClientOriginalName()}: {$error}";
-                                }
-                                if (!is_null($pparts) && 
-                                    !is_null($part->type) && 
-                                    !is_null($part->name) && 
+
+                                // A part in the p and parts folder cannot have the same name
+                                if (!is_null($pparts) && !is_null($part->type) && !is_null($part->name) && 
                                     $pparts->where('filename', "p/{$part->name}")->count() > 0 && 
                                     ($part->type == 'Part' || $part->type == 'Shortcut')) {
-                                    $this->part_errors[] = "{$value->getClientOriginalName()}: A primitive aready exits with that name";
-                                } elseif(!is_null($pparts) && 
-                                    !is_null($part->type) && 
-                                    !is_null($part->name) && 
+                                    $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('duplicate', ['type' => 'Primitive']);
+                                } elseif(!is_null($pparts) && !is_null($part->type) && !is_null($part->name) && 
                                     $pparts->where('filename', "parts/{$part->name}")->count() > 0 && 
                                     $part->type == 'Primitive') {
-                                    $this->part_errors[] = "{$value->getClientOriginalName()}: A part aready exits with that name";
+                                    $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('duplicate', ['type' => 'Parts']);
+                                }
+
+                                foreach($errors ?? [] as $error) {
+                                    $this->part_errors[] = "{$value->getClientOriginalName()}: {$error}";
                                 }
                             } elseif ($value->getMimeType() == 'image/png') {
                                 $filename = $value->getClientOriginalName();
                                 $unofficial_exists = !is_null(Part::unofficial()->where('filename', 'LIKE', "%{$filename}")->first());
                             }
+
+                            // Check if the part already exists on the tracker
                             if ($unofficial_exists && $get('replace') !== true)
                             {
                                 $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.replace');
                             }
+
                             if (count($this->part_errors) > 0) {
                                 $fail('File errors');
                             }  

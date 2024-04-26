@@ -24,10 +24,8 @@ class LDrawServiceProvider extends ServiceProvider
     {
         $this->app->singleton(PartChecker::class, function (Application $app) { 
             return new PartChecker(config('ldraw.allowed_metas.body'));
-        });        
-        $this->app->singleton(LDrawModelMaker::class, function (Application $app) { 
-            return new LDrawModelMaker();
         });
+
         $this->app->singleton(Parser::class, function (Application $app) { 
             return new Parser(
                 config('ldraw.patterns'),
@@ -36,6 +34,7 @@ class LDrawServiceProvider extends ServiceProvider
                 config('ldraw.allowed_metas.header')
             );
         });
+
         $this->app->bind(LDView::class, function (Application $app) { 
             return new LDView(
                 config('ldraw.render.options'),
@@ -44,15 +43,17 @@ class LDrawServiceProvider extends ServiceProvider
                 config('ldraw.image.normal.height'),
                 config('ldraw.image.normal.width'),
                 config('ldraw.render.debug', false),
-                $app->make(LDrawModelMaker::class)
+                new LDrawModelMaker()
             );    
         });
+
         $this->app->singleton(PartManager::class, function (Application $app) { 
             return new PartManager(
                 $app->make(Parser::class),
                 $app->make(LDView::class),
             );
         });
+        
         $this->app->singleton(Rebrickable::class, function (Application $app) {
             return new Rebrickable(
                 config('ldraw.rebrickable.api.key'),
