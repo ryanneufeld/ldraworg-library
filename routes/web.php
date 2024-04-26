@@ -81,7 +81,7 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
 
 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
-//    Route::get('/', UserDashboardController::class)->name('index');
+    Route::view('/', 'tracker.user-dashboard')->name('index');
 });
 
 
