@@ -3,7 +3,10 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Part;
+use App\Tables\Filters\AuthorFilter;
 use App\Tables\Part\PartTable;
+use Filament\Forms\Get;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +36,7 @@ class PartReadyForUserTable extends BasicTable
                     )
                 )
                 ->whereHas('descendantsAndSelf', fn (Builder $q) =>
-                    $q->whereDoesntHave('votes', fn (Builder $q) => $q->where('user_id', Auth::user()))
+                    $q->where('vote_sort', 3)->whereDoesntHave('votes', fn (Builder $q) => $q->where('user_id', Auth::user()))
                 , '>=', 1)
             )
             ->defaultSort('created_at', 'asc')
