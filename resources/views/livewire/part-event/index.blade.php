@@ -13,6 +13,15 @@
                 <x-part.unofficial-part-count />
             </div>
         </div>
+        <div id="activityTable"></div>
         {{ $this->table }}
     </div>   
 </div>
+
+@script
+<script>
+    $wire.on('page-change', () => {
+        document.getElementById("activityTable").scrollIntoView();
+    });
+</script>
+@endscript
