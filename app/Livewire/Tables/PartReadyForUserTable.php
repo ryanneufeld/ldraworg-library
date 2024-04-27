@@ -18,26 +18,30 @@ class PartReadyForUserTable extends BasicTable
         return $table
             ->query(
                 Part::unofficial()
+                // Parts folder only
                 ->whereHas('type', fn (Builder $q) => $q->where('folder', 'parts/'))
+                // No holds
                 ->whereDoesntHave('descendantsAndSelf', function ($q) {
                     $q->where('vote_sort', '5');
                 })
-                ->where(fn (Builder $q) =>
-                    $q->orWhere(fn (Builder $q) =>
-                        $q->whereHas('official_part')
-                        ->whereDoesntHave('events', fn (Builder $q) =>
-                            $q->where('user_id', Auth::user()->id)->whereRelation('part_event_type', 'slug', 'submit')->unofficial())
+                // At least one part in the chain with
+                ->whereHas('descendantsAndSelf', function (Builder $q) {
+                    // Only Needs More Votes
+                    $q->where('vote_sort', 3)
+                    // No votes from user
+                    ->whereDoesntHave('votes', fn (Builder $qu) => $qu->where('user_id', Auth::user()->id))
+                    // No submit events from user
+                    ->whereDoesntHave('events', fn (Builder $qu) =>
+                        $qu->where('user_id', Auth::user()->id)->whereRelation('part_event_type', 'slug', 'submit')->unofficial()
                     )
-                    ->orWhere(fn (Builder $q) =>
-                        $q->whereDoesntHave('official_part')
-                        ->whereDoesntHave('events', fn (Builder $q) => 
-                            $q->where('user_id', Auth::user()->id)->whereRelation('part_event_type', 'slug', 'submit')->unofficial())
-                        ->where('user_id', '<>', Auth::user()->id)
-                    )
-                )
-                ->whereHas('descendantsAndSelf', fn (Builder $q) =>
-                    $q->where('vote_sort', 3)->whereDoesntHave('votes', fn (Builder $q) => $q->where('user_id', Auth::user()))
-                , '>=', 1)
+                    // Not authored by user unless a fix
+                    ->where(function (Builder $q) {
+                        $q->orWhereHas('official_part')
+                        ->orWhere(fn (Builder $qu) =>
+                            $qu->whereDoesntHave('official_part')->where('user_id', '<>', Auth::user()->id)
+                        );
+                    });
+                }, '>=', 1)
             )
             ->defaultSort('created_at', 'asc')
             ->heading('Parts Ready For Your Vote')
