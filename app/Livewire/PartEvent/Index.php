@@ -132,7 +132,7 @@ class Index extends Component implements HasForms, HasTable
             ->striped()
             ->paginated([10, 25, 50, 100])
             ->defaultPaginationPageOption(25)
-            ->recordClasses(fn (PartEvent $e) => !is_null($e->part) && !$e->part->isUnofficial() ? 'bg-green-300' : '' );
+            ->recordClasses(fn (PartEvent $e) => !is_null($e->part) && !$e->part->isUnofficial() ? '!bg-green-300' : '' );
     }
 
     public function updatedPaginators($page, $pageName)
