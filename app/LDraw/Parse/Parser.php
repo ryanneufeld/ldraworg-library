@@ -19,7 +19,7 @@ class Parser
         $bfc = $this->getBFC($text);
         return new ParsedPart(
             $this->getDescription($text),
-            $this->getName($text),
+            mb_strtolower($this->getName($text)),
             $author['user'] ?? null,
             $author['realname'] ?? null,
             $type['unofficial'] ?? null,
@@ -29,7 +29,7 @@ class Parser
             $type['release'] ?? null,
             $this->getLicense($text),
             $this->getHelp($text),
-            $bfc['bfc'] == 'CERTIFY' ? $bfc['winding'] : null,
+            !is_null($bfc) && $bfc['bfc'] == 'CERTIFY' ? $bfc['winding'] : null,
             $this->getMetaCategory($text),
             $this->getDescriptionCategory($text),
             $this->getKeywords($text),

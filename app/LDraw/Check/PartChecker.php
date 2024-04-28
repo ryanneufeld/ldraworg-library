@@ -75,6 +75,7 @@ class PartChecker
     {
         $errors = [];
         if (!is_null($part->name)) {
+            $part->name = mb_strtolower($part->name);
             if (! $this->checkLibraryApprovedName($part->name)) {
                 $errors[] = __('partcheck.name.invalidchars' );
             } elseif (! $this->checkUnknownPartNumber($part->name)) {
@@ -313,7 +314,7 @@ class PartChecker
    * 
    * @return bool
    */
-  public function checkLibraryBFCCertify(string $bfc): bool
+  public function checkLibraryBFCCertify(?string $bfc): bool
   {
     return $bfc === 'CCW';
   }
