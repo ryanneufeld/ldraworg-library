@@ -41,8 +41,8 @@ class PartsUpdateProcessor
         $this->releaseParts();
         $this->makeReleaseZips();
         $this->copyReleaseFiles();
-//        $this->postReleaseCleanup();
-//        $this->regenerateImages();
+        $this->postReleaseCleanup();
+        $this->regenerateImages();
     }
 
     protected function makeNextRelease(): void
