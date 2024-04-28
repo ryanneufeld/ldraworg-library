@@ -23,7 +23,7 @@ class LibraryConfig
             ['type' => '8_Primitive', 'name' => '8 Segment Primitive', 'folder' => 'p/8/', 'format' => 'dat'],
             ['type' => '48_Primitive', 'name' => '48 Segment Primitive', 'folder' => 'p/48/', 'format' => 'dat'],
             ['type' => 'Shortcut', 'name' => 'Shortcut', 'folder' => 'parts/', 'format' => 'dat'],
-            ['type' => 'Helper', 'name' => 'Helper', 'folder' => 'parts/h/', 'format' => 'dat'],
+            ['type' => 'Helper', 'name' => 'Helper', 'folder' => 'parts/helpers/', 'format' => 'dat'],
             ['type' => 'Part_Texmap', 'name' => 'TEXMAP Image', 'folder' => 'parts/textures/', 'format' => 'png'],
             ['type' => 'Subpart_Texmap', 'name' => 'Subpart TEXMAP Image', 'folder' => 'parts/textures/s/', 'format' => 'png'],
             ['type' => 'Primitive_Texmap', 'name' => 'Primitive TEXMAP Image', 'folder' => 'p/textures/', 'format' => 'png'],

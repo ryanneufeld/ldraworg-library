@@ -10,6 +10,7 @@ use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use App\Models\Part;
 use App\Models\PartRelease;
+use App\Models\PartType;
 use App\Models\VoteType;
 use Spatie\Permission\Models\Role;
 use Illuminate\Console\Command;
@@ -42,9 +43,8 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        Permission::create(['name' => 'part.vote.certify.all']);
-        Permission::create(['name' => 'part.vote.admincertify.all']);
-        $role = Role::create(['name' => 'Senior Reviewer']);
-        $role->givePermissionTo('part.vote.certify.all');       
+        $h = PartType::firstWhere('type', 'Helper');
+        $h->folder = 'parts/helpers/';
+        $h->save();
     }
 }
