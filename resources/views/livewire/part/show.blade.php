@@ -30,6 +30,9 @@
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
             @endif
+            @if ($this->patternPartAction->isVisible())
+                {{ $this->patternPartAction }}
+            @endif
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
             @endif
@@ -150,6 +153,9 @@
             {{ $this->downloadAction }}
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
+            @endif
+            @if ($this->patternPartAction->isVisible())
+                {{ $this->patternPartAction }}
             @endif
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}

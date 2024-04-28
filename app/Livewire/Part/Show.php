@@ -130,6 +130,16 @@ class Show extends Component implements HasForms, HasActions
         );
     }
 
+    public function patternPartAction(): Action
+    {
+        return $this->menuAction(
+            Action::make('patternPart')
+                ->url(fn() => route('search.suffix', ['basepart' => $this->part->basepart()]))
+                ->visible($this->part->hasComposites() || $this->part->hasPatterns() || $this->part->hasStickerShortcuts())
+                ->label('View patterns/composites/shortcuts')
+        );
+    }
+
     public function deleteAction(): DeleteAction
     {
         return $this->menuAction(

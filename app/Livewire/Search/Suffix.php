@@ -7,8 +7,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class Suffix extends Component implements HasForms
@@ -16,6 +16,8 @@ class Suffix extends Component implements HasForms
     use InteractsWithForms;
 
     public string $activeTab = 'patterns';
+
+    #[Url]
     public string $basepart = '';
     public ?array $data = [];
 
