@@ -26,6 +26,7 @@ use App\Livewire\Search\Parts;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
 use App\Livewire\User\Manage;
+use App\Models\ReviewSummary;
 
 Route::view('/', 'index')->name('index');
 
@@ -77,8 +78,8 @@ Route::prefix('omr')->name('omr.')->group(function () {
 Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', Admin::class)->name('index');
     Route::get('/users', Manage::class)->name('users.index');
-    Route::middleware(['can:viewAny,reviewsummary'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
-    Route::middleware(['can:viewAny,role'])->get('/roles', RoleManage::class)->name('roles.index');
+    Route::middleware(['can:viewAny,App\Models\ReviewSummary'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
+    Route::middleware(['can:viewAny,App\Models\Role'])->get('/roles', RoleManage::class)->name('roles.index');
 });
 
 
