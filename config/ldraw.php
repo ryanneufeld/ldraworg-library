@@ -14,8 +14,8 @@ return [
     'p/8',
     'p/textures/48',
     'p/textures/8',
-    'parts/h',
-    'parts/textures/h',
+    'parts/helpers',
+    'parts/textures/helpers',
   ],
 
   // The location for temporary staging of files

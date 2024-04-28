@@ -43,6 +43,21 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        // Nothing
+        $dirs = config('ldraw.dirs');
+
+        foreach ($dirs as $dir) {
+            if (!Storage::disk('library')->exists("official/{$dir}")) {
+                !Storage::disk('library')->makeDirectory("official/{$dir}");
+            }
+            if (!Storage::disk('library')->exists("unofficial/{$dir}")) {
+                !Storage::disk('library')->makeDirectory("unofficial/{$dir}");
+            }
+            if (!Storage::disk('images')->exists("library/official/{$dir}")) {
+                !Storage::disk('images')->makeDirectory("library/official/{$dir}");
+            }
+            if (!Storage::disk('images')->exists("library/unofficial/{$dir}")) {
+                !Storage::disk('images')->makeDirectory("library/unofficial/{$dir}");
+            }
+        }
     }
 }
