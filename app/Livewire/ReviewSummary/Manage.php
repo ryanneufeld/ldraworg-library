@@ -66,6 +66,12 @@ class Manage extends Component implements HasForms, HasTable
 
     protected function saveEditData(ReviewSummary $summary, array $data)
     {
+        if(is_null($summary->id)) {
+            $summary->header = $data['header'];
+            $summary->order = ReviewSummary::orderBy('order', 'desc')->first()->order + 1;
+            $summary->save();
+        }
+        $summary->header = $data['header'];      
         if(isset($data['manualEntry'])) {
             $summary->items()->delete();
             $lines = explode("\n", $data['manualEntry']);
@@ -95,9 +101,6 @@ class Manage extends Component implements HasForms, HasTable
             }
             $summary->refresh();
         }
-        if(isset($data['header'])) {
-            $summary->header = $data['header'];
-        }        
         return $summary;
     }
 
