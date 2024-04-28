@@ -72,15 +72,16 @@ class Manage extends Component implements HasForms, HasTable
             $summary->save();
         }
         $summary->header = $data['header'];      
+        $summary->save();
         if(isset($data['manualEntry'])) {
             $summary->items()->delete();
             $lines = explode("\n", $data['manualEntry']);
+            $order = 1;
             foreach($lines as $line) {
                 $line = trim($line);
                 if (empty($line)) {
                     continue;
                 }
-                $order = $summary->items()->orderBy('order', 'DESC')->first()->order ?? 0;
                 if ($line[0] == '/') {
                     $heading = explode(" ", $line, 2)[1] ?? '';
                     ReviewSummaryItem::create([
@@ -98,6 +99,7 @@ class Manage extends Component implements HasForms, HasTable
                         ]);            
                     }
                 }
+                $order++;
             }
             $summary->refresh();
         }
