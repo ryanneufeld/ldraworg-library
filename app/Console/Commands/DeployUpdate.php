@@ -43,8 +43,6 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $h = PartType::firstWhere('type', 'Helper');
-        $h->folder = 'parts/helpers/';
-        $h->save();
+        // Nothing
     }
 }

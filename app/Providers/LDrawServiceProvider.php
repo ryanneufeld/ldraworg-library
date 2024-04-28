@@ -69,10 +69,10 @@ class LDrawServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Collection::macro('unofficial', function () {
+        Collection::macro('unofficial', function (): Collection {
             return $this->whereNull('part_release_id');
         });
-        Collection::macro('official', function () {
+        Collection::macro('official', function (): Collection {
             return $this->whereNotNull('part_release_id');
         });    
     }

@@ -28,6 +28,7 @@
         </x-filament::tabs.item>
     </x-filament::tabs>
     <x-filament::loading-indicator wire:loading class="h-5 w-5" />
+    <div wire:loading class="p-2">Loading Table...</div>
     @switch($activeTab)
         @case('user-parts')
             <livewire:tables.user-parts-table />
