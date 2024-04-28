@@ -3,9 +3,13 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Part;
+use App\Models\User;
 use App\Tables\Filters\AuthorFilter;
 use App\Tables\Part\PartTable;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Get;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,13 +40,42 @@ class PartReadyForUserTable extends BasicTable
                     )
                     // Not authored by user unless a fix
                     ->where(function (Builder $q) {
-                        $q->orWhereHas('official_part')
+                        $q->orHas('official_part')
                         ->orWhere(fn (Builder $qu) =>
-                            $qu->whereDoesntHave('official_part')->where('user_id', '<>', Auth::user()->id)
+                            $qu->doesntHave('official_part')->where('user_id', '<>', Auth::user()->id)
                         );
                     });
                 }, '>=', 1)
             )
+
+            ->filters([
+                Filter::make('exclude_author')
+                    ->form([
+                        Select::make('author')
+                            ->relationship(
+                                name: 'user', 
+                                titleAttribute: 'name'
+                            )
+                            ->getOptionLabelFromRecordUsing(fn (User $u) => $u->authorString)
+                            ->native(false)
+                            ->searchable()
+                            ->preload()
+                            ->label('Author'),
+                        Toggle::make('exclude')
+                            ->label('Exclude')
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when(
+                                $data['author'] && $data['exclude'],
+                                fn (Builder $q) => $q->where('user_id', '<>', $data['author']),
+                            )
+                            ->when(
+                                $data['author'] && !$data['exclude'],
+                                fn (Builder $q) => $q->where('user_id', $data['author']),
+                            );
+                    })
+            ])
             ->defaultSort('created_at', 'asc')
             ->heading('Parts Ready For Your Vote')
             ->description('This table show parts where the part and/or the parts in the subfile chain can recieve a vote from you')
@@ -51,5 +84,4 @@ class PartReadyForUserTable extends BasicTable
             ->queryStringIdentifier('readyForUser')
             ->persistFiltersInSession();;
     }
-
 }

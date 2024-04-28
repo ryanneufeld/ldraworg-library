@@ -24,6 +24,7 @@ use App\Livewire\Search\Parts;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
 use App\Livewire\User\Manage;
+use App\Livewire\UserDashboard;
 
 Route::view('/', 'index')->name('index');
 
@@ -81,7 +82,7 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
 
 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
-    Route::view('/', 'tracker.user-dashboard')->name('index');
+    Route::get('/', UserDashboard::class)->name('index');
 });
 
 
