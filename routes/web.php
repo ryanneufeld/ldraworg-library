@@ -10,6 +10,8 @@ use App\Http\Controllers\Part\PartDownloadZipController;
 use App\Http\Controllers\Part\PartWebGLController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
+use App\Livewire\Dashboard\Admin;
+use App\Livewire\Dashboard\User;
 use App\Livewire\Omr\Set\Index;
 use App\Livewire\Part\Index as PartIndex;
 use App\Livewire\Part\Show;
@@ -24,7 +26,6 @@ use App\Livewire\Search\Parts;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
 use App\Livewire\User\Manage;
-use App\Livewire\UserDashboard;
 
 Route::view('/', 'index')->name('index');
 
@@ -74,7 +75,7 @@ Route::prefix('omr')->name('omr.')->group(function () {
 
 
 Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('/', 'admin.index')->name('index');
+    Route::get('/', Admin::class)->name('index');
     Route::get('/users', Manage::class)->name('users.index');
     Route::middleware(['can:viewAny,reviewsummary'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
     Route::middleware(['can:viewAny,role'])->get('/roles', RoleManage::class)->name('roles.index');
@@ -82,7 +83,7 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
 
 
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
-    Route::get('/', UserDashboard::class)->name('index');
+    Route::get('/', User::class)->name('index');
 });
 
 
