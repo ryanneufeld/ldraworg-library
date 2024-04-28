@@ -39,7 +39,7 @@ class PartChecker
         }
         if ($part->isUnofficial()) {  
             $hascertparents = !is_null($part->official_part) || 
-                $part->type->folder == 'parts/' || 
+                $part->type->folder == 'parts/' || $part->type->folder == 'parts/helpers' ||
                 $this->hasCertifiedParentInParts($part);
             if (!$hascertparents) {
                 $errors[] = 'No certified parents in the parts directory';
