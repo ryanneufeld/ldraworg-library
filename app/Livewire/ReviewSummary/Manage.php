@@ -6,6 +6,7 @@ use App\Models\Part;
 use App\Models\ReviewSummary;
 use App\Models\ReviewSummaryItem;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\CreateAction;
@@ -53,6 +54,9 @@ class Manage extends Component implements HasForms, HasTable
     protected function formSchema(): array
     {
         return [
+            TextInput::make('header')
+                ->required()
+                ->string(),
             Textarea::make('manualEntry')
                 ->rows(30)
                 ->string()
@@ -90,6 +94,9 @@ class Manage extends Component implements HasForms, HasTable
                 }
             }
             $summary->refresh();
+        }
+        if(isset($data['header'])) {
+            $summary->header = $data['header'];
         }        
         return $summary;
     }

@@ -1,6 +1,6 @@
 <x-slot name="title">User Dashboard</x-slot>
 <x-slot:menu>
-    <x-menu.library />
+    <x-menu.admin />
 </x-slot>
 <x-slot:breadcrumbs>
     <x-breadcrumb-item class="active" item="User Dashboard" />
