@@ -3,6 +3,7 @@
 namespace App\Livewire\Search;
 
 use App\Models\Part;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -18,8 +19,8 @@ class StickerSummary extends Component implements HasForms
     use InteractsWithForms;
 
     #[Url]
-    public ?string $search = '';
-    
+    public ?string $sheet = null;
+
     public ?Collection $parts = null;
 
     public function mount(): void
@@ -31,11 +32,26 @@ class StickerSummary extends Component implements HasForms
     {
         return $form
             ->schema([
-                TextInput::make('search')
-                    ->label('Sticker Number')
+                Select::make('sheet')
+                    ->options($this->getStickerSheets())
                     ->required()
-                    ->string(),
             ]);
+    }
+
+    protected function getStickerSheets(): array
+    {
+        $sheets = [];
+        Part::whereRelation('category', 'category', 'Sticker')
+            ->whereRelation('type', 'type', 'Part')
+            ->where('filename', 'NOT LIKE', 's%')
+            ->each(function (Part $p) use (&$sheets) {
+                preg_match('#parts\/([0-9]+)[a-z]+\.dat#iu', $p->filename, $m);
+                if ($m  && !in_array($m[1], $sheets)) {
+                    $sheets[$m[1]] = $m[1];
+                }
+            });
+        ksort($sheets);
+        return $sheets;
     }
 
     public function doSearch()
@@ -43,9 +59,9 @@ class StickerSummary extends Component implements HasForms
         $this->form->getState();
         $this->parts = Part::where(fn (Builder $q) =>
             $q->orWhere(fn (Builder $qu) =>
-                $qu->where('filename', 'LIKE', "parts/{$this->search}%.dat")->whereRelation('category', 'category', 'Sticker')
+                $qu->where('filename', 'LIKE', "parts/{$this->sheet}%.dat")->whereRelation('category', 'category', 'Sticker')
             )->orWhereHas('subparts', fn (Builder $qu) =>
-                $qu->where('filename', 'LIKE', "parts/{$this->search}%.dat")->whereRelation('category', 'category', 'Sticker')
+                $qu->where('filename', 'LIKE', "parts/{$this->sheet}%.dat")->whereRelation('category', 'category', 'Sticker')
             )
         )->whereRelation('type', 'folder', 'parts/')->orderBy('filename', 'asc')->get();    
     }
