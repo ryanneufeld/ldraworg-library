@@ -140,6 +140,16 @@ class Show extends Component implements HasForms, HasActions
         );
     }
 
+    public function stickerSearchAction(): Action
+    {
+        return $this->menuAction(
+            Action::make('stickerSearch')
+                ->url(fn() => route('search.sticker', ['search' => $this->part->basepart()]))
+                ->visible($this->part->category == 'Sticker')
+                ->label('View sticker sheet parts')
+        );
+    }
+
     public function deleteAction(): DeleteAction
     {
         return $this->menuAction(
@@ -171,7 +181,23 @@ class Show extends Component implements HasForms, HasActions
                 ->visible(Auth::user()?->can('update', $this->part) ?? false)
         );
     }
-    
+
+    public function recheckPartAction(): Action
+    {
+        return $this->menuAction(
+            Action::make('recheckPart')
+                ->action(function() {
+                    app(PartManager::class)->checkPart($this->part);
+                    $this->dispatch('subparts-updated');
+                    Notification::make()
+                        ->title('Part Error Checked')
+                        ->success()
+                        ->send();    
+                })
+                ->visible(Auth::user()?->can('update', $this->part) ?? false)
+        );
+    }
+
     public function updateSubpartsAction(): Action 
     {
         return $this->menuAction(

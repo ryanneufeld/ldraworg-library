@@ -43,6 +43,7 @@
     <x-menu.dropdown label="Tools">
         <x-menu.item label="Part Search" link="{{route('search.part')}}" />
         <x-menu.item label="Pattern/Shortcut Part Summary" link="{{route('search.suffix')}}" /> 
+        <x-menu.item label="Sticker Sheet Parts Search" link="{{route('search.sticker')}}" /> 
         @if(!empty($summaries))
             <x-menu.dropdown label="Review Summaries" level="1">
                 @foreach($summaries as $summary)

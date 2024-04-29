@@ -23,6 +23,7 @@ use App\Livewire\Release\Create;
 use App\Livewire\ReviewSummary\Manage as ReviewSummaryManage;
 use App\Livewire\Role\Manage as RoleManage;
 use App\Livewire\Search\Parts;
+use App\Livewire\Search\StickerSummary;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
 use App\Livewire\User\Manage;
@@ -94,6 +95,7 @@ Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view']
 Route::redirect('/search', '/search/part');
 Route::get('/search/part', Parts::class)->name('search.part');
 Route::get('/search/suffix', Suffix::class)->name('search.suffix');
+Route::get('/search/sticker', StickerSummary::class)->name('search.sticker');
 
 Route::prefix('official')->name('official.')->group(function () {
     Route::redirect('/search', '/search/part');

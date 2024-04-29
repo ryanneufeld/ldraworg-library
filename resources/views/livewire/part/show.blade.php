@@ -33,6 +33,9 @@
             @if ($this->patternPartAction->isVisible())
                 {{ $this->patternPartAction }}
             @endif
+            @if ($this->stickerSearchAction->isVisible())
+                {{ $this->stickerSearchAction }}
+            @endif
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
             @endif
@@ -47,6 +50,9 @@
             @endif
             @if ($this->updateImageAction->isVisible())
                 {{ $this->updateImageAction }}
+            @endif
+            @if ($this->recheckPartAction->isVisible())
+                {{ $this->recheckPartAction }}
             @endif
             @if ($this->updateSubpartsAction->isVisible())
                 {{ $this->updateSubpartsAction }}
@@ -157,6 +163,9 @@
             @if ($this->patternPartAction->isVisible())
                 {{ $this->patternPartAction }}
             @endif
+            @if ($this->stickerSearchAction->isVisible())
+                {{ $this->stickerSearchAction }}
+            @endif
             @if ($this->adminCertifyAllAction->isVisible())
                 {{ $this->adminCertifyAllAction }}
             @endif
@@ -171,6 +180,9 @@
             @endif
             @if ($this->updateImageAction->isVisible())
                 {{ $this->updateImageAction }}
+            @endif
+            @if ($this->recheckPartAction->isVisible())
+                {{ $this->recheckPartAction }}
             @endif
             @if ($this->updateSubpartsAction->isVisible())
                 {{ $this->updateSubpartsAction }}
