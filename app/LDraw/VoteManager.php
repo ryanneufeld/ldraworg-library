@@ -72,7 +72,11 @@ class VoteManager
             $user->cannot('allAdmin', Vote::class)) {
             return;
         }
-        $part->descendantsAndSelf->unofficial()->where('vote_sort', 2)->each(fn (Part $p) => $this->postVote($p, $user, 'A'));
+        $parts = $part->descendantsAndSelf->unofficial()->where('vote_sort', 2);
+        $parts->each(fn (Part $p) => $this->postVote($p, $user, 'A'));
+        // Have to recheck parts since sometime, based on processing order, subfiles status is missed
+        $parts->each(fn (Part $p) => app(PartManager::class)->checkPart($p));
+
     }
 
     public function certifyAll(Part $part, User $user): void
