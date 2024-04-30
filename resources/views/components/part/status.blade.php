@@ -1,6 +1,6 @@
 @props(['part', 'showStatus' => false])
 <div>
-    @if ($part->descendantsAndSelf->where('vote_sort', 3)->where('can_release', false)->count() > 0)
+    @if ($part->descendantsAndSelf->where('vote_sort', '>', 2)->where('can_release', false)->count() > 0)
         <x-fas-exclamation-triangle title="Not releaseable" class="inline w-5 text-yellow-800" />
     @endif
     <x-fas-square @class([
