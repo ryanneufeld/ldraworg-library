@@ -46,39 +46,6 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $rb = app(Rebrickable::class);
-
-        $sheets = [];
-        Part::whereRelation('category', 'category', 'Sticker')
-            ->whereRelation('type', 'type', 'Part')
-            ->where('filename', 'NOT LIKE', 's%')
-            ->each(function (Part $p) use (&$sheets) {
-                preg_match('#parts\/([0-9]+)[a-z]+\.dat#iu', $p->filename, $m);
-                if ($m  && !in_array($m[1], $sheets)) {
-                    $sheets[$m[1]] = $m[1];
-                }
-            });
-        foreach($sheets as $sheet) {
-            $part = $rb->getPartBySearch($sheet);
-            if (is_null($part)) {
-                $part = $rb->getPart($sheet);
-            }
-            $sticker_sheet = StickerSheet::create([
-                'number' => $sheet,
-                'rebrickable_part_id' => null
-            ]);
-            if (!is_null($part)) {
-                $rb_part = RebrickablePart::create([
-                    'part_num' => $part['rb_part_number'],
-                    'name' => $part['rb_part_name'],
-                    'part_url' => $part['rb_part_url'],
-                    'part_img_url' => $part['rb_part_img_url'],
-                    'part_id' => null
-                ]);
-                $sticker_sheet->rebrickable_part()->associate($rb_part);
-            }
-            $sticker_sheet->save();
-            $this->info($sticker_sheet->number . ' = ' . ($sticker_sheet->rebrickable_part->name ?? 'None'));
-        }
+      // Nothing
     }
 }
