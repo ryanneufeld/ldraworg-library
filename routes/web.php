@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\Omr\SetController;
+use App\Http\Controllers\Part\LastDayDownloadZipController;
 use App\Http\Controllers\Part\LatestPartsController;
 use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
@@ -39,6 +40,7 @@ Route::middleware(['throttle:file'])->group(function () {
     Route::redirect('/ptreleases', '/ptreleases/tab');
     Route::get('/ldbi/part/{part}', PartWebGLController::class)->name('part.ldbi');    
     Route::get('/tracker/latest-parts', LatestPartsController::class)->name('part.latest');
+    Route::get('/tracker/ldrawunf-last-day.zip', LastDayDownloadZipController::class)->name('tracker.last-day');
 });
 
 Route::get('/pbg', PbgGenerator::class)->name('pbg');

@@ -52,6 +52,7 @@
             </x-menu.dropdown>
         @endif
         <x-menu.item label="Download All Unofficial Files" link="{{asset('library/unofficial/ldrawunf.zip')}}" />
+        <x-menu.item label="Download Last 24 Hours of Submits" link="{{route('tracker.last-day')}}" />
         <x-menu.item label="Parts in Next Update" link="{{route('tracker.next-release')}}" />
         <x-menu.item label="Parts Tracker History" link="{{route('tracker.history')}}" />
     </x-menu.dropdown>
