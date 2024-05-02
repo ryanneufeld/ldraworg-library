@@ -3,6 +3,7 @@
 namespace App\Livewire\Search;
 
 use App\Models\Part;
+use App\Models\StickerSheet;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -18,7 +19,6 @@ class StickerSummary extends Component implements HasForms
 {
     use InteractsWithForms;
 
-    #[Url]
     public ?string $sheet = null;
 
     public ?Collection $parts = null;
@@ -33,26 +33,14 @@ class StickerSummary extends Component implements HasForms
         return $form
             ->schema([
                 Select::make('sheet')
-                    ->options($this->getStickerSheets())
+                    ->options(fn(): array =>
+                        StickerSheet::all()->mapWithKeys(fn (StickerSheet $s, int $key) =>
+                            [$s->number => $s->rebrickable_part->name ?? "Sticker Sheet {$s->number}"]
+                        )->all()
+                    )
                     ->searchable()
                     ->required()
             ]);
-    }
-
-    protected function getStickerSheets(): array
-    {
-        $sheets = [];
-        Part::whereRelation('category', 'category', 'Sticker')
-            ->whereRelation('type', 'type', 'Part')
-            ->where('filename', 'NOT LIKE', 's%')
-            ->each(function (Part $p) use (&$sheets) {
-                preg_match('#parts\/([0-9]+)[a-z]+\.dat#iu', $p->filename, $m);
-                if ($m  && !in_array($m[1], $sheets)) {
-                    $sheets[$m[1]] = $m[1];
-                }
-            });
-        ksort($sheets);
-        return $sheets;
     }
 
     public function doSearch()
