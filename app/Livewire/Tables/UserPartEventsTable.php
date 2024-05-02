@@ -81,6 +81,9 @@ class UserPartEventsTable extends BasicTable
                 fn (PartEvent $e): string => 
                     !is_null($e->part) ? route($e->part->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $e->part]) : ''
             )
+            ->striped()
+            ->paginated([10, 25, 50, 100])
+            ->defaultPaginationPageOption(25)
             ->queryStringIdentifier('userPartEvents');
     }
 

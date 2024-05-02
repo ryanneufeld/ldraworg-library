@@ -75,8 +75,8 @@ class PartTable
                     route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
             )
             ->striped()
-            ->paginated([50, 100, 250, 500])
-            ->defaultPaginationPageOption(50);
+            ->paginated([10, 25, 50, 100])
+            ->defaultPaginationPageOption(25);
     }
 
     public static function columns(): array

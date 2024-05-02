@@ -18,6 +18,9 @@ class PartReadyForAdminTable extends BasicTable
             ->heading('Parts Ready For Admin')
             ->columns(PartTable::columns())
             ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
+            ->striped()
+            ->paginated([10, 25, 50, 100])
+            ->defaultPaginationPageOption(25)
             ->queryStringIdentifier('readyForAdmin');
     }
 

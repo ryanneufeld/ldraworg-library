@@ -81,6 +81,9 @@ class PartReadyForUserTable extends BasicTable
             ->description('This table show parts where the part and/or the parts in the subfile chain can recieve a vote from you')
             ->columns(PartTable::columns())
             ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
+            ->striped()
+            ->paginated([10, 25, 50, 100])
+            ->defaultPaginationPageOption(25)
             ->queryStringIdentifier('readyForUser')
             ->persistFiltersInSession();;
     }
