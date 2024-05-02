@@ -7,6 +7,7 @@ use App\Models\Omr\Set;
 use App\Models\Part;
 use ArtisanSdk\RateLimiter\Buckets\Leaky;
 use ArtisanSdk\RateLimiter\Contracts\Bucket;
+use ArtisanSdk\RateLimiter\Limiter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 
 class AppServiceProvider extends ServiceProvider
@@ -69,9 +72,6 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
-
-        // Bind the leaky bucket to the bucket interface;
-        $this->app->bind(Bucket::class, Leaky::class);
 
         // Allow Super Users full access
         Gate::before(function ($user, $ability) {
