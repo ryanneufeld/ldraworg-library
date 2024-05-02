@@ -2,27 +2,26 @@
 
 namespace App\LDraw;
 
-use ArtisanSdk\RateLimiter\Contracts\Bucket;
-use ArtisanSdk\RateLimiter\Limiter;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class Rebrickable
 {
-    protected Limiter $limiter;
-
+    protected int $limit = 1;
+    
     public function __construct(
         public readonly string $api_key,
         public readonly string $api_url
-    ) {
-        $this->limiter = app(Limiter::class, ['bucket' => app(Bucket::class, ['rebrickable', 2, 1])]);
-    }
+    ) {}
 
     protected function makeApiCall(string $url): ?array
     {
-        if ($this->limiter->exceeded()) {
-            sleep($this->limiter->backoff());
+        if (Cache::has('rebrickable_timeout')) {
+            time_sleep_until(Cache::get('rebrickable_timeout') + 1);
         }
+
+        Cache::put('rebrickable_timeout', now()->addSeconds($this->limit)->format('U'), now()->addSeconds($this->limit + 1));
 
         $response = Http::withHeaders([
             'Authorization' => "key {$this->api_key}",
@@ -30,9 +29,9 @@ class Rebrickable
         ->acceptJson()
         ->get($url);
         
-        $this->limiter->hit();
-
-        if (!$response->successful()) {
+        if($response->status() == 429) {
+            dd($response);
+        } elseif (!$response->successful()) {
             return null;
         }
 
@@ -79,15 +78,7 @@ class Rebrickable
         if (is_null($part)) {
             return null;
         }
-        $part = [
-            'rb_part_number' => $part['part_num'],
-            'rb_part_name' => $part['name'],
-            'rb_part_url' => $part['part_url'],
-            'ldraw_part_number' => $part['external_ids']['LDraw'][0] ?? null,
-            'bricklink_part_number' => $part['external_ids']['BrickLink'][0] ?? null,
-            'print_of' => $part['print_of'] ?? null,
-        ];
-        return $part;
+        return $this->makePartArray($part);
     }  
 
     public function getParts(array $partnumbers): ?Collection 
@@ -99,16 +90,30 @@ class Rebrickable
         }
         $parts = collect($parts);
         $parts = $parts->map(fn (array $part, int $key) =>
-            [
-                'rb_part_number' => $part['part_num'],
-                'rb_part_name' => $part['name'],
-                'rb_part_url' => $part['part_url'],
-                'ldraw_part_number' => $part['external_ids']['LDraw'][0] ?? null,
-                'bricklink_part_number' => $part['external_ids']['BrickLink'][0] ?? null,
-                'print_of' => $part['print_of'] ?? null,
-            ]
+            $this->makePartArray($part)
         );
         return $parts;
     }
-    
+
+    public function getPartBySearch(string $search): ?array 
+    {
+        $part = $this->makeApiCall("{$this->api_url}/parts/?search={$search}");
+        if (is_null($part) || count($part) !== 1) {
+            return null;
+        }
+        return $this->makePartArray($part[0]);
+    }
+
+    protected function makePartArray(array $api_part): array
+    {
+        return [
+            'rb_part_number' => $api_part['part_num'],
+            'rb_part_name' => $api_part['name'],
+            'rb_part_url' => $api_part['part_url'],
+            'rb_part_img_url' => $api_part['part_img_url'],
+            'ldraw_part_number' => $api_part['external_ids']['LDraw'][0] ?? null,
+            'bricklink_part_number' => $api_part['external_ids']['BrickLink'][0] ?? null,
+            'print_of' => $api_part['print_of'] ?? null,
+        ];
+    }
 }

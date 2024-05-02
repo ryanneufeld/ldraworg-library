@@ -34,6 +34,7 @@ class StickerSummary extends Component implements HasForms
             ->schema([
                 Select::make('sheet')
                     ->options($this->getStickerSheets())
+                    ->searchable()
                     ->required()
             ]);
     }

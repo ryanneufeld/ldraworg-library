@@ -9,6 +9,8 @@ use App\Models\Part;
 use App\Models\PartCategory;
 use App\Models\PartType;
 use App\Models\PartTypeQualifier;
+use App\Models\Rebrickable\RebrickablePart;
+use App\Models\StickerSheet;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -176,6 +178,9 @@ class PartManager
         };
         $this->updatePartImage($part);
         $this->checkPart($part);
+        if ($part->category == "Sticker" && $part->type->folder == "parts/") {
+            $this->addStickerSheet($part->name());
+        }
         UpdateParentParts::dispatch($part);        
     }
     
@@ -279,12 +284,12 @@ class PartManager
         return true;
     }
 
-    function loadSubpartsFromBody(Part $part): void
+    public function loadSubpartsFromBody(Part $part): void
     {
         $part->setSubparts($this->parser->getSubparts($part->body->body) ?? []);
     }
 
-    function checkPart(Part $part): void
+    public function checkPart(Part $part): void
     {
         if (!$part->isUnofficial()) {
             $part->can_release == true;
@@ -301,5 +306,33 @@ class PartManager
         $part->can_release = $check['can_release'];
         $part->part_check_messages = ['errors' => $check['errors'], 'warnings' => $warnings];
         $part->save();
+    }
+
+    public function addStickerSheet(string $partName) {
+        preg_match('#^([0-9]+)[a-z]+\.dat$#iu', $partName, $m);
+        if ($m) {
+            $sheet = StickerSheet::firstWhere('number', $m[1]);
+            if (is_null($sheet)) {
+                $part = app(Rebrickable::class)->getPartBySearch($sheet);
+                if (is_null($part)) {
+                    $part = app(Rebrickable::class)->getPart($sheet);
+                }
+                $sticker_sheet = StickerSheet::create([
+                    'number' => $sheet,
+                    'rebrickable_part_id' => null
+                ]);
+                if (!is_null($part)) {
+                    $rb_part = RebrickablePart::create([
+                        'part_num' => $part['rb_part_number'],
+                        'name' => $part['rb_part_name'],
+                        'part_url' => $part['rb_part_url'],
+                        'part_img_url' => $part['rb_part_img_url'],
+                        'part_id' => null
+                    ]);
+                    $sticker_sheet->rebrickable_part()->associate($rb_part);
+                }
+                $sticker_sheet->save();    
+            }
+        }
     }
 }
