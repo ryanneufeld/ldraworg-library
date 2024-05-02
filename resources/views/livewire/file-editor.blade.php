@@ -21,7 +21,7 @@
             Save
         </x-filament::button>
     </form>
-    <div class="relative w-100 h-[90vh]">
+    <div class="relative w-100 h-[40vh]">
         <div id="editor" wire:ignore class="absolute top-0 bottom-0 left-0 right-0"></div>
     </div>
 </div>
