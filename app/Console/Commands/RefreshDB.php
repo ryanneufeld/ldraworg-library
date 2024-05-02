@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
+use stdClass;
 
 class RefreshDB extends Command
 {
@@ -31,6 +32,7 @@ class RefreshDB extends Command
         if (app()->environment('local') && Storage::disk('local')->exists('db/lib.sql')) {
             $this->info('Copying production db backup');
             $this->call('migrate:fresh');
+            $migrations = DB::table('migrations')->get();
             DB::table('migrations')->truncate();
             $db = config('database.connections.mysql.database');
             $db_user = config('database.connections.mysql.username');
@@ -38,7 +40,9 @@ class RefreshDB extends Command
             $backup = Storage::disk('local')->path('db/lib.sql');
             $result = Process::run("mysql --user={$db_user} --password={$db_pw} --database={$db} < {$backup}");
             $this->info($result->output());
-            $this->call('migrate');
+            $migrations->each( fn(stdClass $m) => 
+                DB::table('migrations')->upsert(['id' => $m->id, 'migration' => $m->migration, 'batch' => $m->batch], ['id'], ['migration'])
+            );
             $this->info('Running update');
             $this->call('lib:update');
         } else {
