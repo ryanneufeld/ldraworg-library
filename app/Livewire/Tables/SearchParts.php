@@ -58,9 +58,6 @@ class SearchParts extends BasicTable
         ->emptyState(view('tables.empty', ['none' => 'None']))
         ->columns(PartTable::columns())
         ->actions(PartTable::actions())
-        ->striped()
-        ->paginated([10, 25, 50, 100])
-        ->defaultPaginationPageOption(25)
         ->recordUrl(
             fn (Part $p): string => 
                 route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])

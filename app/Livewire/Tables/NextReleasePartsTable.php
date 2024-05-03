@@ -21,10 +21,7 @@ class NextReleasePartsTable extends BasicTable
             ->emptyState(view('tables.empty', ['none' => 'None']))
             ->columns(PartTable::columns())
             ->actions(PartTable::actions())
-            ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
-            ->striped()
-            ->paginated([10, 25, 50, 100])
-            ->defaultPaginationPageOption(25);
+            ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]));
     }
 
 }

@@ -54,9 +54,6 @@ class UserPartsTable extends BasicTable
                         blank: fn (Builder $q) => $q,
                     ),
             ])
-            ->striped()
-            ->paginated([10, 25, 50, 100])
-            ->defaultPaginationPageOption(25)
             ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
             ->queryStringIdentifier('userParts');
     }

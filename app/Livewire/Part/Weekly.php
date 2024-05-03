@@ -36,10 +36,7 @@ class Weekly extends Component implements HasForms, HasTable
             ->recordUrl(
                 fn (Part $p): string => 
                     route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
-            )
-            ->striped()
-            ->paginated([10, 25, 50, 100])
-            ->defaultPaginationPageOption(25);
+            );
     }
 
     #[Layout('components.layout.tracker')]

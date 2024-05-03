@@ -7,6 +7,7 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 
 class FilamentServiceProvider extends ServiceProvider
 {
@@ -39,6 +40,13 @@ class FilamentServiceProvider extends ServiceProvider
             $selectfilter
                 ->optionsLimit(1000)
                 ->native(false);
+        });
+
+        Table::configureUsing(function (Table $table): void {
+            $table
+                ->striped()
+                ->paginated([10, 25, 50, 100])
+                ->defaultPaginationPageOption(25);
         });
     }
 }
