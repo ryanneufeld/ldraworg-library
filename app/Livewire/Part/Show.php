@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Part;
 
-use App\Filament\Actions\Part\EditHeaderAction;
-use App\Filament\Actions\Part\EditNumberAction;
+use App\Filament\Part\Actions\EditHeaderAction;
+use App\Filament\Part\Actions\EditNumberAction;
 use App\LDraw\PartManager;
 use App\LDraw\VoteManager;
 use App\Models\Part;
