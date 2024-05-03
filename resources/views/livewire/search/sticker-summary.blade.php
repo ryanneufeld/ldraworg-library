@@ -8,12 +8,8 @@
     <div class="text-3xl font-bold">
         <span>Sticker Sheet Part Search</span>
     </div>  
-    <form class="p-2" wire:submit="doSearch">
+    <form class="p-2" wire:change="doSearch">
         {{ $this->form }}
-
-        <x-filament::button type="submit">
-            Submit
-        </x-filament::button>
     </form>
     <div @class(["rounded border p-2"])>
         @if (!is_null($parts))

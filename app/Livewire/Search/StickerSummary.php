@@ -34,12 +34,16 @@ class StickerSummary extends Component implements HasForms
             ->schema([
                 Select::make('sheet')
                     ->options(fn(): array =>
-                        StickerSheet::all()->mapWithKeys(fn (StickerSheet $s, int $key) =>
-                            [$s->number => $s->rebrickable_part->name ?? "Sticker Sheet {$s->number}"]
-                        )->all()
+                        StickerSheet::all()->mapWithKeys(function (StickerSheet $s, int $key) {
+                            if (is_null($s->rebrickable_part)) {
+                                return [$s->number => "Sticker Sheet {$s->number}"];
+                            }
+                            return [$s->number => "{$s->rebrickable_part->name} ({$s->number})"];
+                        })->all()
                     )
                     ->searchable()
                     ->required()
+                    ->live()
             ]);
     }
 
