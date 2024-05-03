@@ -44,6 +44,7 @@ class FilamentServiceProvider extends ServiceProvider
 
         Table::configureUsing(function (Table $table): void {
             $table
+                ->emptyState(view('tables.empty', ['none' => 'None']))
                 ->striped()
                 ->paginated([10, 25, 50, 100])
                 ->defaultPaginationPageOption(25);

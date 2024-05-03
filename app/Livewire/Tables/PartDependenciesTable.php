@@ -3,7 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Part;
-use App\Tables\Part\PartTable;
+use App\Filament\Part\Tables\PartTable;
 use Filament\Tables\Table;
 use Livewire\Attributes\On;
 

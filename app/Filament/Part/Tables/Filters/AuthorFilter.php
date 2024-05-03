@@ -1,9 +1,8 @@
 <?php
-namespace App\Tables\Filters;
+namespace App\Filament\Part\Tables\Filters;
 
 use App\Models\User;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 
 class AuthorFilter
 {

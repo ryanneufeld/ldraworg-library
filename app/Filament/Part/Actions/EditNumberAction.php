@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Actions\Part;
+namespace App\Filament\Part\Actions;
 
 use App\Events\PartRenamed;
 use App\Events\PartSubmitted;

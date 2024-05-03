@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Tables\Part;
+namespace App\Filament\Part\Tables;
 
 use App\Models\Part;
-use App\Tables\Filters\AuthorFilter;
+use App\Filament\Part\Tables\Filters\AuthorFilter;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\Action;
@@ -30,7 +30,6 @@ class PartTable
                 )
             )
             ->defaultSort(fn (Builder $q) => $q->orderBy('vote_sort', 'asc')->orderBy('part_type_id', 'asc')->orderBy('description', 'asc'))
-            ->emptyState(view('tables.empty', ['none' => 'None']))
             ->columns(self::columns())
             ->filters([
                 SelectFilter::make('vote_sort')

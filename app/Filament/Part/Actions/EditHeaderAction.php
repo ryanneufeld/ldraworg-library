@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Actions\Part;
+namespace App\Filament\Part\Actions;
 
 use App\Events\PartHeaderEdited;
 use App\Jobs\UpdateZip;

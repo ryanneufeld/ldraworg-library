@@ -4,13 +4,10 @@ namespace App\Livewire\Tables;
 
 use App\Models\Part;
 use App\Models\User;
-use App\Tables\Filters\AuthorFilter;
-use App\Tables\Part\PartTable;
+use App\Filament\Part\Tables\PartTable;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Get;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;

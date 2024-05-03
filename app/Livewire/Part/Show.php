@@ -2,8 +2,6 @@
 
 namespace App\Livewire\Part;
 
-use App\Events\PartComment;
-use App\Events\PartReviewed;
 use App\Filament\Actions\Part\EditHeaderAction;
 use App\Filament\Actions\Part\EditNumberAction;
 use App\LDraw\PartManager;
