@@ -15,7 +15,9 @@ class LastDayDownloadZipController extends Controller
         $name = 'ldrawunf-last-day.zip';
         $zip->open($dir->path($name), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
         Part::whereHas('events', fn(Builder $q) =>
-                $q->where('created_at', '>=', now()->subDay())->whereRelation('part_event_type', 'slug', 'submit')
+                $q->where('created_at', '>=', now()->subDay())->whereHas('part_event_type', fn (Builder $qu) =>
+                    $qu->whereIn('slug', ['submit', 'rename', 'edit'])
+                )
             )
             ->each(fn (Part $part) =>
                 $zip->addFromString($part->filename, $part->get())
