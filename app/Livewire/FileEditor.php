@@ -54,6 +54,7 @@ class FileEditor extends Component implements HasForms
             ->schema([
                 Select::make('file')
                     ->options($this->fileList())
+                    ->searchable()
                     ->required(),
             ]);
     }
