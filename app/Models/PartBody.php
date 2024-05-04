@@ -14,7 +14,7 @@ class PartBody extends Model
 
     public $timestamps = false;
     
-    public function body(): BelongsTo 
+    public function part(): BelongsTo 
     {
         return $this->belongsTo(Part::class, 'part_id', 'id');
     }
