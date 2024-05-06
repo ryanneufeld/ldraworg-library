@@ -25,6 +25,8 @@ class PbgGenerator extends Component implements HasForms
     public array $errors = [];
     public bool $hasUnpatterned = false;
     public array $unpatterned = [];
+    public bool $hasMissing = false;
+    public array $missing = [];
 
     public function mount(): void
     {
@@ -56,6 +58,8 @@ class PbgGenerator extends Component implements HasForms
         $this->errors = $set_pbg->messages->get('errors');
         $this->hasUnpatterned = $set_pbg->messages->has('unpatterned');
         $this->unpatterned = $set_pbg->messages->get('unpatterned');
+        $this->hasMissing = $set_pbg->messages->has('missing');
+        $this->missing = $set_pbg->messages->get('missing');
     }
 
     public function pbgDownload()

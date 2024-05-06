@@ -3,7 +3,6 @@
 namespace App\LDraw;
 
 use App\LDraw\Rebrickable;
-use Illuminate\Support\Arr;
 use Illuminate\Support\MessageBag;
 
 class SetPbg
@@ -12,6 +11,7 @@ class SetPbg
     public array $parts = [];
     protected ?array $set = null;
     protected Rebrickable $rb;
+
     public function __construct(?string $set_number = null)
     {
         $this->rb = app(Rebrickable::class);
@@ -67,7 +67,7 @@ class SetPbg
         }
         
         foreach($rb_parts->whereNull('ldraw_part_number') as $part) {
-            $this->messages->add('missing', $part['rb_part_number']);
+            $this->messages->add('missing', "<a class=\"underline decoration-dotted hover:decoration-solid\" href=\"{$part['rb_part_url']}\">{$part['rb_part_number']} ({$part['rb_part_name']})</a>");
         }
         
         return $this->makePbg();
