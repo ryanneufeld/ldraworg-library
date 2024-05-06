@@ -46,17 +46,5 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        StickerSheet::all()->each(function (StickerSheet $sheet) {
-            Part::where('filename', 'LIKE', "parts/{$sheet->number}%.dat")
-                ->whereRelation('category', 'category', 'Sticker')
-                ->whereRelation('type', 'folder', 'parts/')
-                ->each(fn (Part $part) => 
-                    $part->ancestorsAndSelf()->update(['sticker_sheet_id' => $sheet->id])
-                );  
-        });
-
-        Part::unofficial()->whereJsonLength('missing_parts', '>', 0)->each(fn (Part $p) =>
-            app(PartManager::class)->loadSubpartsFromBody($p)
-        );
     }
 }
