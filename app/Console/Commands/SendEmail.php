@@ -22,7 +22,7 @@ class SendEmail extends Command
      *
      * @var string
      */
-    protected $description = 'Refresh app cache after code update';
+    protected $description = 'Send a test or digest email to a user';
 
     /**
      * Execute the console command.
@@ -32,10 +32,7 @@ class SendEmail extends Command
         $rn = $this->argument('user');
         $user = \App\Models\User::firstWhere('name', $rn);
         if ($this->option('daily')) {
-            $date = new \DateTime('yesterday');
-            $events = PartEvent::whereBetween('created_at', [$date, now()])
-                    ->whereIn('part_id', $user->notification_parts->pluck('id'))->oldest()->get();
-            Mail::to($user)->send(new DailyDigest($date, $events));
+            Mail::to($user)->send(new DailyDigest($user));
         } else {
             Mail::to($user)->send(new TestEmail(now(), 'This is a test message from the Parts Tracker'));
         }

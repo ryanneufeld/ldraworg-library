@@ -28,7 +28,6 @@ use App\Livewire\Search\StickerSummary;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
 use App\Livewire\User\Manage;
-use App\Models\ReviewSummary;
 
 Route::view('/', 'index')->name('index');
 
