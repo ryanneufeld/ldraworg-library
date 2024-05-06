@@ -19,13 +19,15 @@ class StickerSummary extends Component implements HasForms
 {
     use InteractsWithForms;
 
-    public ?string $sheet = null;
+    #[Url]
+    public ?string $sheet;
 
     public ?Collection $parts = null;
 
     public function mount(): void
     {
-        $this->form->fill();
+        $this->form->fill(['sheet' => $this->sheet]);
+        $this->doSearch();
     }
 
     public function form(Form $form): Form
@@ -50,13 +52,7 @@ class StickerSummary extends Component implements HasForms
     public function doSearch()
     {
         $this->form->getState();
-        $this->parts = Part::where(fn (Builder $q) =>
-            $q->orWhere(fn (Builder $qu) =>
-                $qu->where('filename', 'LIKE', "parts/{$this->sheet}%.dat")->whereRelation('category', 'category', 'Sticker')
-            )->orWhereHas('subparts', fn (Builder $qu) =>
-                $qu->where('filename', 'LIKE', "parts/{$this->sheet}%.dat")->whereRelation('category', 'category', 'Sticker')
-            )
-        )->whereRelation('type', 'folder', 'parts/')->orderBy('filename', 'asc')->get();    
+        $this->parts = StickerSheet::firstWhere('number', $this->sheet)->parts;    
     }
 
     #[Layout('components.layout.tracker')]

@@ -81,7 +81,7 @@ class PartTable
             Split::make([
                 ImageColumn::make('image')
                     ->state( 
-                        fn (Part $p): string => asset("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
+                        fn (Part $p): string => version("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
                     )
                     ->grow(false)
                     ->extraImgAttributes(['class' => 'object-scale-down w-[35px] max-h-[75px]']),

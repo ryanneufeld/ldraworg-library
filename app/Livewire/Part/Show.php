@@ -142,8 +142,8 @@ class Show extends Component implements HasForms, HasActions
     {
         return $this->menuAction(
             Action::make('stickerSearch')
-                ->url(fn() => route('search.sticker', ['search' => $this->part->basepart()]))
-                ->visible($this->part->category == 'Sticker')
+                ->url(fn() => route('search.sticker', ['sheet' => $this->part->sticker_sheet->number ?? '']))
+                ->visible(!is_null($this->part->sticker_sheet))
                 ->label('View sticker sheet parts')
         );
     }

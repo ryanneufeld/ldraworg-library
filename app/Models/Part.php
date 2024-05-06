@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use App\Models\Traits\HasPartRelease;
 use App\Models\Traits\HasLicense;
 use App\Models\Traits\HasUser;
+use App\Models\StickerSheet;
 use App\Observers\PartObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -137,6 +138,12 @@ class Part extends Model
     public function official_part(): HasOne
     {
         return $this->HasOne(Part::class, 'unofficial_part_id', 'id');
+    }
+
+    public function sticker_sheet(): BelongsTo
+    {
+        return $this->BelongsTo(StickerSheet::class, 'sticker_sheet_id', 'id');
+        
     }
 
     public function scopeName(Builder $query, string $name): void
@@ -452,7 +459,7 @@ class Part extends Model
                 $s = str_replace(['parts/', 'p/'], '', $s);
                 $esubs[] = str_replace('/', '\\', $s);
             }
-            $missing = collect(array_merge($subparts['subparts'] ?? [], $subparts['textures'] ?? []))->diff(collect($esubs));
+            $missing = collect(array_merge($subparts['subparts'] ?? [], $subparts['textures'] ?? []))->diff(collect($esubs))->values()->all();
             $this->missing_parts = $missing;
             $this->save();
         }

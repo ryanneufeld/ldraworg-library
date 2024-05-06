@@ -20,7 +20,6 @@ use Spatie\Image\Image;
 use Spatie\Image\Enums\Fit;
 use Spatie\ImageOptimizer\OptimizerChain;
 use Spatie\ImageOptimizer\Optimizers\Optipng;
-use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class PartManager
 {
@@ -178,9 +177,7 @@ class PartManager
         };
         $this->updatePartImage($part);
         $this->checkPart($part);
-        if ($part->category == "Sticker" && $part->type->folder == "parts/") {
-            $this->addStickerSheet($part->name());
-        }
+        $this->addStickerSheet($part);
         UpdateParentParts::dispatch($part);        
     }
     
@@ -286,7 +283,14 @@ class PartManager
 
     public function loadSubpartsFromBody(Part $part): void
     {
+        $hadMissing = is_array($part->missing_parts) && count($part->missing_parts) > 0;
         $part->setSubparts($this->parser->getSubparts($part->body->body) ?? []);
+        if ($hadMissing) {
+            $part->refresh();
+            $this->updatePartImage($part);
+            $this->checkPart($part);
+            $this->addStickerSheet($part);    
+        }
     }
 
     public function checkPart(Part $part): void
@@ -308,31 +312,45 @@ class PartManager
         $part->save();
     }
 
-    public function addStickerSheet(string $partName) {
-        preg_match('#^([0-9]+)[a-z]+\.dat$#iu', $partName, $m);
-        if ($m) {
-            $sheet = StickerSheet::firstWhere('number', $m[1]);
-            if (is_null($sheet)) {
-                $part = app(Rebrickable::class)->getPartBySearch($sheet);
-                if (is_null($part)) {
-                    $part = app(Rebrickable::class)->getPart($sheet);
-                }
-                $sticker_sheet = StickerSheet::create([
-                    'number' => $sheet,
-                    'rebrickable_part_id' => null
-                ]);
-                if (!is_null($part)) {
-                    $rb_part = RebrickablePart::create([
-                        'part_num' => $part['rb_part_number'],
-                        'name' => $part['rb_part_name'],
-                        'part_url' => $part['rb_part_url'],
-                        'part_img_url' => $part['rb_part_img_url'],
-                        'part_id' => null
-                    ]);
-                    $sticker_sheet->rebrickable_part()->associate($rb_part);
-                }
-                $sticker_sheet->save();    
-            }
+    public function addStickerSheet(Part $p) {
+        $p->refresh();
+        $sticker = $p->descendantsAndSelf->where('category.category', 'Sticker')->where('type.folder', 'parts/')->first();
+        if (is_null($sticker)) {
+            return;
         }
+        if (!is_null($sticker->sticker_sheet)) {
+            $p->ancestorsAndSelf()->update(['sticker_sheet_id' => $sticker->sticker_sheet->id]);
+        } else {
+            $m = preg_match('#^([0-9]+)[a-z]+\.dat$#iu', $sticker->name(), $s);
+            if ($m === 1) {
+                $sheet = StickerSheet::firstWhere('number', $s[1]);
+                if (is_null($sheet)) {
+                    $part = app(Rebrickable::class)->getPartBySearch($s[1]);
+                    if (is_null($part)) {
+                        $part = app(Rebrickable::class)->getPart($s[1]);
+                    }
+                    $sheet = StickerSheet::create([
+                        'number' => $s[1],
+                        'rebrickable_part_id' => null
+                    ]);
+                    if (!is_null($part)) {
+                        $rb_part = RebrickablePart::create([
+                            'part_num' => $part['rb_part_number'],
+                            'name' => $part['rb_part_name'],
+                            'part_url' => $part['rb_part_url'],
+                            'part_img_url' => $part['rb_part_img_url'],
+                            'part_id' => null
+                        ]);
+                        $sheet->rebrickable_part()->associate($rb_part);
+                    }
+                    $sheet->save();
+                }
+                $p->ancestorsAndSelf()->update(['sticker_sheet_id' => $sheet->id]);
+            } else {
+                $p->sticker_sheet_id = null;
+            }    
+        }
+        $p->save();
+        $p->refresh();
     }
 }
