@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -17,6 +18,8 @@ class DailyDigest extends Mailable
 {
     use Queueable, SerializesModels, MailerSendTrait;
 
+    protected $parts;
+
     /**
      * Create a new message instance.
      *
@@ -25,6 +28,10 @@ class DailyDigest extends Mailable
     public function __construct(
         protected User $user
     ) {
+        $this->parts = Part::unofficial()
+            ->whereHas('notification_users', fn (Builder $q) => $q->where('id', $this->user->id))
+            ->whereHas('events', fn (Builder $q) => $q->unofficial()->whereBetween('created_at', [Carbon::yesterday(), Carbon::today()]))
+            ->get();
     }
 
     /**
@@ -46,15 +53,11 @@ class DailyDigest extends Mailable
      */
     public function content()
     {
-        $parts = Part::unofficial()
-            ->whereHas('notification_users', fn (Builder $q) => $q->where('id', $this->user->id))
-            ->whereHas('events', fn (Builder $q) => $q->unofficial()->whereBetween('created_at', [Carbon::yesterday(), Carbon::today()]))
-            ->get();
-            $this->mailersend(template_id: null);
+        $this->mailersend(template_id: null);
         return new Content(
             markdown: 'emails.dailydigest-markdown',
             with: [
-                'parts' => $parts,
+                'parts' => $this->parts,
                 'date' => Carbon::yesterday(),
                 'next' => Carbon::today(),
             ]
