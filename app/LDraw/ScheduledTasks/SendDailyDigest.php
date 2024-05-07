@@ -5,9 +5,10 @@ namespace App\LDraw\ScheduledTasks;
 use Illuminate\Support\Facades\Mail;
 
 use App\Models\User;
-use App\Models\PartEvent;
 
 use App\Mail\DailyDigest;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 class SendDailyDigest {
     public function __construct(
@@ -15,16 +16,14 @@ class SendDailyDigest {
     ) {}
     
     public function __invoke(): void {
-        $next = date_add(clone $this->date, new \DateInterval('P1D'));
-        foreach (User::all() as $user) {
+        $users = User::whereHas('notification_parts', fn (Builder $q) =>
+            $q->whereHas('events', fn (Builder $qu) => $qu->unofficial()->whereBetween('created_at', [Carbon::yesterday(), Carbon::today()]))
+        );
+        foreach ($users as $user) {
             if ($user->is_legacy || $user->is_synthetic || $user->is_ptadmin) {
                 continue;
             } 
-            $events = PartEvent::whereBetween('created_at', [$this->date, $next])
-                ->whereIn('part_id', $user->notification_parts->pluck('id'))->oldest()->get();
-            if ($events->count() > 0) {
-                Mail::to($user)->send(new DailyDigest($this->date, $events));
-            }
+            Mail::to($user)->send(new DailyDigest($user));
         }
     }  
 }

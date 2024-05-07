@@ -17,7 +17,6 @@ class DailyDigest extends Mailable
 {
     use Queueable, SerializesModels, MailerSendTrait;
 
-    public Carbon $date;
     /**
      * Create a new message instance.
      *
@@ -26,7 +25,6 @@ class DailyDigest extends Mailable
     public function __construct(
         protected User $user
     ) {
-        $this->date = new Carbon('yesterday');
     }
 
     /**
@@ -37,7 +35,7 @@ class DailyDigest extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Parts Tracker Daily Summary for ' . date_format($this->date, 'Y-m-d'),
+            subject: 'Parts Tracker Daily Summary for ' . Carbon::yesterday()->format('Y-m-d'),
         );
     }
 
@@ -48,19 +46,17 @@ class DailyDigest extends Mailable
      */
     public function content()
     {
-        $next = new Carbon('yesterday');
-        $next->addDay();
         $parts = Part::unofficial()
             ->whereHas('notification_users', fn (Builder $q) => $q->where('id', $this->user->id))
-            ->whereHas('events', fn (Builder $q) => $q->unofficial()->whereBetween('created_at', [$this->date, $next]))
+            ->whereHas('events', fn (Builder $q) => $q->unofficial()->whereBetween('created_at', [Carbon::yesterday(), Carbon::today()]))
             ->get();
             $this->mailersend(template_id: null);
         return new Content(
             markdown: 'emails.dailydigest-markdown',
             with: [
                 'parts' => $parts,
-                'date' => $this->date,
-                'next' => $next,
+                'date' => Carbon::yesterday(),
+                'next' => Carbon::today(),
             ]
         );
     }
