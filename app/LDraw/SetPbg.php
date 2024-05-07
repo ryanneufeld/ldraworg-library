@@ -3,6 +3,7 @@
 namespace App\LDraw;
 
 use App\LDraw\Rebrickable;
+use App\Models\Part;
 use Illuminate\Support\MessageBag;
 
 class SetPbg
@@ -67,22 +68,26 @@ class SetPbg
         }
         
         foreach($rb_parts->whereNull('ldraw_part_number') as $part) {
-            $this->messages->add('missing', "<a class=\"underline decoration-dotted hover:decoration-solid\" href=\"{$part['rb_part_url']}\">{$part['rb_part_number']} ({$part['rb_part_name']})</a>");
+            $p = Part::firstWhere('filename', 'parts/' . $part['rb_part_number'] . '.dat');
+            if (is_null($p)) {
+                $this->messages->add('missing', "<a class=\"underline decoration-dotted hover:decoration-solid\" href=\"{$part['rb_part_url']}\">{$part['rb_part_number']} ({$part['rb_part_name']})</a>");
+            } else {
+                $this->addPart($part, basename($p->name(), '.dat'));
+            }
         }
         
         return $this->makePbg();
     }
     
-    protected function addPart(array $rb_part): void
+    protected function addPart(array $rb_part, ?string $ldraw_number = null): void
     {
         if (is_null($rb_part['ldraw_color_number'])) {
             $this->messages->add('errors', 'LDraw color not found for ' . $rb_part['color_name']);
-            return;
         }
 
         $rb_part_num = $rb_part['rb_part_number'];
-        $ldraw_part = $rb_part['ldraw_part_number'];
-        $color = $rb_part['ldraw_color_number'];
+        $ldraw_part = $ldraw_number ?? $rb_part['ldraw_part_number'];
+        $color = $rb_part['ldraw_color_number'] ?? 16;
         $quantity = $rb_part['quantity'];
         
         if (array_key_exists($rb_part_num, $this->parts) && array_key_exists($color, $this->parts[$rb_part_num]['colors'])) {
