@@ -129,7 +129,7 @@ class Submit extends Component implements HasForms
                 $files[] = ['type' => 'text', 'filename' => $file->getClientOriginalName(), 'contents' => $file->get()];
             }
             else if ($file->getMimeType() == 'image/png') {
-                $files[] = ['type' => 'png', 'filename' => $file->getClientOriginalName(), 'contents' => $file->get()];
+                $files[] = ['type' => 'image', 'filename' => $file->getClientOriginalName(), 'contents' => $file->get()];
             }
         }
         $parts = $manager->submit($files, $user);
