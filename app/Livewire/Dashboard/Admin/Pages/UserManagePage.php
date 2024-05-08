@@ -1,34 +1,32 @@
 <?php
 
-namespace App\Livewire\User;
+namespace App\Livewire\Dashboard\Admin\Pages;
 
 use App\Models\MybbUser;
 use App\Models\PartLicense;
 use App\Models\User;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Set;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table as Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
-use Livewire\Component;
 
-class Manage extends Component implements HasForms, HasTable
+class UserManagePage extends BasicResourceManagePage
 {
     use InteractsWithForms;
     use InteractsWithTable;
+
+    public string $title = "Manage Users";
 
     public function table(Table $table): Table
     {
@@ -137,11 +135,5 @@ class Manage extends Component implements HasForms, HasTable
                 ])
                 ->columns(3),
         ];
-    }
-
-    #[Layout('components.layout.admin')]
-    public function render()
-    {
-        return view('livewire.user.manage');
     }
 }

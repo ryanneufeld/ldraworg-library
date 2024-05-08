@@ -11,7 +11,11 @@ use App\Http\Controllers\Part\PartDownloadZipController;
 use App\Http\Controllers\Part\PartWebGLController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
-use App\Livewire\Dashboard\Admin;
+use App\Livewire\Dashboard\Admin\Index as AdminIndex;
+use App\Livewire\Dashboard\Admin\Pages\PartRenderViewManagePage;
+use App\Livewire\Dashboard\Admin\Pages\ReviewSummaryManagePage;
+use App\Livewire\Dashboard\Admin\Pages\RoleManagePage;
+use App\Livewire\Dashboard\Admin\Pages\UserManagePage;
 use App\Livewire\Dashboard\User;
 use App\Livewire\Omr\Set\Index;
 use App\Livewire\Part\Index as PartIndex;
@@ -19,16 +23,12 @@ use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
 use App\Livewire\PartEvent\Index as PartEventIndex;
-use App\Livewire\PartRenderView\Manage as PartRenderViewManage;
 use App\Livewire\PbgGenerator;
 use App\Livewire\Release\Create;
-use App\Livewire\ReviewSummary\Manage as ReviewSummaryManage;
-use App\Livewire\Role\Manage as RoleManage;
 use App\Livewire\Search\Parts;
 use App\Livewire\Search\StickerSummary;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
-use App\Livewire\User\Manage;
 
 Route::view('/', 'index')->name('index');
 
@@ -79,11 +79,11 @@ Route::prefix('omr')->name('omr.')->group(function () {
 
 
 Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', Admin::class)->name('index');
-    Route::get('/users', Manage::class)->name('users.index');
-    Route::middleware(['can:viewAny,App\Models\ReviewSummary'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
-    Route::middleware(['can:viewAny,App\Models\Role'])->get('/roles', RoleManage::class)->name('roles.index');
-    Route::middleware(['can:library.settings.edit'])->get('/part-render-views', PartRenderViewManage::class)->name('part-render-views.index');
+    Route::get('/', AdminIndex::class)->name('index');
+    Route::get('/users', UserManagePage::class)->name('users.index');
+    Route::middleware(['can:viewAny,App\Models\ReviewSummary'])->get('/summaries', ReviewSummaryManagePage::class)->name('summaries.index');
+    Route::middleware(['can:viewAny,App\Models\Role'])->get('/roles', RoleManagePage::class)->name('roles.index');
+    Route::middleware(['can:library.settings.edit'])->get('/part-render-views', PartRenderViewManagePage::class)->name('part-render-views.index');
 });
 
 

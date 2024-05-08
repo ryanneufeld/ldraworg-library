@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire\Dashboard;
+namespace App\Livewire\Dashboard\Admin;
 
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
-class Admin extends Component
+class Index extends Component
 {
     #[Url]
     public string $activeTab = 'admin-ready';
@@ -14,6 +14,6 @@ class Admin extends Component
     #[Layout('components.layout.base')]
     public function render()
     {
-        return view('livewire.dashboard.admin');
+        return view('livewire.dashboard.admin.index');
     }
 }

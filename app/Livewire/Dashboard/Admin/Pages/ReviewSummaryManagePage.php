@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\ReviewSummary;
+namespace App\Livewire\Dashboard\Admin\Pages;
 
 use App\Models\Part;
 use App\Models\ReviewSummary;
@@ -8,22 +8,20 @@ use App\Models\ReviewSummaryItem;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
-use Livewire\Attributes\Layout;
-use Livewire\Component;
 
-class Manage extends Component implements HasForms, HasTable
+class ReviewSummaryManagePage extends BasicResourceManagePage
 {
     use InteractsWithForms;
     use InteractsWithTable;
-    
+
+    public string $title = "Manage Review Summaries";
+
     public function table(Table $table): Table
     {
         return $table
@@ -105,11 +103,4 @@ class Manage extends Component implements HasForms, HasTable
         }
         return $summary;
     }
-
-    #[Layout('components.layout.admin')]
-    public function render()
-    {
-        return view('livewire.review-summary.manage');
-    }
-
 }
