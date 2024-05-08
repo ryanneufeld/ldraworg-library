@@ -19,6 +19,7 @@ use App\Livewire\Part\Show;
 use App\Livewire\Part\Submit;
 use App\Livewire\Part\Weekly;
 use App\Livewire\PartEvent\Index as PartEventIndex;
+use App\Livewire\PartRenderView\Manage as PartRenderViewManage;
 use App\Livewire\PbgGenerator;
 use App\Livewire\Release\Create;
 use App\Livewire\ReviewSummary\Manage as ReviewSummaryManage;
@@ -82,6 +83,7 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
     Route::get('/users', Manage::class)->name('users.index');
     Route::middleware(['can:viewAny,App\Models\ReviewSummary'])->get('/summaries', ReviewSummaryManage::class)->name('summaries.index');
     Route::middleware(['can:viewAny,App\Models\Role'])->get('/roles', RoleManage::class)->name('roles.index');
+    Route::middleware(['can:library.settings.edit'])->get('/part-render-views', PartRenderViewManage::class)->name('part-render-views.index');
 });
 
 

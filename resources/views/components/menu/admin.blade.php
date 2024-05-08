@@ -15,4 +15,7 @@
     @can('viewAny', \App\Models\ReviewSummary::class)    
         <x-menu.item label="Add/Edit Part Review Summaries" link="{{route('admin.summaries.index')}}" />
     @endcan 
+    @can('library.settings.edit')    
+        <x-menu.item label="Add/Edit Default Part Render" link="{{route('admin.part-render-views.index')}}" />
+    @endcan 
 </x-menu>

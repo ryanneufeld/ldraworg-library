@@ -3,20 +3,18 @@
 namespace App\LDraw\Render;
 
 use App\LDraw\LDrawModelMaker;
-use App\LDraw\Parse\Parser;
 use App\Models\Omr\OmrModel;
 use App\Models\Part;
+use App\Models\PartRenderView;
 use GdImage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
-use Illuminate\Support\Facades\Storage;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class LDView
 {
     public function __construct(
         public readonly array $options,
-        public readonly array $altCameraPositions,
         public readonly string $ldconfigPath,
         public readonly int $maxHeight,
         public readonly int $maxWidth,
@@ -35,10 +33,10 @@ class LDView
 
         // Store the part as an mpd
         $filename = $tempDir->path("part.mpd");
-        if ($part instanceof Part && array_key_exists(basename($part->filename, '.dat'), $this->altCameraPositions)) {
-            $matrix = $this->altCameraPositions[basename($part->filename, '.dat')];
-        } elseif ($part instanceof Part && array_key_exists($part->basePart(), $this->altCameraPositions)) {
-            $matrix = $this->altCameraPositions[$part->basePart()];
+        if ($part instanceof Part) {
+            $view = PartRenderView::firstWhere('part_name', basename($part->filename, '.dat'));
+            $basePartView = PartRenderView::firstWhere('part_name', $part->basePart());
+            $matrix = $view->matrix ?? $basePartView->matrix ?? '1 0 0 0 1 0 0 0 1';
         } else {
             $matrix = "1 0 0 0 1 0 0 0 1";
         }

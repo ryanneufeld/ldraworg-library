@@ -11,6 +11,7 @@ use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use App\Models\Part;
 use App\Models\PartRelease;
+use App\Models\PartRenderView;
 use App\Models\PartType;
 use App\Models\Rebrickable\RebrickablePart;
 use App\Models\StickerSheet;
@@ -46,5 +47,11 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        foreach(config('ldraw.render.alt-camera') as $name => $matrix) {
+            PartRenderView::create([
+                'part_name' => $name,
+                'matrix' => $matrix,
+            ]);
+        }
     }
 }

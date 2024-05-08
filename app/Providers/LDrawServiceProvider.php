@@ -38,7 +38,6 @@ class LDrawServiceProvider extends ServiceProvider
         $this->app->bind(LDView::class, function (Application $app) { 
             return new LDView(
                 config('ldraw.render.options'),
-                config('ldraw.render.alt-camera'),
                 Storage::disk(config('ldraw.render.dir.ldconfig.disk'))->path(config('ldraw.render.dir.ldconfig.path')),
                 config('ldraw.image.normal.height'),
                 config('ldraw.image.normal.width'),
