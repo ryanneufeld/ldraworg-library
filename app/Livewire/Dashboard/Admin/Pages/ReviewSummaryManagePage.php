@@ -41,6 +41,8 @@ class ReviewSummaryManagePage extends BasicResourceManagePage
                     })
                     ->using(fn (ReviewSummary $summary, array $data) => $this->saveEditData($summary, $data)),
                 DeleteAction::make()
+                    ->before(fn (ReviewSummary $summary) => $summary->items()->delete())
+                    
             ])
             ->headerActions([
                 CreateAction::make()
