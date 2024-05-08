@@ -26,7 +26,11 @@ class StickerSummary extends Component implements HasForms
 
     public function mount(): void
     {
-        $this->form->fill(['sheet' => $this->sheet]);
+        if (isset($this->sheet)) {
+            $this->form->fill(['sheet' => $this->sheet]);
+        } else {
+            $this->form->fill();
+        }
         $this->doSearch();
     }
 
@@ -52,7 +56,7 @@ class StickerSummary extends Component implements HasForms
     public function doSearch()
     {
         $this->form->getState();
-        $this->parts = StickerSheet::firstWhere('number', $this->sheet)->parts;    
+        $this->parts = StickerSheet::firstWhere('number', $this->sheet ?? '')->parts;    
     }
 
     #[Layout('components.layout.tracker')]
