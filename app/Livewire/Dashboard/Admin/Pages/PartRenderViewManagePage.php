@@ -4,6 +4,7 @@ namespace App\Livewire\Dashboard\Admin\Pages;
 
 use App\Models\Part;
 use App\Models\PartRenderView;
+use Closure;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Tables\Actions\CreateAction;
@@ -12,6 +13,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
+use MathPHP\LinearAlgebra\MatrixFactory;
 
 class PartRenderViewManagePage extends BasicResourceManagePage
 {
@@ -54,7 +56,26 @@ class PartRenderViewManagePage extends BasicResourceManagePage
             TextInput::make('matrix')
                 ->hint('The rotation matrix to apply to the part render.')
                 ->string()
-                ->required(),
+                ->required()
+                ->rules([
+                    fn (): Closure => function (string $attribute, $value, Closure $fail) {
+                        $pattern = "#^\s*(-?(?:[0-9]*[.])?[0-9]+)\s+(-?(?:[0-9]*[.])?[0-9]+)\s+(-?(?:[0-9]*[.])?[0-9]+)\s+(-?(?:[0-9]*[.])?[0-9]+)\s+(-?(?:[0-9]*[.])?[0-9]+)\s+(-?(?:[0-9]*[.])?[0-9]+)\s+(-?(?:[0-9]*[.])?[0-9]+)\s+(-?(?:[0-9]*[.])?[0-9]+)\s+(-?(?:[0-9]*[.])?[0-9]+)\s*$#";
+                        $m = preg_match($pattern, $value, $terms);
+                        if ($m !== 1) {
+                            $fail('Invalid matrix');
+                            return;
+                        }
+                        $matrix = [
+                            [$terms[1], $terms[2], $terms[3]],
+                            [$terms[4], $terms[5], $terms[6]],
+                            [$terms[7], $terms[8], $terms[9]],
+                        ];
+                        $matrix = MatrixFactory::create($matrix);
+                        if ($matrix->isSingular()) {
+                            $fail('Singular Matrix');
+                        }
+                    },
+                ]),
         ];
     }
 
