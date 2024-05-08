@@ -36,7 +36,7 @@
         "nunomaduro/phpinsights": "^2.8",
         "pestphp/pest": "^2.10",
         "pestphp/pest-plugin-laravel": "^2.1",
-        "phpunit/phpunit": "^10.0",
+        "phpunit/phpunit": "^10.5",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
