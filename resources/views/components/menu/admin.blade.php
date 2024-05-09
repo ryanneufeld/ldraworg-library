@@ -12,7 +12,7 @@
     @can('viewAny', \Spatie\Permission\Models\Role::class)    
         <x-menu.item label="Add/Edit Roles" link="{{route('admin.roles.index')}}" />
     @endcan 
-    @can('viewAny', \App\Models\ReviewSummary::class)    
+    @can('viewAny', \App\Models\ReviewSummary\ReviewSummary::class)    
         <x-menu.item label="Add/Edit Part Review Summaries" link="{{route('admin.summaries.index')}}" />
     @endcan 
     @can('library.settings.edit')    

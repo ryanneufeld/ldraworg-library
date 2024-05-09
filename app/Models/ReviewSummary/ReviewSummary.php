@@ -1,12 +1,15 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\ReviewSummary;
 
+use App\Models\Traits\HasOrder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ReviewSummary extends Model
 {
+    use HasOrder;
+    
     protected $fillable = [
         'header',
         'order',

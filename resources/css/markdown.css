@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.markdown h1 {
+    @apply font-bold text-4xl
+}
+
+.markdown h2 {
+    @apply font-bold text-3xl
+}
+
+.markdown h3 {
+    @apply font-bold text-2xl
+}
+
+.markdown h4 {
+    @apply font-bold text-xl
+}
+
+.markdown h5 {
+    @apply font-bold text-lg
+}
+
+.markdown h6 {
+    @apply font-bold text-base
+}
+
+.markdown a {
+    @apply underline decoration-dotted hover:decoration-solid
+}
+
+.markdown p {
+    @apply p-4
+}
+
+.markdown em {
+    @apply italic
+}
+
+.markdown strong {
+    @apply font-bold
+}
+
+.markdown ul {
+    @apply list-disc m-4
+}
+
+.markdown ol {
+    @apply list-decimal m-4
+}
+
+.markdown hr {
+    @apply border border-gray-300 my-6 rounded
+}

@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 use App\Models\Part;
-use App\Models\ReviewSummary;
+use App\Models\ReviewSummary\ReviewSummary;
 
 return new class extends Migration
 {

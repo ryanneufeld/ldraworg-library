@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DocumentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\Omr\SetController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Part\PartWebGLController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
 use App\Livewire\Dashboard\Admin\Index as AdminIndex;
+use App\Livewire\Dashboard\Admin\Pages\DocumentManagePage;
 use App\Livewire\Dashboard\Admin\Pages\PartRenderViewManagePage;
 use App\Livewire\Dashboard\Admin\Pages\ReviewSummaryManagePage;
 use App\Livewire\Dashboard\Admin\Pages\RoleManagePage;
@@ -78,12 +80,18 @@ Route::prefix('omr')->name('omr.')->group(function () {
 });
 
 
+Route::prefix('documentation')->name('documents.')->group(function () {
+    Route::get('/{document:nav_title}', DocumentController::class, 'show')->name('show');
+    Route::get('/{document}', DocumentController::class, 'show')->name('show');
+});
+
 Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminIndex::class)->name('index');
     Route::get('/users', UserManagePage::class)->name('users.index');
-    Route::middleware(['can:viewAny,App\Models\ReviewSummary'])->get('/summaries', ReviewSummaryManagePage::class)->name('summaries.index');
+    Route::middleware(['can:viewAny,App\Models\ReviewSummary\ReviewSummary'])->get('/summaries', ReviewSummaryManagePage::class)->name('summaries.index');
     Route::middleware(['can:viewAny,App\Models\Role'])->get('/roles', RoleManagePage::class)->name('roles.index');
     Route::middleware(['can:library.settings.edit'])->get('/part-render-views', PartRenderViewManagePage::class)->name('part-render-views.index');
+    Route::middleware(['can:documentation.edit'])->get('/documents', DocumentManagePage::class)->name('documents.index');
 });
 
 

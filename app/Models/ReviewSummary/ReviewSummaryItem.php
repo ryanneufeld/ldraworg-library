@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\ReviewSummary;
 
+use App\Models\Traits\HasOrder;
 use App\Models\Traits\HasPart;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ReviewSummaryItem extends Model
 {
     use HasPart;
-
+    use HasOrder;
+    
     protected $fillable = [
         'order',
         'review_summary_id',

@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\ReviewSummary;
+use App\Models\ReviewSummary\ReviewSummary;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 

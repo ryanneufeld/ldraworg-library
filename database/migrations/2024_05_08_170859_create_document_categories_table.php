@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('review_summary_items', function (Blueprint $table) {
+        Schema::create('document_categories', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('category')->unique();
             $table->integer('order');
-            $table->foreignIdFor(\App\Models\ReviewSummary\ReviewSummary::class)->constrained();
-            $table->foreignIdFor(\App\Models\Part::class)->nullable()->constrained();
-            $table->string('heading')->nullable();
         });
     }
 
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('review_summary_items');
+        Schema::dropIfExists('document_categories');
     }
 };

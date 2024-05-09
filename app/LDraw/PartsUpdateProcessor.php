@@ -227,7 +227,7 @@ class PartsUpdateProcessor
                 ->where('part_id', $part->id)
                 ->update(['part_id' => $opart->id]);
             $part->deleteRelationships();
-            \App\Models\ReviewSummaryItem::where('part_id', $part->id)->delete();
+            \App\Models\ReviewSummary\ReviewSummaryItem::where('part_id', $part->id)->delete();
             $part->deleteQuietly();
         } else {
             $part->part_release_id = $this->release->id;

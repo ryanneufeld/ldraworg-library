@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Events\PartDeleted;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Part;
-use App\Models\ReviewSummaryItem;
+use App\Models\ReviewSummary\ReviewSummaryItem;
 
 class PartObserver
 {
