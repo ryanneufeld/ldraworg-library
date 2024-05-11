@@ -1,5 +1,5 @@
 @if ($errors->any())
-    <x-message type="error">
+    <x-message icon type="error">
         <x-slot:header>
             There were some problems with your input:
         </x-slot:header>

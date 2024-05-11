@@ -7,17 +7,19 @@
     'bg-yellow-200 text-yellow-800' => $type === 'warning',
     'bg-blue-200 text-blue-800' => $type === 'info',
 ])>
-    @switch($type)
-        @case('error')
-            <x-fas-exclamation-circle class="w-14 h-14 text-red-800" />
-            @break
-        @case('warning')
-            <x-fas-exclamation-triangle class="w-14 h-14 text-yellow-800" />
-            @break
-        @case('info')
-            <x-fas-info class="w-14 h-14 text-blue-800" />
-            @break
-    @endswitch
+    @if($icon)
+        @switch($type)
+            @case('error')
+                <x-fas-exclamation-circle class="w-14 h-14 text-red-800" />
+                @break
+            @case('warning')
+                <x-fas-exclamation-triangle class="w-14 h-14 text-yellow-800" />
+                @break
+            @case('info')
+                <x-fas-info class="w-14 h-14 text-blue-800" />
+                @break
+        @endswitch
+    @endif
     <div class="mx-2">
         <div class="font-bold">{{$header}}</div>
         <div>{{$slot ?? $message}}</div>

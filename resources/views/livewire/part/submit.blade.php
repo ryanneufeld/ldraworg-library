@@ -15,7 +15,7 @@
     </p>
     <div>
         @if (count($this->part_errors) > 0)
-            <x-message type="error">
+            <x-message icon type="error">
                 @foreach($this->part_errors as $error)
                     {{$error}}<br>
                 @endforeach

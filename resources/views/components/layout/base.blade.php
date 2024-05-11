@@ -16,7 +16,7 @@
   <body class="bg-gradient-to-r from-[#D4D4D4] via-[#F4F4F4] via-[#FFFFFF] via-[#F4F4F4] to-[#D4D4D4]">
     <div class="container mx-auto p-4 space-y-4">
         @env('local')
-            <x-message centered type="warning">
+            <x-message centered icon type="warning">
                 <x-slot:header>
                     You are on the BETA LDraw.org Library Site.
                 </x-slot:header>

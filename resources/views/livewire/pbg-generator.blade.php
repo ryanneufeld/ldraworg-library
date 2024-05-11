@@ -39,14 +39,14 @@
                     Messages:
                 </div>
                 @if($hasErrors)
-                    <x-message type="error">
+                    <x-message icon type="error">
                         @foreach($errors as $message)
                             <div>{{$message}}</div>
                         @endforeach
                     </x-message>
                 @endif
                 @if($hasMissing)
-                    <x-message type="error">
+                    <x-message icon type="error">
                         <div>The following Rebrickable parts were not found in the LDraw library or Parts Tracker:</div>
                         @foreach($missing as $message)
                             <div>{!! $message !!}</div>
@@ -54,7 +54,7 @@
                     </x-message>
                 @endif
                 @if($hasUnpatterned)
-                    <x-message type="info">
+                    <x-message icon type="info">
                         <div>The following Rebrickable patterned parts not in LDraw were substituted for LDraw unpattterned parts:</div>
                         <div class="inline">
                         @foreach($unpatterned as $message)

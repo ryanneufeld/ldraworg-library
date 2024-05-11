@@ -113,7 +113,7 @@
             <div class="text-lg font-bold">Status:</div>
             <x-part.status :$part show-status />
             @if (!$part->can_release)
-                <x-message compact type="warning">
+                <x-message compact icon type="warning">
                     <x-slot:header>
                         This part is not releaseable
                     </x-slot:header>
