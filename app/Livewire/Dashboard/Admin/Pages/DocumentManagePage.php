@@ -6,6 +6,7 @@ use App\Models\Document\Document;
 use App\Models\Document\DocumentCategory;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -48,7 +49,7 @@ class DocumentManagePage extends BasicResourceManagePage
                         $data['nav_title'] = rawurlencode(str_replace(' ', '-', strtolower($data['title'])));
                         return $data;
                     })
-                    ->modalWidth(MaxWidth::Screen),
+                    ->modalWidth(MaxWidth::SevenExtraLarge),
                 DeleteAction::make()
             ])
             ->headerActions([
@@ -59,7 +60,7 @@ class DocumentManagePage extends BasicResourceManagePage
                         $data['order'] = Document::nextOrder();
                         return $data;
                     })
-                    ->modalWidth(MaxWidth::Screen)
+                    ->modalWidth(MaxWidth::SevenExtraLarge)
             ]);
     }
 
@@ -79,8 +80,10 @@ class DocumentManagePage extends BasicResourceManagePage
                     $data['order'] = DocumentCategory::nextOrder();
                     return DocumentCategory::create($data)->getKey();
                 }),
-            Toggle::make('published'),
-            Toggle::make('restricted'),
+            Section::make([
+                Toggle::make('published'),
+                Toggle::make('restricted'),    
+            ])->columns(2),
             TextInput::make('maintainer')
                 ->string()
                 ->required(),

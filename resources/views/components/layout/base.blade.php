@@ -1,4 +1,4 @@
-@props(['title'])
+@props(['title', 'favicon_color' => 'Green'])
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}" />
         @stack('meta')
-        <link rel="shortcut icon" href="{{asset('/images/LDraw_Green_64x64.png')}}" type="image/x-icon">
+        <link rel="shortcut icon" href="{{asset('/images/LDraw_' . $favicon_color . '_64x64.png')}}" type="image/x-icon">
         @filamentStyles
         @vite('resources/css/app.css')
         @stack('css')
