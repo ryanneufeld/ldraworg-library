@@ -68,7 +68,7 @@ class ReviewSummaryManagePage extends BasicResourceManagePage
     {
         if(is_null($summary->id)) {
             $summary->header = $data['header'];
-            $summary->order = ReviewSummary::orderBy('order', 'desc')->first()->order + 1;
+            $summary->order = ReviewSummary::nextOrder();
             $summary->save();
         }
         $summary->header = $data['header'];      

@@ -3,6 +3,7 @@
 namespace App\Livewire\Dashboard\Admin\Pages;
 
 use App\Models\Document\Document;
+use App\Models\Document\DocumentCategory;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Select;
@@ -29,10 +30,14 @@ class DocumentManagePage extends BasicResourceManagePage
     {
         return $table
             ->query(Document::query())
-            ->defaultSort('nav_title', 'asc')
+            ->defaultSort('order')
+            ->reorderable('order')
             ->heading('Document Management')
             ->columns([
                 TextColumn::make('title')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('category.category')
                     ->sortable()
                     ->searchable(),
             ])
@@ -51,6 +56,7 @@ class DocumentManagePage extends BasicResourceManagePage
                     ->form($this->formSchema())
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['nav_title'] = rawurlencode(str_replace(' ', '-', strtolower($data['title'])));
+                        $data['order'] = Document::nextOrder();
                         return $data;
                     })
                     ->modalWidth(MaxWidth::Screen)
@@ -68,7 +74,11 @@ class DocumentManagePage extends BasicResourceManagePage
                 ->createOptionForm([
                     TextInput::make('category')
                         ->required(),
-                ]),
+                ])
+                ->createOptionUsing(function (array $data): int {
+                    $data['order'] = DocumentCategory::nextOrder();
+                    return DocumentCategory::create($data)->getKey();
+                }),
             Toggle::make('published'),
             Toggle::make('restricted'),
             TextInput::make('maintainer')
@@ -77,7 +87,6 @@ class DocumentManagePage extends BasicResourceManagePage
             Textarea::make('revision_history')
                 ->string(),
             MarkdownEditor::make('content')
-                ->minHeight('30rem')
                 ->required()
         ];
     }

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DocumentShowController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\Omr\SetController;
@@ -80,9 +80,10 @@ Route::prefix('omr')->name('omr.')->group(function () {
 });
 
 
-Route::prefix('documentation')->name('documents.')->group(function () {
-    Route::get('/{document:nav_title}', DocumentController::class, 'show')->name('show');
-    Route::get('/{document}', DocumentController::class, 'show')->name('show');
+Route::prefix('documentation')->name('documentation.')->group(function () {
+    Route::view('/', 'documents.index')->name('index');
+    Route::get('/{document:nav_title}', DocumentShowController::class, 'show')->name('show');
+    Route::get('/{document}', DocumentShowController::class, 'show')->name('show');
 });
 
 Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('admin.')->group(function () {
@@ -117,7 +118,7 @@ Route::prefix('official')->name('official.')->group(function () {
 });
 
 Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
-Route::redirect('/documentation', 'https://www.ldraw.org/docs-main.html')->name('doc');
+Route::redirect('/docs', 'https://www.ldraw.org/docs-main.html')->name('doc');
 
 Route::middleware(['throttle:file'])->get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
 Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');

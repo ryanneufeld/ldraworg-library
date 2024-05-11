@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('content');
             $table->string('maintainer')->nullable();
-            $table->text('revision_hisotry')->nullable();
+            $table->text('revision_history')->nullable();
             $table->boolean('published')->default(false);
             $table->boolean('restricted')->default(false);
             $table->integer('order');
