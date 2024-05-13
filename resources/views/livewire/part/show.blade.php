@@ -66,9 +66,9 @@
             {{ $this->webglViewAction }}
         </div>
         <div @class([
-                'text-3xl font-bold p-2 w-fit',
-                'bg-green-200' => !$part->isUnofficial(),
-                'bg-yellow-200' => $part->isUnofficial()
+                'text-3xl font-bold p-2 w-fit rounded-lg',
+                'bg-green-100' => !$part->isUnofficial(),
+                'bg-yellow-100' => $part->isUnofficial()
             ])>
                 {{ucfirst($part->libFolder())}} File <span id="filename">{{ $part->filename }}</span>
         </div>
@@ -96,11 +96,7 @@
             @endif
         </div>
         <div class="flex flex-col md:flex-row-reverse gap-2">
-            <img @class([
-                    'w-fit h-fit p-4 border rounded',
-                    'bg-green-200' => !$part->isUnofficial(),
-                    'bg-yellow-200' => $part->isUnofficial()
-                ])
+            <img class = 'w-fit h-fit p-4'
                 wire:click="$dispatch('open-modal', { id: 'ldbi' })"
                 src="{{$image}}" alt="{{ $part->description }}" title="{{ $part->description }}"
             >

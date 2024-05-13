@@ -57,6 +57,7 @@ return [
       'BackgroundColor3' => '0xFFFFFF',
       'BFC' => '0', 
       'ConditionalHighlights' => '1',
+      'DefaultColor3' => '0xFFFF80',
       'FOV' => '0.1',
       'LineSmoothing' => '1',
       'MemoryUsage' => '0',
