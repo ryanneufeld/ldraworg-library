@@ -25,7 +25,7 @@
     @endpush
 
     <div class="flex flex-col space-y-4">
-        <div class="flex flex-col md:flex-row divide-y md:divide-x bg-white border rounded-md w-fit cursor-pointer">
+        <div class="flex flex-row space-x-2">
             {{ $this->downloadAction }}
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
@@ -42,31 +42,26 @@
             @if ($this->certifyAllAction->isVisible())
                 {{ $this->certifyAllAction }}
             @endif
-            @if ($this->editHeaderAction->isVisible())
-                {{ $this->editHeaderAction }}
-            @endif
-            @if ($this->editNumberAction->isVisible())
-                {{ $this->editNumberAction }}
-            @endif
-            @if ($this->updateImageAction->isVisible())
-                {{ $this->updateImageAction }}
-            @endif
-            @if ($this->recheckPartAction->isVisible())
-                {{ $this->recheckPartAction }}
-            @endif
-            @if ($this->updateSubpartsAction->isVisible())
-                {{ $this->updateSubpartsAction }}
-            @endif
-            @if ($this->retieFixAction->isVisible())
-                {{ $this->retieFixAction }}
-            @endif
-            @if ($this->deleteAction->isVisible())
-                {{ $this->deleteAction }}
-            @endif
+            <x-filament-actions::group
+                :actions="[
+                    $this->editHeaderAction,
+                    $this->editNumberAction,
+                    $this->updateImageAction,
+                    $this->recheckPartAction,
+                    $this->updateSubpartsAction,
+                    $this->retieFixAction,
+                    $this->deleteAction
+                ]"
+                label="Admin Tools"
+                icon="fas-caret-down"
+                button="true"
+                color="gray"
+                outlined="true"
+            />
             {{ $this->webglViewAction }}
         </div>
         <div @class([
-                'text-3xl font-bold p-2 w-fit rounded-lg',
+                'text-3xl font-bold py-2 px-3 w-fit rounded-lg',
                 'bg-green-100' => !$part->isUnofficial(),
                 'bg-yellow-100' => $part->isUnofficial()
             ])>
@@ -95,16 +90,45 @@
                 @endif
             @endif
         </div>
-        <div class="flex flex-col md:flex-row-reverse gap-2">
-            <img class = 'w-fit h-fit p-4'
+        <div class="w-full p-4 border rounded-md">
+          <div class="flex flex-col md:flex-row-reverse w-full">
+            <div class="flex w-full justify-center items-center md:w-1/3">            
+              <img class = 'w-80 h-80 object-contain'
+                wire:click="$dispatch('open-modal', { id: 'ldbi' })"
+                src="{{$image}}" alt="{{ $part->description }}" title="{{ $part->description }}">
+            </div>
+            <div class="w-full md:w-2/3">            
+              <div class="justify-self-start w-full">
+                <div class="text-lg font-bold">File Header:</div>
+                <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
+              </div>  
+            </div>
+          </div>
+          <div class="w-full">              
+            <x-accordion id="showContents">
+              <x-slot name="header" class="text-md font-bold pt-4">
+                Show contents
+              </x-slot>
+              <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->body->body) }}</code>
+            </x-accordion>
+          </div>
+        </div>
+{{--         <div class="flex flex-col md:flex-row-reverse gap-2 w-full p-4 border rounded-md">
+            <img class = 'w-80 h-80 object-contain'
                 wire:click="$dispatch('open-modal', { id: 'ldbi' })"
                 src="{{$image}}" alt="{{ $part->description }}" title="{{ $part->description }}"
             >
             <div class="justify-self-start w-full">
                 <div class="text-lg font-bold">File Header:</div>
                 <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
+                <x-accordion id="showContents">
+                  <x-slot name="header" class="text-md font-bold pt-4">
+                      Show contents
+                  </x-slot>
+                  <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->body->body) }}</code>
+              </x-accordion>
             </div>    
-        </div>
+        </div> --}}
         @if($part->isUnofficial())
             <div class="text-lg font-bold">Status:</div>
             <x-part.status :$part show-status />
@@ -136,7 +160,7 @@
                 </x-slot>
                 <livewire:tables.part-dependencies-table :$part official parents />
                 <livewire:tables.part-dependencies-table :$part official />
-                </x-accordion>
+            </x-accordion>
         @else
             <livewire:tables.part-dependencies-table :$part official parents />
             <livewire:tables.part-dependencies-table :$part official />
@@ -151,7 +175,7 @@
                 </button>
             </form>
         @endcan
-        <div class="flex flex-col md:flex-row divide-y md:divide-x bg-white border rounded-md w-fit cursor-pointer">
+        <div class="flex flex-row space-x-2">
             {{ $this->downloadAction }}
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
@@ -168,30 +192,25 @@
             @if ($this->certifyAllAction->isVisible())
                 {{ $this->certifyAllAction }}
             @endif
-            @if ($this->editHeaderAction->isVisible())
-                {{ $this->editHeaderAction }}
-            @endif
-            @if ($this->editNumberAction->isVisible())
-                {{ $this->editNumberAction }}
-            @endif
-            @if ($this->updateImageAction->isVisible())
-                {{ $this->updateImageAction }}
-            @endif
-            @if ($this->recheckPartAction->isVisible())
-                {{ $this->recheckPartAction }}
-            @endif
-            @if ($this->updateSubpartsAction->isVisible())
-                {{ $this->updateSubpartsAction }}
-            @endif
-            @if ($this->retieFixAction->isVisible())
-                {{ $this->retieFixAction }}
-            @endif
-            @if ($this->deleteAction->isVisible())
-                {{ $this->deleteAction }}
-            @endif
+            <x-filament-actions::group
+                :actions="[
+                    $this->editHeaderAction,
+                    $this->editNumberAction,
+                    $this->updateImageAction,
+                    $this->recheckPartAction,
+                    $this->updateSubpartsAction,
+                    $this->retieFixAction,
+                    $this->deleteAction
+                ]"
+                label="Admin Tools"
+                icon="fas-caret-down"
+                button="true"
+                color="gray"
+                outlined="true"
+            />
             {{ $this->webglViewAction }}
         </div>
-        <x-part.attribution :part="$part" />
+         <x-part.attribution :part="$part" />
     </div>
     <x-filament::modal id="ldbi" alignment="center" width="7xl">
         <x-slot name="heading">

@@ -104,54 +104,39 @@ class Show extends Component implements HasForms, HasActions
         $this->form->fill();
     }
 
-    protected function menuAction(Action $a): Action 
-    {
-        return $a
-            ->link()
-            ->color('gray')
-            ->extraAttributes([
-                'class' => 'p-2 hover:bg-gray-300',
-            ]);
-    }
-
     public function editHeaderAction(): EditAction
     {
-        return $this->menuAction(
-            EditHeaderAction::make('editHeader', $this->part)
-        );
+        return EditHeaderAction::make('editHeader', $this->part);
     }
 
     public function editNumberAction(): EditAction
     {
-        return $this->menuAction(
-            EditNumberAction::make('editNumber', $this->part)
-        );
+        return  EditNumberAction::make('editNumber', $this->part);
     }
 
     public function patternPartAction(): Action
     {
-        return $this->menuAction(
-            Action::make('patternPart')
+        return Action::make('patternPart')
                 ->url(fn() => route('search.suffix', ['basepart' => $this->part->basepart()]))
                 ->visible($this->part->hasComposites() || $this->part->hasPatterns() || $this->part->hasStickerShortcuts())
                 ->label('View patterns/composites/shortcuts')
-        );
+                ->color('gray')
+                ->outlined();
     }
 
     public function stickerSearchAction(): Action
     {
-        return $this->menuAction(
-            Action::make('stickerSearch')
+        return Action::make('stickerSearch')
                 ->url(fn() => route('search.sticker', ['sheet' => $this->part->sticker_sheet->number ?? '']))
                 ->visible(!is_null($this->part->sticker_sheet))
                 ->label('View sticker sheet parts')
-        );
+                ->color('gray')
+                ->outlined();
     }
 
     public function deleteAction(): DeleteAction
     {
-        return $this->menuAction(
-            DeleteAction::make('delete')
+        return DeleteAction::make('delete')
                 ->record($this->part)
                 ->visible(
                     $this->part->isUnofficial() &&
@@ -160,14 +145,12 @@ class Show extends Component implements HasForms, HasActions
                 )
                 ->modalDescription('Are you sure you\'d like to delete this part? This cannot be easily undone.')
                 ->successRedirectUrl(route('tracker.activity'))
-                ->successNotificationTitle('Part deleted')
-        );
+                ->successNotificationTitle('Part deleted');
     }
 
     public function updateImageAction(): Action
     {
-        return $this->menuAction(
-            Action::make('updateImage')
+        return Action::make('updateImage')
                 ->action(function() {
                     app(PartManager::class)->updatePartImage($this->part);
                     $this->dispatch('subparts-updated');
@@ -176,14 +159,12 @@ class Show extends Component implements HasForms, HasActions
                         ->success()
                         ->send();    
                 })
-                ->visible(Auth::user()?->can('update', $this->part) ?? false)
-        );
+                ->visible(Auth::user()?->can('update', $this->part) ?? false);
     }
 
     public function recheckPartAction(): Action
     {
-        return $this->menuAction(
-            Action::make('recheckPart')
+        return Action::make('recheckPart')
                 ->action(function() {
                     app(PartManager::class)->checkPart($this->part);
                     $this->dispatch('subparts-updated');
@@ -192,14 +173,12 @@ class Show extends Component implements HasForms, HasActions
                         ->success()
                         ->send();    
                 })
-                ->visible(Auth::user()?->can('update', $this->part) ?? false)
-        );
+                ->visible(Auth::user()?->can('update', $this->part) ?? false);
     }
 
     public function updateSubpartsAction(): Action 
     {
-        return $this->menuAction(
-            Action::make('updateSubparts')
+        return Action::make('updateSubparts')
                 ->action(function() {
                     app(PartManager::class)->loadSubpartsFromBody($this->part);
                     $this->dispatch('subparts-updated');
@@ -208,14 +187,12 @@ class Show extends Component implements HasForms, HasActions
                         ->success()
                         ->send();    
                 })
-                ->visible(Auth::user()?->can('update', $this->part) ?? false)
-        );
+                ->visible(Auth::user()?->can('update', $this->part) ?? false);
     }
 
     public function retieFixAction(): Action
     {
-        return $this->menuAction(
-            Action::make('retieFix')
+        return Action::make('retieFix')
                 ->label('Retie part fix')
                 ->action(function() {
                     if ($this->part->isUnofficial()) {
@@ -237,43 +214,41 @@ class Show extends Component implements HasForms, HasActions
                         return false;
                     }
                     return is_null($this->part->unofficial_part) && is_null($this->part->official_part);
-                })
-        );
+                });
     }
 
     public function downloadAction(): Action 
     {
-        return $this->menuAction(
-            Action::make('download')
+        return Action::make('download')
                 ->url(fn() => route($this->part->isUnofficial() ? 'unofficial.download' : 'official.download', $this->part->filename))
-        );
+                ->color('gray')
+                ->outlined();
     }
 
     public function downloadZipAction(): Action 
     {
-        return $this->menuAction(
-            Action::make('zipdownload')
+        return Action::make('zipdownload')
                 ->label('Download zip file')
                 ->url(fn() => route('unofficial.download.zip', str_replace('.dat', '.zip', $this->part->filename)))
                 ->visible($this->part->isUnofficial() && 
                     $this->part->type->folder == 'parts/'
                 )
-        );
+                ->color('gray')
+                ->outlined();
     }
 
     public function webglViewAction(): Action 
     {
-        return $this->menuAction(
-            Action::make('webglView')
+        return Action::make('webglView')
                 ->label('3D View')
                 ->action(fn() => $this->dispatch('open-modal', id: 'ldbi'))
-        );
+                ->color('gray')
+                ->outlined();
     }
 
     public function adminCertifyAllAction(): Action
     {
-        return $this->menuAction(
-            Action::make('adminCertifyAll')
+        return Action::make('adminCertifyAll')
                 ->action(function () {
                     $vm = new VoteManager();
                     $vm->adminCertifyAll($this->part, Auth::user());
@@ -292,13 +267,13 @@ class Show extends Component implements HasForms, HasActions
                     (Auth::user()?->can('create', [Vote::class, $this->part, 'A']) ?? false) &&
                     (Auth::user()?->can('allAdmin', Vote::class) ?? false)
                 )
-        );
+                ->color('gray')
+                ->outlined();
     }
 
     public function certifyAllAction(): Action
     {
-        return $this->menuAction(
-            Action::make('certifyAll')
+        return Action::make('certifyAll')
                 ->action(function () {
                     $vm = new VoteManager();
                     $vm->certifyAll($this->part, Auth::user());
@@ -317,7 +292,8 @@ class Show extends Component implements HasForms, HasActions
                     (Auth::user()?->can('create', [Vote::class, $this->part, 'C']) ?? false) &&
                     (Auth::user()?->can('all', Vote::class) ?? false)
                 )
-        );
+                ->color('gray')
+                ->outlined();
     }
 
     public function postVote() {

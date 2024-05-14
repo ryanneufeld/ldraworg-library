@@ -1,26 +1,28 @@
 @props(['votes'])
 @if ($votes->count() ?? false)
-    <table class="w-fit rounded border">
-        <thead class="border-b-2 border-b-black">
-            <tr class="*:bg-gray-200 *:p-2">
-                <th>User</th>
-                <th>Vote</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y">
-        @foreach ($votes as $vote)
-            <tr wire:key="{{$vote->user_id}}-{{$vote->vote_type_code}}">
-                <td class="p-2">{{ $vote->user->name }}</td>
-                <td @class([
-                    'p-2',
-                    'bg-green-200' => $vote->vote_type_code == 'C',
-                    'bg-red-200' => $vote->vote_type_code == 'H',
-                    'bg-lime-200' => $vote->vote_type_code == 'A' || $vote->vote_type_code == 'T',
-                    ])>{{ $vote->type->name }}</td>
-            </tr>
-        @endforeach
-        </tbody>
+  <div class="w-fit overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+    <table class="divide-y divide-gray-300">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">User</th>
+          <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Vote</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white">
+      @foreach ($votes as $vote)
+          <tr wire:key="{{$vote->user_id}}-{{$vote->vote_type_code}}">
+            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{{ $vote->user->name }}</td>
+            <td @class([
+                  'whitespace-nowrap px-3 py-4 text-sm',
+                  'bg-green-200' => $vote->vote_type_code == 'C',
+                  'bg-red-200' => $vote->vote_type_code == 'H',
+                  'bg-lime-200' => $vote->vote_type_code == 'A' || $vote->vote_type_code == 'T',
+                  ])>{{ $vote->type->name }}</td>
+          </tr>
+      @endforeach
+      </tbody>
     </table>
+  </div>
 @else
 <p>
     None

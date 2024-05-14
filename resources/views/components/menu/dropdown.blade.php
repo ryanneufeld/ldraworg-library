@@ -16,7 +16,7 @@
             'left-0 end-0 md:left-1/4 md:end-0' => $level > 0
         ])
         x-show="{{$mname}}" 
-        x-transition:enter="transition ease-out duration-100" 
+        x-transition:enter="transition ease-out delay-300 duration-100" 
         x-transition:enter-start="transform opacity-0"
         x-cloak
     >
