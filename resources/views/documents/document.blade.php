@@ -23,8 +23,9 @@
                 Non-adminstrative changes can only be made with the approval of the maintainer.
             </p>
         </x-message>     
-        <div class="documentation">
-            {!! Blade::render($document->content) !!}
+        <div class="documentation flex flex-col md:flex-row gap-2">
+            <div>{!! Blade::render($document->content) !!}</div>
+            <div class="md:w-3/5 border rounded-lg mx-4 h-fit"><x-table-of-contents :$document /></div>
         </div>
     </div>
 </x-layout.documentation>
