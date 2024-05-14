@@ -19,6 +19,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table as Table;
+use Riodwanto\FilamentAceEditor\AceEditor;
 
 class DocumentManagePage extends BasicResourceManagePage
 {
@@ -91,8 +92,10 @@ class DocumentManagePage extends BasicResourceManagePage
                 ->required(),
             Textarea::make('revision_history')
                 ->string(),
-            Textarea::make('content')
-                ->rows(30)
+            AceEditor::make('content')
+                ->mode('php_laravel_blade')
+                ->height('30rem')
+                ->theme('github')
                 ->required()
         ];
     }

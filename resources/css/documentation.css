@@ -7,7 +7,7 @@
 }
 
 .documentation h3 {
-    @apply font-bold text-2xl py-4
+    @apply font-bold text-2xl py-2 px-4 bg-gray-200 rounded-lg
 }
 
 .documentation h4 {
@@ -48,4 +48,8 @@
 
 .documentation hr {
     @apply border border-gray-300 my-6 rounded
+}
+
+.documentation code {
+    @apply font-mono
 }
