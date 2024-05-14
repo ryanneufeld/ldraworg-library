@@ -13,6 +13,7 @@ use App\Http\Controllers\Part\PartWebGLController;
 use App\Http\Controllers\ReviewSummaryController;
 use App\Http\Controllers\TrackerHistoryController;
 use App\Livewire\Dashboard\Admin\Index as AdminIndex;
+use App\Livewire\Dashboard\Admin\Pages\DocumentCategoryManagePage;
 use App\Livewire\Dashboard\Admin\Pages\DocumentManagePage;
 use App\Livewire\Dashboard\Admin\Pages\PartRenderViewManagePage;
 use App\Livewire\Dashboard\Admin\Pages\ReviewSummaryManagePage;
@@ -93,6 +94,7 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
     Route::middleware(['can:viewAny,App\Models\Role'])->get('/roles', RoleManagePage::class)->name('roles.index');
     Route::middleware(['can:library.settings.edit'])->get('/part-render-views', PartRenderViewManagePage::class)->name('part-render-views.index');
     Route::middleware(['can:documentation.edit'])->get('/documents', DocumentManagePage::class)->name('documents.index');
+    Route::middleware(['can:documentation.edit'])->get('/document-categories', DocumentCategoryManagePage::class)->name('document-categories.index');
 });
 
 

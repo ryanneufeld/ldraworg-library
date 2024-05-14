@@ -1,11 +1,11 @@
 <div @class([
-    'p-2 border rounded-md flex items-center',
+    'p-4 border rounded-md flex items-center',
     'justify-center text-center' => $centered,
     'w-full' => !$compact,
     'w-fit' => $compact,
-    'bg-red-200 text-red-800' => $type === 'error',
-    'bg-yellow-200 text-yellow-800' => $type === 'warning',
-    'bg-blue-200 text-blue-800' => $type === 'info',
+    'bg-red-100 text-red-800' => $type === 'error',
+    'bg-yellow-100 text-yellow-800' => $type === 'warning',
+    'bg-blue-100 text-blue-800' => $type === 'info',
 ])>
     @if($icon)
         @switch($type)

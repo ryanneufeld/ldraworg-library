@@ -4,7 +4,6 @@ namespace App\Livewire\Dashboard\Admin\Pages;
 
 use App\Models\Document\Document;
 use App\Models\Document\DocumentCategory;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -17,6 +16,7 @@ use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table as Table;
 
@@ -41,6 +41,8 @@ class DocumentManagePage extends BasicResourceManagePage
                 TextColumn::make('category.category')
                     ->sortable()
                     ->searchable(),
+                ToggleColumn::make('published'),
+                ToggleColumn::make('restricted')
             ])
             ->actions([
                 EditAction::make()
@@ -89,7 +91,8 @@ class DocumentManagePage extends BasicResourceManagePage
                 ->required(),
             Textarea::make('revision_history')
                 ->string(),
-            MarkdownEditor::make('content')
+            Textarea::make('content')
+                ->rows(30)
                 ->required()
         ];
     }

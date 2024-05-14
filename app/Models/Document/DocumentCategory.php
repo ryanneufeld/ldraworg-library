@@ -4,6 +4,7 @@ namespace App\Models\Document;
 
 use App\Models\Traits\HasOrder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DocumentCategory extends Model
 {
@@ -15,5 +16,10 @@ class DocumentCategory extends Model
     ];
 
     public $timestamps = false;
+
+    public function documents(): HasMany 
+    {
+        return $this->HasMany(Document::class, 'document_category_id', 'id');
+    }
 
 }
