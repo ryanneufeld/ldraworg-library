@@ -51,12 +51,33 @@ class PartTable
                     ->multiple()
                     ->preload()
                     ->label('Part Type'),
+                SelectFilter::make('part_category_id')
+                    ->relationship('category', 'category')
+                    ->native(false)
+                    ->multiple()
+                    ->preload()
+                    ->label('Category'),
+                SelectFilter::make('keywords')
+                    ->relationship('keywords', 'keyword')
+                    ->native(false)
+                    ->multiple()
+                    ->label('Keywords'),
                 SelectFilter::make('part_license_id')
                     ->relationship('license', 'name')
                     ->native(false)
                     ->searchable()
                     ->preload()
                     ->label('Part License'),
+                TernaryFilter::make('part_class')
+                    ->label('Part Class')
+                    ->placeholder('All Parts')
+                    ->trueLabel('Third Party Parts')
+                    ->falseLabel('Alias Parts')
+                    ->queries(
+                        true: fn (Builder $q) => $q->where('description', 'LIKE', '|%'),
+                        false: fn (Builder $q) => $q->whereRelation('type_qualifier', 'type', 'Alias'),
+                        blank: fn (Builder $q) => $q,
+                    ),
                 TernaryFilter::make('exclude_fixes')
                     ->label('Fix Status')
                     ->placeholder('All Parts')
