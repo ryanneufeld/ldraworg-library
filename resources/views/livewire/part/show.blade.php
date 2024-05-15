@@ -25,7 +25,7 @@
     @endpush
 
     <div class="flex flex-col space-y-4">
-        <div class="flex flex-col space-y-2 md:flex-row md:space-x-2">
+        <div class="flex flex-wrap gap-2">
             {{ $this->downloadAction }}
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
@@ -49,7 +49,7 @@
                 $this->recheckPartAction->isVisible() ||
                 $this->updateSubpartsAction->isVisible() ||
                 $this->retieFixAction->isVisible() ||
-                $this->deleteAction
+                $this->deleteAction->isVisible()
             )
                 <x-filament-actions::group
                     :actions="[
@@ -184,7 +184,7 @@
                 </button>
             </form>
         @endcan
-        <div class="flex flex-col space-y-2 md:flex-row md:space-x-2">
+        <div class="flex flex-wrap gap-2">
             {{ $this->downloadAction }}
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
@@ -208,7 +208,7 @@
                 $this->recheckPartAction->isVisible() ||
                 $this->updateSubpartsAction->isVisible() ||
                 $this->retieFixAction->isVisible() ||
-                $this->deleteAction
+                $this->deleteAction->isVisible()
             )
                 <x-filament-actions::group
                     :actions="[
