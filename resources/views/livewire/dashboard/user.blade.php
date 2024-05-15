@@ -19,7 +19,12 @@
         >
             Events on my submits
         </x-filament::tabs.item>
-    
+        <x-filament::tabs.item 
+            :active="$activeTab === 'user-votes'"
+            wire:click="$set('activeTab', 'user-votes')"
+        >
+            My Votes
+        </x-filament::tabs.item>    
         <x-filament::tabs.item
             :active="$activeTab === 'review-list'"
             wire:click="$set('activeTab', 'review-list')"
@@ -35,6 +40,9 @@
             @break
         @case('user-part-events')
             <livewire:tables.user-part-events-table />
+        @break 
+        @case('user-votes')
+            <livewire:tables.user-votes-table />
         @break 
         @case('review-list')
             <livewire:tables.part-ready-for-user-table />
