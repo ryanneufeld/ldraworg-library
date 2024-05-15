@@ -25,7 +25,7 @@
     @endpush
 
     <div class="flex flex-col space-y-4">
-        <div class="flex flex-row space-x-2">
+        <div class="flex flex-col space-y-2 md:flex-row md:space-x-2">
             {{ $this->downloadAction }}
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
@@ -42,23 +42,32 @@
             @if ($this->certifyAllAction->isVisible())
                 {{ $this->certifyAllAction }}
             @endif
-            <x-filament-actions::group
-                :actions="[
-                    $this->editHeaderAction,
-                    $this->editNumberAction,
-                    $this->updateImageAction,
-                    $this->recheckPartAction,
-                    $this->updateSubpartsAction,
-                    $this->retieFixAction,
-                    $this->deleteAction
-                ]"
-                label="Admin Tools"
-                icon="fas-caret-down"
-                button="true"
-                color="gray"
-                outlined="true"
-            />
             {{ $this->webglViewAction }}
+            @if ($this->editHeaderAction->isVisible() ||
+                $this->editNumberAction->isVisible() ||
+                $this->updateImageAction->isVisible() ||
+                $this->recheckPartAction->isVisible() ||
+                $this->updateSubpartsAction->isVisible() ||
+                $this->retieFixAction->isVisible() ||
+                $this->deleteAction
+            )
+                <x-filament-actions::group
+                    :actions="[
+                        $this->editHeaderAction,
+                        $this->editNumberAction,
+                        $this->updateImageAction,
+                        $this->recheckPartAction,
+                        $this->updateSubpartsAction,
+                        $this->retieFixAction,
+                        $this->deleteAction
+                    ]"
+                    label="Admin Tools"
+                    icon="fas-caret-down"
+                    button="true"
+                    color="gray"
+                    outlined="true"
+                />
+            @endif
         </div>
         <div @class([
                 'text-3xl font-bold py-2 px-3 w-fit rounded-lg',
@@ -175,7 +184,7 @@
                 </button>
             </form>
         @endcan
-        <div class="flex flex-row space-x-2">
+        <div class="flex flex-col space-y-2 md:flex-row md:space-x-2">
             {{ $this->downloadAction }}
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
@@ -192,25 +201,34 @@
             @if ($this->certifyAllAction->isVisible())
                 {{ $this->certifyAllAction }}
             @endif
-            <x-filament-actions::group
-                :actions="[
-                    $this->editHeaderAction,
-                    $this->editNumberAction,
-                    $this->updateImageAction,
-                    $this->recheckPartAction,
-                    $this->updateSubpartsAction,
-                    $this->retieFixAction,
-                    $this->deleteAction
-                ]"
-                label="Admin Tools"
-                icon="fas-caret-down"
-                button="true"
-                color="gray"
-                outlined="true"
-            />
+            <x-part.attribution :part="$part" />
+            @if ($this->editHeaderAction->isVisible() ||
+                $this->editNumberAction->isVisible() ||
+                $this->updateImageAction->isVisible() ||
+                $this->recheckPartAction->isVisible() ||
+                $this->updateSubpartsAction->isVisible() ||
+                $this->retieFixAction->isVisible() ||
+                $this->deleteAction
+            )
+                <x-filament-actions::group
+                    :actions="[
+                        $this->editHeaderAction,
+                        $this->editNumberAction,
+                        $this->updateImageAction,
+                        $this->recheckPartAction,
+                        $this->updateSubpartsAction,
+                        $this->retieFixAction,
+                        $this->deleteAction
+                    ]"
+                    label="Admin Tools"
+                    icon="fas-caret-down"
+                    button="true"
+                    color="gray"
+                    outlined="true"
+                />
+            @endif
             {{ $this->webglViewAction }}
         </div>
-         <x-part.attribution :part="$part" />
     </div>
     <x-filament::modal id="ldbi" alignment="center" width="7xl">
         <x-slot name="heading">
