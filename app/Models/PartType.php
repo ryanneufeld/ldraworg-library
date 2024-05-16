@@ -15,5 +15,10 @@ class PartType extends Model
     {
         $u = $unofficial ? 'Unofficial_' : '';
         return "0 !LDRAW_ORG {$u}{$this->type}";
-    }      
+    }
+    
+    public static function getDirectories(): array
+    {
+        return self::pluck('folder')->unique()->all();
+    }
 }

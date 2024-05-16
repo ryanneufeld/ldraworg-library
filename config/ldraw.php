@@ -3,21 +3,6 @@
 // LDraw Config Values
 
 return [
-  // Default directories for the ldraw folder
-  'dirs' => [
-    'parts',
-    'parts/s',
-    'parts/textures',
-    'parts/textures/s',
-    'p',
-    'p/48',
-    'p/8',
-    'p/textures/48',
-    'p/textures/8',
-    'parts/helpers',
-    'parts/textures/helpers',
-  ],
-
   // The location for temporary staging of files
   'staging_dir' => [
     'disk' => 'local',
