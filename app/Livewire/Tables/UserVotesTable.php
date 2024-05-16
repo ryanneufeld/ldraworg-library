@@ -58,7 +58,7 @@ class UserVotesTable extends BasicTable
             ])
             ->filters([
                 SelectFilter::make('vote_type_code')
-                    ->options(VoteType::whereIn('code', ['A', 'C', 'T', 'H'])->orderBy('sort', 'asc')->pluck('name', 'code'))
+                    ->options(VoteType::whereIn('code', ['A', 'C', 'T', 'H'])->ordered()->pluck('name', 'code'))
                     ->preload()
                     ->multiple()
                     ->label('My Vote'),   

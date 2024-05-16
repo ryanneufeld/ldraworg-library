@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasOrder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VoteType extends Model
 {
-
+    use HasOrder;
+    
     protected $primaryKey = 'code';
     protected $keyType = 'string';
     public $incrementing = false;
@@ -18,7 +20,7 @@ class VoteType extends Model
         'short',
         'name',
         'phrase',
-        'sort',
+        'order',
     ];
 
     public function votes(): HasMany

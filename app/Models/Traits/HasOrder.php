@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait HasOrder
 {
-    public function ordered(Builder $query): void
+    public function scopeOrdered(Builder $query): void
     {
         $query->orderBy('order', 'asc');
     }

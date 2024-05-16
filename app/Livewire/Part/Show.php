@@ -48,7 +48,7 @@ class Show extends Component implements HasForms, HasActions
                                 $options = [];                                
                                 $u = Auth::user();
                                 $v = $this->part->votes->firstWhere('user_id', $u->id);
-                                foreach(VoteType::orderBy('sort')->get() as $vt) {
+                                foreach(VoteType::ordered()->get() as $vt) {
                                     switch($vt->code) {
                                         case 'N':
                                             if (!is_null($v) && $u->can('update', [$v, $vt->code])) {
@@ -70,7 +70,7 @@ class Show extends Component implements HasForms, HasActions
                             ->default('M')
                             ->required()
                             ->markAsRequired(false)
-                            ->in(array_keys(VoteType::orderBy('sort')->pluck('name', 'code')->all()))
+                            ->in(array_keys(VoteType::ordered()->pluck('name', 'code')->all()))
                             ->inline()
                             ->inlineLabel(false)     
                             ->disableOptionWhen(fn (string $value): bool => $value === 'published')
