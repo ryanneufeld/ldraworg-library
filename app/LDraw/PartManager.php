@@ -190,7 +190,7 @@ class PartManager
         }
         $lib = $part->isUnofficial() ? 'unofficial' : 'official';
         $imageFilename = substr($part->filename, 0, -4) . '.png';
-        $imagePath = Storage::disk(config("ldraw.render.dir.image.{$lib}.disk"))->path(config("ldraw.render.dir.image.{$lib}.path") . "/{$imageFilename}");
+        $imagePath = Storage::disk('images')->path("library/{$lib}/{$imageFilename}");
         $imageThumbPath = substr($imagePath, 0, -4) . '_thumb.png';
         imagepng($image, $imagePath);
         $this->imageOptimize($imagePath);

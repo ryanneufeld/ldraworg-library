@@ -4,14 +4,7 @@
 
 return [
   // The location for temporary staging of files
-  'staging_dir' => [
-    'disk' => 'local',
-    'path' => 'tmp'
-  ],
-
   'rebrickable' => [
-    'rate_limit' => 1,
-    'retry_limit' => 2,
     'api' => [
       'url' => 'https://rebrickable.com/api/v3/lego',
       'key' => env('REBRICKABLE_API_KEY'),
@@ -20,22 +13,6 @@ return [
 
   // LDView parameters and paths
   'render' => [
-    'dir' => [
-      'ldconfig' => [
-        'disk' => 'library',
-        'path' => 'official/LDConfig.ldr'
-      ], 
-      'image' => [
-        'official' => [
-          'disk' => 'images',
-          'path' => 'library/official',  
-        ],
-        'unofficial' => [
-          'disk' => 'images',
-          'path' => 'library/unofficial',  
-        ]      
-      ],
-    ],
     'options' => [
       'Texmaps' => '1',
       'AutoCrop' => '1',
@@ -135,12 +112,6 @@ return [
       'BFC', 
       '//',
     ],
-  ],
-
-  'known_author_aliases' => [
-    'The LEGO Universe Team' => 'LEGO Universe Team',
-    'simlego' => 'Tore_Eriksson',
-    'Valemar' => 'rhsexton',
   ],
 
   'pattern-codes' => [

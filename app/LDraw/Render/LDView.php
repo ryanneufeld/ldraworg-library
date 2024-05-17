@@ -9,13 +9,13 @@ use App\Models\PartRenderView;
 use GdImage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Facades\Storage;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class LDView
 {
     public function __construct(
         public readonly array $options,
-        public readonly string $ldconfigPath,
         public readonly int $maxHeight,
         public readonly int $maxWidth,
         public readonly bool $debug,
@@ -25,7 +25,7 @@ class LDView
     public function render(Part|OmrModel $part): GDImage
     {
         $tempDir = TemporaryDirectory::make()->deleteWhenDestroyed();
-
+        $ldconfigPath = Storage::disk('library')->path('official/LDConfig.ldr');
         // LDview requires a p and parts directory
         $ldrawdir = $tempDir->path("ldraw");
         $tempDir->path("ldraw/parts");
@@ -59,7 +59,7 @@ class LDView
         file_put_contents($inipath, implode("\n", $cmds));
         
         // Run LDView
-        $ldviewcmd = "ldview {$filename} -LDConfig={$this->ldconfigPath} -LDrawDir={$ldrawdir} -IniFile={$inipath} {$normal_size} -SaveSnapshot={$imagepath}";
+        $ldviewcmd = "ldview {$filename} -LDConfig={$ldconfigPath} -LDrawDir={$ldrawdir} -IniFile={$inipath} {$normal_size} -SaveSnapshot={$imagepath}";
         if ($this->debug) {
             Log::debug($ldviewcmd);
         }

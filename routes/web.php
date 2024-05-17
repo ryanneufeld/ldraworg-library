@@ -19,6 +19,7 @@ use App\Livewire\Dashboard\Admin\Pages\PartRenderViewManagePage;
 use App\Livewire\Dashboard\Admin\Pages\ReviewSummaryManagePage;
 use App\Livewire\Dashboard\Admin\Pages\RoleManagePage;
 use App\Livewire\Dashboard\Admin\Pages\UserManagePage;
+use App\Livewire\Dashboard\Admin\Pages\LibrarySettingsPage;
 use App\Livewire\Dashboard\User;
 use App\Livewire\Omr\Set\Index;
 use App\Livewire\Part\Index as PartIndex;
@@ -95,6 +96,7 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
     Route::middleware(['can:library.settings.edit'])->get('/part-render-views', PartRenderViewManagePage::class)->name('part-render-views.index');
     Route::middleware(['can:documentation.edit'])->get('/documents', DocumentManagePage::class)->name('documents.index');
     Route::middleware(['can:documentation.edit'])->get('/document-categories', DocumentCategoryManagePage::class)->name('document-categories.index');
+    Route::middleware(['can:settings.edit'])->get('/settings', LibrarySettingsPage::class)->name('settings');
 });
 
 
