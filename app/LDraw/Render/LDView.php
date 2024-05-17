@@ -6,6 +6,7 @@ use App\LDraw\LDrawModelMaker;
 use App\Models\Omr\OmrModel;
 use App\Models\Part;
 use App\Models\PartRenderView;
+use App\Settings\LibrarySettings;
 use GdImage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
@@ -15,11 +16,9 @@ use Spatie\TemporaryDirectory\TemporaryDirectory;
 class LDView
 {
     public function __construct(
-        public readonly array $options,
-        public readonly int $maxHeight,
-        public readonly int $maxWidth,
-        public readonly bool $debug,
-        public LDrawModelMaker $modelmaker,
+        protected readonly bool $debug,
+        protected LibrarySettings $settings,
+        protected LDrawModelMaker $modelmaker,
     ) {}
     
     public function render(Part|OmrModel $part): GDImage
@@ -46,12 +45,12 @@ class LDView
             file_put_contents($filename, $this->modelmaker->modelMpd($part));
         }
         
-        $normal_size = "-SaveWidth={$this->maxWidth} -SaveHeight={$this->maxWidth}";
+        $normal_size = "-SaveWidth={$this->settings->max_render_width} -SaveHeight={$this->settings->max_render_height}";
         $imagepath = $tempDir->path("part.png");
         
         // Make the ldview.ini
         $cmds = ['[General]'];
-        foreach($this->options as $command => $value) {
+        foreach($this->settings->ldview_options as $command => $value) {
           $cmds[] = "{$command}={$value}";
         }  
 

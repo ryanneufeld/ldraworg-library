@@ -1,8 +1,5 @@
 <?php
 use App\Livewire\FileEditor;
-use App\Models\Part;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['can:edit-files'])->get('/ace', FileEditor::class)->name('ace');

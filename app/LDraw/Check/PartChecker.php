@@ -9,11 +9,12 @@ use App\Models\Part;
 use App\LDraw\Parse\ParsedPart;
 use App\Models\PartCategory;
 use App\Models\PartLicense;
+use App\Settings\LibrarySettings;
 
 class PartChecker
 {
     public function __construct(
-        public readonly array $allowedBodyMetas
+        protected LibrarySettings $settings
     ) {}
     /**
      * check
@@ -53,8 +54,8 @@ class PartChecker
             if ($part->manual_hold_flag) {
                 $errors[] = 'Manual hold back by admin';
             }
-            if ($part->license->id <> PartLicense::default()->id) {
-                $errors[] = 'Part License not ' . PartLicense::default()->name;
+            if ($part->license->id <> $this->settings->default_part_license_id) {
+                $errors[] = 'Part License not ' . PartLicense::find($this->settings->default_part_license_id)->name;
             }
         }
         $can_release = count($errors) == 0;
@@ -390,6 +391,6 @@ class PartChecker
         return $words === false ||
             $words[0] !== '0' ||
             trim($line) === '0' || 
-            ($words[0] === '0' && count($words) > 1 && in_array($words[1], $this->allowedBodyMetas, true));
+            ($words[0] === '0' && count($words) > 1 && in_array($words[1], $this->settings->allowed_body_metas, true));
     }
 } 

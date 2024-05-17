@@ -12,6 +12,7 @@ use App\Models\PartTypeQualifier;
 use App\Models\Rebrickable\RebrickablePart;
 use App\Models\StickerSheet;
 use App\Models\User;
+use App\Settings\LibrarySettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +27,7 @@ class PartManager
     public function __construct(
         public Parser $parser,
         public LDView $render,
+        protected LibrarySettings $settings
     ) {}
 
     public function submit(array $files, User $user): Collection
@@ -194,7 +196,7 @@ class PartManager
         $imageThumbPath = substr($imagePath, 0, -4) . '_thumb.png';
         imagepng($image, $imagePath);
         $this->imageOptimize($imagePath);
-        Image::load($imagePath)->fit(Fit::Contain, config('ldraw.image.thumb.width'), config('ldraw.image.thumb.height'))->save($imageThumbPath);
+        Image::load($imagePath)->fit(Fit::Contain, $this->settings->max_thumb_width, $this->settings->max_thumb_height)->save($imageThumbPath);
         $this->imageOptimize($imageThumbPath);
     }
 

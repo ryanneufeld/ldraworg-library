@@ -3,6 +3,7 @@
 namespace App\Livewire\Tracker;
 
 use App\Models\PartLicense;
+use App\Settings\LibrarySettings;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -12,7 +13,7 @@ class ConfirmCA extends Component
     public function updateLicense()
     {
         $user = Auth::user();
-        $user->license()->associate(PartLicense::default());
+        $user->license()->associate(PartLicense::find(app(LibrarySettings::class)->default_part_license_id));
         $user->save();
         return $this->redirectRoute(session('ca_route_redirect'));   
     }

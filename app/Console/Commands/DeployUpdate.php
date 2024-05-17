@@ -47,22 +47,5 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $settings = app(\App\Settings\LibrarySettings::class);
-        
-        $settings->ldview_options = config('ldraw.render.options');
-        $settings->max_render_height = config('ldraw.image.normal.height');
-        $settings->max_render_width = config('ldraw.image.normal.width');
-        $settings->max_thumb_height = config('ldraw.image.thumb.height');
-        $settings->max_thumb_width = config('ldraw.image.thumb.width');
-        
-        $settings->allowed_header_metas = config('ldraw.allowed_metas.header');
-        $settings->allowed_body_metas = config('ldraw.allowed_metas.body');
-        
-        $settings->default_part_license_id = PartLicense::firstWhere('name', 'CC_BY_4')->id;
-        $settings->quick_search_limit = config('ldraw.search.quicksearch.limit');
-        
-        $settings->pattern_codes = config('ldraw.pattern-codes');
-        
-        $settings->save();
     }
 }

@@ -5,6 +5,7 @@ namespace App\Livewire\Dashboard\Admin\Pages;
 use App\Models\MybbUser;
 use App\Models\PartLicense;
 use App\Models\User;
+use App\Settings\LibrarySettings;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Select;
@@ -115,7 +116,7 @@ class UserManagePage extends BasicResourceManagePage
                 ->maxLength(255),
             Select::make('part_license_id')
                 ->relationship('license', titleAttribute: 'name')
-                ->default(PartLicense::default()->id)
+                ->default(app(LibrarySettings::class)->default_part_license_id)
                 ->native(false)
                 ->required(),
             Select::make('roles')

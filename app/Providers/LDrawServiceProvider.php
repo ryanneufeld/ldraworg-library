@@ -10,6 +10,7 @@ use App\LDraw\Parse\Parser;
 use App\LDraw\PartManager;
 use App\LDraw\Rebrickable;
 use App\LDraw\Render\LDView;
+use App\Settings\LibrarySettings;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,7 +24,7 @@ class LDrawServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(PartChecker::class, function (Application $app) { 
-            return new PartChecker(config('ldraw.allowed_metas.body'));
+            return new PartChecker($app->make(LibrarySettings::class));
         });
 
         $this->app->singleton(Parser::class, function (Application $app) { 
@@ -31,16 +32,14 @@ class LDrawServiceProvider extends ServiceProvider
                 config('ldraw.patterns'),
                 \App\Models\PartType::pluck('type')->all(),
                 \App\Models\PartTypeQualifier::pluck('type')->all(),
-                config('ldraw.allowed_metas.header')
+                $app->make(LibrarySettings::class),
             );
         });
 
         $this->app->bind(LDView::class, function (Application $app) { 
             return new LDView(
-                config('ldraw.render.options'),
-                config('ldraw.image.normal.height'),
-                config('ldraw.image.normal.width'),
-                config('ldraw.render.debug', false),
+                config('ldraw.ldview_debug'),
+                $app->make(LibrarySettings::class),
                 new LDrawModelMaker()
             );    
         });
@@ -49,13 +48,13 @@ class LDrawServiceProvider extends ServiceProvider
             return new PartManager(
                 $app->make(Parser::class),
                 $app->make(LDView::class),
+                $app->make(LibrarySettings::class),
             );
         });
         
         $this->app->singleton(Rebrickable::class, function (Application $app) {
             return new Rebrickable(
-                config('ldraw.rebrickable.api.key'),
-                config('ldraw.rebrickable.api.url'),
+                config('ldraw.rebrickable_api_key'),
             );
         });
     } 

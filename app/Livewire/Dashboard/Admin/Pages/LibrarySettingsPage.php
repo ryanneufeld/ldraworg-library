@@ -32,9 +32,11 @@ class LibrarySettingsPage extends Component implements HasForms
                             ->schema([
                                 Select::make('default_part_license_id')
                                     ->options(PartLicense::pluck('name', 'id'))
+                                    ->required()
                                     ->label('Default Part License'),
                                 TextInput::make('quick_search_limit')
                                     ->label('Max Items for Quick Search')
+                                    ->required()
                                     ->integer(),
                            ]),
                         Tabs\Tab::make('Parser Settings')
@@ -65,12 +67,16 @@ class LibrarySettingsPage extends Component implements HasForms
                                 FieldSet::make('Image Size')
                                     ->schema([
                                         TextInput::make('max_render_height')
+                                            ->required()
                                             ->integer(),
                                         TextInput::make('max_render_width')
+                                            ->required()
                                             ->integer(),
                                         TextInput::make('max_thumb_height')
+                                            ->required()
                                             ->integer(),
                                         TextInput::make('max_thumb_width')
+                                            ->required()
                                             ->integer(),
                                         
                                     ])
@@ -92,6 +98,9 @@ class LibrarySettingsPage extends Component implements HasForms
             'max_thumb_width' => $settings->max_thumb_width,
             'allowed_header_metas' => $settings->allowed_header_metas,
             'allowed_body_metas' => $settings->allowed_body_metas,
+            'default_part_license_id' => $settings->default_part_license_id,
+            'pattern_codes' => $settings->pattern_codes,
+            'quick_search_limit' => $settings->quick_search_limit,
         ];
         $this->form->fill($form_data);
     }
@@ -107,6 +116,9 @@ class LibrarySettingsPage extends Component implements HasForms
         $settings->max_thumb_width = $form_data['max_thumb_width'];
         $settings->allowed_header_metas = $form_data['allowed_header_metas'];
         $settings->allowed_body_metas = $form_data['allowed_body_metas'];
+        $settings->pattern_codes = $form_data['pattern_codes'];
+        $settings->quick_search_limit = $form_data['quick_search_limit'];
+        $settings->default_part_license_id = $form_data['default_part_license_id'];
         $settings->save();
     }
     

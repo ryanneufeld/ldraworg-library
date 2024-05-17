@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Settings\LibrarySettings;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,9 +15,9 @@ class CurrentLicense
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, LibrarySettings $settings): Response
     {
-        if (Auth::user()->license->id != \App\Models\PartLicense::default()->id) {
+        if (Auth::user()->license->id != $settings->default_part_license_id) {
             session(['ca_route_redirect' => $request->route()->getName()]);
             return redirect('tracker/confirmCA');
         }

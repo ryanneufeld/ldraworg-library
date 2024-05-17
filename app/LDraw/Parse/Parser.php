@@ -2,13 +2,15 @@
 
 namespace App\LDraw\Parse;
 
+use App\Settings\LibrarySettings;
+
 class Parser
 {
     public function __construct(
         protected readonly array $patterns,
         protected readonly array $types,
         protected readonly array $type_qualifiers,
-        protected readonly array $header_metas
+        protected LibrarySettings $settings,
     ) {}
 
     public function parse(string $part): ParsedPart 
@@ -439,7 +441,7 @@ class Parser
             $l = explode(' ', $lines[$index]);
             $isEmptyLine = $lines[$index] === '' || $lines[$index] === '0';
             $isHeaderBFC = count($l) >= 2 && $l[1] === 'BFC' && in_array($lines[$index], ['0 BFC CERTIFY CCW', '0 BFC CERTIFY CW', '0 BFC NOCERTIFY']);
-            $isHeaderMeta = count($l) >= 2 && $l[1] !== 'BFC' && in_array($l[1], $this->header_metas);
+            $isHeaderMeta = count($l) >= 2 && $l[1] !== 'BFC' && in_array($l[1], $this->settings->allowed_header_metas);
             $headerend = !$isEmptyLine && !($isHeaderMeta || $isHeaderBFC);
             if ($headerend) {
                 break;
@@ -457,7 +459,7 @@ class Parser
             $l = explode(' ', $lines[$index]);
             $isEmptyLine = $lines[$index] === '' || $lines[$index] === '0';
             $isHeaderBFC = count($l) >= 2 && $l[1] === 'BFC' && in_array($lines[$index], ['0 BFC CERTIFY CCW', '0 BFC CERTIFY CW', '0 BFC NOCERTIFY']);
-            $isHeaderMeta = count($l) >= 2 && $l[1] !== 'BFC' && in_array($l[1], $this->header_metas);
+            $isHeaderMeta = count($l) >= 2 && $l[1] !== 'BFC' && in_array($l[1], $this->settings->allowed_header_metas);
             $headerend = !$isEmptyLine && !($isHeaderMeta || $isHeaderBFC);
             if ($headerend) {
                 break;

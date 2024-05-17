@@ -3,6 +3,7 @@
 namespace App\Livewire\Search;
 
 use App\Models\Part;
+use App\Settings\LibrarySettings;
 use Livewire\Component;
 
 class MenuItem extends Component
@@ -18,7 +19,7 @@ class MenuItem extends Component
         if (empty($this->search) || !is_string($this->search)) {
             return;
         }
-        $limit = config('ldraw.search.quicksearch.limit');
+        $limit = app(LibrarySettings::class)->quick_search_limit;
         $uparts = Part::unofficial()->searchPart($this->search, 'header')->orderBy('filename')->take($limit)->get();
         $oparts = Part::official()->searchPart($this->search, 'header')->orderBy('filename')->take($limit)->get();
         if ($uparts->count() > 0) {
