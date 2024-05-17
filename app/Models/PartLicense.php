@@ -11,6 +11,11 @@ class PartLicense extends Model
 
     public $timestamps = false;
     
+    public $fillable = [
+        'name',
+        'text'
+    ];
+    
     public function toString(): string
     {
         return "0 !LICENSE {$this->text}";

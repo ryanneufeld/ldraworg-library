@@ -11,6 +11,10 @@ class PartCategory extends Model
 
     public $timestamps = false;
 
+    public $fillable = [
+        'category',
+    ];
+
     public function toString(): string 
     {
         return "0 !CATEGORY {$this->category}";

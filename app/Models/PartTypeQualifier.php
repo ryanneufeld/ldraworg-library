@@ -10,4 +10,10 @@ class PartTypeQualifier extends Model
     use HasParts;
 
     public $timestamps = false;
+
+    public $fillable = [
+        'type',
+        'name',
+    ];
+
 }

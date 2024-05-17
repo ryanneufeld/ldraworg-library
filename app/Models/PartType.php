@@ -10,7 +10,14 @@ class PartType extends Model
     use HasParts;
 
     public $timestamps = false;
-    
+
+    public $fillable = [
+        'type',
+        'name',
+        'folder',
+        'format'
+    ];
+
     public function toString(bool $unofficial = false): string 
     {
         $u = $unofficial ? 'Unofficial_' : '';
