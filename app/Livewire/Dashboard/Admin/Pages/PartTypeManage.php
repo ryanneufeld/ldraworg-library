@@ -31,10 +31,15 @@ class PartTypeManage extends BasicResourceManagePage
             ->heading('Part Type Management')
             ->paginated(false)
             ->columns([
-                TextColumn::make('type'),
+                TextColumn::make('type')
+                    ->sortable(),
                 TextColumn::make('name'),
                 TextColumn::make('folder'),
                 TextColumn::make('format'),
+                TextColumn::make('parts_count')
+                    ->counts('parts')
+                    ->label('Number of Parts')
+                    ->sortable()
             ])
 /*
             ->actions([

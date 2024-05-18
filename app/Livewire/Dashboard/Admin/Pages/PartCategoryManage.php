@@ -10,6 +10,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PartCategoryManage extends BasicResourceManagePage
 {
@@ -27,6 +28,11 @@ class PartCategoryManage extends BasicResourceManagePage
             ->paginated(false)
             ->columns([
                 TextColumn::make('category')
+                    ->sortable(),
+                TextColumn::make('parts_count')
+                    ->counts('parts')
+                    ->label('Number of Parts')
+                    ->sortable()
             ])
 /*
             ->actions([
