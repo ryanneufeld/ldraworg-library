@@ -22,7 +22,7 @@ The part was moved/renamed
 @empty($event->vote_type_code) 
 {{$event->user->name}} cancelled thier vote.
 @else
-{{$event->user->name}} left a {{strtolower($event->vote_type->name)}} vote.
+{{$event->user->name}} left a **{{strtolower($event->vote_type->name)}}** vote.
 @endempty
 @break
 @endswitch
