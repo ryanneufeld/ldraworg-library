@@ -18,7 +18,7 @@ class CurrentLicense
     public function handle(Request $request, Closure $next): Response
     {
         
-        if (Auth::user()->license->id != app(LibrarySettings::class)->default_part_license_id) {
+        if (Auth::user()->license->in_use === false) {
             session(['ca_route_redirect' => $request->route()->getName()]);
             return redirect('tracker/confirmCA');
         }

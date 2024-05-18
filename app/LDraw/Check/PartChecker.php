@@ -54,8 +54,8 @@ class PartChecker
             if ($part->manual_hold_flag) {
                 $errors[] = 'Manual hold back by admin';
             }
-            if ($part->license->id <> $this->settings->default_part_license_id) {
-                $errors[] = 'Part License not ' . PartLicense::find($this->settings->default_part_license_id)->name;
+            if ($part->license->in_use === false) {
+                $errors[] = "Part License {$part->license->name} not authorized for library";
             }
         }
         $can_release = count($errors) == 0;

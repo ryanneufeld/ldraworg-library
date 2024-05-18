@@ -2,21 +2,17 @@
 
 namespace App\Livewire\Dashboard\Admin\Pages;
 
-use App\Models\PartCategory;
 use App\Models\PartType;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
-use Spatie\Permission\Models\Role;
 
-class PartTypeManage extends BasicResourceManagePage
+class PartTypeManagePage extends BasicResourceManagePage
 {
     use InteractsWithForms;
     use InteractsWithTable;

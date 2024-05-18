@@ -10,10 +10,13 @@
             <x-menu.item label="General Library Settings" link="{{route('admin.settings.index')}}" />
             @endcan 
             @can('create', \App\Models\PartCategory::class)    
-                <x-menu.item label="View/Add Part Category" link="{{route('admin.part-categories.index')}}" />
+                <x-menu.item label="View/Add Part Categories" link="{{route('admin.part-categories.index')}}" />
             @endcan 
             @can('create', \App\Models\PartType::class)    
-                <x-menu.item label="View/Add Part Type" link="{{route('admin.part-types.index')}}" />
+                <x-menu.item label="View/Add Part Types" link="{{route('admin.part-types.index')}}" />
+            @endcan
+            @can('create', \App\Models\PartLicence::class)    
+                <x-menu.item label="View/Add Part Licenses" link="{{route('admin.part-licenses.index')}}" />
             @endcan
         </x-menu.dropdown>
     @endif
