@@ -218,23 +218,26 @@ class Part extends Model
 
     public function scopePatterns(Builder $query, string $basepart): void 
     {
-        $query->where(function(Builder $q) use ($basepart): void {
-            $q->where('filename', 'like', "parts/{$basepart}p__.dat")->orWhere('filename', 'like', "parts/{$basepart}p___.dat");
-        });
+        $query
+            ->whereRelation('type', 'folder', 'parts/')
+            ->whereRelation('category', 'category', '<>', 'Moved')
+            ->where('filename', 'REGEXP', '^parts\/' . $basepart . 'p(?:[a-z0-9]{2,3}|[0-9]{4})\.dat$');
     }
 
     public function scopeComposites(Builder $query, string $basepart): void 
     {
-        $query->where(function(Builder $q) use ($basepart) {
-            $q->where('filename', 'like', "parts/{$basepart}c__.dat")->orWhere('filename', 'like', "parts/{$basepart}c___.dat");
-        });
+        $query
+            ->whereRelation('type', 'folder', 'parts/')
+            ->whereRelation('category', 'category', '<>', 'Moved')
+            ->where('filename', 'REGEXP', '^parts\/' . $basepart . 'c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?\.dat$');
     }
 
     public function scopeStickerShortcuts(Builder $query, string $basepart): void 
     {
-        $query->where(function(Builder $q) use ($basepart) {
-            $q->where('filename', 'like', "parts/{$basepart}d__.dat")->orWhere('filename', 'like', "parts/{$basepart}d___.dat");
-        });
+        $query
+            ->has('sticker_sheet')
+            ->whereRelation('type', 'folder', 'parts/')
+            ->where('filename', 'LIKE', "parts/{$basepart}%.dat");
     }
 
     public function scopeAdminReady(Builder $query): void
@@ -246,22 +249,6 @@ class Part extends Model
             })
             ->whereDoesntHave('descendantsAndSelf', function ($q){
                 $q->where('vote_sort', '>', 2);
-            });
-    }
-
-    public function scopeUserReady(Builder $query): void
-    {
-        $query->unofficial()
-            ->whereIn('part_type_id', PartType::where('folder', 'parts/')->pluck('id')->all())
-            ->whereDoesntHave('descendantsAndSelf', function ($q) {
-                $q->where('vote_sort', '5');
-            })
-            ->whereHas('descendantsAndSelf', function ($q) {
-                $q->has('votes', '<=', 1)
-                ->whereDoesntHave('votes', function($q){
-                    $q->where('user_id', auth()->user()->id);
-                })
-                ->where('vote_sort', 3);
             });
     }
 
@@ -291,26 +278,17 @@ class Part extends Model
     
     public function hasPatterns(): bool 
     {
-        $basepart = $this->basePart();
-        return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
-            $q->where('filename', 'like', "parts/{$basepart}p__.dat")->orWhere('filename', 'like', "parts/{$basepart}p___.dat");
-        })->count() > 0;
+        return self::patterns($this->basepart())->count() > 0;
     }
 
     public function hasComposites(): bool 
     {
-        $basepart = $this->basePart();
-        return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
-            $q->where('filename', 'like', "parts/{$basepart}c__.dat")->orWhere('filename', 'like', "parts/{$basepart}c___.dat");
-        })->count() > 0;
+        return self::composites($this->basepart())->count() > 0;
     }
     
     public function hasStickerShortcuts(): bool 
     {
-        $basepart = $this->basePart();
-        return $this->type->folder == 'parts/' && self::where(function($q) use ($basepart) {
-            $q->where('filename', 'like', "parts/{$basepart}d__.dat")->orWhere('filename', 'like', "parts/{$basepart}d___.dat");
-        })->count() > 0;
+        return self::stickerShortcuts($this->basepart())->count() > 0;
     }
 
     public function basePart(): string 
