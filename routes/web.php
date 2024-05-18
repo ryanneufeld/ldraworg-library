@@ -19,6 +19,8 @@ use App\Livewire\Dashboard\Admin\Pages\ReviewSummaryManagePage;
 use App\Livewire\Dashboard\Admin\Pages\RoleManagePage;
 use App\Livewire\Dashboard\Admin\Pages\UserManagePage;
 use App\Livewire\Dashboard\Admin\Pages\LibrarySettingsPage;
+use App\Livewire\Dashboard\Admin\Pages\PartCategoryManage;
+use App\Livewire\Dashboard\Admin\Pages\PartTypeManage;
 use App\Livewire\Dashboard\User;
 use App\Livewire\Omr\Set\Index;
 use App\Livewire\Part\Index as PartIndex;
@@ -89,11 +91,13 @@ Route::prefix('documentation')->name('documentation.')->group(function () {
 
 Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminIndex::class)->name('index');
-    Route::get('/users', UserManagePage::class)->name('users.index');
+    Route::middleware(['can:create,App\Models\Users'])->get('/users', UserManagePage::class)->name('users.index');
     Route::middleware(['can:viewAny,App\Models\ReviewSummary\ReviewSummary'])->get('/summaries', ReviewSummaryManagePage::class)->name('summaries.index');
-    Route::middleware(['can:viewAny,App\Models\Role'])->get('/roles', RoleManagePage::class)->name('roles.index');
+    Route::middleware(['can:create,App\Models\Role'])->get('/roles', RoleManagePage::class)->name('roles.index');
     Route::middleware(['can:documentation.edit'])->get('/documents', DocumentManagePage::class)->name('documents.index');
     Route::middleware(['can:documentation.edit'])->get('/document-categories', DocumentCategoryManagePage::class)->name('document-categories.index');
+    Route::middleware(['can:create,App\Models\PartCategory'])->get('/part-categories', PartCategoryManage::class)->name('part-categories.index');
+    Route::middleware(['can:create,App\Models\PartType'])->get('/part-types', PartTypeManage::class)->name('part-types.index');
     Route::middleware(['can:settings.edit'])->get('/settings', LibrarySettingsPage::class)->name('settings.index');
 });
 
