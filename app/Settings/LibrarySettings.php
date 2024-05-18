@@ -7,7 +7,8 @@ use Spatie\LaravelSettings\Settings;
 class LibrarySettings extends Settings
 {
     public array $ldview_options;
-    
+    public array $default_render_views;
+
     public int $max_render_height;
     public int $max_render_width;
 

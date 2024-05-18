@@ -64,6 +64,10 @@ class LibrarySettingsPage extends Component implements HasForms
                                 KeyValue::make('ldview_options')
                                     ->label('LDView Options')
                                     ->keyLabel('Setting'),
+                                KeyValue::make('default_render_views')
+                                    ->label('Default Render Matrix')
+                                    ->keyLabel('Part')
+                                    ->valueLabel('Matrix'),
                                 FieldSet::make('Image Size')
                                     ->schema([
                                         TextInput::make('max_render_height')
@@ -92,6 +96,7 @@ class LibrarySettingsPage extends Component implements HasForms
     {
         $form_data = [
             'ldview_options' => $settings->ldview_options,
+            'default_render_views' => $settings->default_render_views,
             'max_render_height' => $settings->max_render_height,
             'max_render_width' => $settings->max_render_width,
             'max_thumb_height' => $settings->max_thumb_height,
@@ -110,6 +115,7 @@ class LibrarySettingsPage extends Component implements HasForms
         $form_data = $this->form->getState();
         $settings = app(LibrarySettings::class);
         $settings->ldview_options = $form_data['ldview_options'];
+        $settings->default_render_views = $form_data['default_render_views'];
         $settings->max_render_height = $form_data['max_render_height'];
         $settings->max_render_width = $form_data['max_render_width'];
         $settings->max_thumb_height = $form_data['max_thumb_height'];

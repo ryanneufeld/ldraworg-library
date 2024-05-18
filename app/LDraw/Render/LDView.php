@@ -33,12 +33,17 @@ class LDView
         // Store the part as an mpd
         $filename = $tempDir->path("part.mpd");
         if ($part instanceof Part) {
-            $view = PartRenderView::firstWhere('part_name', basename($part->filename, '.dat'));
-            $basePartView = PartRenderView::firstWhere('part_name', $part->basePart());
-            $matrix = $view->matrix ?? $basePartView->matrix ?? '1 0 0 0 1 0 0 0 1';
+            if (array_key_exists(basename($part->filename, '.dat'), $this->settings->default_render_views)) {
+                $matrix = $this->settings->default_render_views[basename($part->filename, '.dat')];
+            } elseif(array_key_exists($part->basePart(), $this->settings->default_render_views)) {
+                $matrix = $this->settings->default_render_views[$part->basePart()];
+            } else {
+                $matrix = '1 0 0 0 1 0 0 0 1';
+            }
         } else {
             $matrix = "1 0 0 0 1 0 0 0 1";
         }
+        
         if ($part instanceof Part) {
             file_put_contents($filename, $this->modelmaker->partMpd($part, $matrix));
         } else {

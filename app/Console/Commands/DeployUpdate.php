@@ -16,6 +16,7 @@ use App\Models\PartType;
 use App\Models\Rebrickable\RebrickablePart;
 use App\Models\StickerSheet;
 use App\Models\VoteType;
+use App\Settings\LibrarySettings;
 use Spatie\Permission\Models\Role;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,5 +48,9 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        $views = PartRenderView::pluck('matrix', 'part_name')->all();
+        $settings = app(LibrarySettings::class);
+        $settings->default_render_views = $views;
+        $settings->save();
     }
 }
