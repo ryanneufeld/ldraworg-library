@@ -53,12 +53,19 @@ class Suffix extends Component implements HasForms
     #[Layout('components.layout.tracker')]
     public function render()
     {
-        $offset = $this->basepart !== '' ? strlen($this->basepart) + 1 : 0;
-        $patterns = Part::patterns($this->basepart)->orderBy('filename')->get();
-        $pcount = $patterns->count();
-        $patterns = $patterns->groupBy(fn(Part $item, int $key) => $item->name()[$offset]);
-        $composites = Part::composites($this->basepart)->orderBy('filename')->get();
-        $shortcuts = Part::stickerShortcuts($this->basepart)->orderBy('filename')->get();
+        if ($this->basepart !== '') {
+            $offset = strlen($this->basepart);
+            $patterns = Part::patterns($this->basepart)->orderBy('filename')->get();
+            $pcount = $patterns->count();
+            $patterns = $patterns->groupBy(fn(Part $item, int $key) => $item->name()[$offset]);
+            $composites = Part::composites($this->basepart)->orderBy('filename')->get();
+            $shortcuts = Part::stickerShortcuts($this->basepart)->orderBy('filename')->get();                
+        } else {
+            $patterns = Part::where('id', '-1')->get();
+            $pcount = 0;
+            $composites = Part::where('id', '-1')->get();
+            $shortcuts = Part::where('id', '-1')->get();
+        }
         return view('livewire.search.suffix', compact('patterns', 'composites', 'shortcuts', 'pcount'));
     }
 }
