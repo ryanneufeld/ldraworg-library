@@ -15,7 +15,6 @@ use App\Http\Controllers\TrackerHistoryController;
 use App\Livewire\Dashboard\Admin\Index as AdminIndex;
 use App\Livewire\Dashboard\Admin\Pages\DocumentCategoryManagePage;
 use App\Livewire\Dashboard\Admin\Pages\DocumentManagePage;
-use App\Livewire\Dashboard\Admin\Pages\PartRenderViewManagePage;
 use App\Livewire\Dashboard\Admin\Pages\ReviewSummaryManagePage;
 use App\Livewire\Dashboard\Admin\Pages\RoleManagePage;
 use App\Livewire\Dashboard\Admin\Pages\UserManagePage;
@@ -93,10 +92,9 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
     Route::get('/users', UserManagePage::class)->name('users.index');
     Route::middleware(['can:viewAny,App\Models\ReviewSummary\ReviewSummary'])->get('/summaries', ReviewSummaryManagePage::class)->name('summaries.index');
     Route::middleware(['can:viewAny,App\Models\Role'])->get('/roles', RoleManagePage::class)->name('roles.index');
-    Route::middleware(['can:library.settings.edit'])->get('/part-render-views', PartRenderViewManagePage::class)->name('part-render-views.index');
     Route::middleware(['can:documentation.edit'])->get('/documents', DocumentManagePage::class)->name('documents.index');
     Route::middleware(['can:documentation.edit'])->get('/document-categories', DocumentCategoryManagePage::class)->name('document-categories.index');
-    Route::middleware(['can:settings.edit'])->get('/settings', LibrarySettingsPage::class)->name('settings');
+    Route::middleware(['can:settings.edit'])->get('/settings', LibrarySettingsPage::class)->name('settings.index');
 });
 
 

@@ -2,30 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\LDraw\Parse\Parser;
-use App\LDraw\PartManager;
-use App\LDraw\Rebrickable;
-use App\Models\MybbUser;
-use App\Models\PartLicense;
-use App\Models\User;
-use Spatie\Permission\Models\Permission;
-use App\Models\Part;
-use App\Models\PartRelease;
-use App\Models\PartRenderView;
-use App\Models\PartType;
-use App\Models\Rebrickable\RebrickablePart;
-use App\Models\StickerSheet;
-use App\Models\VoteType;
-use App\Settings\LibrarySettings;
-use Spatie\Permission\Models\Role;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class DeployUpdate extends Command
 {
@@ -48,9 +25,5 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        $views = PartRenderView::pluck('matrix', 'part_name')->all();
-        $settings = app(LibrarySettings::class);
-        $settings->default_render_views = $views;
-        $settings->save();
     }
 }
