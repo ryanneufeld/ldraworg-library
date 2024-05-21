@@ -323,7 +323,7 @@ class PartManager
         if (!is_null($sticker->sticker_sheet)) {
             $p->ancestorsAndSelf()->update(['sticker_sheet_id' => $sticker->sticker_sheet->id]);
         } else {
-            $m = preg_match('#^([0-9]+)[a-z]+\.dat$#iu', $sticker->name(), $s);
+            $m = preg_match('#^([0-9]+)[a-z]+(?:c[0-9]{2})?\.dat$#iu', $sticker->name(), $s);
             if ($m === 1) {
                 $sheet = StickerSheet::firstWhere('number', $s[1]);
                 if (is_null($sheet)) {
