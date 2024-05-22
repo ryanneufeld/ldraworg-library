@@ -352,6 +352,10 @@ class PartManager
                 $p->sticker_sheet_id = null;
             }    
         }
+        if (!is_null($p->sticker_sheet_id) && $p->category->category != 'Sticker') {
+            $p->category()->associate(PartCategory::firstWhere('category', 'Sticker Shortcut'));
+            $p->generateHeader();
+        }
         $p->save();
         $p->refresh();
     }
