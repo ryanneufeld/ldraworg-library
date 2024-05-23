@@ -221,7 +221,11 @@ class Part extends Model
         $query
             ->whereRelation('type', 'folder', 'parts/')
             ->whereRelation('category', 'category', '<>', 'Moved')
-            ->where('filename', 'REGEXP', '^parts\/' . $basepart . 'p(?:[a-z0-9]{2,3}|[0-9]{4})\.dat$');
+            ->where(fn (Builder $q) =>
+                $q->orWhere('filename', 'parts\/' . $basepart . 'p__.dat')
+                    ->orWhere('filename', 'parts\/' . $basepart . 'p___.dat')
+                    ->orWhere('filename', 'parts\/' . $basepart . 'p____.dat')
+            );
     }
 
     public function scopeComposites(Builder $query, string $basepart): void 
@@ -229,7 +233,10 @@ class Part extends Model
         $query
             ->whereRelation('type', 'folder', 'parts/')
             ->whereRelation('category', 'category', '<>', 'Moved')
-            ->where('filename', 'REGEXP', '^parts\/' . $basepart . 'c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?\.dat$');
+            ->where(fn (Builder $q) =>
+                $q->orWhere('filename', 'parts\/' . $basepart . 'c__.dat')
+                    ->orWhere('filename', 'parts\/' . $basepart . 'c____.dat')
+            );
     }
 
     public function scopeStickerShortcuts(Builder $query, string $basepart): void 
@@ -589,7 +596,7 @@ class Part extends Model
             foreach(['T', 'A', 'C', 'H'] as $letter) {
                 $code .= str_repeat($letter, $codes[$letter]);
             } 
-            return $code .= is_null($this->official_part) ? 'N)' : 'F)';
+            return $code .= is_null($this->official_part_id) ? 'N)' : 'F)';
         } else {
             return $this->statusText();
         }  

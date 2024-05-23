@@ -11,6 +11,8 @@ class Vote extends Model
 {
     use HasUser, HasPart;
 
+    protected $with = ['type'];
+    
     protected $fillable = ['user_id', 'part_id', 'vote_type_code', 'comment'];
 
     public function type(): BelongsTo

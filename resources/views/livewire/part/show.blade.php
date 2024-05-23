@@ -122,22 +122,6 @@
             </x-accordion>
           </div>
         </div>
-{{--         <div class="flex flex-col md:flex-row-reverse gap-2 w-full p-4 border rounded-md">
-            <img class = 'w-80 h-80 object-contain'
-                wire:click="$dispatch('open-modal', { id: 'ldbi' })"
-                src="{{$image}}" alt="{{ $part->description }}" title="{{ $part->description }}"
-            >
-            <div class="justify-self-start w-full">
-                <div class="text-lg font-bold">File Header:</div>
-                <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->header) }}</code>
-                <x-accordion id="showContents">
-                  <x-slot name="header" class="text-md font-bold pt-4">
-                      Show contents
-                  </x-slot>
-                  <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->body->body) }}</code>
-              </x-accordion>
-            </div>    
-        </div> --}}
         @if($part->isUnofficial())
             <div class="text-lg font-bold">Status:</div>
             <x-part.status :$part show-status />
@@ -184,51 +168,7 @@
                 </button>
             </form>
         @endcan
-        <div class="flex flex-wrap gap-2">
-            {{ $this->downloadAction }}
-            @if ($this->downloadZipAction->isVisible())
-                {{ $this->downloadZipAction }}
-            @endif
-            @if ($this->patternPartAction->isVisible())
-                {{ $this->patternPartAction }}
-            @endif
-            @if ($this->stickerSearchAction->isVisible())
-                {{ $this->stickerSearchAction }}
-            @endif
-            @if ($this->adminCertifyAllAction->isVisible())
-                {{ $this->adminCertifyAllAction }}
-            @endif
-            @if ($this->certifyAllAction->isVisible())
-                {{ $this->certifyAllAction }}
-            @endif
-            <x-part.attribution :part="$part" />
-            @if ($this->editHeaderAction->isVisible() ||
-                $this->editNumberAction->isVisible() ||
-                $this->updateImageAction->isVisible() ||
-                $this->recheckPartAction->isVisible() ||
-                $this->updateSubpartsAction->isVisible() ||
-                $this->retieFixAction->isVisible() ||
-                $this->deleteAction->isVisible()
-            )
-                <x-filament-actions::group
-                    :actions="[
-                        $this->editHeaderAction,
-                        $this->editNumberAction,
-                        $this->updateImageAction,
-                        $this->recheckPartAction,
-                        $this->updateSubpartsAction,
-                        $this->retieFixAction,
-                        $this->deleteAction
-                    ]"
-                    label="Admin Tools"
-                    icon="fas-caret-down"
-                    button="true"
-                    color="gray"
-                    outlined="true"
-                />
-            @endif
-            {{ $this->webglViewAction }}
-        </div>
+        <x-part.attribution :part="$part" />
     </div>
     <x-filament::modal id="ldbi" alignment="center" width="7xl">
         <x-slot name="heading">

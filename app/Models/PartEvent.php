@@ -13,6 +13,10 @@ class PartEvent extends Model
 {
     use HasPartRelease, HasUser, HasPart;
     
+    protected $with = [
+        'part_event_type'
+    ];
+
     protected $fillable = [
         'created_at',
         'initial_submit',

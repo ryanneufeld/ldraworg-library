@@ -97,8 +97,9 @@ class Show extends Component implements HasForms, HasActions
             return response(404);
         }
         
-        $this->part->load('events', 'history');
-        $this->part->events->load('part_event_type', 'user', 'part', 'vote_type');
+        $this->part->load('events');
+        $this->part->events->load('part', 'user', 'vote_type');
+        $this->part->votes->load('user');
         $this->image = 
             $this->part->isTexmap() ? route("{$this->part->libFolder()}.download", $this->part->filename) : version("images/library/{$this->part->libFolder()}/" . substr($this->part->filename, 0, -4) . '.png');
         $this->form->fill();
@@ -128,7 +129,7 @@ class Show extends Component implements HasForms, HasActions
     {
         return Action::make('stickerSearch')
                 ->url(fn() => route('search.sticker', ['sheet' => $this->part->sticker_sheet->number ?? '']))
-                ->visible(!is_null($this->part->sticker_sheet))
+                ->visible(!is_null($this->part->sticker_sheet_id))
                 ->label('View sticker sheet parts')
                 ->color('gray')
                 ->outlined();
