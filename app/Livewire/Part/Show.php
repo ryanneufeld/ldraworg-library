@@ -98,8 +98,6 @@ class Show extends Component implements HasForms, HasActions
         }
         
         $this->part->load('events');
-        $this->part->events->load('part', 'user', 'vote_type');
-        $this->part->votes->load('user');
         $this->image = 
             $this->part->isTexmap() ? route("{$this->part->libFolder()}.download", $this->part->filename) : version("images/library/{$this->part->libFolder()}/" . substr($this->part->filename, 0, -4) . '.png');
         $this->form->fill();
