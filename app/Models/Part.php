@@ -603,8 +603,8 @@ class Part extends Model
             $codes = array_merge(['A' => 0, 'C' => 0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
             foreach(['T', 'A', 'C', 'H'] as $letter) {
                 $code .= str_repeat($letter, $codes[$letter]);
-            } 
-            return $code .= is_null($this->official_part_id) ? 'N)' : 'F)';
+            }
+            return $code .= is_null($this->official_part) ? 'N)' : 'F)';
         } else {
             return $this->statusText();
         }  
