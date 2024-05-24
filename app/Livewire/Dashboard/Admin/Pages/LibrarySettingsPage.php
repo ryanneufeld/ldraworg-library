@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Dashboard\Admin\Pages;
 
+use App\Jobs\UpdatePartImage;
+use App\Models\Part;
 use App\Models\PartLicense;
 use App\Settings\LibrarySettings;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -114,7 +116,14 @@ class LibrarySettingsPage extends Component implements HasForms
     {
         $form_data = $this->form->getState();
         $settings = app(LibrarySettings::class);
+        $view_changes = [];
         $settings->ldview_options = $form_data['ldview_options'];
+        if ($settings->default_render_views != $form_data['default_render_views']) {
+            $new = array_diff_assoc($form_data['default_render_views'], $settings->default_render_views);
+            $old = array_diff_assoc($settings->default_render_views, $form_data['default_render_views']);
+            $view_changes = array_merge(array_keys($new), array_keys($old));
+            $settings->default_render_views = $form_data['default_render_views'];
+        }
         $settings->default_render_views = $form_data['default_render_views'];
         $settings->max_render_height = $form_data['max_render_height'];
         $settings->max_render_width = $form_data['max_render_width'];
@@ -126,6 +135,12 @@ class LibrarySettingsPage extends Component implements HasForms
         $settings->quick_search_limit = $form_data['quick_search_limit'];
         $settings->default_part_license_id = $form_data['default_part_license_id'];
         $settings->save();
+        foreach ($view_changes as $part) {
+            Part::whereRelation('type', 'folder', 'parts/')
+                ->where('filename', 'LIKE', "%{$part}%")
+                ->each(fn (Part $p) => UpdatePartImage::dispatch($p));
+        }
+
     }
     
     #[Layout('components.layout.admin')]
