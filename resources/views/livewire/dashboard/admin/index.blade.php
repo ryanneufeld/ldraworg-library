@@ -13,6 +13,12 @@
         >
             Parts Ready For Admin Review
         </x-filament::tabs.item>
+        <x-filament::tabs.item 
+            :active="$activeTab === 'sticker-admin-ready'"
+            wire:click="$set('activeTab', 'sticker-admin-ready')"
+        >
+            Sticker Shortcuts For Admin Review
+        </x-filament::tabs.item>
         <x-filament::tabs.item
             :active="$activeTab === 'delete-flag'"
             wire:click="$set('activeTab', 'delete-flag')"
@@ -32,6 +38,9 @@
     @switch($activeTab)
         @case('admin-ready')
             <livewire:tables.part-ready-for-admin-table />
+            @break
+        @case('sticker-admin-ready')
+            <livewire:tables.sticker-shortcuts-ready-for-admin-table />
             @break
         @case('delete-flag')
             <livewire:tables.parts-flagged-for-deletion-table />
