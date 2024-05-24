@@ -145,18 +145,18 @@
                     <div class="text-red-500">{{ $missing }}</div>
                 @endforeach
             @endif
-            <livewire:tables.part-dependencies-table :$part parents />
-            <livewire:tables.part-dependencies-table :$part/>
+            <livewire:tables.part-dependencies-table :$part parents lazy />
+            <livewire:tables.part-dependencies-table :$part lazy />
             <x-accordion id="officialParts">
                 <x-slot name="header" class="text-md font-bold">
                     Official parents and subparts
                 </x-slot>
-                <livewire:tables.part-dependencies-table :$part official parents />
-                <livewire:tables.part-dependencies-table :$part official />
+                <livewire:tables.part-dependencies-table :$part official parents lazy />
+                <livewire:tables.part-dependencies-table :$part official lazy />
             </x-accordion>
         @else
-            <livewire:tables.part-dependencies-table :$part official parents />
-            <livewire:tables.part-dependencies-table :$part official />
+            <livewire:tables.part-dependencies-table :$part official parents lazy/>
+            <livewire:tables.part-dependencies-table :$part official lazy/>
         @endif
         <x-event.list :$part />
         @can('vote', [\App\Models\Vote::class, $this->part])
@@ -170,7 +170,7 @@
         @endcan
         <x-part.attribution :part="$part" />
     </div>
-    <x-filament::modal id="ldbi" alignment="center" width="7xl">
+    <x-filament::modal id="ldbi" alignment="center" width="7xl" lazy>
         <x-slot name="heading">
             3D View
         </x-slot>
@@ -312,5 +312,4 @@
         </script>
         @endscript
     @endpush
-
 </div>

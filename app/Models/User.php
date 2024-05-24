@@ -68,7 +68,7 @@ class User extends Authenticatable
 
     public function notification_parts(): BelongsToMany 
     {
-        return $this->belongsToMany(Part::class, 'user_part_notifications', 'user_id', 'part_id');
+        return $this->belongsToMany(Part::class, 'user_part_notifications');
     }
     
     public function authorString(): Attribute

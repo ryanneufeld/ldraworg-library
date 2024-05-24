@@ -102,7 +102,7 @@ class Part extends Model
 
     public function notification_users(): BelongsToMany 
     {
-        return $this->belongsToMany(User::class, 'user_part_notifications', 'part_id', 'user_id');
+        return $this->belongsToMany(User::class, 'user_part_notifications');
     }
 
     public function votes(): HasMany 
