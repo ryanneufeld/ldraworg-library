@@ -11,16 +11,16 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
-use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -39,9 +39,10 @@ class Create extends Component implements HasForms, HasTable
                 ->orderBy('filename')
             )
             ->emptyState(view('tables.empty', ['none' => 'None']))
-            ->selectable()
             ->columns([
                 Split::make([
+                    ToggleColumn::make('marked_for_release')
+                        ->grow(false),
                     ImageColumn::make('image')
                         ->state( 
                             fn (Part $p): string => asset("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
@@ -68,24 +69,36 @@ class Create extends Component implements HasForms, HasTable
                     ])->alignment(Alignment::End),
                 ])->from('md')
             ])
-            ->recordUrl(
-                fn (Part $p): string => 
-                    route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
-            )
-            ->paginated(false)
             ->recordClasses(fn (Part $p) => count($p->part_check_messages['errors']) > 0 ? '!bg-red-300' : null)
-            ->bulkActions([
-                BulkAction::make('create-release')
+            ->actions([
+                Action::make('view')
+                    ->url(fn (Part $p) => route('tracker.show', $p))
+                    ->button()
+            ])
+            ->headerActions([
+                Action::make('create-release')
                     ->form([
                         Toggle::make('include-ldconfig'),
                         FileUpload::make('additional-files')
                     ])
-                    ->action(fn (array $data, Collection $parts) => $this->createRelease($data, $parts))
-                    ->successRedirectUrl(route('tracker.activity'))
+                    ->action(fn (array $data) => $this->createRelease($data))
+                    ->successRedirectUrl(route('tracker.activity')),
+                Action::make('reset-marked-parts')
+                    ->action(function () {
+                        Part::unofficial()->where('can_release', false)->where('marked_for_release', true)->update([
+                            'marked_for_release' => false
+                        ]);
+                        Part::unofficial()
+                            ->where('can_release', true)
+                            ->where('vote_sort', 1)
+                            ->update([
+                                'marked_for_release' => true
+                            ]);
+                    })
             ]);
     }
     
-    protected function createRelease(array $data, Collection $parts) : void 
+    protected function createRelease(array $data) : void 
     {
         $this->authorize('store', PartRelease::class);
         $addFiles = [];
@@ -94,6 +107,7 @@ class Create extends Component implements HasForms, HasTable
                 $addFiles[$afile->getClientOriginalName()] = $afile->get();
             }
         }
+        $parts = Part::unofficial()->where('marked_for_release', true)->get();
         MakePartRelease::dispatch($parts, Auth::user(), $data['include-ldconfig'] ?? false, $addFiles);
         $this->redirectRoute('tracker.activity');        
     }

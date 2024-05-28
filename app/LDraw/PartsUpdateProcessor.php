@@ -360,13 +360,16 @@ class PartsUpdateProcessor
             'delete_flag' => 0, 
             'minor_edit_data' => null,
             'missing_parts' => null,
-            'manual_hold_flag' => 0
+            'manual_hold_flag' => 0,
+            'marked_for_release' => false
         ]);
         Part::official()->each(function (Part $p) {
             $p->votes()->delete();
             $p->notification_users()->sync([]);
         });
-
+        Part::unofficial()->where('vote_sort', 1)->where('can_release', true)->update([
+            'marked_for_release' => true
+        ]);
         // Reset the unofficial zip file
         Storage::disk('library')->delete('unofficial/ldrawunf.zip');
         ZipFiles::unofficialZip(Part::unofficial()->first());

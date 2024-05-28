@@ -56,6 +56,7 @@ class Part extends Model
             'minor_edit_data' => AsArrayObject::class,
             'missing_parts' => 'array',
             'can_release' => 'boolean',
+            'marked_for_release' => 'boolean',
             'part_check_messages' => AsArrayObject::class,
         ];
     }
