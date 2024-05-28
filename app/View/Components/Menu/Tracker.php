@@ -21,7 +21,7 @@ class Tracker extends Component
      */
     public function render(): View|Closure|string
     {
-        $summaries = \App\Models\ReviewSummary\ReviewSummary::orderBy('order')->get();
+        $summaries = \App\Models\ReviewSummary\ReviewSummary::ordered()->get();
         return view('components.menu.tracker', compact('summaries'));
     }
 }

@@ -10,7 +10,6 @@ use App\Models\PartType;
 use App\Models\PartTypeQualifier;
 use App\Models\VoteType;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Cache\Store;
 use Illuminate\Support\Facades\Storage;
 
 class UpdateConfig extends Command

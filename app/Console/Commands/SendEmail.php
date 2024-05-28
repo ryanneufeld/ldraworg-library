@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Mail\DailyDigest;
 use App\Mail\TestEmail;
-use App\Models\PartEvent;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 

@@ -5,12 +5,9 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Vote;
 use App\Models\Part;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class VotePolicy
-{
-    use HandlesAuthorization;
-    
+{    
     public function vote(User $user, Part $part): bool
     {
         if (!$part->isUnofficial()) {

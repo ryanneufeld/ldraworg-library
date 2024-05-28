@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Models\Part;
 use App\LDraw\Parse\ParsedPart;
 use App\Models\PartCategory;
-use App\Models\PartLicense;
 use App\Settings\LibrarySettings;
 
 class PartChecker

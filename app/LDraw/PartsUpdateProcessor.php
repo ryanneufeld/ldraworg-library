@@ -13,7 +13,6 @@ use App\Models\PartHistory;
 use App\Models\PartType;
 use App\Models\User;
 use App\LDraw\PartManager;
-use DirectoryIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
@@ -332,7 +331,7 @@ class PartsUpdateProcessor
         
         //Copy release notes
         $notes = file_get_contents($this->tempDir->path("Note{$this->release->short}CA.txt"));
-        Storage::disk('library')->put("official/ldraw/models/Note{$this->release->short}CA.txt", $notes);
+        Storage::disk('library')->put("official/models/Note{$this->release->short}CA.txt", $notes);
 
         // Copy the new non-Part files to the library
         foreach ($this->extraFiles as $filename => $contents) {
@@ -369,6 +368,9 @@ class PartsUpdateProcessor
         });
         Part::unofficial()->where('vote_sort', 1)->where('can_release', true)->update([
             'marked_for_release' => true
+        ]);
+        Part::unofficial()->where('can_release', false)->where('marked_for_release', true)->update([
+            'marked_for_release' => false
         ]);
         // Reset the unofficial zip file
         Storage::disk('library')->delete('unofficial/ldrawunf.zip');

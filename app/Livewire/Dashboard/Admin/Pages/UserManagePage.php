@@ -3,7 +3,6 @@
 namespace App\Livewire\Dashboard\Admin\Pages;
 
 use App\Models\MybbUser;
-use App\Models\PartLicense;
 use App\Models\User;
 use App\Settings\LibrarySettings;
 use Filament\Forms\Components\Checkbox;
@@ -20,7 +19,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table as Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Livewire\Attributes\Layout;
 
 class UserManagePage extends BasicResourceManagePage
 {

@@ -3,7 +3,6 @@
 namespace App\View\Components\Part;
 
 use Illuminate\View\Component;
-
 use App\Models\Part;
 
 class UnofficialPartCount extends Component

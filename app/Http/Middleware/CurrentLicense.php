@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Settings\LibrarySettings;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;

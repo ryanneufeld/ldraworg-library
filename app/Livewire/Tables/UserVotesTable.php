@@ -2,13 +2,8 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\Part;
-use App\Models\PartEvent;
 use App\Models\Vote;
 use App\Models\VoteType;
-use Filament\Support\Enums\Alignment;
-use Filament\Support\Enums\FontWeight;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;

@@ -3,7 +3,6 @@
 namespace App\View\Components\Card;
 
 use App\Models\PartRelease;
-use App\Models\PartType;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;

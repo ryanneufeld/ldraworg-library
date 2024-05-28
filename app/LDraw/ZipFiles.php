@@ -3,7 +3,6 @@
 namespace App\LDraw;
 
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Collection;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 use App\Models\Part;

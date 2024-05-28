@@ -4,12 +4,9 @@ namespace App\Policies;
 
 use App\Models\Part;
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PartPolicy
 {
-    use HandlesAuthorization;
-
     public function create(User $user)
     {
         return $user->can('part.submit.regular');

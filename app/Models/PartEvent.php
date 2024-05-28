@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\Traits\HasPart;
 use Illuminate\Database\Eloquent\Model;
-
 use App\Models\Traits\HasPartRelease;
 use App\Models\Traits\HasUser;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

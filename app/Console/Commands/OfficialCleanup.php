@@ -33,7 +33,8 @@ class OfficialCleanup extends Command
             'delete_flag' => 0, 
             'minor_edit_data' => null,
             'missing_parts' => null,
-            'manual_hold_flag' => 0
+            'manual_hold_flag' => 0,
+            'marked_for_release' => false
         ]);
         Part::official()->each(function (Part $p) {
             $p->votes()->delete();

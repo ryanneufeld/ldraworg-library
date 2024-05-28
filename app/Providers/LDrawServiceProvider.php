@@ -12,7 +12,6 @@ use App\LDraw\Rebrickable;
 use App\LDraw\Render\LDView;
 use App\Settings\LibrarySettings;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Storage;
 
 class LDrawServiceProvider extends ServiceProvider
 {
