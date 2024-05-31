@@ -5,6 +5,7 @@ namespace App\Livewire\Part;
 use App\Filament\Part\Actions\EditHeaderAction;
 use App\Filament\Part\Actions\EditNumberAction;
 use App\LDraw\PartManager;
+use App\LDraw\PartRepository;
 use App\LDraw\VoteManager;
 use App\Models\Part;
 use App\Models\Vote;
@@ -23,6 +24,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -104,6 +106,15 @@ class Show extends Component implements HasForms, HasActions
         $this->form->fill();
     }
 
+    #[Computed]
+    public function hasSuffixParts(): bool
+    {
+        $pr = new PartRepository();
+        return $pr->compositeParts($this->part)->count() > 0 ||
+            $pr->patternParts($this->part)->count() > 0 ||
+            $pr->stickerShortcutParts($this->part)->count() > 0;
+    }
+
     public function editHeaderAction(): EditAction
     {
         return EditHeaderAction::make('editHeader', $this->part);
@@ -118,7 +129,7 @@ class Show extends Component implements HasForms, HasActions
     {
         return Action::make('patternPart')
                 ->url(fn() => route('search.suffix', ['basepart' => $this->part->basepart()]))
-                ->visible($this->part->hasComposites() || $this->part->hasPatterns() || $this->part->hasStickerShortcuts())
+                ->visible($this->hasSuffixParts)
                 ->label('View patterns/composites/shortcuts')
                 ->color('gray')
                 ->outlined();

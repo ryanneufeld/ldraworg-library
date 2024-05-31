@@ -12,13 +12,13 @@
             Submit
         </x-filament::button>
     </form>
-    @if($patterns->count() === 0 && $composites->count() === 0 && $shortcuts->count() === 0)
+    @if($this->patterns->count() === 0)
         <div class="rounded border p-2">
             Part Not Found
         </div>
     @else
         <div class="text-xl font-bold p-2">
-            Pattern/Composite/Sticker Shortcut Reference for {{$basepart}}
+            Pattern/Composite/Sticker Shortcut Reference for 
         </div>
         <x-filament::tabs class="p-2">
             <x-filament::tabs.item 
@@ -26,7 +26,7 @@
                 wire:click="$set('activeTab', 'patterns')"
             >
                 <x-slot name="badge">
-                    {{$pcount}}
+                    {{$this->patterns->count()}}
                 </x-slot>
                 Patterns
             </x-filament::tabs.item>
@@ -35,7 +35,7 @@
                 wire:click="$set('activeTab', 'composites')"
             >
                 <x-slot name="badge">
-                    {{$composites->count()}}
+                    {{$this->composites->count()}}
                 </x-slot>
                 Composites
             </x-filament::tabs.item>
@@ -45,56 +45,33 @@
                 wire:click="$set('activeTab', 'shortcuts')"
             >
                 <x-slot name="badge">
-                    {{$shortcuts->count()}}
+                    {{$this->shortcuts->count()}}
                 </x-slot>
                 Shortcuts
             </x-filament::tabs.item>
 
         </x-filament::tabs>
         
-        <div @class(["rounded border p-2", 'hidden' => $activeTab !== 'patterns'])>
-            @forelse($patterns as $psuffix => $pitems)
-                <div class="text-lg font-bold p-2">{{app(\App\Settings\LibrarySettings::class)->pattern_codes[$psuffix]}}</div>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
-                    @foreach($pitems as $id => $ppart)
-                        <x-part.suffixitem :part="$ppart" wire:key="patternpart-{{$id}}" />
-                    @endforeach
-                </div>
-            @empty
-                <p>
-                    None
-                </p>
-            @endforelse
-        </div>
-        <div @class(["rounded border p-2", 'hidden' => $activeTab !== 'composites'])>
-            @forelse($composites as $cpart)
-                @if($loop->first)
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
-                @endif
-                <x-part.suffixitem :part="$cpart" wire:key="{{$cpart->id}}" />
-                @if($loop->last)
-                    </div>
-                @endif
-            @empty
-                <p>
-                    None
-                </p>
-            @endforelse
-        </div>
-        <div @class(["rounded border p-2", 'hidden' => $activeTab !== 'shortcuts'])>
-            @forelse($shortcuts as $spart)
-                @if($loop->first)
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
-                @endif
-                <x-part.suffixitem :part="$spart" wire:key="{{$spart->id}}" />
-                @if($loop->last)
-                    </div>
-                @endif
-            @empty
-                <p>
-                    None
-                </p>
-            @endforelse
+        <div class="rounded border p-2">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
+                @switch($activeTab)
+                    @case('patterns')
+                        @foreach($this->patterns as $part)
+                            <x-part.suffixitem :part="$part" wire:key="patternpart-{{$part->id}}" lazy/>
+                        @endforeach
+                        @break
+                    @case('composites')
+                        @foreach($this->composites as $part)
+                            <x-part.suffixitem :part="$part" wire:key="compositepart-{{$part->id}}" lazy/>
+                        @endforeach
+                        @break
+                    @case('shortcuts')
+                        @foreach($this->shortcuts as $part)
+                            <x-part.suffixitem :part="$part" wire:key="shortcutpart-{{$part->id}}" lazy/>
+                        @endforeach
+                        @break
+                @endswitch
+            </div>
         </div>
     @endif
 </div>

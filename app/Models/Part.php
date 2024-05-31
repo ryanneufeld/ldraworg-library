@@ -217,30 +217,6 @@ class Part extends Model
         }
     }
 
-    public function scopePatterns(Builder $query, string $basepart): void 
-    {
-        $query
-            ->whereRelation('type', 'folder', 'parts/')
-            ->whereRelation('category', 'category', '<>', 'Moved')
-            ->where('filename', 'REGEXP', '^parts\/' . $basepart . 'p(?:[a-z0-9]{2,3}|[0-9]{4})\.dat$');
-    }
-
-    public function scopeComposites(Builder $query, string $basepart): void 
-    {
-        $query
-            ->whereRelation('type', 'folder', 'parts/')
-            ->whereRelation('category', 'category', '<>', 'Moved')
-            ->where('filename', 'REGEXP', '^parts\/' . $basepart . 'c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?\.dat$');
-    }
-
-    public function scopeStickerShortcuts(Builder $query, string $basepart): void 
-    {
-        $query
-            ->has('sticker_sheet')
-            ->whereRelation('type', 'folder', 'parts/')
-            ->where('filename', 'LIKE', "parts/{$basepart}%.dat");
-    }
-
     public function scopeAdminReady(Builder $query): void
     {
         $query->unofficial()
@@ -277,36 +253,6 @@ class Part extends Model
         return $recent_change->created_at;
     }
     
-    public function hasPatterns(): bool 
-    {
-        if ($this->type->folder != 'parts/') {
-            return false;
-        }
-        return self::where('filename', 'LIKE', 'parts/' . $this->basepart() . '%.dat')
-            ->pluck('filename')
-            ->filter(fn (string $fn) => preg_match('/^parts\/' . $this->basepart() . 'p(?:[a-z0-9]{2,3}|[0-9]{4})\.dat$/ui', $fn) === 1)
-            ->count() > 0;
-    }
-
-    public function hasComposites(): bool 
-    {
-        if ($this->type->folder != 'parts/') {
-            return false;
-        }
-        return self::where('filename', 'LIKE', 'parts/' . $this->basepart() . '%.dat')
-            ->pluck('filename')
-            ->filter(fn (string $fn) => preg_match('/^parts\/' . $this->basepart() . 'c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?\.dat/ui', $fn) === 1)
-            ->count() > 0;
-    }
-    
-    public function hasStickerShortcuts(): bool 
-    {
-        if ($this->type->folder != 'parts/') {
-            return false;
-        }
-        return self::stickerShortcuts($this->basepart())->count() > 0;
-    }
-
     public function basePart(): string 
     {
         $number = basename($this->filename);
