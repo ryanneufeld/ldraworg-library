@@ -3,6 +3,7 @@
 namespace App\Livewire\Tables;
 
 use App\Models\Part;
+use App\Models\Vote;
 use App\Filament\Part\Tables\PartTable;
 use App\LDraw\VoteManager;
 use Filament\Tables\Actions\Action;
@@ -31,6 +32,7 @@ class StickerShortcutsReadyForAdminTable extends BasicTable
                     })
                     ->button()
                     ->outlined()
+                    ->visible(fn(Part $p) => auth()->user()?->can('create', [Vote::class, $p, 'T']))
     
             ])
             ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
