@@ -91,7 +91,7 @@ class PartChecker
                 $errors[] = __('partcheck.line.invalidmeta', ['value' => $index + $part->header_length] );
             }
         }
-        $selfref = array_key_exists('subparts', $part->subparts) ? in_array($part->name, $part->subparts['subparts']) : in_array($part->name, $part->subparts);
+        $selfref = in_array($part->name, $part->subparts['subparts']);
         if ($selfref) {
             $errors[] = __('partcheck.selfreference');
         }

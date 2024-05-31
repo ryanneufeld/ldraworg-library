@@ -61,12 +61,15 @@ class ParsedPart
             ];
         }
         $subs = [];
+        $textures = [];
         foreach ($part->subparts as $s) {
-            $n = str_replace('textures/', '', $s->filename);
-            $n = str_replace(['parts/', 'p/'], '', $n);
-            $subs[] = str_replace('/', '\\', $n);
+            if ($s->isTexmap()) {
+                $textures[] = str_replace('textures/', '', $s->name());
+            } else {
+                $subs[] = $s->name();
+            }
         }
-        $subs = array_unique($subs);
+        $subs = ['subparts' => array_unique($subs), 'textures' => array_unique($textures)];
 
         return new self(
             $part->description,

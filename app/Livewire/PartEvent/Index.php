@@ -27,13 +27,15 @@ class Index extends Component implements HasForms, HasTable
 {
     use InteractsWithTable;
     use InteractsWithForms;
-    
+
+/*    
     #[Url]
     public ?array $tableFilters = null;
     #[Url]
     public ?string $tableSortColumn = null;
     #[Url]
     public ?string $tableSortDirection = null;
+*/
     #[Url]
     public $tableRecordsPerPage = null;
     
@@ -126,10 +128,12 @@ class Index extends Component implements HasForms, HasTable
                 Filter::make('sticker_shortcuts')
                     ->query(fn (Builder $query): Builder => $query->whereDoesntHave('part', fn ($q) => $q->whereRelation('category', 'category', 'Sticker Shortcut')))
                     ->toggle()
-                    ->default(true)
+                    ->default()
                     ->label('Hide sticker shortcuts'),
             ], layout: FiltersLayout::AboveContent)
-                //->persistFiltersInSession()
+            ->persistFiltersInSession()
+            ->persistSortInSession()
+            ->extremePaginationLinks()
             ->recordUrl(
                 fn (PartEvent $e): string => 
                     !is_null($e->part) ? route($e->part->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $e->part]) : ''
