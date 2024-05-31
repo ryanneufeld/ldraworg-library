@@ -4,6 +4,7 @@ return [
     'fileformat' => 'The file :attribute is invalid (:value)',
     'duplicate' => 'A :type already exists with this name',
     'missing' => 'Invalid/missing :attribute line',
+    'selfreference' => 'Has a self referring Type 1 line',
     'folder' => 'Selected destination (:folder) is invalid for :attribute line (:value)',
     'bfc' => 'All parts must be BFC CERTIFY CCW',
     'line' => [

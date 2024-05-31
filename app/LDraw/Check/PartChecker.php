@@ -90,7 +90,11 @@ class PartChecker
             } elseif (! $this->checkLineAllowedBodyMeta($line)) {
                 $errors[] = __('partcheck.line.invalidmeta', ['value' => $index + $part->header_length] );
             }
-        }  
+        }
+        if (in_array($part->name, $part->subparts['subparts'])) {
+            $errors[] = __('partcheck.selfreference');
+        }
+
         return count($errors) > 0 ? $errors : null; 
     }
   

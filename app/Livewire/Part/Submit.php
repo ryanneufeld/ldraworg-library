@@ -132,6 +132,7 @@ class Submit extends Component implements HasForms
                 $files[] = ['type' => 'image', 'filename' => $file->getClientOriginalName(), 'contents' => $file->get()];
             }
         }
+        dd($files);
         $parts = $manager->submit($files, $user);
 
         $parts->each(function (Part $p) use ($user, $data) {
