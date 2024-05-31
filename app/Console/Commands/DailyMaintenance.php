@@ -33,7 +33,7 @@ class DailyMaintenance extends Command
         Part::lazy()->each(fn (Part $p) => app(PartManager::class)->loadSubpartsFromBody($p));
 
         $this->info('Recounting all votes');
-        Part::unofficial()->lazy()->each(fn (Part $p) => $p->updateVoteData());
+        Part::unofficial()->lazy()->each(fn (Part $p) => $p->updateVoteSort());
 
         $this->info('Removing orphan images');
         $images = Storage::disk('images')->allFiles('library/unofficial');

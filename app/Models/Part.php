@@ -123,7 +123,7 @@ class Part extends Model
 
     public function help(): HasMany 
     {
-        return $this->hasMany(PartHelp::class, 'part_id', 'id')->orderBy('order');
+        return $this->hasMany(PartHelp::class, 'part_id', 'id')->ordered();
     }
 
     public function body(): HasOne 
@@ -220,7 +220,7 @@ class Part extends Model
     public function scopeAdminReady(Builder $query): void
     {
         $query->unofficial()
-            ->whereIn('part_type_id', PartType::where('folder', 'parts/')->pluck('id')->all())
+            ->whereRelation('type', 'folder', 'parts/')
             ->whereHas('descendantsAndSelf', function ($q){
                 $q->where('vote_sort', '=', 2);
             })
@@ -293,7 +293,7 @@ class Part extends Model
         return $file;
     }
     
-    public function updateVoteData(): void 
+    public function updateVoteSort(): void 
     {
         if (!$this->isUnofficial()) {
             return;
@@ -389,7 +389,7 @@ class Part extends Model
                 $subs[] = "parts/textures/{$s}";
                 $subs[] = "p/textures/{$s}";
             }
-            $subps = Part::whereIn('filename', $subs)->get();
+            $subps = Part::whereIn('filename', $subs)->where('filename', '<>', $this->filename)->get();
             $this->subparts()->sync($subps->pluck('id')->all());
 
             $existing_subs = $subps->pluck('filename')->all();

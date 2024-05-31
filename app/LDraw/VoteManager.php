@@ -52,7 +52,7 @@ class VoteManager
         }
 
         $part->refresh();
-        $part->updateVoteData();
+        $part->updateVoteSort();
         if (($oldVoteIsAdminCert && $vote_type_code === 'N') || $newVoteIsAdminCert) {
             $part
                 ->parentsAndSelf

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\HasOrder;
 use App\Models\Traits\HasPart;
 use Illuminate\Database\Eloquent\Model;
 
 class PartHelp extends Model
 {
-    use HasPart;
+    use HasPart,
+        HasOrder;
 
     protected $fillable = [
         'order',

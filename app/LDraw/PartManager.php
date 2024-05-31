@@ -170,7 +170,7 @@ class PartManager
    
     public function finalizePart(Part $part): void
     {
-        $part->updateVoteData();
+        $part->updateVoteSort();
         $part->generateHeader();
         $this->updateMissing($part->name());
         $this->loadSubpartsFromBody($part);
