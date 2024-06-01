@@ -12,7 +12,7 @@ class PartReadyForAdminTable extends BasicTable
     {
         return $table
             ->query(
-                Part::adminReady()
+                Part::with(['votes', 'official_part', 'descendantsAndSelf'])->adminReady()
             )
             ->defaultSort('created_at', 'asc')
             ->heading('Parts Ready For Admin')

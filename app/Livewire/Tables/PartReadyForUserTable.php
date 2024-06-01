@@ -18,7 +18,7 @@ class PartReadyForUserTable extends BasicTable
     {
         return $table
             ->query(
-                Part::unofficial()
+                Part::with(['votes', 'events', 'official_part', 'descendantsAndSelf', 'user'])->unofficial()
                 // Parts folder only
                 ->whereHas('type', fn (Builder $q) => $q->where('folder', 'parts/'))
                 // No holds

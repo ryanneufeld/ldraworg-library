@@ -28,21 +28,13 @@ class Index extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
-/*    
-    #[Url]
-    public ?array $tableFilters = null;
-    #[Url]
-    public ?string $tableSortColumn = null;
-    #[Url]
-    public ?string $tableSortDirection = null;
-*/
     #[Url]
     public $tableRecordsPerPage = null;
     
     public function table(Table $table): Table
     {
         return $table
-            ->query(PartEvent::query())
+            ->query(PartEvent::query()->with(['part', 'part.votes', 'part.official_part', 'part.descendantsAndSelf']))
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Split::make([
