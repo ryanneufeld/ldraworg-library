@@ -53,7 +53,7 @@ class StickerSummary extends Component implements HasForms
     public function doSearch()
     {
         $this->form->getState();
-        $this->parts = StickerSheet::firstWhere('number', $this->sheet ?? '')->parts;    
+        $this->parts = StickerSheet::firstWhere('number', $this->sheet ?? '')->parts->whereNull('unofficial_part')->sortBy('filename');    
     }
 
     #[Layout('components.layout.tracker')]
