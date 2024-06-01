@@ -11,9 +11,20 @@
     <form class="p-2" wire:change="doSearch">
         {{ $this->form }}
     </form>
-    <div @class(["rounded border p-2"])>
+    <div class="space-y-2">
         @if (!is_null($parts))
-            @foreach($parts as $spart)
+            <div class="rounded text-xl font-bold bg-gray-200 p-2">Stickers</div>
+            @foreach($parts->where('category.category', 'Sticker') as $spart)
+                @if($loop->first)
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
+                @endif
+                <x-part.suffixitem :part="$spart" wire:key="{{$spart->id}}" />
+                @if($loop->last)
+                    </div>
+                @endif
+            @endforeach    
+            <div class="rounded text-xl font-bold bg-gray-200 p-2">Shortcuts</div>
+            @foreach($parts->where('category.category', '<>', 'Sticker') as $spart)
                 @if($loop->first)
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
                 @endif
@@ -23,7 +34,7 @@
                 @endif
             @endforeach    
         @else
-            <p>
+            <p class="rounded border p-2">
                 None
             </p>
         @endif
