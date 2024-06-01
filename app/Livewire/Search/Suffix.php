@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Search;
 
-use App\LDraw\PartRepository;
 use App\Models\Part;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -70,9 +69,7 @@ class Suffix extends Component implements HasForms
     #[Computed]
     public function shortcuts()
     {
-        return $this->baseparts
-            ->whereNotNull('sticker_sheet_id')
-            ->where('type.folder', 'parts/');
+        return $this->baseparts->sticker_shortcuts();
     }
 
     public function doSearch()

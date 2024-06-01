@@ -5,7 +5,6 @@ namespace App\Livewire\Part;
 use App\Filament\Part\Actions\EditHeaderAction;
 use App\Filament\Part\Actions\EditNumberAction;
 use App\LDraw\PartManager;
-use App\LDraw\PartRepository;
 use App\LDraw\VoteManager;
 use App\Models\Part;
 use App\Models\Vote;
@@ -107,12 +106,20 @@ class Show extends Component implements HasForms, HasActions
     }
 
     #[Computed]
+    public function baseparts()
+    {
+        return Part::doesntHave('unofficial_part')
+            ->whereRelation('type', 'folder', 'parts/')
+            ->where('filename', 'LIKE', "parts/{$this->part->basepart()}%.dat")
+            ->get();
+    }
+
+    #[Computed]
     public function hasSuffixParts(): bool
     {
-        $pr = new PartRepository();
-        return $pr->compositeParts($this->part)->count() > 0 ||
-            $pr->patternParts($this->part)->count() > 0 ||
-            $pr->stickerShortcutParts($this->part)->count() > 0;
+        return $this->baseparts->composites()->count() > 0 ||
+            $this->baseparts->patterns()->count() > 0 ||
+            $this->baseparts->sticker_shortcuts()->count() > 0;
     }
 
     public function editHeaderAction(): EditAction

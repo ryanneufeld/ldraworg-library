@@ -74,5 +74,8 @@ class LDrawServiceProvider extends ServiceProvider
         Collection::macro('composites', fn(): Collection => 
             $this->filter(fn (Part $p) => preg_match('/^parts\/' . $p->basepart() . 'c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?\.dat/ui', $p->filename) === 1)
         );    
+        Collection::macro('sticker_shortcuts', fn(): Collection => 
+            $this->where('category.category', 'Sticker Shortcut')
+        );    
     }
 }    
