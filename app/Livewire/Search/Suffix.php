@@ -43,46 +43,36 @@ class Suffix extends Component implements HasForms
     }
 
     #[Computed(persist: true)]
-    public function part()
+    public function baseparts()
     {
-        $bp = $this->basepart;
-        if (!str_ends_with($this->basepart, '.dat')) {
-            $bp .= '.dat';
+        if (empty($this->basepart)) {
+            return new Collection();
         }
-        return Part::firstWhere('filename', "parts/{$bp}");
+        return Part::with(['votes', 'official_part'])
+            ->doesntHave('unofficial_part')
+            ->whereRelation('type', 'folder', 'parts/')
+            ->where('filename', 'LIKE', "parts/{$this->basepart}%.dat")
+            ->get();
     }
 
-    #[Computed(persist: true)]
+    #[Computed]
     public function patterns()
     {
-        if (is_null($this->part)) {
-            return new Collection();
-        }
-        $pat = (new PartRepository())->patternParts($this->part);
-        $pat->load(['votes', 'official_part']);
-        return $pat;
+        return $this->baseparts->patterns();
     }
 
-    #[Computed(persist: true)]
+    #[Computed]
     public function composites()
     {
-        if (is_null($this->part)) {
-            return new Collection();
-        }
-        $com = (new PartRepository())->compositeParts($this->part);
-        $com->load(['votes', 'official_part']);
-        return $com;
+        return $this->baseparts->composites();
     }
 
     #[Computed]
     public function shortcuts()
     {
-        if (is_null($this->part)) {
-            return new Collection();
-        }
-        $st = (new PartRepository())->stickerShortcutParts($this->part);
-        $st->load(['votes', 'official_part']);
-        return $st;
+        return $this->baseparts
+            ->whereNotNull('sticker_sheet_id')
+            ->where('type.folder', 'parts/');
     }
 
     public function doSearch()
@@ -90,7 +80,7 @@ class Suffix extends Component implements HasForms
         $this->form->getState();
         unset($this->patterns);
         unset($this->composites);
-        unset($this->part);
+        unset($this->baseparts);
     }
 
     #[Layout('components.layout.tracker')]

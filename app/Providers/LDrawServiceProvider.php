@@ -10,6 +10,7 @@ use App\LDraw\Parse\Parser;
 use App\LDraw\PartManager;
 use App\LDraw\Rebrickable;
 use App\LDraw\Render\LDView;
+use App\Models\Part;
 use App\Settings\LibrarySettings;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -65,11 +66,13 @@ class LDrawServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Collection::macro('unofficial', function (): Collection {
-            return $this->whereNull('part_release_id');
-        });
-        Collection::macro('official', function (): Collection {
-            return $this->whereNotNull('part_release_id');
-        });    
+        Collection::macro('unofficial', fn (): Collection => $this->whereNull('part_release_id'));
+        Collection::macro('official', fn (): Collection  => $this->whereNotNull('part_release_id'));
+        Collection::macro('patterns', fn(): Collection => 
+            $this->filter(fn (Part $p) => preg_match('/^parts\/' . $p->basepart() . 'p(?:[a-z0-9]{2,3}|[0-9]{4})\.dat$/ui', $p->filename) === 1)
+        );    
+        Collection::macro('composites', fn(): Collection => 
+            $this->filter(fn (Part $p) => preg_match('/^parts\/' . $p->basepart() . 'c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?\.dat/ui', $p->filename) === 1)
+        );    
     }
 }    
