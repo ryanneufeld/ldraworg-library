@@ -53,25 +53,17 @@
         </x-filament::tabs>
         
         <div class="rounded border p-2">
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
-                @switch($activeTab)
-                    @case('patterns')
-                        @foreach($this->patterns as $part)
-                            <x-part.suffixitem :part="$part" wire:key="patternpart-{{$part->id}}" lazy/>
-                        @endforeach
-                        @break
-                    @case('composites')
-                        @foreach($this->composites as $part)
-                            <x-part.suffixitem :part="$part" wire:key="compositepart-{{$part->id}}" lazy/>
-                        @endforeach
-                        @break
-                    @case('shortcuts')
-                        @foreach($this->shortcuts as $part)
-                            <x-part.suffixitem :part="$part" wire:key="shortcutpart-{{$part->id}}" lazy/>
-                        @endforeach
-                        @break
-                @endswitch
-            </div>
+            @switch($activeTab)
+                @case('patterns')
+                    <x-part.grid :parts="$this->patterns" />
+                    @break
+                @case('composites')
+                    <x-part.grid :parts="$this->composites" />
+                    @break
+                @case('shortcuts')
+                    <x-part.grid :parts="$this->shortcuts" />
+                    @break
+            @endswitch
         </div>
     @endif
 </div>

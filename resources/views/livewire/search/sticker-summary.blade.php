@@ -14,29 +14,9 @@
     <div class="space-y-2">
         @if (!is_null($parts))
             <div class="rounded text-xl font-bold bg-gray-200 p-2">Stickers</div>
-            @foreach($parts->where('category.category', 'Sticker') as $spart)
-                @if($loop->first)
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
-                @endif
-                <x-part.suffixitem :part="$spart" wire:key="{{$spart->id}}" />
-                @if($loop->last)
-                    </div>
-                @endif
-            @endforeach    
+            <x-part.grid :parts="$parts->where('category.category', 'Sticker')" />
             <div class="rounded text-xl font-bold bg-gray-200 p-2">Shortcuts</div>
-            @foreach($parts->where('category.category', '<>', 'Sticker') as $spart)
-                @if($loop->first)
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 items-stretch">
-                @endif
-                <x-part.suffixitem :part="$spart" wire:key="{{$spart->id}}" />
-                @if($loop->last)
-                    </div>
-                @endif
-            @endforeach    
-        @else
-            <p class="rounded border p-2">
-                None
-            </p>
+            <x-part.grid :parts="$parts->where('category.category', '<>', 'Sticker')" />
         @endif
     </div>
 </div>
