@@ -260,7 +260,7 @@ class EditHeaderAction
         $partHistory = implode("\n", $partHistory);
         if ($manager->parser->getHistory($partHistory) !== $newHistory) {
             $changes['old']['history'] = $partHistory;
-            $part->setHistory($newHistory);
+            $part->setHistory($newHistory ?? []);
             $part->refresh();    
             $changes['new']['history'] = '';
             if ($part->history->count() > 0) {
@@ -274,13 +274,6 @@ class EditHeaderAction
             $changes['old']['cmdline'] = $part->cmdline ?? '';
             $changes['new']['cmdline'] = $data['cmdline'] ?? '';
             $part->cmdline = $data['cmdline'] ?? null;
-            $partHistory = [];
-            if ($part->history->count() > 0) {
-                foreach($part->history as $h) {
-                    $partHistory[] = $h->toString();
-                }
-            }
-            $partHistory = implode("\n", $partHistory);
         }
 
         if (count($changes['new']) > 0) {
