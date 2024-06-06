@@ -26,7 +26,6 @@ class RefreshCache extends Command
     public function handle(): void
     {
         $this->call('icons:clear');
-        $this->call('view:clear');
         $this->call('config:clear');
         $this->call('route:clear');
         $this->call('cache:clear');
