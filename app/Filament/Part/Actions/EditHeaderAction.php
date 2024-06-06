@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Auth;
 
 class EditHeaderAction
 {
-    public static function make(?string $name = null, Part $part): EditAction
+    public static function make(Part $part, ?string $name = null): EditAction
     {
         return EditAction::make($name)
             ->label('Edit Header')

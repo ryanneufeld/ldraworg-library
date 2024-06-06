@@ -23,6 +23,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -88,18 +89,18 @@ class Show extends Component implements HasForms, HasActions
     
     public function mount(?Part $part, ?Part $unofficialpart, ?Part $officialpart)
     {
-        if ($part->exists) {
+        
+        if (!is_null($part)) {
             $this->part = $part;
-        } elseif ($unofficialpart->exists) {
+        } elseif (!is_null($unofficialpart)) {
             $this->part = $unofficialpart;
-        } elseif ($officialpart->exists) {
+        } elseif (!is_null($officialpart)) {
             $this->part = $officialpart;
         } else {
             return response(404);
         }
-        
-        $this->part->load('events', 'votes');
-        $this->part->events->load('user','part', 'vote_type');
+        $this->part->load('events', 'votes', 'descendantsAndSelf', 'unofficial_part', 'official_part');
+        $this->part->events->load('user', 'part', 'vote_type');
         $this->image = 
             $this->part->isTexmap() ? route("{$this->part->libFolder()}.download", $this->part->filename) : version("images/library/{$this->part->libFolder()}/" . substr($this->part->filename, 0, -4) . '.png');
         $this->form->fill();
@@ -108,6 +109,9 @@ class Show extends Component implements HasForms, HasActions
     #[Computed]
     public function baseparts()
     {
+        if ($this->part->type->folder != 'parts/') {
+            return new Collection();
+        }
         return Part::doesntHave('unofficial_part')
             ->whereRelation('type', 'folder', 'parts/')
             ->where('filename', 'LIKE', "parts/{$this->part->basepart()}%.dat")
@@ -124,12 +128,12 @@ class Show extends Component implements HasForms, HasActions
 
     public function editHeaderAction(): EditAction
     {
-        return EditHeaderAction::make('editHeader', $this->part);
+        return EditHeaderAction::make($this->part, 'editHeader');
     }
 
     public function editNumberAction(): EditAction
     {
-        return  EditNumberAction::make('editNumber', $this->part);
+        return  EditNumberAction::make($this->part, 'editNumber');
     }
 
     public function patternPartAction(): Action
@@ -359,7 +363,7 @@ class Show extends Component implements HasForms, HasActions
                 $this->part->manual_hold_flag = !$this->part->manual_hold_flag;
                 $this->part->save();
             })
-            ->visible(Auth::user()?->can('flagMaualHold', $this->part) ?? false);
+            ->visible(Auth::user()?->can('flagManualHold', $this->part) ?? false);
     }
 
     public function viewFixAction(): Action
