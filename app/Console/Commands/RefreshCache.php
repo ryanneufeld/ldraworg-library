@@ -11,7 +11,7 @@ class RefreshCache extends Command
      *
      * @var string
      */
-    protected $signature = 'lib:refresh';
+    protected $signature = 'lib:cache';
 
     /**
      * The console command description.
@@ -25,15 +25,10 @@ class RefreshCache extends Command
      */
     public function handle(): void
     {
-        $this->call('cache:clear');
+        $this->call('optimize:clear');
         $this->call('filament:clear-cached-components');
-        $this->call('view:clear');
-        $this->call('route:clear');
-        $this->call('config:clear');
         $this->call('filament:cache-components');
-        $this->call('view:cache');
-        $this->call('route:cache');
-        $this->call('config:cache');
+        $this->call('optimize');
         $this->call('queue:restart');
     }
 }
