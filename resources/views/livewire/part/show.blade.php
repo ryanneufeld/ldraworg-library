@@ -30,9 +30,11 @@
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
             @endif
+        {{--
             @if ($this->patternPartAction->isVisible())
                 {{ $this->patternPartAction }}
             @endif
+        --}}
             @if ($this->stickerSearchAction->isVisible())
                 {{ $this->stickerSearchAction }}
             @endif
@@ -118,7 +120,7 @@
               <x-slot name="header" class="text-md font-bold pt-4">
                 Show contents
               </x-slot>
-              <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->body->body) }}</code>
+              <code class="whitespace-pre-wrap break-words font-mono"></code>
             </x-accordion>
           </div>
         </div>
