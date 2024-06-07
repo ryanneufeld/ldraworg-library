@@ -68,14 +68,19 @@ class LDrawServiceProvider extends ServiceProvider
     {
         Collection::macro('unofficial', fn (): Collection => $this->whereNull('part_release_id'));
         Collection::macro('official', fn (): Collection  => $this->whereNotNull('part_release_id'));
-        Collection::macro('patterns', fn(): Collection => 
-            $this->filter(fn (Part $p) => $p->type->folder == 'parts/' && preg_match('/^parts\/' . $p->basepart() . 'p(?:[a-z0-9]{2,3}|[0-9]{4})\.dat$/ui', $p->filename) === 1)
+        Collection::macro('patterns', fn(?string $basepart = null): Collection => 
+            $this->where('type.folder', 'parts/')
+                ->filter(fn (Part $p) => preg_match('/^parts\/' . (is_null($basepart) ? $p->basepart() : $basepart) . 'p(?:[a-z0-9]{2,3}|[0-9]{4})\.dat$/ui', $p->filename) === 1)
         );    
-        Collection::macro('composites', fn(): Collection => 
-            $this->filter(fn (Part $p) => $p->type->folder == 'parts/' && preg_match('/^parts\/' . $p->basepart() . 'c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?\.dat/ui', $p->filename) === 1)
+        Collection::macro('composites', fn(?string $basepart = null): Collection => 
+            $this->where('type.folder', 'parts/')
+                ->filter(fn (Part $p) => preg_match('/^parts\/' . (is_null($basepart) ? $p->basepart() : $basepart) . 'c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?\.dat/ui', $p->filename) === 1)
         );    
-        Collection::macro('sticker_shortcuts', fn(): Collection => 
-            $this->where('category.category', 'Sticker Shortcut')
+        Collection::macro('sticker_shortcuts', fn(?string $basepart = null): Collection => 
+            $this->where('type.folder', 'parts/')
+                ->where('category.category', 'Sticker Shortcut')
+                ->filter(fn (Part $p) => preg_match('/^parts\/' . (is_null($basepart) ? $p->basepart() : $basepart) . '(?:p(?:[a-z0-9]{2,3}|[0-9]{4})|c(?:[a-z0-9]{2}|[0-9]{4})(?:-f[0-9])?|d(?:[a-z0-9]{2}|[0-9]{4}))\.dat/ui', $p->filename) === 1)
+                
         );    
     }
 }    

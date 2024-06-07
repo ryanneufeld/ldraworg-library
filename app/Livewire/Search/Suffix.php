@@ -57,19 +57,19 @@ class Suffix extends Component implements HasForms
     #[Computed]
     public function patterns()
     {
-        return $this->baseparts->patterns();
+        return $this->baseparts->patterns($this->basepart);
     }
 
     #[Computed]
     public function composites()
     {
-        return $this->baseparts->composites();
+        return $this->baseparts->composites($this->basepart);
     }
 
     #[Computed]
     public function shortcuts()
     {
-        return $this->baseparts->sticker_shortcuts();
+        return $this->baseparts->sticker_shortcuts($this->basepart);
     }
 
     public function doSearch()
