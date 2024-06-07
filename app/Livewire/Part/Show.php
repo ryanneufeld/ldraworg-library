@@ -121,9 +121,9 @@ class Show extends Component implements HasForms, HasActions
     #[Computed]
     public function hasSuffixParts(): bool
     {
-        return $this->baseparts->composites($this->basepart)->count() > 0 ||
-            $this->baseparts->patterns($this->basepart)->count() > 0 ||
-            $this->baseparts->sticker_shortcuts($this->basepart)->count() > 0;
+        return $this->baseparts->composites($this->part->basepart())->count() > 0 ||
+            $this->baseparts->patterns($this->part->basepart())->count() > 0 ||
+            $this->baseparts->sticker_shortcuts($this->part->basepart())->count() > 0;
     }
 
     public function editHeaderAction(): EditAction
