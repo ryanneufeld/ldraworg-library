@@ -120,7 +120,7 @@
               <x-slot name="header" class="text-md font-bold pt-4">
                 Show contents
               </x-slot>
-              <code class="whitespace-pre-wrap break-words font-mono"></code>
+              <code class="whitespace-pre-wrap break-words font-mono">{{ trim($part->body->body) }}</code>
             </x-accordion>
           </div>
         </div>
