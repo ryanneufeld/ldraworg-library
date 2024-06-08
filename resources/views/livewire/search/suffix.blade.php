@@ -12,7 +12,7 @@
             Submit
         </x-filament::button>
     </form>
-    @if($this->patterns->count() === 0)
+    @if($this->patterns->count() === 0 && $this->composites->count() === 0 && $this->shortcuts->count())
         <div class="rounded border p-2">
             Part Not Found
         </div>

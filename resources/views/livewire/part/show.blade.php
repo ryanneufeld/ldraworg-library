@@ -30,11 +30,9 @@
             @if ($this->downloadZipAction->isVisible())
                 {{ $this->downloadZipAction }}
             @endif
-        {{--
             @if ($this->patternPartAction->isVisible())
                 {{ $this->patternPartAction }}
             @endif
-        --}}
             @if ($this->stickerSearchAction->isVisible())
                 {{ $this->stickerSearchAction }}
             @endif

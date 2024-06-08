@@ -109,7 +109,7 @@ class Show extends Component implements HasForms, HasActions
     #[Computed]
     public function baseparts()
     {
-        if ($this->part->type->folder != 'parts/') {
+        if ($this->part->type->folder != 'parts/' || $this->part->basepart() == '') {
             return new Collection();
         }
         return Part::doesntHave('unofficial_part')
