@@ -39,6 +39,9 @@
         <p>
             Added the option for the Author to release their parts to the public domain via CC0.
         </p>
+        <p>
+            Note: The ability for a user to choose CC0 is not yet implemented and will be added to the library at a later date
+        </p>
     </div>
     <x-filament::button wire:click="updateLicense" class="w-fit">I agree</x-filament::button>
 </div>
