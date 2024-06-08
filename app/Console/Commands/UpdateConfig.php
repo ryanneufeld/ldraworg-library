@@ -19,7 +19,7 @@ class UpdateConfig extends Command
      *
      * @var string
      */
-    protected $signature = 'lib:update-config';
+    protected $signature = 'lib:init';
 
     /**
      * The console command description.
@@ -84,5 +84,10 @@ class UpdateConfig extends Command
                 Storage::disk('images')->makeDirectory("library/unofficial/{$dir}");
             }
         }
+
+        if (!Storage::disk('images')->exists('library/updates')) {
+            Storage::disk('images')->makeDirectory('library/updates');
+        }
+
     }
 }

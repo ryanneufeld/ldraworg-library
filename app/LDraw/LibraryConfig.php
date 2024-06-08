@@ -9,6 +9,7 @@ class LibraryConfig
         return [
             ['name' => 'CC_BY_2', 'text' => 'Licensed under CC BY 2.0 and CC BY 4.0 : see CAreadme.txt'],
             ['name' => 'CC_BY_4', 'text' => 'Licensed under CC BY 4.0 : see CAreadme.txt'],
+            ['name' => 'CC0', 'text' => 'Marked with CC0 1.0 : see CAreadme.txt'],
             ['name' => 'CA', 'text' => 'Redistributable under CCAL version 2.0 : see CAreadme.txt'],
             ['name' => 'NonCA', 'text' => 'Not redistributable : see NonCAreadme.txt'],        
         ];
