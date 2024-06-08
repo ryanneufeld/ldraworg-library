@@ -17,7 +17,7 @@ class CurrentLicense
     public function handle(Request $request, Closure $next): Response
     {
         
-        if (Auth::user()->license->in_use === false) {
+        if (Auth::user()->ca_confirm === false) {
             session(['ca_route_redirect' => $request->route()->getName()]);
             return redirect('tracker/confirmCA');
         }

@@ -46,7 +46,8 @@ class User extends Authenticatable
             'profile_settings' => 'array',
             'is_legacy' => 'boolean',
             'is_synthetic' => 'boolean',
-            'is_ptadmin' => 'boolean'
+            'is_ptadmin' => 'boolean',
+            'ca_confirm' => 'boolean'
         ];
     }
 

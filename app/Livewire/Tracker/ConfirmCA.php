@@ -13,9 +13,15 @@ class ConfirmCA extends Component
     public function updateLicense()
     {
         $user = Auth::user();
-        $user->license()->associate(PartLicense::find(app(LibrarySettings::class)->default_part_license_id));
+        if ($user->license->in_use !== true) {
+            $user->license()->associate(PartLicense::find(app(LibrarySettings::class)->default_part_license_id));
+        }
+        $user->ca_confirm = true;
         $user->save();
-        return $this->redirectRoute(session('ca_route_redirect'));   
+        if (session('ca_route_redirect')) {
+            return $this->redirectRoute(session('ca_route_redirect'));
+        }    
+        return $this->redirectRoute('tracker.main');
     }
 
     #[Layout('components.layout.tracker')]

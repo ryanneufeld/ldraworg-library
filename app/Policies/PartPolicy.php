@@ -14,12 +14,12 @@ class PartPolicy
 
     public function update(User $user, Part $part)
     {
-        return $part->isUnofficial() && $user->can('part.edit.header');
+        return $part->isUnofficial() && $user->can('part.edit.header') && $user->ca_confirm === true;
     }
 
     public function move(User $user, Part $part)
     {
-        return $user->can('part.edit.number');
+        return $user->can('part.edit.number') && $user->ca_confirm === true;
     }
 
     public function flagManualHold(User $user, Part $part)
