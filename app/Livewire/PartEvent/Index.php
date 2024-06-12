@@ -52,7 +52,8 @@ class Index extends Component implements HasForms, HasTable
                                 if (!is_null($event->part)) {
                                     return version("images/library/{$event->part->libFolder()}/" . substr($event->part->filename, 0, -4) . '_thumb.png');
                                 } else {
-                                    return asset('images/library/placeholder.png');
+                                    // One pixel transparent png
+                                    return 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAApJREFUCNdjYAAAAAIAAeIhvDMAAAAASUVORK5CYII=';
                                 }
                             }
                         )
