@@ -180,6 +180,7 @@ class PartManager
         $this->updatePartImage($part);
         $this->checkPart($part);
         $this->addStickerSheet($part);
+        $part->updateReadyForAdmin();
         UpdateParentParts::dispatch($part);        
     }
     
@@ -279,6 +280,7 @@ class PartManager
         }
         $this->updateMissing($part->name());
         $this->checkPart($part);
+        $part->updateReadyForAdmin();
         UpdateParentParts::dispatch($part);
         return true;
     }
@@ -291,7 +293,8 @@ class PartManager
             $part->refresh();
             $this->updatePartImage($part);
             $this->checkPart($part);
-            $this->addStickerSheet($part);    
+            $this->addStickerSheet($part);
+            $part->updateReadyForAdmin();    
         }
     }
 

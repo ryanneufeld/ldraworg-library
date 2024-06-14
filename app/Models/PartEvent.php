@@ -13,7 +13,8 @@ class PartEvent extends Model
     use HasPartRelease, HasUser, HasPart;
     
     protected $with = [
-        'part_event_type'
+        'part_event_type',
+        'vote_type'
     ];
 
     protected $fillable = [

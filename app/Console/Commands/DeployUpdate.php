@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Part;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
 
 class DeployUpdate extends Command
 {
@@ -25,5 +27,6 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
+        Part::unofficial()->whereHas('descendantsAndSelf', fn (Builder $q) => $q->where('vote_sort', '>', 2))->update(['ready_for_admin' => false]);
     }
 }

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Laravel\Scout\Searchable;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasGraphRelationships;
 
 #[ObservedBy([PartObserver::class])]
@@ -28,6 +29,7 @@ class Part extends Model
         HasPartRelease, 
         HasUser, 
         HasGraphRelationships;
+        //Searchable;
 
     protected $fillable = [
         'user_id',
@@ -44,6 +46,7 @@ class Part extends Model
         'unofficial_part_id',
         'can_release',
         'part_check_messages',
+        'ready_for_admin',
     ];
 
     protected $with = ['release', 'type'];
@@ -58,9 +61,21 @@ class Part extends Model
             'can_release' => 'boolean',
             'marked_for_release' => 'boolean',
             'part_check_messages' => AsArrayObject::class,
+            'ready_for_admin' => 'boolean',
         ];
     }
 
+    public function toSearchableArray()
+    {
+        return [
+            'id' => (int) $this->id,
+            'filename' => $this->filename,
+            'description' => $this->description,
+            'header' => $this->header,
+            'body' => $this->body->body
+        ];
+    }
+    
     public function getPivotTableName(): string
     {
         return 'related_parts';
@@ -221,11 +236,9 @@ class Part extends Model
     {
         $query->unofficial()
             ->whereRelation('type', 'folder', 'parts/')
-            ->whereHas('descendantsAndSelf', function ($q){
+            ->where('ready_for_admin', true)
+            ->whereHas('descendantsAndSelf', function ($q) {
                 $q->where('vote_sort', '=', 2);
-            })
-            ->whereDoesntHave('descendantsAndSelf', function ($q){
-                $q->where('vote_sort', '>', 2);
             });
     }
 
@@ -298,6 +311,7 @@ class Part extends Model
         if (!$this->isUnofficial()) {
             return;
         }
+        $old_sort = $this->vote_sort;
         $data = array_merge(['A' => 0, 'C' =>0, 'H' => 0, 'T' => 0], $this->votes->pluck('vote_type_code')->countBy()->all());
         if ($data['H'] != 0) {
             $this->vote_sort = 5;
@@ -315,8 +329,27 @@ class Part extends Model
             $this->vote_sort = 1;
         }
         $this->saveQuietly();
+        if (
+            ($old_sort <= 2 && $this->vote_sort > 2) ||
+            ($old_sort > 2 && $this->vote_sort <= 2)
+        ) {
+            $this->updateReadyForAdmin();
+        }
     }
-  
+    
+    public function updateReadyForAdmin(): void
+    {
+        $old = $this->ready_for_admin;
+        $this->ready_for_admin = $this->vote_sort <= 2 && $this->descendants->where('vote_sort', '>', 2)->count() == 0;
+        if ($old != $this->ready_for_admin) {
+            $this->saveQuietly();
+            foreach($this->ancestors as $p) {
+                $p->ready_for_admin = $p->vote_sort <= 2 && $p->descendants->where('vote_sort', '>', 2)->count() == 0;
+                $p->saveQuietly();
+            }
+        }
+    }
+
     public function setKeywords(array|Collection $keywords): void
     {
         if ($keywords instanceof Collection) {

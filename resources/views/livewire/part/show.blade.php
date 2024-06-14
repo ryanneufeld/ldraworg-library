@@ -138,7 +138,7 @@
                 </x-message>        
             @endif
             <div class="text-md font-bold">Current Votes:</div>
-            <x-vote.table :votes="$part->votes" />
+            <x-vote.table :votes="$part->votes" /> 
             @if (count($part->missing_parts) > 0)
                 <div class="text-md font-bold">Missing Part References:</div>
                 @foreach($part->missing_parts as $missing)
@@ -158,7 +158,28 @@
             <livewire:tables.part-dependencies-table :$part official parents lazy/>
             <livewire:tables.part-dependencies-table :$part official lazy/>
         @endif
-        <x-event.list :$part />
+        <div class="text-lg font-bold">Part Events:</div>
+        <div class="flex flex-col space-y-4">
+            @if (!$part->isUnofficial() || !is_null($part->official_part))
+                <x-accordion id="archiveEvents">
+                    <x-slot name="header">
+                        Archived Part Events:
+                    </x-slot>
+                    @forelse ($part->events->official()->sortBy('created_at') as $event)
+                        <x-event.list.item :$event wire:key="part-event-{{$event->id}}" />
+                    @empty
+                        <div>None</div>
+                    @endforelse 
+                </x-accordion>
+            @endif
+            @if ($part->isUnofficial())
+                @forelse ($part->events->unofficial()->sortBy('created_at') as $event)
+                    <x-event.list.item :$event wire:key="part-event-{{$event->id}}" />
+                @empty
+                    <div>No Events</div>
+                @endforelse
+            @endif 
+        </div>
         @can('vote', [\App\Models\Vote::class, $this->part])
             <div id="voteForm"></div>
             <form wire:submit="postVote">

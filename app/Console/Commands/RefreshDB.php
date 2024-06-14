@@ -31,34 +31,16 @@ class RefreshDB extends Command
     {
         if (app()->environment('local') && Storage::disk('local')->exists('db/lib.sql')) {
             $this->info('Copying production db backup');
-            $this->call('migrate:fresh');
-            $migrations = DB::table('migrations')->get();
-            $settings = DB::table('settings')->get();
-            DB::table('migrations')->truncate();
-            DB::table('settings')->truncate();
             $db = config('database.connections.mysql.database');
+            $db_port = config('database.connections.mysql.port');
+            $db_host = config('database.connections.mysql.host');
             $db_user = config('database.connections.mysql.username');
             $db_pw = config('database.connections.mysql.password');
             $backup = Storage::disk('local')->path('db/lib.sql');
-            $result = Process::forever()->run("mysql --user={$db_user} --password={$db_pw} --database={$db} < {$backup}");
+            $result = Process::forever()->run("mysql --user={$db_user} --password={$db_pw} --host={$db_host} --port={$db_port} --database={$db} < {$backup}");
             $this->info($result->output());
-            $migrations->each( fn(stdClass $m) => 
-                DB::table('migrations')->upsert(['id' => $m->id, 'migration' => $m->migration, 'batch' => $m->batch], ['id'], ['migration'])
-            );
-            $settings->each( fn(stdClass $s) =>
-                DB::table('settings')->upsert(
-                    [
-                        'group' => $s->group, 
-                        'name' => $s->name, 
-                        'payload' => $s->payload, 
-                        'locked' => $s->locked,
-                        'created_at' => $s->created_at,
-                        'updated_at' => $s->updated_at
-                    ],
-                    ['group', 'name'],
-                    ['name']
-                )
-            );
+            $this->info($result->errorOutput());
+            $this->call('migrate');
             $this->info('Running update');
             $this->call('lib:update');
         } else {

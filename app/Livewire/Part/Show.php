@@ -45,48 +45,59 @@ class Show extends Component implements HasForms, HasActions
                 Section::make('Comment / Vote')
                     ->schema([
                         Radio::make('vote_type_code')
-                            ->options(function () {
-                                if (!Auth::check()) return [];
-                                $options = [];                                
-                                $u = Auth::user();
-                                $v = $this->part->votes->firstWhere('user_id', $u->id);
-                                foreach(VoteType::ordered()->get() as $vt) {
-                                    switch($vt->code) {
-                                        case 'N':
-                                            if (!is_null($v) && $u->can('update', [$v, $vt->code])) {
-                                                $options[$vt->code] = $vt->name;
-                                            }
-                                            break;
-                                        default:
-                                            if (
-                                                (is_null($v) && $u->can('create', [Vote::class, $this->part, $vt->code])) ||
-                                                $u->can('update', [$v, $vt->code])
-                                            ) {
-                                                if (is_null($v) || $v->vote_type_code != $vt->code )
-                                                $options[$vt->code] = $vt->name;
-                                            }    
-                                    }
-                                }
-                                return $options;
-                            })
+                            ->label('')
+                            ->options(fn () => $this->voteOptions())
                             ->default('M')
                             ->required()
                             ->markAsRequired(false)
-                            ->in(array_keys(VoteType::ordered()->pluck('name', 'code')->all()))
+                            ->in(fn () => $this->voteTypes()->pluck('code')->all())
                             ->inline()
-                            ->inlineLabel(false)     
-                            ->disableOptionWhen(fn (string $value): bool => $value === 'published')
-                            ->live(),
+                            ->inlineLabel(false)
+                            ->validationAttribute('vote type'),
                         Textarea::make('comment')
                             ->rows(5)
                             ->string()
                             ->nullable()
-                            ->required(fn (Get $get): bool => in_array($get('vote_type_code'), ['M', 'H'])),
+                            ->requiredIf('vote_type_code', ['M', 'H'])
+                            ->validationMessages([
+                                'required_if' => 'A comment is required',
+                            ]),
                 ])    
-            ])
-            ->model(Vote::class);
+            ]);
+    }
+
+    #[Computed]
+    public function voteTypes()
+    {
+        return VoteType::ordered()->get();
     }
     
+    #[Computed]
+    public function voteOptions(): array
+    {
+        if (!Auth::check()) return [];
+        $options = [];                                
+        $u = Auth::user();
+        $v = $this->part->votes->firstWhere('user_id', $u->id);
+        foreach($this->voteTypes() as $vt) {
+            switch($vt->code) {
+                case 'N':
+                    if (!is_null($v) && $u->can('update', [$v, $vt->code])) {
+                        $options[$vt->code] = $vt->name;
+                    }
+                    break;
+                default:
+                    if (
+                        (is_null($v) && $u->can('create', [Vote::class, $this->part, $vt->code])) ||
+                        $u->can('update', [$v, $vt->code])
+                    ) {
+                        if (is_null($v) || $v->vote_type_code != $vt->code )
+                        $options[$vt->code] = $vt->name;
+                    }    
+            }
+        }
+        return $options;
+    }
     public function mount(?Part $part, ?Part $unofficialpart, ?Part $officialpart)
     {
         
@@ -99,8 +110,6 @@ class Show extends Component implements HasForms, HasActions
         } else {
             return response(404);
         }
-        $this->part->load('events', 'votes', 'descendantsAndSelf', 'unofficial_part', 'official_part');
-        $this->part->events->load('user', 'part', 'vote_type');
         $this->image = 
             $this->part->isTexmap() ? route("{$this->part->libFolder()}.download", $this->part->filename) : version("images/library/{$this->part->libFolder()}/" . substr($this->part->filename, 0, -4) . '.png');
         $this->form->fill();
@@ -284,7 +293,7 @@ class Show extends Component implements HasForms, HasActions
                 ->visible(
                     $this->part->isUnofficial() && 
                     $this->part->type->folder == 'parts/' && 
-                    $this->part->descendantsAndSelf->where('vote_sort', '>', 2)->count() == 0 &&
+                    $this->part->ready_for_admin === true &&
                     $this->part->descendantsAndSelf->where('vote_sort', 2)->count() > 0 &&
                     (Auth::user()?->can('create', [Vote::class, $this->part, 'A']) ?? false) &&
                     (Auth::user()?->can('allAdmin', Vote::class) ?? false)
@@ -308,7 +317,7 @@ class Show extends Component implements HasForms, HasActions
                 })
                 ->visible(
                     $this->part->isUnofficial() && 
-                    $this->part->type->folder == 'parts/' && 
+                    $this->part->type->folder == 'parts/' &&
                     $this->part->descendantsAndSelf->where('vote_sort', '>', 3)->count() == 0 &&
                     $this->part->descendantsAndSelf->where('vote_sort', 3)->count() > 0 &&
                     (Auth::user()?->can('create', [Vote::class, $this->part, 'C']) ?? false) &&
@@ -322,6 +331,7 @@ class Show extends Component implements HasForms, HasActions
         $this->form->getState();
         $vm = new VoteManager();
         $vm->postVote($this->part, Auth::user(), $this->vote_type_code, $this->comment);
+        $this->dispatch('mass-vote');
         $this->form->fill();
     }
 
