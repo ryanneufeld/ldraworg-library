@@ -129,7 +129,13 @@ class PartChecker
           $errors[] = __('partcheck.description.invalidchars' );
       }
   
-      if ($part->descriptionCategory !== 'Moved' && $pt->folder == 'parts/' && !$this->checkDescriptionForPatternText($name, $part->description)) {
+      if (
+        $part->descriptionCategory !== 'Moved' && 
+        $part->descriptionCategory !== 'Sticker' && 
+        $part->metaCategory !== 'Sticker Shortcut' && 
+        $pt->folder == 'parts/' && 
+        !$this->checkDescriptionForPatternText($name, $part->description)
+      ) {
           $errors[] = __('partcheck.description.patternword' );
       }
 
