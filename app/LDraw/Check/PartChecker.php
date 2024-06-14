@@ -202,7 +202,14 @@ class PartChecker
           $errors[] = __('partcheck.category.movedto');
       }
       // Keyword Check
-      if ($part->descriptionCategory !== 'Moved' && $pt->folder == 'parts/' && !$this->checkPatternForSetKeyword($name, $part->keywords ?? [])) {
+      if (
+        $part->descriptionCategory !== 'Moved' && 
+        $pt->folder == 'parts/' && 
+        $part->descriptionCategory !== 'Moved' && 
+        $part->descriptionCategory !== 'Sticker' && 
+        $part->metaCategory !== 'Sticker Shortcut' && 
+        !$this->checkPatternForSetKeyword($name, $part->keywords ?? [])
+      ) {
         $errors[] = __('partcheck.keywords');
       }  
 

@@ -56,6 +56,9 @@ class EditHeaderAction
                         }
                         if (
                             $part->type->folder == 'parts/' && 
+                            $part->category->category !== 'Moved' && 
+                            $part->category->category !== 'Sticker' && 
+                            $part->category->category !== 'Sticker Shortcut' && 
                             ! app(\App\LDraw\Check\PartChecker::class)->checkDescriptionForPatternText($part->name(), $value)
                         ) {
                             $fail('partcheck.description.patternword')->translate();
@@ -122,6 +125,9 @@ class EditHeaderAction
                         $keywords = app(\App\LDraw\Parse\Parser::class)->getKeywords($keywords) ?? [];
                         if (
                             $part->type->folder == 'parts/' && 
+                            $part->category->category !== 'Moved' && 
+                            $part->category->category !== 'Sticker' && 
+                            $part->category->category !== 'Sticker Shortcut' && 
                             ! app(\App\LDraw\Check\PartChecker::class)->checkPatternForSetKeyword($part->name(), $keywords)
                         ) {
                             $fail('partcheck.keywords')->translate();
