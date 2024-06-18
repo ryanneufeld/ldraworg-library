@@ -121,7 +121,6 @@ class Index extends Component implements HasForms, HasTable
                 Filter::make('sticker_shortcuts')
                     ->query(fn (Builder $query): Builder => $query->whereDoesntHave('part', fn ($q) => $q->whereRelation('category', 'category', 'Sticker Shortcut')))
                     ->toggle()
-                    ->default()
                     ->label('Hide sticker shortcuts'),
             ], layout: FiltersLayout::AboveContent)
             ->persistFiltersInSession()
