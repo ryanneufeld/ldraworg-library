@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Part;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 
 class DeployUpdate extends Command
 {
@@ -27,6 +28,17 @@ class DeployUpdate extends Command
      */
     public function handle(): void
     {
-        Part::unofficial()->whereHas('descendantsAndSelf', fn (Builder $q) => $q->where('vote_sort', '>', 2))->update(['ready_for_admin' => false]);
+        foreach(Storage::files('db') as $file) {
+            $id = basename($file, '.txt');
+            if ($id == 'lib.sql' || $id == 'lib2.sql'){
+                continue;
+            } 
+            $this->info($id);
+            $p = Part::find($id);
+            $body = Storage::get($file);
+            $p->body->body = $body;
+            $p->body->save();
+            app(\App\LDraw\PartManager::class)->loadSubpartsFromBody($p);
+        }
     }
 }
