@@ -25,11 +25,11 @@ use Staudenmeir\LaravelAdjacencyList\Eloquent\HasGraphRelationships;
 class Part extends Model
 {
     use 
+        HasGraphRelationships,
+        //Searchable,
         HasLicense, 
         HasPartRelease, 
-        HasUser, 
-        HasGraphRelationships;
-        //Searchable;
+        HasUser; 
 
     protected $fillable = [
         'user_id',
@@ -64,7 +64,7 @@ class Part extends Model
             'ready_for_admin' => 'boolean',
         ];
     }
-
+/*
     public function toSearchableArray()
     {
         return [
@@ -75,7 +75,7 @@ class Part extends Model
             'body' => $this->body->body
         ];
     }
-    
+*/    
     public function getPivotTableName(): string
     {
         return 'related_parts';
