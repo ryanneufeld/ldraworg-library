@@ -30,14 +30,6 @@
             Submit
         </x-filament::button>
     </form>
-
-    <p>
-        To submit a fix for an <span class="fold-bold">existing file</spna>,  email the file to 
-        <a href="mailto:parts@ldraw.org">parts@ldraw.org</a>, and it will be manually posted to the tracker.
-    </p>
-    <p>
-        Uploaded files should appear almost immediately in the Parts Tracker list.
-    </p>
     <x-filament::modal id="post-submit" width="5xl" :close-by-clicking-away="false" :close-button="false">
         <x-slot name="heading">
             Submit Successful
