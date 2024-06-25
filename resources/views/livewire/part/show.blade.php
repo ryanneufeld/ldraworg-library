@@ -145,18 +145,18 @@
                     <div class="text-red-500">{{ $missing }}</div>
                 @endforeach
             @endif
-            <livewire:tables.part-dependencies-table :$part parents lazy />
-            <livewire:tables.part-dependencies-table :$part lazy />
+            <livewire:tables.part-dependencies-table :$part parents />
+            <livewire:tables.part-dependencies-table :$part />
             <x-accordion id="officialParts">
                 <x-slot name="header" class="text-md font-bold">
                     Official parents and subparts
                 </x-slot>
-                <livewire:tables.part-dependencies-table :$part official parents lazy />
-                <livewire:tables.part-dependencies-table :$part official lazy />
+                <livewire:tables.part-dependencies-table :$part official parents />
+                <livewire:tables.part-dependencies-table :$part official />
             </x-accordion>
         @else
-            <livewire:tables.part-dependencies-table :$part official parents lazy/>
-            <livewire:tables.part-dependencies-table :$part official lazy/>
+            <livewire:tables.part-dependencies-table :$part official parents />
+            <livewire:tables.part-dependencies-table :$part official />
         @endif
         <div class="text-lg font-bold">Part Events:</div>
         <div class="flex flex-col space-y-4">

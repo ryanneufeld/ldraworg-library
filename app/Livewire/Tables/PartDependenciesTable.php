@@ -5,8 +5,10 @@ namespace App\Livewire\Tables;
 use App\Models\Part;
 use App\Filament\Part\Tables\PartTable;
 use Filament\Tables\Table;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\On;
 
+#[Lazy]
 class PartDependenciesTable extends BasicTable
 {
     public bool $official = false;
@@ -17,6 +19,11 @@ class PartDependenciesTable extends BasicTable
     public function searchUpdated() {
         $this->resetTable();
         $this->render();
+    }
+
+    public function placeholder(array $params = [])
+    {
+        return view('livewire.loading', $params);
     }
 
     public function table(Table $table): Table
