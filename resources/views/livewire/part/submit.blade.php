@@ -8,11 +8,6 @@
     <div class="text-2xl font-bold">
         Parts Tracker File Submit Form
     </div>
-
-    <p>
-        Use this form to upload <span class="fold-bold">new</span> files to the 
-        Parts Tracker and to update already-submitted <span class="fold-bold">unofficial</span> files.
-    </p>
     <div>
         @if (count($this->part_errors) > 0)
             <x-message icon type="error">
