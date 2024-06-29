@@ -148,7 +148,7 @@ class PartsUpdateProcessor
         }
         $notes .= "\n" . 
             "Other Fixed Parts\n";
-        foreach ($data['fixes'] as $m) {
+        foreach ($data['fixed'] as $m) {
             $notes .= "   {$m['name']}" . str_repeat(' ', max(27 - strlen($m['name']), 0)) . "{$m['decription']}\n";
         }
         if ($data['minor_edits']['license'] > 0) {
