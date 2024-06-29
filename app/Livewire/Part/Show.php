@@ -100,12 +100,11 @@ class Show extends Component implements HasForms, HasActions
     }
     public function mount(?Part $part, ?Part $unofficialpart, ?Part $officialpart)
     {
-        
-        if (!is_null($part)) {
+        if (!is_null($part) && $part->exists) {
             $this->part = $part;
-        } elseif (!is_null($unofficialpart)) {
+        } elseif (!is_null($unofficialpart) && $unofficialpart->exists) {
             $this->part = $unofficialpart;
-        } elseif (!is_null($officialpart)) {
+        } elseif (!is_null($officialpart) && $officialpart->exists) {
             $this->part = $officialpart;
         } else {
             return response(404);
