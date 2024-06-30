@@ -323,8 +323,10 @@ class PartsUpdateProcessor
     {
         $previousRelease = PartRelease::where('id', '<>', $this->release->id)->latest()->first();
         
-        // Archive the previous complete zip
-        Storage::disk('library')->copy('updates/complete.zip', "updates/complete-{$previousRelease->short}.zip");
+        // Archive the previous complete zip and exe
+        Storage::disk('library')->move('updates/complete.zip', "updates/complete-{$previousRelease->short}.zip");
+        Storage::disk('library')->move('updates/LDrawParts.exe', "updates/LDraw{$previousRelease->short}.exe");
+
         // Copy the new archives to the library
         Storage::disk('library')->put("updates/lcad{$this->release->short}.zip", file_get_contents($this->tempDir->path("lcad{$this->release->short}.zip")));
         Storage::disk('library')->put("updates/complete.zip", file_get_contents($this->tempDir->path("complete.zip")));
