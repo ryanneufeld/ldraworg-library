@@ -23,6 +23,8 @@ class LibrarySettings extends Settings
     
     public array $pattern_codes;
 
+    public bool $tracker_locked;
+
     public static function group(): string
     {
         return 'library';

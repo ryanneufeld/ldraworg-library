@@ -14,6 +14,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -32,6 +33,7 @@ class LibrarySettingsPage extends Component implements HasForms
                     ->tabs([
                         Tabs\Tab::make('General Settings')
                             ->schema([
+                                Toggle::make('tracker_locked'),
                                 Select::make('default_part_license_id')
                                     ->options(PartLicense::pluck('name', 'id'))
                                     ->required()
@@ -97,6 +99,7 @@ class LibrarySettingsPage extends Component implements HasForms
     public function mount(LibrarySettings $settings)
     {
         $form_data = [
+            'tracker_locked' => $settings->tracker_locked,
             'ldview_options' => $settings->ldview_options,
             'default_render_views' => $settings->default_render_views,
             'max_render_height' => $settings->max_render_height,
@@ -112,11 +115,11 @@ class LibrarySettingsPage extends Component implements HasForms
         $this->form->fill($form_data);
     }
     
-    public function saveSettings()
+    public function saveSettings(LibrarySettings $settings)
     {
         $form_data = $this->form->getState();
-        $settings = app(LibrarySettings::class);
         $view_changes = [];
+        $settings->tracker_locked = $form_data['tracker_locked'];
         $settings->ldview_options = $form_data['ldview_options'];
         if ($settings->default_render_views != $form_data['default_render_views']) {
             $new = array_diff_assoc($form_data['default_render_views'], $settings->default_render_views);

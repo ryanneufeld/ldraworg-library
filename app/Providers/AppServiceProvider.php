@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Listeners\PartEventSubscriber;
 use App\Models\Omr\Set;
 use App\Models\Part;
+use App\Settings\LibrarySettings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Model;
@@ -75,6 +76,10 @@ class AppServiceProvider extends ServiceProvider
 
         //Subscriber
         Event::subscribe(PartEventSubscriber::class);
+
+        //Tracker Locked variable
+        view()->share('tracker_locked',
+            app(LibrarySettings::class)->tracker_locked);
 
     }
 }

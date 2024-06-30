@@ -5,12 +5,17 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Vote;
 use App\Models\Part;
+use App\Settings\LibrarySettings;
 
 class VotePolicy
 {    
+    public function __construct(
+        protected LibrarySettings $settings
+    ) {}
+
     public function vote(User $user, Part $part): bool
     {
-        if (!$part->isUnofficial()) {
+        if (!$part->isUnofficial() || $this->settings->tracker_locked) {
             return false;
         }
         if ($part->user_id !== $user->id) {
@@ -34,7 +39,7 @@ class VotePolicy
 
     public function create(User $user, Part $part, string $vote_type): bool
     {
-        if (!$part->isUnofficial()) {
+        if (!$part->isUnofficial() || $this->settings->tracker_locked) {
             return false;
         }
         switch ($vote_type) {
@@ -67,7 +72,7 @@ class VotePolicy
 
     public function update(User $user, Vote $vote, string $vote_type): bool
     {
-        if (!$vote->part->isUnofficial() || $vote->user_id !== $user->id) {
+        if (!$vote->part->isUnofficial() || $vote->user_id !== $user->id || $this->settings->tracker_locked) {
             return false;
         }
         switch ($vote_type) {
@@ -103,14 +108,14 @@ class VotePolicy
 
     public function delete(User $user, Vote $vote): bool
     {
-        return $vote->user_id === $user->id;
+        return !$this->settings->tracker_locked && $vote->user_id === $user->id ;
     }
 
     public function all(User $user): bool {
-        return $user->can('part.vote.certify.all');
+        return !$this->settings->tracker_locked && $user->can('part.vote.certify.all');
     }
 
     public function allAdmin(User $user): bool {
-        return $user->can('part.vote.admincertify.all');
+        return !$this->settings->tracker_locked && $user->can('part.vote.admincertify.all');
     }
 }

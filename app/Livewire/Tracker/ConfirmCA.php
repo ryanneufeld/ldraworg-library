@@ -10,11 +10,11 @@ use Livewire\Component;
 
 class ConfirmCA extends Component
 {
-    public function updateLicense()
+    public function updateLicense(LibrarySettings $settings)
     {
         $user = Auth::user();
         if ($user->license->in_use !== true) {
-            $user->license()->associate(PartLicense::find(app(LibrarySettings::class)->default_part_license_id));
+            $user->license()->associate(PartLicense::find($settings->default_part_license_id));
         }
         $user->ca_confirm = true;
         $user->save();

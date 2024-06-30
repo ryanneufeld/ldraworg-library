@@ -14,14 +14,14 @@ class MenuItem extends Component
     public array $results = [];
     public bool $hasResults = false;
 
-    public function doSearch()
+    public function doSearch(LibrarySettings $settings)
     {
         $this->results = [];
         $this->hasResults = false;
         if (empty($this->search) || !is_string($this->search)) {
             return;
         }
-        $limit = app(LibrarySettings::class)->quick_search_limit;
+        $limit = $settings->quick_search_limit;
         $uparts = Part::unofficial()->searchPart($this->search, 'header')->orderBy('filename')->take($limit)->get();
         $oparts = Part::official()->searchPart($this->search, 'header')->orderBy('filename')->take($limit)->get();
         if ($uparts->count() > 0) {
