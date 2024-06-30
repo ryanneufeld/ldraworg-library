@@ -180,15 +180,17 @@
                 @endforelse
             @endif 
         </div>
-        @can('vote', [\App\Models\Vote::class, $this->part])
-            <div id="voteForm"></div>
-            <form wire:submit="postVote">
-                {{ $this->form }}
-                <button class="border rounded mt-2 py-2 px-4 bg-yellow-500" type="submit">
-                    Send
-                </button>
-            </form>
-        @endcan
+        @if($part->isUnofficial())
+            @can('vote', [\App\Models\Vote::class, $this->part])
+                <div id="voteForm"></div>
+                <form wire:submit="postVote">
+                    {{ $this->form }}
+                    <button class="border rounded mt-2 py-2 px-4 bg-yellow-500" type="submit">
+                        Send
+                    </button>
+                </form>
+            @endcan
+        @endif
         <x-part.attribution :part="$part" />
     </div>
     <x-filament::modal id="ldbi" alignment="center" width="7xl" lazy>
