@@ -76,10 +76,5 @@ class AppServiceProvider extends ServiceProvider
 
         //Subscriber
         Event::subscribe(PartEventSubscriber::class);
-
-        //Tracker Locked variable
-        view()->share('tracker_locked',
-            app(LibrarySettings::class)->tracker_locked);
-
     }
 }
