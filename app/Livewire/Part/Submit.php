@@ -59,7 +59,8 @@ class Submit extends Component implements HasForms
                                 $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
                                 $pparts = Part::query()->name($part->name ?? '')->get();
                                 $unofficial_exists = $pparts->unofficial()->count() > 0;
-                                $errors = app(\App\LDraw\Check\PartChecker::class)->check($part);
+                                $official_exists = $pparts->official()->count() > 0;
+                                $errors = app(\App\LDraw\Check\PartChecker::class)->check($part, $value->getClientOriginalName());
 
                                 // A part in the p and parts folder cannot have the same name
                                 if (!is_null($pparts) && !is_null($part->type) && !is_null($part->name) && 
@@ -86,6 +87,11 @@ class Submit extends Component implements HasForms
                                 $this->part_errors[] = "{$value->getClientOriginalName()}: " . __('partcheck.replace');
                             }
 
+                            if ($official_exists && !$unofficial_exists && $get('official_fix') !== true)
+                            {
+                                $this->part_errors[] = "{$value->getClientOriginalName()}: You must select Official File Fix to submit official part fixes";
+                            }
+
                             if (count($this->part_errors) > 0) {
                                 $fail('File errors');
                             }  
@@ -93,6 +99,8 @@ class Submit extends Component implements HasForms
                     ]),
                 Toggle::make('replace')
                     ->label('Replace existing file(s)'),
+                Toggle::make('official_fix')
+                    ->label('Official File Fix'),
                 Select::make('user_id')
                     ->relationship(name: 'user')
                     ->getOptionLabelFromRecordUsing(fn (User $u) => "{$u->realname} [{$u->name}]")

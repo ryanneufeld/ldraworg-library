@@ -23,9 +23,9 @@ class PartChecker
      * 
      * @return array|null
      */
-    public function check(ParsedPart $part): ?array
+    public function check(ParsedPart $part, ?string $filename = null): ?array
     {
-        $errors = $this->checkFile($part);
+        $errors = $this->checkFile($part, $filename);
         $herrors = $this->checkHeader($part);
         return is_null($errors) ? $herrors : array_merge($errors, $herrors ?? []);
     }
@@ -71,7 +71,7 @@ class PartChecker
         return $part->descendants->where('vote_sort', '!=', 1)->count() == 0;
     }
 
-    public function checkFile(ParsedPart $part): ?array
+    public function checkFile(ParsedPart $part, ?string $filename = null): ?array
     {
         $errors = [];
         if (!is_null($part->name)) {
@@ -80,6 +80,10 @@ class PartChecker
                 $errors[] = __('partcheck.name.invalidchars' );
             } elseif (! $this->checkUnknownPartNumber($part->name)) {
                 $errors[] = __('partcheck.name.xparts' );
+            }
+            $n = basename(str_replace('\\', '/', $part->name));
+            if (!is_null($filename) && $n !== mb_strtolower($filename)) {
+                $errors[] = "Name: and filename do not match";
             }
         }
         $text = explode("\n", $part->body);
