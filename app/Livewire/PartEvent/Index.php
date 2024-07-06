@@ -34,7 +34,7 @@ class Index extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(PartEvent::query()->with(['part', 'part.votes', 'part.official_part', 'part.descendantsAndSelf']))
+            ->query(PartEvent::query()->with(['part', 'part.votes', 'part.official_part']))
             ->defaultSort('created_at', 'desc')
             ->columns([
                 Split::make([
