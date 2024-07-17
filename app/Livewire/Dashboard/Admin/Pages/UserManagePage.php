@@ -95,6 +95,7 @@ class UserManagePage extends BasicResourceManagePage
                 )
                 ->required()
                 ->live()
+                ->searchable()
                 ->afterStateUpdated(function (Set $set, int $state) {
                         $user = MybbUser::find($state);
                         if (!is_null($user)) {
