@@ -51,6 +51,7 @@ class Suffix extends Component implements HasForms
             ->doesntHave('unofficial_part')
             ->whereRelation('type', 'folder', 'parts/')
             ->where('filename', 'LIKE', "parts/{$this->basepart}%.dat")
+            ->orderBy('filename', 'asc')
             ->get();
     }
 
