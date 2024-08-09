@@ -1,6 +1,6 @@
 @props(['part', 'show_obsolete' => false])
 <div>
-    @if(stripos($part->description, "obsolete") === false)
+    @if(stripos($part->description, "obsolete") === false || $show_obsolete)
         <a href="{{route(($part->isUnofficial() ? 'tracker.show' : 'official.show'), $part)}}">
     @endif
             <div @class([
@@ -24,7 +24,7 @@
                     <p class="p-2">Obsolete file</p>
                 @endif
             </div>
-    @if(stripos($part->description, "obsolete") === false)
+    @if(stripos($part->description, "obsolete") === false || $show_obsolete)
         </a>
     @endif
 </div>
