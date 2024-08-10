@@ -48,14 +48,16 @@ class Submit extends Component implements HasForms
                     ->rules([
                         fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get) {
                             // Check if the fileformat is text or png
-                            if ($value->getMimeType() != 'text/plain' && $value->getMimeType() != 'image/png') {
+                            $detector = new \League\MimeTypeDetection\FinfoMimeTypeDetector();
+                            $mimeType = $detector->detectMimeTypeFromPath($value->getPath() . '/' . $value->getFilename()) ?: 'text/plain';
+                            if ($mimeType != 'text/plain' && $mimeType != 'image/png') {
                                 $this->part_errors[] = "{$value->getClientOriginalName()}: Incorrect file type";
                                 $fail('File errors');
                                 return;
                             }
                             
                             // Error check based on file type
-                            if ($value->getMimeType() == 'text/plain') {
+                            if ($mimeType == 'text/plain') {
                                 $part = app(\App\LDraw\Parse\Parser::class)->parse($value->get());
                                 $pparts = Part::query()->name($part->name ?? '')->get();
                                 $unofficial_exists = $pparts->unofficial()->count() > 0;
@@ -76,9 +78,10 @@ class Submit extends Component implements HasForms
                                 foreach($errors ?? [] as $error) {
                                     $this->part_errors[] = "{$value->getClientOriginalName()}: {$error}";
                                 }
-                            } elseif ($value->getMimeType() == 'image/png') {
+                            } elseif ($mimeType == 'image/png') {
                                 $filename = $value->getClientOriginalName();
                                 $unofficial_exists = !is_null(Part::unofficial()->where('filename', 'LIKE', "%{$filename}")->first());
+                                $official_exists = !is_null(Part::official()->where('filename', 'LIKE', "%{$filename}")->first());
                             }
 
                             // Check if the part already exists on the tracker
@@ -133,10 +136,12 @@ class Submit extends Component implements HasForms
         }
         $files = [];
         foreach($data['partfiles'] as $file) {
-            if ($file->getMimeType() == 'text/plain') {
+            $detector = new \League\MimeTypeDetection\FinfoMimeTypeDetector();
+            $mimeType = $detector->detectMimeTypeFromPath($file->getPath() . '/' . $file->getFilename()) ?: 'text/plain';
+            if ($mimeType == 'text/plain') {
                 $files[] = ['type' => 'text', 'filename' => $file->getClientOriginalName(), 'contents' => $file->get()];
             }
-            else if ($file->getMimeType() == 'image/png') {
+            else if ($mimeType == 'image/png') {
                 $files[] = ['type' => 'image', 'filename' => $file->getClientOriginalName(), 'contents' => $file->get()];
             }
         }
