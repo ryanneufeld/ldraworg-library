@@ -197,6 +197,7 @@ class Show extends Component implements HasForms, HasActions
         return Action::make('recheckPart')
                 ->action(function() {
                     app(PartManager::class)->checkPart($this->part);
+                    $this->part->updateVoteSort();
                     $this->dispatch('subparts-updated');
                     Notification::make()
                         ->title('Part Error Checked')
