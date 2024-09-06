@@ -129,6 +129,7 @@ Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
 Route::redirect('/docs', 'https://www.ldraw.org/docs-main.html')->name('doc');
 
 Route::middleware(['throttle:file'])->get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
+Route::middleware(['throttle:file'])->get('/library/official/{officialpartzip}', PartDownloadZipController::class)->name('official.download.zip');
 Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');
 Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpartzip}', PartDownloadZipController::class)->name('unofficial.download.zip');
 

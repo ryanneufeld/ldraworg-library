@@ -16,7 +16,12 @@ class PartDownloadZipController extends Controller
         $zip = new \ZipArchive();
         $name = basename($part->filename, '.dat') . '.zip';
         $zip->open($dir->path($name), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        $part->descendantsAndSelf()->unofficial()->each(function (Part $part) use ($zip) {
+        if ($part->isUnofficial()) {
+            $zipparts = $part->descendantsAndSelf()->doesntHave('unofficial_part')->get();
+        } else {
+            $zipparts = $part->descendantsAndSelf()->whereNotNull('part_release_id')->get();
+        }
+        $zipparts->each(function (Part $part) use ($zip) {
             $zip->addFromString($part->filename, $part->get());
         });        
         $zip->close();

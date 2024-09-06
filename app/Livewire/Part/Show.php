@@ -260,10 +260,8 @@ class Show extends Component implements HasForms, HasActions
     {
         return Action::make('zipdownload')
                 ->label('Download zip file')
-                ->url(fn() => route('unofficial.download.zip', str_replace('.dat', '.zip', $this->part->filename)))
-                ->visible($this->part->isUnofficial() && 
-                    $this->part->type->folder == 'parts/'
-                )
+                ->url(fn() => route('official.download.zip', str_replace('.dat', '.zip', $this->part->filename)))
+                ->visible($this->part->type->folder == 'parts/')
                 ->color('gray')
                 ->outlined();
     }
