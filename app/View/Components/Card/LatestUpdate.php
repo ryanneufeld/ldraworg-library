@@ -18,7 +18,7 @@ class LatestUpdate extends Component
 
     public function __construct()
     {
-        $this->update = PartRelease::latest()->first();
+        $this->update = PartRelease::current();
         $data = $this->update->part_data;
         $prims = 0;
         $parts = 'no';

@@ -51,13 +51,13 @@ class PartRelease extends Model
         return $this->short == 'original' ? " ORIGINAL" : " UPDATE {$this->name}";
     }
 
-    public static function current(): self 
+    public static function current(): ?self 
     {
-        return self::latest()->first();
+        return self::latest()?->first();
     }
 
     public function isLatest(): bool
     {
-        return self::current()->id === $this->id;
+        return self::current()?->id === $this->id;
     }
  }
