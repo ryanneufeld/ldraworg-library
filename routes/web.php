@@ -20,6 +20,7 @@ use App\Livewire\Dashboard\Admin\Pages\RoleManagePage;
 use App\Livewire\Dashboard\Admin\Pages\UserManagePage;
 use App\Livewire\Dashboard\Admin\Pages\LibrarySettingsPage;
 use App\Livewire\Dashboard\Admin\Pages\PartCategoryManagePage;
+use App\Livewire\Dashboard\Admin\Pages\PartKeywordManagePage;
 use App\Livewire\Dashboard\Admin\Pages\PartLicenseManagePage;
 use App\Livewire\Dashboard\Admin\Pages\PartTypeManagePage;
 use App\Livewire\Dashboard\User;
@@ -47,6 +48,10 @@ Route::middleware(['throttle:file'])->group(function () {
     Route::get('/ldbi/part/{part}', PartWebGLController::class)->name('part.ldbi');    
     Route::get('/tracker/latest-parts', LatestPartsController::class)->name('part.latest');
     Route::get('/tracker/ldrawunf-last-day.zip', LastDayDownloadZipController::class)->name('tracker.last-day');
+    Route::get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
+    Route::get('/library/official/{officialpartzip}', PartDownloadZipController::class)->name('official.download.zip');
+    Route::get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');
+    Route::get('/library/unofficial/{unofficialpartzip}', PartDownloadZipController::class)->name('unofficial.download.zip');
 });
 
 Route::get('/pbg', PbgGenerator::class)->name('pbg');
@@ -99,6 +104,7 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
     Route::middleware(['can:documentation.edit'])->get('/documents', DocumentManagePage::class)->name('documents.index');
     Route::middleware(['can:documentation.edit'])->get('/document-categories', DocumentCategoryManagePage::class)->name('document-categories.index');
     Route::middleware(['can:create,App\Models\PartCategory'])->get('/part-categories', PartCategoryManagePage::class)->name('part-categories.index');
+    Route::middleware(['can:create,App\Models\PartKeyword'])->get('/part-keywords', PartKeywordManagePage::class)->name('part-keywords.index');
     Route::middleware(['can:create,App\Models\PartType'])->get('/part-types', PartTypeManagePage::class)->name('part-types.index');
     Route::middleware(['can:settings.edit'])->get('/settings', LibrarySettingsPage::class)->name('settings.index');
 });
@@ -127,11 +133,6 @@ Route::prefix('official')->name('official.')->group(function () {
 
 Route::redirect('/login', 'https://forums.ldraw.org/member.php?action=login');
 Route::redirect('/docs', 'https://www.ldraw.org/docs-main.html')->name('doc');
-
-Route::middleware(['throttle:file'])->get('/library/official/{officialpart}', PartDownloadController::class)->name('official.download');
-Route::middleware(['throttle:file'])->get('/library/official/{officialpartzip}', PartDownloadZipController::class)->name('official.download.zip');
-Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpart}', PartDownloadController::class)->name('unofficial.download');
-Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpartzip}', PartDownloadZipController::class)->name('unofficial.download.zip');
 
 Route::middleware(['auth'])->get('/logout', function () {
     auth()->logout();

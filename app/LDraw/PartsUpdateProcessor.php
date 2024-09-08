@@ -119,6 +119,7 @@ class PartsUpdateProcessor
             }
         }
         $data['minor_edits']['license'] = Part::official()->whereJsonLength('minor_edit_data->license', '>', 0)->count();
+        $data['minor_edits']['header'] = Part::official()->whereJsonLength('minor_edit_data->header', '>', 0)->count();
         return $data;
     }
 
@@ -155,6 +156,9 @@ class PartsUpdateProcessor
             $notes .= "\nMinor Edits\n";
             if ($data['minor_edits']['license'] > 0) {
                 $notes .=  "   {$data['minor_edits']['license']} Part licenses changed\n";
+            }
+            if ($data['minor_edits']['header'] > 0) {
+                $notes .=  "   {$data['minor_edits']['header']} Minor header edits\n";
             }
         }
         return $notes;      

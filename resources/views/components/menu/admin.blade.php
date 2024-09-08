@@ -2,6 +2,8 @@
     <x-menu.library-dropdown />
     @if(
         Auth::user()->can('create', \App\Models\PartCategory::class) ||
+        Auth::user()->can('create', \App\Models\PartKeywords::class) ||
+        Auth::user()->can('create', \App\Models\PartLicense::class) ||
         Auth::user()->can('create', \App\Models\PartType::class) ||
         Auth::user()->can('settings.edit')
     )
@@ -15,6 +17,9 @@
             @can('create', \App\Models\PartType::class)    
                 <x-menu.item label="View/Add Part Types" link="{{route('admin.part-types.index')}}" />
             @endcan
+            @can('create', \App\Models\PartKeyword::class)    
+                <x-menu.item label="View/Edit Part Keywords" link="{{route('admin.part-keywords.index')}}" />
+            @endcan 
             @can('create', \App\Models\PartLicence::class)    
                 <x-menu.item label="View/Add Part Licenses" link="{{route('admin.part-licenses.index')}}" />
             @endcan
