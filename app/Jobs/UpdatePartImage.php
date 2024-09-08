@@ -19,8 +19,7 @@ class UpdatePartImage implements ShouldQueue
      */
     public function __construct(
         protected Part $part
-    )
-    {}
+    ) {}
 
     /**
      * Execute the job.

@@ -15,15 +15,16 @@ class PartType extends Model
         'type',
         'name',
         'folder',
-        'format'
+        'format',
     ];
 
-    public function toString(bool $unofficial = false): string 
+    public function toString(bool $unofficial = false): string
     {
         $u = $unofficial ? 'Unofficial_' : '';
+
         return "0 !LDRAW_ORG {$u}{$this->type}";
     }
-    
+
     public static function getDirectories(): array
     {
         return self::pluck('folder')->unique()->all();

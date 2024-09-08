@@ -18,8 +18,8 @@ class OfficialPartsWithErrorsTable extends BasicTable
             ->heading('Official Parts With Errors')
             ->columns([
                 ImageColumn::make('image')
-                    ->state( 
-                        fn (Part $p): string => asset("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
+                    ->state(
+                        fn (Part $p): string => asset("images/library/{$p->libFolder()}/".substr($p->filename, 0, -4).'_thumb.png')
                     )
                     ->grow(false)
                     ->extraImgAttributes(['class' => 'object-scale-down w-[35px] max-h-[75px]']),
@@ -28,8 +28,8 @@ class OfficialPartsWithErrorsTable extends BasicTable
                 TextColumn::make('description')
                     ->sortable(),
                 TextColumn::make('part_check_messages')
-                    ->state(fn(Part $part) => implode(", ", $part->part_check_messages['errors']))
-                    ->wrap()
+                    ->state(fn (Part $part) => implode(', ', $part->part_check_messages['errors']))
+                    ->wrap(),
             ])
             ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
             ->queryStringIdentifier('officialErrors');

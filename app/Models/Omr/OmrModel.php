@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OmrModel extends Model
 {
-    use HasUser, HasLicense;
+    use HasLicense, HasUser;
 
     protected $guarded = [];
 
@@ -28,8 +28,7 @@ class OmrModel extends Model
         ];
     }
 
-    
-    public function set(): BelongsTo 
+    public function set(): BelongsTo
     {
         return $this->belongsTo(Set::class, 'set_id', 'id');
     }
@@ -37,7 +36,8 @@ class OmrModel extends Model
     public function filename(): string
     {
         $filename = $this->set->number;
-        $filename .= $this->alt_model ? '_' . str_replace(' ', '-', $this->alt_model_name) : '';
+        $filename .= $this->alt_model ? '_'.str_replace(' ', '-', $this->alt_model_name) : '';
+
         return "{$filename}.mpd";
     }
 }

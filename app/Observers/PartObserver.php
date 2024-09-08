@@ -3,32 +3,32 @@
 namespace App\Observers;
 
 use App\Events\PartDeleted;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Part;
 use App\Models\ReviewSummary\ReviewSummaryItem;
+use Illuminate\Support\Facades\Auth;
 
 class PartObserver
 {
-/*
-    public function saved(Part $part)
-    {
-        if ($part->wasChanged([
-            'user_id',
-            'part_category_id',
-            'part_license_id',
-            'part_type_id',
-            'part_release_id',
-            'part_type_qualifier_id',
-            'description',
-            'filename',
-            'header',
-            'cmdline',
-            'bfc',
-        ])) {
-            $part->generateHeader();
+    /*
+        public function saved(Part $part)
+        {
+            if ($part->wasChanged([
+                'user_id',
+                'part_category_id',
+                'part_license_id',
+                'part_type_id',
+                'part_release_id',
+                'part_type_qualifier_id',
+                'description',
+                'filename',
+                'header',
+                'cmdline',
+                'bfc',
+            ])) {
+                $part->generateHeader();
+            }
         }
-    }
-*/
+    */
     public function deleting(Part $part): void
     {
         $part->putDeletedBackup();

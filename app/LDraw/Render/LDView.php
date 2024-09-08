@@ -19,48 +19,48 @@ class LDView
         protected LibrarySettings $settings,
         protected LDrawModelMaker $modelmaker,
     ) {}
-    
+
     public function render(Part|OmrModel $part): GDImage
     {
         $tempDir = TemporaryDirectory::make()->deleteWhenDestroyed();
         $ldconfigPath = Storage::disk('library')->path('official/LDConfig.ldr');
         // LDview requires a p and parts directory
-        $ldrawdir = $tempDir->path("ldraw");
-        $tempDir->path("ldraw/parts");
-        $tempDir->path("ldraw/p");
+        $ldrawdir = $tempDir->path('ldraw');
+        $tempDir->path('ldraw/parts');
+        $tempDir->path('ldraw/p');
 
         // Store the part as an mpd
-        $filename = $tempDir->path("part.mpd");
+        $filename = $tempDir->path('part.mpd');
         if ($part instanceof Part) {
             if (array_key_exists(basename($part->filename, '.dat'), $this->settings->default_render_views)) {
                 $matrix = $this->settings->default_render_views[basename($part->filename, '.dat')];
-            } elseif(array_key_exists($part->basePart(), $this->settings->default_render_views)) {
+            } elseif (array_key_exists($part->basePart(), $this->settings->default_render_views)) {
                 $matrix = $this->settings->default_render_views[$part->basePart()];
             } else {
                 $matrix = '1 0 0 0 1 0 0 0 1';
             }
         } else {
-            $matrix = "1 0 0 0 1 0 0 0 1";
+            $matrix = '1 0 0 0 1 0 0 0 1';
         }
-        
+
         if ($part instanceof Part) {
             file_put_contents($filename, $this->modelmaker->partMpd($part, $matrix));
         } else {
             file_put_contents($filename, $this->modelmaker->modelMpd($part));
         }
-        
+
         $normal_size = "-SaveWidth={$this->settings->max_render_width} -SaveHeight={$this->settings->max_render_height}";
-        $imagepath = $tempDir->path("part.png");
-        
+        $imagepath = $tempDir->path('part.png');
+
         // Make the ldview.ini
         $cmds = ['[General]'];
-        foreach($this->settings->ldview_options as $command => $value) {
-          $cmds[] = "{$command}={$value}";
-        }  
+        foreach ($this->settings->ldview_options as $command => $value) {
+            $cmds[] = "{$command}={$value}";
+        }
 
-        $inipath = $tempDir->path("ldview.ini");
+        $inipath = $tempDir->path('ldview.ini');
         file_put_contents($inipath, implode("\n", $cmds));
-        
+
         // Run LDView
         $ldviewcmd = "ldview {$filename} -LDConfig={$ldconfigPath} -LDrawDir={$ldrawdir} -IniFile={$inipath} {$normal_size} -SaveSnapshot={$imagepath}";
         if ($this->debug) {

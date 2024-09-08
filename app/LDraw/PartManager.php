@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Spatie\Image\Image;
 use Spatie\Image\Enums\Fit;
+use Spatie\Image\Image;
 use Spatie\ImageOptimizer\OptimizerChain;
 use Spatie\ImageOptimizer\Optimizers\Optipng;
 
@@ -32,7 +32,7 @@ class PartManager
 
     public function submit(array $files, User $user): Collection
     {
-        $parts = new Collection();
+        $parts = new Collection;
         // Parse each part into the tracker
         foreach ($files as $file) {
             if ($file['type'] == 'image') {
@@ -45,6 +45,7 @@ class PartManager
         $parts->each(function (Part $p) {
             $this->finalizePart($p);
         });
+
         return $parts;
     }
 
@@ -52,7 +53,7 @@ class PartManager
     {
         $p = Part::firstWhere('filename', 'LIKE', "%{$filename}");
         //Texmap exists, use that type
-        if (!is_null($p)) {
+        if (! is_null($p)) {
             return $p->type;
         }
         // Texmap is used in one of the submitted files, use the type appropriate for that part
@@ -61,11 +62,12 @@ class PartManager
                 $type = $this->parser->parse($file['contents'])->type;
                 $pt = PartType::firstWhere('type', $type);
                 $textype = PartType::firstWhere('type', "{$pt->type}_Texmap");
-                if (!is_null($textype)) {
+                if (! is_null($textype)) {
                     return $textype;
                 }
             }
         }
+
         return PartType::firstWhere('type', 'Part_Texmap');
     }
 
@@ -74,7 +76,7 @@ class PartManager
         $attributes = [
             'user_id' => $user->id,
             'part_license_id' => $user->license->id,
-            'filename' => $type->folder . $filename,
+            'filename' => $type->folder.$filename,
             'description' => "{$type->name} {$filename}",
             'part_type_id' => $type->id,
             'header' => '',
@@ -82,18 +84,19 @@ class PartManager
         $upart = $this->makePart($attributes);
         $upart->setBody(base64_encode($contents));
         $upart->refresh();
+
         return $upart;
     }
 
     protected function makePartFromText(string $text): Part
     {
         $part = $this->parser->parse($text);
-        
+
         $user = User::fromAuthor($part->username, $part->realname)->first();
         $type = PartType::firstWhere('type', $part->type);
         $qual = PartTypeQualifier::firstWhere('type', $part->qual);
         $cat = PartCategory::firstWhere('category', $part->metaCategory ?? $part->descriptionCategory);
-        $filename = $type->folder . basename(str_replace('\\', '/', $part->name));
+        $filename = $type->folder.basename(str_replace('\\', '/', $part->name));
         $values = [
             'description' => $part->description,
             'filename' => $filename,
@@ -104,7 +107,7 @@ class PartManager
             'bfc' => $part->bfcwinding ?? null,
             'part_category_id' => $cat->id ?? null,
             'cmdline' => $part->cmdline,
-            'header' => ''
+            'header' => '',
         ];
         $upart = $this->makePart($values);
         $upart->setKeywords($part->keywords ?? []);
@@ -112,24 +115,26 @@ class PartManager
         $upart->setHistory($part->history ?? []);
         $upart->setBody($part->body);
         $upart->refresh();
+
         return $upart;
     }
-    
+
     protected function makePart(array $values): Part
     {
         $upart = Part::unofficial()->firstWhere('filename', $values['filename']);
         $opart = Part::official()->firstWhere('filename', $values['filename']);
-        if (!is_null($upart)) {
+        if (! is_null($upart)) {
             $upart->votes()->delete();
             $upart->fill($values);
             $upart->save();
-        } elseif (!is_null($opart)) {
+        } elseif (! is_null($opart)) {
             $upart = Part::create($values);
             $opart->unofficial_part()->associate($upart);
             $opart->save();
         } else {
             $upart = Part::create($values);
         }
+
         return $upart;
     }
 
@@ -155,6 +160,7 @@ class PartManager
         $upart->save();
         $upart->refresh();
         $this->finalizePart($upart);
+
         return $upart;
     }
 
@@ -167,23 +173,23 @@ class PartManager
             $optimizerChain->optimize($path);
         }
     }
-   
+
     public function finalizePart(Part $part): void
     {
         $part->updateVoteSort();
         $part->generateHeader();
         $this->updateMissing($part->name());
         $this->loadSubpartsFromBody($part);
-        if (!is_null($part->official_part)) {
+        if (! is_null($part->official_part)) {
             $this->updateUnofficialWithOfficialFix($part->official_part);
-        };
+        }
         $this->updatePartImage($part);
         $this->checkPart($part);
         $this->addStickerSheet($part);
         $part->updateReadyForAdmin();
-        UpdateParentParts::dispatch($part);        
+        UpdateParentParts::dispatch($part);
     }
-    
+
     public function updatePartImage(Part $part): void
     {
         if ($part->isTexmap()) {
@@ -192,9 +198,9 @@ class PartManager
             $image = $this->render->render($part);
         }
         $lib = $part->isUnofficial() ? 'unofficial' : 'official';
-        $imageFilename = substr($part->filename, 0, -4) . '.png';
+        $imageFilename = substr($part->filename, 0, -4).'.png';
         $imagePath = Storage::disk('images')->path("library/{$lib}/{$imageFilename}");
-        $imageThumbPath = substr($imagePath, 0, -4) . '_thumb.png';
+        $imageThumbPath = substr($imagePath, 0, -4).'_thumb.png';
         imagepng($image, $imagePath);
         $this->imageOptimize($imagePath);
         Image::load($imagePath)->fit(Fit::Contain, $this->settings->max_thumb_width, $this->settings->max_thumb_height)->save($imageThumbPath);
@@ -203,7 +209,7 @@ class PartManager
 
     protected function updateMissing(string $filename): void
     {
-        Part::unofficial()->whereJsonContains('missing_parts', $filename)->each(function(Part $p) {
+        Part::unofficial()->whereJsonContains('missing_parts', $filename)->each(function (Part $p) {
             $this->loadSubpartsFromBody($p);
         });
     }
@@ -214,21 +220,22 @@ class PartManager
             return $query->where('id', $officialPart->id);
         })->each(function (Part $p) {
             $this->loadSubpartsFromBody($p);
-        });    
+        });
     }
 
-    public function addMovedTo(Part $oldPart, Part $newPart): ?Part {
+    public function addMovedTo(Part $oldPart, Part $newPart): ?Part
+    {
         if (
-            $oldPart->isUnofficial() || 
-            !$newPart->isUnofficial() || 
-            !is_null($oldPart->unofficial_part) || 
+            $oldPart->isUnofficial() ||
+            ! $newPart->isUnofficial() ||
+            ! is_null($oldPart->unofficial_part) ||
             $oldPart->type->folder != 'parts/'
         ) {
             return null;
         }
 
         $values = [
-            'description' => "~Moved To " . str_replace(['.dat', '.png'], '', $newPart->name()),
+            'description' => '~Moved To '.str_replace(['.dat', '.png'], '', $newPart->name()),
             'filename' => $oldPart->filename,
             'user_id' => Auth::user()->id,
             'part_type_id' => $oldPart->type->id,
@@ -244,10 +251,11 @@ class PartManager
         $oldPart->save();
         $upart->refresh();
         $this->finalizePart($upart);
-        return $upart;    
+
+        return $upart;
     }
 
-    public function movePart(Part $part, string $newName, PartType $newType): bool 
+    public function movePart(Part $part, string $newName, PartType $newType): bool
     {
         $oldname = $part->name();
         if ($newName == '.dat') {
@@ -255,8 +263,7 @@ class PartManager
         }
         $newName = "{$newType->folder}{$newName}";
         $upart = Part::unofficial()->where('filename', $newName)->first();
-        if (!$part->isUnofficial() || !is_null($upart))
-        {
+        if (! $part->isUnofficial() || ! is_null($upart)) {
             return false;
         }
         if ($part->type->folder !== 'parts/' && $newType->folder == 'parts/') {
@@ -271,7 +278,7 @@ class PartManager
         $part->generateHeader();
         $this->updatePartImage($part);
         foreach ($part->parents()->unofficial()->get() as $p) {
-            if ($p->type->folder === 'parts/' && $p->category->category === "Moved") {
+            if ($p->type->folder === 'parts/' && $p->category->category === 'Moved') {
                 $p->description = str_replace($oldname, $part->name(), $p->description);
                 $p->save();
             }
@@ -282,6 +289,7 @@ class PartManager
         $this->checkPart($part);
         $part->updateReadyForAdmin();
         UpdateParentParts::dispatch($part);
+
         return true;
     }
 
@@ -294,22 +302,23 @@ class PartManager
             $this->updatePartImage($part);
             $this->checkPart($part);
             $this->addStickerSheet($part);
-            $part->updateReadyForAdmin();    
+            $part->updateReadyForAdmin();
         }
     }
 
     public function checkPart(Part $part): void
     {
-        if (!$part->isUnofficial()) {
+        if (! $part->isUnofficial()) {
             $part->can_release == true;
             $check = app(\App\LDraw\Check\PartChecker::class)->checkCanRelease($part);
             $part->part_check_messages = ['errors' => $check['errors'], 'warnings' => []];
             $part->save();
+
             return;
         }
         $check = app(\App\LDraw\Check\PartChecker::class)->checkCanRelease($part);
         $warnings = [];
-        if (isset($part->category) && $part->category->category == "Minifig") {
+        if (isset($part->category) && $part->category->category == 'Minifig') {
             $warnings[] = "Check Minifig category: {$part->category->category}";
         }
         $part->can_release = $check['can_release'];
@@ -317,13 +326,14 @@ class PartManager
         $part->save();
     }
 
-    public function addStickerSheet(Part $p) {
+    public function addStickerSheet(Part $p)
+    {
         $p->refresh();
         $sticker = $p->descendantsAndSelf->where('category.category', 'Sticker')->where('type.folder', 'parts/')->first();
         if (is_null($sticker)) {
             return;
         }
-        if (!is_null($sticker->sticker_sheet)) {
+        if (! is_null($sticker->sticker_sheet)) {
             $p->ancestorsAndSelf()->update(['sticker_sheet_id' => $sticker->sticker_sheet->id]);
         } else {
             $m = preg_match('#^([0-9]+)[a-z]+(?:c[0-9]{2})?\.dat$#iu', $sticker->name(), $s);
@@ -336,15 +346,15 @@ class PartManager
                     }
                     $sheet = StickerSheet::create([
                         'number' => $s[1],
-                        'rebrickable_part_id' => null
+                        'rebrickable_part_id' => null,
                     ]);
-                    if (!is_null($part)) {
+                    if (! is_null($part)) {
                         $rb_part = RebrickablePart::create([
                             'part_num' => $part['rb_part_number'],
                             'name' => $part['rb_part_name'],
                             'part_url' => $part['rb_part_url'],
                             'part_img_url' => $part['rb_part_img_url'],
-                            'part_id' => null
+                            'part_id' => null,
                         ]);
                         $sheet->rebrickable_part()->associate($rb_part);
                     }
@@ -353,9 +363,9 @@ class PartManager
                 $p->ancestorsAndSelf()->update(['sticker_sheet_id' => $sheet->id]);
             } else {
                 $p->sticker_sheet_id = null;
-            }    
+            }
         }
-        if (!is_null($p->sticker_sheet_id) && $p->category->category != 'Sticker') {
+        if (! is_null($p->sticker_sheet_id) && $p->category->category != 'Sticker') {
             $p->category()->associate(PartCategory::firstWhere('category', 'Sticker Shortcut'));
             $p->generateHeader();
         }

@@ -11,7 +11,7 @@ class StickerSheet extends Model
 {
     protected $fillable = [
         'number',
-        'rebrickable_part_id'
+        'rebrickable_part_id',
     ];
 
     public function rebrickable_part(): BelongsTo
@@ -23,5 +23,4 @@ class StickerSheet extends Model
     {
         return $this->HasMany(Part::class, 'sticker_sheet_id', 'id');
     }
-    
 }

@@ -12,7 +12,7 @@ use MailerSend\LaravelDriver\MailerSendTrait;
 
 class TestEmail extends Mailable
 {
-    use Queueable, SerializesModels, MailerSendTrait;
+    use MailerSendTrait, Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
@@ -32,7 +32,7 @@ class TestEmail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Parts Tracker Test Email ' . date_format($this->date, 'Y-m-d'),
+            subject: 'Parts Tracker Test Email '.date_format($this->date, 'Y-m-d'),
         );
     }
 

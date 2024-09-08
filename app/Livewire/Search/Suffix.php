@@ -25,7 +25,7 @@ class Suffix extends Component implements HasForms
     public function mount(): void
     {
         $this->form->fill(['basepart' => $this->basepart]);
-        if (!is_null($this->basepart)) {
+        if (! is_null($this->basepart)) {
             $this->doSearch();
         }
     }
@@ -45,8 +45,9 @@ class Suffix extends Component implements HasForms
     public function baseparts()
     {
         if (empty($this->basepart)) {
-            return new Collection();
+            return new Collection;
         }
+
         return Part::with(['votes', 'official_part'])
             ->doesntHave('unofficial_part')
             ->whereRelation('type', 'folder', 'parts/')

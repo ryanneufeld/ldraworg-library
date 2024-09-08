@@ -2,10 +2,10 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\Part;
-use App\Models\Vote;
 use App\Filament\Part\Tables\PartTable;
 use App\LDraw\VoteManager;
+use App\Models\Part;
+use App\Models\Vote;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,16 +27,15 @@ class StickerShortcutsReadyForAdminTable extends BasicTable
             ->actions([
                 Action::make('Fast Track')
                     ->action(function (Part $p) {
-                        $vm = new VoteManager();
+                        $vm = new VoteManager;
                         $vm->postVote($p, auth()->user(), 'T');
                     })
                     ->button()
                     ->outlined()
-                    ->visible(fn(Part $p) => auth()->user()?->can('create', [Vote::class, $p, 'T']))
-    
+                    ->visible(fn (Part $p) => auth()->user()?->can('create', [Vote::class, $p, 'T'])),
+
             ])
             ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
             ->queryStringIdentifier('stickerShortcutsReadyForAdmin');
     }
-
 }

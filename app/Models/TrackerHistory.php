@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\AsArrayObject;
+use Illuminate\Database\Eloquent\Model;
 
 class TrackerHistory extends Model
 {
@@ -11,6 +11,6 @@ class TrackerHistory extends Model
     {
         return [
             'history_data' => AsArrayObject::class,
-        ]; 
-    } 
+        ];
+    }
 }

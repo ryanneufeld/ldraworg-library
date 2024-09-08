@@ -6,17 +6,18 @@ use Illuminate\Http\Request;
 
 class TrackerHistoryController extends Controller
 {
-    public function __invoke(Request $request) {
+    public function __invoke(Request $request)
+    {
         $history = \App\Models\TrackerHistory::latest()->get();
         $data = [];
-        foreach($history as $h) {  
+        foreach ($history as $h) {
             $data[] = [
                 'certified' => $h->history_data[1],
                 'needsreview' => $h->history_data[2],
                 'needsvotes' => $h->history_data[3],
                 'subparts' => $h->history_data[4] ?? 0,
                 'held' => $h->history_data[5],
-                'date' => date_format($h->created_at, 'Y-m-d'),          
+                'date' => date_format($h->created_at, 'Y-m-d'),
             ];
         }
         $chart = app()->chartjs
@@ -54,7 +55,7 @@ class TrackerHistoryController extends Controller
                     'data' => array_column($data, 'certified'),
                     'backgroundColor' => 'rgba(0, 255, 0, 1)',
                     'barThickness' => 1,
-                ]
+                ],
             ])
             ->optionsRaw("{
                 indexAxis: 'y',
@@ -70,6 +71,7 @@ class TrackerHistoryController extends Controller
                     },
                 }
             }");
+
         return view('tracker.history', compact('chart'));
     }
 }

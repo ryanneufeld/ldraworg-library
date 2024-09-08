@@ -15,5 +15,4 @@ class PartTypeQualifier extends Model
         'type',
         'name',
     ];
-
 }

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Omr;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Omr\Set;
+use Illuminate\Http\Request;
 
 class SetController extends Controller
 {
@@ -27,6 +27,7 @@ class SetController extends Controller
     public function show(Set $set)
     {
         $set->load('models');
+
         return view('omr.show', compact('set'));
     }
 }

@@ -18,7 +18,9 @@ class FileEditor extends Component implements HasForms
     use InteractsWithForms;
 
     public ?string $filepath = null;
+
     public ?string $file = null;
+
     public string $text = '';
 
     protected array $dir_whitelist = [
@@ -30,7 +32,7 @@ class FileEditor extends Component implements HasForms
         '/lang',
         '/tests',
     ];
-        
+
     protected array $ext_whitelist = [
         'php',
         'js',
@@ -41,7 +43,7 @@ class FileEditor extends Component implements HasForms
         'txt',
         'json',
     ];
-        
+
     public function mount(): void
     {
         $this->form->fill();
@@ -67,7 +69,7 @@ class FileEditor extends Component implements HasForms
         if (str_ends_with($path['filename'], '.blade') && $path['extension'] == 'php') {
             $mode = 'php_laravel_blade';
         } else {
-            switch($path['extension']) {
+            switch ($path['extension']) {
                 case 'js':
                     $mode = 'javascript';
                     break;
@@ -92,8 +94,9 @@ class FileEditor extends Component implements HasForms
             $this->dispatch('file-loaded', contents: '', mode: 'text');
         }
     }
-    
-    protected function fileInWhitelist(): bool {
+
+    protected function fileInWhitelist(): bool
+    {
         $files = $this->fileList();
         $file = $files[$this->file];
         $path = pathinfo($file);
@@ -102,8 +105,10 @@ class FileEditor extends Component implements HasForms
                 return true;
             }
         }
+
         return false;
     }
+
     public function saveFile(string $contents)
     {
         $files = $this->fileList();
@@ -115,21 +120,23 @@ class FileEditor extends Component implements HasForms
             file_put_contents(base_path($file), $contents);
         }
     }
-    
+
     public function fileList(): array
     {
         $files = [];
         foreach ($this->dir_whitelist as $dir) {
             $file_dir = new RecursiveDirectoryIterator(base_path($dir));
             $iterator = new RecursiveIteratorIterator($file_dir);
-            $file_list = new RegexIterator($iterator, '/^.+\.('. implode('|', $this->ext_whitelist). ')$/i', RecursiveRegexIterator::GET_MATCH);
-            foreach($file_list as $file => $results) {
+            $file_list = new RegexIterator($iterator, '/^.+\.('.implode('|', $this->ext_whitelist).')$/i', RecursiveRegexIterator::GET_MATCH);
+            foreach ($file_list as $file => $results) {
                 $files[] = str_replace(base_path(), '', $file);
             }
         }
         sort($files);
+
         return $files;
     }
+
     #[Layout('components.layout.base')]
     public function render()
     {

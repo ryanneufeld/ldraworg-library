@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\Part;
 use App\Filament\Part\Tables\PartTable;
+use App\Models\Part;
 use Filament\Tables\Table;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\On;
@@ -12,11 +12,14 @@ use Livewire\Attributes\On;
 class PartDependenciesTable extends BasicTable
 {
     public bool $official = false;
+
     public bool $parents = false;
+
     public Part $part;
 
-    #[On ('mass-vote')]
-    public function searchUpdated() {
+    #[On('mass-vote')]
+    public function searchUpdated()
+    {
         $this->resetTable();
         $this->render();
     }
@@ -35,16 +38,16 @@ class PartDependenciesTable extends BasicTable
                 } else {
                     $q = $this->official !== false ? $this->part->subparts()->official() : $this->part->subparts()->unofficial();
                 }
+
                 return $q;
             })
-            ->heading(($this->official ? "Official" : "Unofficial") . ($this->parents ? " parent parts" : " subparts"))
+            ->heading(($this->official ? 'Official' : 'Unofficial').($this->parents ? ' parent parts' : ' subparts'))
             ->emptyState(view('tables.empty', ['none' => 'None']))
             ->columns(PartTable::columns())
             ->actions(PartTable::actions())
             ->recordUrl(
-                fn (Part $p): string => 
-                    route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
+                fn (Part $p): string => route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
             )
-            ->queryStringIdentifier(($this->official ? "official" : "unofficial") . ($this->parents ? "Parents" : "Subparts"));
+            ->queryStringIdentifier(($this->official ? 'official' : 'unofficial').($this->parents ? 'Parents' : 'Subparts'));
     }
 }

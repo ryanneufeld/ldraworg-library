@@ -25,7 +25,7 @@ class DocumentManagePage extends BasicResourceManagePage
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public string $title = "Manage Documents";
+    public string $title = 'Manage Documents';
 
     public function table(Table $table): Table
     {
@@ -42,17 +42,18 @@ class DocumentManagePage extends BasicResourceManagePage
                     ->sortable()
                     ->searchable(),
                 ToggleColumn::make('published'),
-                ToggleColumn::make('restricted')
+                ToggleColumn::make('restricted'),
             ])
             ->actions([
                 EditAction::make()
                     ->form($this->formSchema())
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['nav_title'] = rawurlencode(str_replace(' ', '-', strtolower($data['title'])));
+
                         return $data;
                     })
                     ->modalWidth(MaxWidth::SevenExtraLarge),
-                DeleteAction::make()
+                DeleteAction::make(),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -60,9 +61,10 @@ class DocumentManagePage extends BasicResourceManagePage
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['nav_title'] = rawurlencode(str_replace(' ', '-', strtolower($data['title'])));
                         $data['order'] = Document::nextOrder();
+
                         return $data;
                     })
-                    ->modalWidth(MaxWidth::SevenExtraLarge)
+                    ->modalWidth(MaxWidth::SevenExtraLarge),
             ]);
     }
 
@@ -80,11 +82,12 @@ class DocumentManagePage extends BasicResourceManagePage
                 ])
                 ->createOptionUsing(function (array $data): int {
                     $data['order'] = DocumentCategory::nextOrder();
+
                     return DocumentCategory::create($data)->getKey();
                 }),
             Section::make([
                 Toggle::make('published'),
-                Toggle::make('restricted'),    
+                Toggle::make('restricted'),
             ])->columns(2),
             TextInput::make('maintainer')
                 ->string()
@@ -95,7 +98,7 @@ class DocumentManagePage extends BasicResourceManagePage
                 ->mode('php_laravel_blade')
                 ->height('30rem')
                 ->theme('github')
-                ->required()
+                ->required(),
         ];
     }
 }

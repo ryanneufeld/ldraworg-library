@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Filament\Forms\Components\Select;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
-use Filament\Forms\Components\Select;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\ServiceProvider;
 
 class FilamentServiceProvider extends ServiceProvider
 {
@@ -29,7 +29,7 @@ class FilamentServiceProvider extends ServiceProvider
             'yellow' => Color::Yellow,
             'blue' => Color::Blue,
         ]);
-        
+
         Select::configureUsing(function (Select $select): void {
             $select
                 ->optionsLimit(1000)

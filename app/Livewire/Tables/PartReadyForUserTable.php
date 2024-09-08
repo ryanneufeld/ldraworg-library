@@ -2,9 +2,9 @@
 
 namespace App\Livewire\Tables;
 
+use App\Filament\Part\Tables\PartTable;
 use App\Models\Part;
 use App\Models\User;
-use App\Filament\Part\Tables\PartTable;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Tables\Filters\Filter;
@@ -20,29 +20,27 @@ class PartReadyForUserTable extends BasicTable
             ->query(
                 Part::with(['votes', 'events', 'official_part', 'descendantsAndSelf', 'user'])->unofficial()
                 // Parts folder only
-                ->whereHas('type', fn (Builder $q) => $q->where('folder', 'parts/'))
+                    ->whereHas('type', fn (Builder $q) => $q->where('folder', 'parts/'))
                 // No holds
-                ->whereDoesntHave('descendantsAndSelf', function ($q) {
-                    $q->where('vote_sort', '5');
-                })
+                    ->whereDoesntHave('descendantsAndSelf', function ($q) {
+                        $q->where('vote_sort', '5');
+                    })
                 // At least one part in the chain with
-                ->whereHas('descendantsAndSelf', function (Builder $q) {
-                    // Only Needs More Votes
-                    $q->where('vote_sort', 3)
-                    // No votes from user
-                    ->whereDoesntHave('votes', fn (Builder $qu) => $qu->where('user_id', Auth::user()->id))
-                    // No submit events from user
-                    ->whereDoesntHave('events', fn (Builder $qu) =>
-                        $qu->where('user_id', Auth::user()->id)->whereRelation('part_event_type', 'slug', 'submit')->unofficial()
-                    )
-                    // Not authored by user unless a fix
-                    ->where(function (Builder $q) {
-                        $q->orHas('official_part')
-                        ->orWhere(fn (Builder $qu) =>
-                            $qu->doesntHave('official_part')->where('user_id', '<>', Auth::user()->id)
-                        );
-                    });
-                }, '>=', 1)
+                    ->whereHas('descendantsAndSelf', function (Builder $q) {
+                        // Only Needs More Votes
+                        $q->where('vote_sort', 3)
+                        // No votes from user
+                            ->whereDoesntHave('votes', fn (Builder $qu) => $qu->where('user_id', Auth::user()->id))
+                        // No submit events from user
+                            ->whereDoesntHave('events', fn (Builder $qu) => $qu->where('user_id', Auth::user()->id)->whereRelation('part_event_type', 'slug', 'submit')->unofficial()
+                            )
+                        // Not authored by user unless a fix
+                            ->where(function (Builder $q) {
+                                $q->orHas('official_part')
+                                    ->orWhere(fn (Builder $qu) => $qu->doesntHave('official_part')->where('user_id', '<>', Auth::user()->id)
+                                    );
+                            });
+                    }, '>=', 1)
             )
 
             ->filters([
@@ -50,7 +48,7 @@ class PartReadyForUserTable extends BasicTable
                     ->form([
                         Select::make('author')
                             ->relationship(
-                                name: 'user', 
+                                name: 'user',
                                 titleAttribute: 'name'
                             )
                             ->getOptionLabelFromRecordUsing(fn (User $u) => $u->authorString)
@@ -59,7 +57,7 @@ class PartReadyForUserTable extends BasicTable
                             ->preload()
                             ->label('Author'),
                         Toggle::make('exclude')
-                            ->label('Exclude')
+                            ->label('Exclude'),
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query
@@ -68,10 +66,10 @@ class PartReadyForUserTable extends BasicTable
                                 fn (Builder $q) => $q->where('user_id', '<>', $data['author']),
                             )
                             ->when(
-                                $data['author'] && !$data['exclude'],
+                                $data['author'] && ! $data['exclude'],
                                 fn (Builder $q) => $q->where('user_id', $data['author']),
                             );
-                    })
+                    }),
             ])
             ->defaultSort('created_at', 'asc')
             ->heading('Parts Ready For Your Vote')
@@ -79,6 +77,6 @@ class PartReadyForUserTable extends BasicTable
             ->columns(PartTable::columns())
             ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
             ->queryStringIdentifier('readyForUser')
-            ->persistFiltersInSession();;
+            ->persistFiltersInSession();
     }
 }

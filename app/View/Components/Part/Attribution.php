@@ -2,15 +2,14 @@
 
 namespace App\View\Components\Part;
 
-use Illuminate\View\Component;
-
 use App\Models\Part;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\View\Component;
 
 class Attribution extends Component
 {
-  /**
+    /**
      * Create a new component instance.
      *
      * @return void
@@ -31,6 +30,7 @@ class Attribution extends Component
             ->whereHas('part_history', fn (Builder $q) => $q->where('part_id', $this->part->id))
             ->get();
         $copyuser = $this->part->user;
+
         return view('components.part.attribution', compact('copyuser', 'editusers'));
     }
 }

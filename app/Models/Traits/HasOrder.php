@@ -14,6 +14,7 @@ trait HasOrder
     public static function nextOrder(): int
     {
         $maxOrder = self::orderBy('order', 'desc')->first()->order ?? 0;
+
         return $maxOrder + 1;
     }
 }

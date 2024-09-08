@@ -1,14 +1,12 @@
 <?php
 
+use App\Models\Part;
+use App\Models\PartEventType;
+use App\Models\PartRelease;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
-use App\Models\Part;
-use App\Models\PartEventType;
-use App\Models\User;
-use App\Models\VoteType;
-use App\Models\PartRelease;
 
 class CreatePartEventsTable extends Migration
 {
@@ -30,7 +28,7 @@ class CreatePartEventsTable extends Migration
             $table->foreign('vote_type_code')->references('code')->on('vote_types')->cascadeOnUpdate()->nullOnDelete();
             $table->foreignIdFor(PartRelease::class)->constrained();
             $table->index('user_id');
-            $table->index('part_id');            
+            $table->index('part_id');
             $table->text('comment')->nullable();
         });
     }

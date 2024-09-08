@@ -2,68 +2,67 @@
 
 use App\Models\User;
 
-function validLineProvider() : array
+function validLineProvider(): array
 {
     return [
-        ["0 Free for comment 112341904.sfsfkajf", true],
-        ["1  1  0.01 -0.01 1  0.23456789 -.12341234 1  0 0 0  0 0 0  test.dat", true],
-        ["2  0x2123456  1 0.01 -0.01  1 0.23456789 -.12341234", true],
-        ["3  12  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0", true],
-        ["4  10001  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0", true],
-        ["5  1  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0", true],
-        ["", true],
-        ["0", true],
-        ["1    0.01 -0.01 1  0.23456789 -.12341234 1  0 0 0  0 0 0  test.dat", false],
-        ["2  1  1 0.01 -0.01  1e10 0.23456789 -.12341234", false],
-        ["3  1.2  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0", false],
-        ["4  1  1 a -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0", false],
-        ["6  1  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0", false],
+        ['0 Free for comment 112341904.sfsfkajf', true],
+        ['1  1  0.01 -0.01 1  0.23456789 -.12341234 1  0 0 0  0 0 0  test.dat', true],
+        ['2  0x2123456  1 0.01 -0.01  1 0.23456789 -.12341234', true],
+        ['3  12  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0', true],
+        ['4  10001  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0', true],
+        ['5  1  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0', true],
+        ['', true],
+        ['0', true],
+        ['1    0.01 -0.01 1  0.23456789 -.12341234 1  0 0 0  0 0 0  test.dat', false],
+        ['2  1  1 0.01 -0.01  1e10 0.23456789 -.12341234', false],
+        ['3  1.2  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0', false],
+        ['4  1  1 a -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0', false],
+        ['6  1  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0', false],
     ];
 }
 
 test('valid line', function (string $input, bool $expected) {
     expect(app(\App\LDraw\Check\PartChecker::class)->validLine($input))->toBe($expected);
 })->with([
-    'valid type 0' => ["0 Free for comment 112341904.sfsfkajf", true],
-    'valid type 0 empty' => ["0", true],
-    'valid type 1' => ["1  1  0.01 -0.01 1  0.23456789 -.12341234 1  0 0 0  0 0 0  test.dat", true],
-    'valid type 2' => ["2  0x2123456  1 0.01 -0.01  1 0.23456789 -.12341234", true],
-    'valid type 3' => ["3  12  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0", true],
-    'valid type 4' => ["4  10001  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0", true],
-    'valid type 5' => ["5  1  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0", true],
-    'valid blank line' => ["", true],
-    'invalid type 1' => ["1    0.01 -0.01 1  0.23456789 -.12341234 1  0 0 0  0 0 0  test.dat", false],
-    'invalid scientific notation' => ["2  1  1 0.01 -0.01  1e10 0.23456789 -.12341234", false],
-    'invalid decimal number for color' => ["3  1.2  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0", false],
-    'invalid letter instead of number' => ["4  1  1 a -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0", false],
-    'invalid line type' => ["6  1  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0", false],
+    'valid type 0' => ['0 Free for comment 112341904.sfsfkajf', true],
+    'valid type 0 empty' => ['0', true],
+    'valid type 1' => ['1  1  0.01 -0.01 1  0.23456789 -.12341234 1  0 0 0  0 0 0  test.dat', true],
+    'valid type 2' => ['2  0x2123456  1 0.01 -0.01  1 0.23456789 -.12341234', true],
+    'valid type 3' => ['3  12  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0', true],
+    'valid type 4' => ['4  10001  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0', true],
+    'valid type 5' => ['5  1  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0', true],
+    'valid blank line' => ['', true],
+    'invalid type 1' => ['1    0.01 -0.01 1  0.23456789 -.12341234 1  0 0 0  0 0 0  test.dat', false],
+    'invalid scientific notation' => ['2  1  1 0.01 -0.01  1e10 0.23456789 -.12341234', false],
+    'invalid decimal number for color' => ['3  1.2  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0', false],
+    'invalid letter instead of number' => ['4  1  1 a -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0', false],
+    'invalid line type' => ['6  1  1 0.01 -0.01  1 0.23456789 -.12341234  1 0 0  0 0 0', false],
 ]);
 
 test('check library approved description', function (string $input, bool $expected) {
     expect(app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedDescription($input))->toBe($expected);
 })->with([
-    'valid plain text description' => ["This Is A Test Decription", true],
-    'valid unicode description' => ["Some Chars are ෴ Approved ", true],
+    'valid plain text description' => ['This Is A Test Decription', true],
+    'valid unicode description' => ['Some Chars are ෴ Approved ', true],
     'invalid unicode description' => ["Some Chars are \xE2\x80\xA9 not Approved ", false],
     'empty' => ['', false],
 ]);
 
-
 test('check description for pattern text', function (string $name, string $desc, bool $expected) {
     expect(app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedDescription($name, $desc))->toBe($expected);
 })->with([
-    'pattern with valid description' => ["3001p01.dat", "This Is A Test Decription with Pattern", true],
-    'pattern with valid needs workdescription' => ["3001p01.dat", "This Is A Test Decription with Pattern (Needs Work)", true],
-    'pattern with valid obsolete description' => ["3001p01.dat", "This Is A Test Decription with Pattern (Obsolete)", true],
-    'non-pattern' => ["3001s01.dat", "This Is A Test Decription", true],
+    'pattern with valid description' => ['3001p01.dat', 'This Is A Test Decription with Pattern', true],
+    'pattern with valid needs workdescription' => ['3001p01.dat', 'This Is A Test Decription with Pattern (Needs Work)', true],
+    'pattern with valid obsolete description' => ['3001p01.dat', 'This Is A Test Decription with Pattern (Obsolete)', true],
+    'non-pattern' => ['3001s01.dat', 'This Is A Test Decription', true],
 ]);
 
 test('check library approved name', function (string $input, bool $expected) {
     expect(app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedName($input))->toBe($expected);
 })->with([
-    'valid' => ["test.dat", true],
-    'valid with forward slash' => ["s\\1001.dat", true],
-    'invalid' => ["!!.dat", false],
+    'valid' => ['test.dat', true],
+    'valid with forward slash' => ['s\\1001.dat', true],
+    'invalid' => ['!!.dat', false],
 ]);
 
 test('check name and part type', function (string $name, string $type, bool $expected) {
@@ -87,23 +86,23 @@ test('check author in users', function () {
 test('check library approved license', function (string $input, bool $expected) {
     expect(app(\App\LDraw\Check\PartChecker::class)->checkLibraryApprovedLicense($input))->toBe($expected);
 })->with([
-    'not approved, not in db' => ["abcde", false],
-    'not approved, in db' => ["Not redistributable : see NonCAreadme.txt", false],
-    'approved' => ["Licensed under CC BY 4.0 : see CAreadme.txt", true],
+    'not approved, not in db' => ['abcde', false],
+    'not approved, in db' => ['Not redistributable : see NonCAreadme.txt', false],
+    'approved' => ['Licensed under CC BY 4.0 : see CAreadme.txt', true],
 ]);
 
 test('check library bfc certify', function (string $input, bool $expected) {
     expect(app(\App\LDraw\Check\PartChecker::class)->checkLibraryBFCCertify($input))->toBe($expected);
 })->with([
-    'not approved' => ["CW", false],
-    'approved' => ["CCW", true],
+    'not approved' => ['CW', false],
+    'approved' => ['CCW', true],
 ]);
 
 test('check category', function (string $input, bool $expected) {
     expect(app(\App\LDraw\Check\PartChecker::class)->checkCategory($input))->toBe($expected);
 })->with([
-    'not approved' => ["Big Ugly Rock Piece", false],
-    'approved' => ["Brick", true],
+    'not approved' => ['Big Ugly Rock Piece', false],
+    'approved' => ['Brick', true],
 ]);
 
 test('check pattern for set keyword', function (string $name, array $keywords, bool $expected) {

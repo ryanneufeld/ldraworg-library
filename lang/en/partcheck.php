@@ -23,14 +23,14 @@ return [
         'patternword' => 'Pattern part description must end with "Pattern"',
     ],
     'type' => [
-        'path' =>  'Path in Name: (:name) is invalid for !LDRAW_ORG part type (:type)',
+        'path' => 'Path in Name: (:name) is invalid for !LDRAW_ORG part type (:type)',
         'phycolor' => 'Physical Color parts are no longer accepted',
         'alias' => 'Alias parts must have type Part or Shortcut',
         'flex' => 'Flexible Section parts must be of type Part',
         'aliasdesc' => 'Alias part description must begin with "="',
         'flexname' => 'Flexible section file name must end with "kNN"',
         'subpartdesc' => 'Subpart description must begin with "~"',
-        'change' => 'A part\'s folder cannot change via header edit', 
+        'change' => 'A part\'s folder cannot change via header edit',
     ],
     'author' => [
         'registered' => ':value is not a Parts Tracker registered author',
@@ -38,8 +38,8 @@ return [
     ],
     'license' => [
         'approved' => '!LICENSE is not an approved Parts Library license',
-        'ccby40' => 'CC BY 4.0 License used but all authors listed have not approved the 4.0 CA'
-    ],  
+        'ccby40' => 'CC BY 4.0 License used but all authors listed have not approved the 4.0 CA',
+    ],
     'category' => [
         'invalid' => ':value is not a valid category',
         'movedto' => 'Moved to part description must begin with "~"',
@@ -57,5 +57,5 @@ return [
         'checked' => '"New version of official file(s)" must be checked to submit official part updates',
     ],
     'replace' => 'To submit a change to a part already on the Parts Tracker, you must check "Replace existing file(s)"',
-    'proxy' => 'You are not authorized to submit parts by proxy',  
+    'proxy' => 'You are not authorized to submit parts by proxy',
 ];

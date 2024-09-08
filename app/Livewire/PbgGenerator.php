@@ -16,28 +16,35 @@ class PbgGenerator extends Component implements HasForms
     use InteractsWithForms;
 
     public ?array $data = [];
+
     public ?string $pbg = null;
 
     public bool $hasMessages = false;
+
     public bool $hasErrors = false;
+
     public array $errors = [];
+
     public bool $hasUnpatterned = false;
+
     public array $unpatterned = [];
+
     public bool $hasMissing = false;
+
     public array $missing = [];
 
     public function mount(): void
     {
         $this->form->fill();
     }
-    
+
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 TextInput::make('set-number')
                     ->required()
-                    ->string()
+                    ->string(),
             ])
             ->statePath('data');
     }
@@ -46,10 +53,10 @@ class PbgGenerator extends Component implements HasForms
     {
         $data = $this->form->getState();
         $set = $data['set-number'];
-        if (!str_ends_with($set, '-1')) {
-            $set .= "-1";
+        if (! str_ends_with($set, '-1')) {
+            $set .= '-1';
         }
-        $set_pbg = new SetPbg();
+        $set_pbg = new SetPbg;
         $this->pbg = $set_pbg->pbg($set);
         $this->hasMessages = $set_pbg->messages->isNotEmpty();
         $this->hasErrors = $set_pbg->messages->has('errors');
@@ -62,13 +69,13 @@ class PbgGenerator extends Component implements HasForms
 
     public function pbgDownload()
     {
-        return response()->streamDownload(function() { 
-            echo $this->pbg; 
-        }, 
-        basename($this->data['set-number'] . '.pbg'), 
-        [
-            'Content-Type' => 'text/plain',
-        ]);
+        return response()->streamDownload(function () {
+            echo $this->pbg;
+        },
+            basename($this->data['set-number'].'.pbg'),
+            [
+                'Content-Type' => 'text/plain',
+            ]);
     }
 
     #[Layout('components.layout.base')]

@@ -9,12 +9,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class VoteType extends Model
 {
     use HasOrder;
-    
+
     protected $primaryKey = 'code';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
+
     public $timestamps = false;
-    
+
     protected $fillable = [
         'code',
         'short',
@@ -27,5 +30,4 @@ class VoteType extends Model
     {
         return $this->hasMany(Vote::class, 'vote_type_code', 'code');
     }
-    
 }

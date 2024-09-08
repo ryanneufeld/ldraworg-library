@@ -15,7 +15,7 @@ class PartCategoryManagePage extends BasicResourceManagePage
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public string $title = "Manage Part Categories";
+    public string $title = 'Manage Part Categories';
 
     public function table(Table $table): Table
     {
@@ -30,7 +30,7 @@ class PartCategoryManagePage extends BasicResourceManagePage
                 TextColumn::make('parts_count')
                     ->counts('parts')
                     ->label('Number of Parts')
-                    ->sortable()
+                    ->sortable(),
             ])
 /*
             ->actions([
@@ -40,7 +40,7 @@ class PartCategoryManagePage extends BasicResourceManagePage
 */
             ->headerActions([
                 CreateAction::make()
-                    ->form($this->formSchema())
+                    ->form($this->formSchema()),
             ]);
     }
 

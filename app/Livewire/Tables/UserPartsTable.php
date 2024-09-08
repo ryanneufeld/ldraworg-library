@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Tables;
 
-use App\Models\Part;
 use App\Filament\Part\Tables\PartTable;
+use App\Models\Part;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -17,9 +17,8 @@ class UserPartsTable extends BasicTable
         return $table
             ->query(
                 Part::unofficial()
-                    ->where(fn (Builder $q) =>
-                        $q->orWhere(fn (Builder $qu) => $qu->doesntHave('official_part')->where('user_id', Auth::user()->id))
-                            ->orWhereHas('events', fn (Builder $qu) => $qu->unofficial()->where('user_id', Auth::user()->id)->whereRelation('part_event_type', 'slug', 'submit'))
+                    ->where(fn (Builder $q) => $q->orWhere(fn (Builder $qu) => $qu->doesntHave('official_part')->where('user_id', Auth::user()->id))
+                        ->orWhereHas('events', fn (Builder $qu) => $qu->unofficial()->where('user_id', Auth::user()->id)->whereRelation('part_event_type', 'slug', 'submit'))
                     )
             )
             ->defaultSort('created_at', 'desc')
@@ -27,16 +26,16 @@ class UserPartsTable extends BasicTable
             ->columns(PartTable::columns())
             ->filters([
                 SelectFilter::make('vote_sort')
-                ->options([
-                    '1' => 'Certified',
-                    '2' => 'Needs Admin Review',
-                    '3' => 'Needs More Votes',
-                    '5' => 'Errors Found'
-                ])
-                ->native(false)
-                ->multiple()
-                ->preload()
-                ->label('Unofficial Status'),
+                    ->options([
+                        '1' => 'Certified',
+                        '2' => 'Needs Admin Review',
+                        '3' => 'Needs More Votes',
+                        '5' => 'Errors Found',
+                    ])
+                    ->native(false)
+                    ->multiple()
+                    ->preload()
+                    ->label('Unofficial Status'),
                 SelectFilter::make('part_type_id')
                     ->relationship('type', 'name')
                     ->native(false)
@@ -57,5 +56,4 @@ class UserPartsTable extends BasicTable
             ->recordUrl(fn (Part $p): string => route('tracker.show', ['part' => $p]))
             ->queryStringIdentifier('userParts');
     }
-
 }

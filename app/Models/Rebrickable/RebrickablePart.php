@@ -13,12 +13,11 @@ class RebrickablePart extends Model
         'name',
         'part_url',
         'part_img_url',
-        'part_id'
+        'part_id',
     ];
-    
+
     public function part(): BelongsTo
     {
         return $this->BelongsTo(Part::class, 'part_id', 'id');
     }
-
 }

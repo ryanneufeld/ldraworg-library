@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('loginkey', 50)->nullable();
         });
     }
+
     /**
      * Reverse the migrations.
      */

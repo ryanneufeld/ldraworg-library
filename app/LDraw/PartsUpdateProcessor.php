@@ -4,24 +4,24 @@ namespace App\LDraw;
 
 use App\Events\PartReleased;
 use App\Jobs\UpdatePartImage;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Collection;
-use App\Models\PartRelease;
 use App\Models\Part;
 use App\Models\PartEvent;
 use App\Models\PartHistory;
+use App\Models\PartRelease;
 use App\Models\PartType;
 use App\Models\User;
-use App\LDraw\PartManager;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Storage;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
 
 class PartsUpdateProcessor
 {
-
     protected PartRelease $release;
+
     protected PartManager $manager;
+
     protected TemporaryDirectory $tempDir;
 
     public function __construct(
@@ -34,7 +34,7 @@ class PartsUpdateProcessor
         $this->tempDir = TemporaryDirectory::make()->deleteWhenDestroyed();
     }
 
-    public function createRelease(): void 
+    public function createRelease(): void
     {
         $this->makeNextRelease();
         $this->releaseParts();
@@ -64,8 +64,7 @@ class PartsUpdateProcessor
         $now = now();
         if ($now->format('Y') !== $current->created_at->format('Y')) {
             $update = '01';
-        }
-        else {
+        } else {
             $num = substr($current->name, -2) + 1;
             if ((int) $num <= 9) {
                 $update = "0{$num}";
@@ -75,10 +74,12 @@ class PartsUpdateProcessor
         }
         $name = $now->format('Y')."-{$update}";
         $short = $now->format('y')."{$update}";
-        return compact('name', 'short');  
+
+        return compact('name', 'short');
     }
-    
-    protected function getReleaseData(): array {
+
+    protected function getReleaseData(): array
+    {
         $data = [];
         $data['total_files'] = $this->parts->count();
         $data['new_files'] = $this->parts->whereNull('official_part')->count();
@@ -89,13 +90,12 @@ class PartsUpdateProcessor
                     ->whereNull('official_part')
                     ->where('type.folder', 'parts/')
                     ->count();
-            }
-            else {
+            } else {
                 $count = $this->parts
                     ->whereNull('official_part')
                     ->where('part_type_id', $type->id)
                     ->count();
-            } 
+            }
             if ($count > 0) {
                 $data['new_types'][] = ['name' => $type->name, 'count' => $count];
             }
@@ -103,7 +103,7 @@ class PartsUpdateProcessor
         $data['moved_parts'] = [];
         $moved = $this->parts->where('category.category', 'Moved');
         foreach ($moved as $part) {
-            $data['moved_parts'][] = ['name' => $part->name(),  'movedto' => $part->description]; 
+            $data['moved_parts'][] = ['name' => $part->name(),  'movedto' => $part->description];
         }
         $data['fixes'] = [];
         $data['rename'] = [];
@@ -113,51 +113,53 @@ class PartsUpdateProcessor
         foreach ($notMoved as $part) {
             if ($part->description != $part->official_part->description) {
                 $data['rename'][] = ['name' => $part->name(), 'decription' => $part->description, 'old_description' => $part->official_part->description];
-            }
-            else {
+            } else {
                 $data['fixed'][] = ['name' => $part->name(), 'decription' => $part->description];
             }
         }
         $data['minor_edits']['license'] = Part::official()->whereJsonLength('minor_edit_data->license', '>', 0)->count();
+
         return $data;
     }
 
-    protected function makeNotes(): string {
+    protected function makeNotes(): string
+    {
         $data = $this->release->part_data;
-        $notes = "ldraw.org Parts Update {$this->release->name}\n" . 
-            str_repeat('-', 76) . "\n\n" .
-            "Redistributable Parts Library - Core Library\n" . 
-            str_repeat('-', 76) . "\n\n" .
-            "Notes created " . $this->release->created_at->format("r") . " by the Parts Tracker\n\n" .
-            "Release statistics:\n" . 
-            "   Total files: {$data['total_files']}\n" . 
+        $notes = "ldraw.org Parts Update {$this->release->name}\n".
+            str_repeat('-', 76)."\n\n".
+            "Redistributable Parts Library - Core Library\n".
+            str_repeat('-', 76)."\n\n".
+            'Notes created '.$this->release->created_at->format('r')." by the Parts Tracker\n\n".
+            "Release statistics:\n".
+            "   Total files: {$data['total_files']}\n".
             "   New files: {$data['new_files']}\n";
         foreach ($data['new_types'] as $t) {
             $notes .= "   New {$t['name']}s: {$t['count']}\n";
         }
-        $notes .= "\n" . 
+        $notes .= "\n".
             "Moved Parts\n";
         foreach ($data['moved_parts'] as $m) {
-            $notes .= "   {$m['name']}" . str_repeat(' ', max(27 - strlen($m['name']), 0)) . "{$m['movedto']}\n"; 
-        }   
-        $notes .= "\n" . 
+            $notes .= "   {$m['name']}".str_repeat(' ', max(27 - strlen($m['name']), 0))."{$m['movedto']}\n";
+        }
+        $notes .= "\n".
             "Renamed Parts\n";
-        foreach ($data['rename'] as $m) {    
-            $notes .= "   {$m['name']}" . str_repeat(' ', max(27 - strlen($m['name']), 0)) . "{$m['old_description']}\n" .
+        foreach ($data['rename'] as $m) {
+            $notes .= "   {$m['name']}".str_repeat(' ', max(27 - strlen($m['name']), 0))."{$m['old_description']}\n".
             "   changed to    {$m['decription']}\n";
         }
-        $notes .= "\n" . 
+        $notes .= "\n".
             "Other Fixed Parts\n";
         foreach ($data['fixed'] as $m) {
-            $notes .= "   {$m['name']}" . str_repeat(' ', max(27 - strlen($m['name']), 0)) . "{$m['decription']}\n";
+            $notes .= "   {$m['name']}".str_repeat(' ', max(27 - strlen($m['name']), 0))."{$m['decription']}\n";
         }
         if ($data['minor_edits']['license'] > 0) {
             $notes .= "\nMinor Edits\n";
             if ($data['minor_edits']['license'] > 0) {
-                $notes .=  "   {$data['minor_edits']['license']} Part licenses changed\n";
+                $notes .= "   {$data['minor_edits']['license']} Part licenses changed\n";
             }
         }
-        return $notes;      
+
+        return $notes;
     }
 
     protected function releaseParts(): void
@@ -167,13 +169,13 @@ class PartsUpdateProcessor
             $this->releasePart($part);
         }
 
-        if (!is_null($this->release->part_list)) {
+        if (! is_null($this->release->part_list)) {
             $partslist = $this->release->part_list;
-            usort($partslist, function (array $a, array $b) { 
-                return $a[0] <=> $b[0]; 
+            usort($partslist, function (array $a, array $b) {
+                return $a[0] <=> $b[0];
             });
             $this->release->part_list = $partslist;
-            $this->release->save();    
+            $this->release->save();
         }
     }
 
@@ -202,24 +204,23 @@ class PartsUpdateProcessor
         }
     }
 
-    protected function releasePart(Part $part): void 
+    protected function releasePart(Part $part): void
     {
-        if (!$part->isUnofficial()) {
+        if (! $part->isUnofficial()) {
             return;
         }
         // Add history line
         PartHistory::create([
             'user_id' => $this->user->id,
             'part_id' => $part->id,
-            'comment' => "Official Update {$this->release->name}"
+            'comment' => "Official Update {$this->release->name}",
         ]);
-
 
         PartEvent::unofficial()->where('part_id', $part->id)->update(['part_release_id' => $this->release->id]);
 
         PartReleased::dispatch($part, $this->user, $this->release);
- 
-        if (!is_null($part->official_part)) {
+
+        if (! is_null($part->official_part)) {
             $opart = $this->updateOfficialWithUnofficial($part, $part->official_part);
             // Update events with official part id
             PartEvent::where('part_release_id', $this->release->id)
@@ -262,34 +263,37 @@ class PartsUpdateProcessor
         $opart->refresh();
         $opart->generateHeader();
         $opart->save();
+
         return $opart;
     }
 
-    public function makeReleaseZips(): void {
+    public function makeReleaseZips(): void
+    {
         $uzipname = $this->tempDir->path("lcad{$this->release->short}.zip");
-        $zipname = $this->tempDir->path("complete.zip");
-        $uzip = new \ZipArchive();
+        $zipname = $this->tempDir->path('complete.zip');
+        $uzip = new \ZipArchive;
         $uzip->open($uzipname, \ZipArchive::CREATE);
-  
-        $zip = new \ZipArchive();
+
+        $zip = new \ZipArchive;
         $zip->open($zipname, \ZipArchive::CREATE);
-  
+
         // Add non-part files to complete zip
         // Copy the new non-Part files to the library
         foreach (Storage::disk('library')->allFiles('official') as $filename) {
             $zipfilename = str_replace('official/', '', $filename);
             $content = Storage::disk('library')->get($filename);
-            $zip->addFromString('ldraw/' . $zipfilename, $content);
+            $zip->addFromString('ldraw/'.$zipfilename, $content);
         }
         $zip->close();
-  
+
         // Add new/updated non-part files to complete and update zip
         $zip->open($zipname);
         foreach ($this->extraFiles as $filename => $contents) {
             $filename = "ldraw/{$filename}";
             $uzip->addFromString($filename, $contents);
-            if ($zip->getFromName($filename) !== false)
+            if ($zip->getFromName($filename) !== false) {
                 $zip->deleteName($filename);
+            }
             $zip->addFromString($filename, $content);
         }
 
@@ -302,17 +306,18 @@ class PartsUpdateProcessor
         }
         $zip->close();
         $uzip->close();
-       
+
         // These have to be chunked because php doesn't write the file to disk immediately
         // Trying to hold the entire library in memory will cause an OOM error
         Part::official()->chunk(500, function (Collection $parts) use ($zip, $zipname, $uzip, $uzipname) {
             $zip->open($zipname);
             $uzip->open($uzipname);
-            foreach($parts as $part) {
+            foreach ($parts as $part) {
                 $content = $part->get();
-                $zip->addFromString('ldraw/' . $part->filename, $content);
-                if ($part->part_release_id == $this->release->id || ($part->part_release_id != $this->release->id && !is_null($part->minor_edit_data))) 
-                $uzip->addFromString('ldraw/' . $part->filename, $content);
+                $zip->addFromString('ldraw/'.$part->filename, $content);
+                if ($part->part_release_id == $this->release->id || ($part->part_release_id != $this->release->id && ! is_null($part->minor_edit_data))) {
+                    $uzip->addFromString('ldraw/'.$part->filename, $content);
+                }
             }
             $zip->close();
             $uzip->close();
@@ -322,15 +327,15 @@ class PartsUpdateProcessor
     protected function copyReleaseFiles(): void
     {
         $previousRelease = PartRelease::where('id', '<>', $this->release->id)->latest()->first();
-        
+
         // Archive the previous complete zip and exe
         Storage::disk('library')->move('updates/complete.zip', "updates/complete-{$previousRelease->short}.zip");
         Storage::disk('library')->move('updates/LDrawParts.exe', "updates/LDraw{$previousRelease->short}.exe");
 
         // Copy the new archives to the library
         Storage::disk('library')->put("updates/lcad{$this->release->short}.zip", file_get_contents($this->tempDir->path("lcad{$this->release->short}.zip")));
-        Storage::disk('library')->put("updates/complete.zip", file_get_contents($this->tempDir->path("complete.zip")));
-        
+        Storage::disk('library')->put('updates/complete.zip', file_get_contents($this->tempDir->path('complete.zip')));
+
         //Copy release notes
         $notes = file_get_contents($this->tempDir->path("Note{$this->release->short}CA.txt"));
         Storage::disk('library')->put("official/models/Note{$this->release->short}CA.txt", $notes);
@@ -339,40 +344,40 @@ class PartsUpdateProcessor
         foreach ($this->extraFiles as $filename => $contents) {
             Storage::disk('library')->put("official/ldraw/{$filename}", $contents);
         }
-        
+
         // Copy the part preview images to images
         $dir = new RecursiveDirectoryIterator($this->tempDir->path("view{$this->release->short}"));
         foreach (new RecursiveIteratorIterator($dir) as $file) {
             if ($file->isFile()) {
-                $image = file_get_contents($file->getPath() . "/" . $file->getFilename());
-                $fn = str_replace($this->tempDir->path("view{$this->release->short}"), '', $file->getPath() . "/" . $file->getFilename());
+                $image = file_get_contents($file->getPath().'/'.$file->getFilename());
+                $fn = str_replace($this->tempDir->path("view{$this->release->short}"), '', $file->getPath().'/'.$file->getFilename());
                 Storage::disk('images')->put("library/updates/view{$this->release->short}{$fn}", $image);
             }
         }
     }
-        
+
     public function postReleaseCleanup()
     {
         // Zero/null out vote and flag data
         Part::official()->update([
-            'uncertified_subpart_count' => 0, 
-            'vote_summary' => null, 
-            'vote_sort' => 1, 
-            'delete_flag' => 0, 
+            'uncertified_subpart_count' => 0,
+            'vote_summary' => null,
+            'vote_sort' => 1,
+            'delete_flag' => 0,
             'minor_edit_data' => null,
             'missing_parts' => null,
             'manual_hold_flag' => 0,
-            'marked_for_release' => false
+            'marked_for_release' => false,
         ]);
         Part::official()->each(function (Part $p) {
             $p->votes()->delete();
             $p->notification_users()->sync([]);
         });
         Part::unofficial()->where('vote_sort', 1)->where('can_release', true)->update([
-            'marked_for_release' => true
+            'marked_for_release' => true,
         ]);
         Part::unofficial()->where('can_release', false)->where('marked_for_release', true)->update([
-            'marked_for_release' => false
+            'marked_for_release' => false,
         ]);
         // Reset the unofficial zip file
         Storage::disk('library')->delete('unofficial/ldrawunf.zip');
@@ -382,12 +387,11 @@ class PartsUpdateProcessor
     protected function regenerateImages()
     {
         $affectedParts = new Collection;
-        foreach($this->release->parts as $part){
+        foreach ($this->release->parts as $part) {
             $affectedParts = $affectedParts->concat($part->ancestorsAndSelf)->unique();
         }
-        $affectedParts->each(function (Part $p){
+        $affectedParts->each(function (Part $p) {
             UpdatePartImage::dispatch($p);
         });
     }
-
 }

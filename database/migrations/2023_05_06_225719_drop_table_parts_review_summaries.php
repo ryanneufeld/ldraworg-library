@@ -24,7 +24,7 @@ return new class extends Migration
             $table->foreignIdFor(ReviewSummary::class)->constrained();
             $table->index('part_id');
             $table->index('review_summary_id');
-            $table->unique(['part_id', 'review_summary_id']);          
-          });          
+            $table->unique(['part_id', 'review_summary_id']);
+        });
     }
 };

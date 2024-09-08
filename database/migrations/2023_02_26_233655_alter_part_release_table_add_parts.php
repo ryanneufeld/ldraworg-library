@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-      Schema::table('part_releases', function (Blueprint $table) {
-        $table->mediumtext('part_list')->nullable();
-      });
+        Schema::table('part_releases', function (Blueprint $table) {
+            $table->mediumtext('part_list')->nullable();
+        });
     }
 
     /**
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-      Schema::table('part_releases', function (Blueprint $table) {
-        $table->dropColumn('part_list');
-      });
+        Schema::table('part_releases', function (Blueprint $table) {
+            $table->dropColumn('part_list');
+        });
     }
 };

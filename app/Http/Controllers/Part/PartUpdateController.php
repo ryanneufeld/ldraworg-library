@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Part;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\LDraw\SupportFiles;
 use App\Models\PartRelease;
+use Illuminate\Http\Request;
 
 class PartUpdateController extends Controller
 {
@@ -16,20 +16,20 @@ class PartUpdateController extends Controller
             if ($output === 'tab') {
                 return response(SupportFiles::ptReleases('tab'))->header('Content-Type', 'text/plain; charset=utf-8');
             }
+
             return response(SupportFiles::ptReleases('xml'))->header('Content-Type', 'application/xml; charset=utf-8');
         }
         if ($request->has('latest')) {
             $releases = PartRelease::current();
-        }
-        else {
+        } else {
             $releases = PartRelease::latest()->get();
         }
-        return view('tracker.release.index', ['releases' => $releases , 'latest' => $request->has('latest')]);
+
+        return view('tracker.release.index', ['releases' => $releases, 'latest' => $request->has('latest')]);
     }
 
     public function view(PartRelease $release, Request $request)
     {
         return view('tracker.release.view', ['release' => $release]);
     }
-
 }

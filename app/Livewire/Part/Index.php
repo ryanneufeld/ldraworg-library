@@ -8,10 +8,10 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table as Table;
-use Livewire\Component;
 use Illuminate\Support\Facades\Route;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
+use Livewire\Component;
 
 class Index extends Component implements HasForms, HasTable
 {
@@ -22,10 +22,13 @@ class Index extends Component implements HasForms, HasTable
 
     #[Url()]
     public ?array $tableFilters = null;
+
     #[Url]
     public ?string $tableSortColumn = null;
+
     #[Url]
     public ?string $tableSortDirection = null;
+
     #[Url]
     public $tableRecordsPerPage = null;
 
@@ -36,7 +39,7 @@ class Index extends Component implements HasForms, HasTable
 
     public function table(Table $table): Table
     {
-        return PartTable::table($table, !$this->unofficial);
+        return PartTable::table($table, ! $this->unofficial);
     }
 
     #[Layout('components.layout.tracker')]

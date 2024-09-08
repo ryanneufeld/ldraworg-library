@@ -12,7 +12,7 @@ class Tracker extends Component
      * Create a new component instance.
      */
     public function __construct()
-    { 
+    {
         // Nothing yet
     }
 
@@ -22,6 +22,7 @@ class Tracker extends Component
     public function render(): View|Closure|string
     {
         $summaries = \App\Models\ReviewSummary\ReviewSummary::ordered()->get();
+
         return view('components.menu.tracker', compact('summaries'));
     }
 }

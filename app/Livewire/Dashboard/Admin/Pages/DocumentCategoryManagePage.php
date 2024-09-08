@@ -17,7 +17,7 @@ class DocumentCategoryManagePage extends BasicResourceManagePage
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public string $title = "Manage Document Categories";
+    public string $title = 'Manage Document Categories';
 
     public function table(Table $table): Table
     {
@@ -35,15 +35,16 @@ class DocumentCategoryManagePage extends BasicResourceManagePage
                 EditAction::make()
                     ->form($this->formSchema()),
                 DeleteAction::make()
-                    ->visible(fn (DocumentCategory $c) => $c->documents->count() == 0)
+                    ->visible(fn (DocumentCategory $c) => $c->documents->count() == 0),
             ])
             ->headerActions([
                 CreateAction::make()
                     ->form($this->formSchema())
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['order'] = DocumentCategory::nextOrder();
+
                         return $data;
-                    })
+                    }),
             ]);
     }
 

@@ -15,7 +15,7 @@ use MailerSend\LaravelDriver\MailerSendTrait;
 
 class DailyDigest extends Mailable
 {
-    use Queueable, SerializesModels, MailerSendTrait;
+    use MailerSendTrait, Queueable, SerializesModels;
 
     protected $parts;
 
@@ -41,7 +41,7 @@ class DailyDigest extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Parts Tracker Daily Summary for ' . Carbon::yesterday()->format('Y-m-d'),
+            subject: 'Parts Tracker Daily Summary for '.Carbon::yesterday()->format('Y-m-d'),
         );
     }
 
@@ -53,6 +53,7 @@ class DailyDigest extends Mailable
     public function content()
     {
         $this->mailersend(template_id: null);
+
         return new Content(
             markdown: 'emails.dailydigest-markdown',
             with: [

@@ -17,12 +17,13 @@ class PartReleaseFactory extends Factory
     public function definition(): array
     {
         $min_date = new \DateTime('1996-01-01');
-        $date = new \DateTime();
+        $date = new \DateTime;
         $date->setTimestamp(mt_rand($min_date->getTimestamp(), time()));
         $update = mt_rand(1, 99);
         if ($update <= 9) {
             $update = "0{$update}";
         }
+
         return [
             'created_at' => $date,
             'short' => $date->format('y')."{$update}",
@@ -33,8 +34,8 @@ class PartReleaseFactory extends Factory
                 'new_types' => [
                     ['name' => 'Part', 'count' => mt_rand(1, 3000)],
                     ['name' => 'Primitive', 'count' => mt_rand(1, 3000)],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

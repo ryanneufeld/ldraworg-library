@@ -21,6 +21,7 @@ class Latest extends Component
     public function render(): View|Closure|string
     {
         $models = \App\Models\Omr\OmrModel::latest()->limit($this->limit)->get();
+
         return view('components.omr-model.latest', compact('models'));
     }
 }

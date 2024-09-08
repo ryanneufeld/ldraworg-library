@@ -2,8 +2,8 @@
 
 namespace App\Filament\Part\Tables;
 
-use App\Models\Part;
 use App\Filament\Part\Tables\Filters\AuthorFilter;
+use App\Models\Part;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Actions\Action;
@@ -12,10 +12,10 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class PartTable
@@ -25,8 +25,8 @@ class PartTable
         return $table
             ->query(
                 Part::when($official,
-                    fn(Builder $q) => $q->official(),
-                    fn(Builder $q) => $q->unofficial()
+                    fn (Builder $q) => $q->official(),
+                    fn (Builder $q) => $q->unofficial()
                 )
             )
             ->defaultSort(fn (Builder $q) => $q->orderBy('vote_sort', 'asc')->orderBy('part_type_id', 'asc')->orderBy('description', 'asc'))
@@ -37,13 +37,13 @@ class PartTable
                         '1' => 'Certified',
                         '2' => 'Needs Admin Review',
                         '3' => 'Needs More Votes',
-                        '5' => 'Errors Found'
+                        '5' => 'Errors Found',
                     ])
                     ->native(false)
                     ->multiple()
                     ->preload()
                     ->label('Unofficial Status')
-                    ->visible(!$official),
+                    ->visible(! $official),
                 AuthorFilter::make('user_id'),
                 SelectFilter::make('part_type_id')
                     ->relationship('type', 'name')
@@ -91,8 +91,7 @@ class PartTable
             ], layout: FiltersLayout::AboveContent)
             ->actions(self::actions())
             ->recordUrl(
-                fn (Part $p): string => 
-                    route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
+                fn (Part $p): string => route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
             );
     }
 
@@ -101,24 +100,24 @@ class PartTable
         return [
             Split::make([
                 ImageColumn::make('image')
-                    ->state( 
-                        fn (Part $p): string => version("images/library/{$p->libFolder()}/" . substr($p->filename, 0, -4) . '_thumb.png')
+                    ->state(
+                        fn (Part $p): string => version("images/library/{$p->libFolder()}/".substr($p->filename, 0, -4).'_thumb.png')
                     )
                     ->grow(false)
                     ->extraImgAttributes(['class' => 'object-scale-down w-[35px] max-h-[75px]']),
                 Stack::make([
                     TextColumn::make('filename')
-                    ->weight(FontWeight::Bold)
-                    ->sortable(),
-                TextColumn::make('description')
-                    ->sortable(),
+                        ->weight(FontWeight::Bold)
+                        ->sortable(),
+                    TextColumn::make('description')
+                        ->sortable(),
                 ])->alignment(Alignment::Start),
                 ViewColumn::make('vote_sort')
                     ->view('tables.columns.part-status')
                     ->sortable()
                     ->grow(false)
-                    ->label('Status')
-            ])->from('md')
+                    ->label('Status'),
+            ])->from('md'),
         ];
     }
 
@@ -126,23 +125,23 @@ class PartTable
     {
         return [
             Action::make('download')
-                ->url(fn(Part $part) => route($part->isUnofficial() ? 'unofficial.download' : 'official.download', $part->filename))
+                ->url(fn (Part $part) => route($part->isUnofficial() ? 'unofficial.download' : 'official.download', $part->filename))
                 ->button()
                 ->outlined()
                 ->color('info'),
             Action::make('download')
                 ->label('Download zip')
-                ->url(fn(Part $part) => route('unofficial.download.zip', str_replace('.dat', '.zip', $part->filename)))
+                ->url(fn (Part $part) => route('unofficial.download.zip', str_replace('.dat', '.zip', $part->filename)))
                 ->button()
                 ->outlined()
                 ->color('info')
-                ->visible(fn(Part $part) => $part->isUnofficial() && $part->type->folder == 'parts/'),
+                ->visible(fn (Part $part) => $part->isUnofficial() && $part->type->folder == 'parts/'),
             Action::make('updated')
-                ->url(fn(Part $part) => route('tracker.show', $part->unofficial_part->id))
-                ->label(fn(Part $part) => ' Tracker Update: ' . $part->unofficial_part->statusCode())
+                ->url(fn (Part $part) => route('tracker.show', $part->unofficial_part->id))
+                ->label(fn (Part $part) => ' Tracker Update: '.$part->unofficial_part->statusCode())
                 ->button()
                 ->outlined()
-                ->visible(fn(Part $part) => !is_null($part->unofficial_part)),
+                ->visible(fn (Part $part) => ! is_null($part->unofficial_part)),
         ];
     }
 }

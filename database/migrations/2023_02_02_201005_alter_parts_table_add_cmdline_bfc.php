@@ -13,10 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-      Schema::table('parts', function (Blueprint $table) {
-        $table->string('cmdline')->nullable();
-        $table->string('bfc')->nullable();
-      });
+        Schema::table('parts', function (Blueprint $table) {
+            $table->string('cmdline')->nullable();
+            $table->string('bfc')->nullable();
+        });
     }
 
     /**
@@ -26,9 +26,9 @@ return new class extends Migration
      */
     public function down()
     {
-      Schema::table('parts', function (Blueprint $table) {
-        $table->dropColumn('cmdline');
-        $table->dropColumn('bfc');
-      });
+        Schema::table('parts', function (Blueprint $table) {
+            $table->dropColumn('cmdline');
+            $table->dropColumn('bfc');
+        });
     }
 };

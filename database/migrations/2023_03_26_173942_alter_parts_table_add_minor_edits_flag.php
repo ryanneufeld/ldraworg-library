@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-      Schema::table('parts', function (Blueprint $table) {
-        $table->boolean('minor_edit_flag')->default(0);
-      });
+        Schema::table('parts', function (Blueprint $table) {
+            $table->boolean('minor_edit_flag')->default(0);
+        });
     }
 
     /**
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-      Schema::table('parts', function (Blueprint $table) {
-        $table->dropColumn('minor_edit_flag');
-      });
+        Schema::table('parts', function (Blueprint $table) {
+            $table->dropColumn('minor_edit_flag');
+        });
     }
 };

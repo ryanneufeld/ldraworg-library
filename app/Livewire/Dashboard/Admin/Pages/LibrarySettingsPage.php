@@ -6,8 +6,6 @@ use App\Jobs\UpdatePartImage;
 use App\Models\Part;
 use App\Models\PartLicense;
 use App\Settings\LibrarySettings;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
@@ -15,6 +13,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -22,7 +22,7 @@ use Livewire\Component;
 class LibrarySettingsPage extends Component implements HasForms
 {
     use InteractsWithForms;
-    
+
     public ?array $data = [];
 
     public function form(Form $form): Form
@@ -42,7 +42,7 @@ class LibrarySettingsPage extends Component implements HasForms
                                     ->label('Max Items for Quick Search')
                                     ->required()
                                     ->integer(),
-                           ]),
+                            ]),
                         Tabs\Tab::make('Parser Settings')
                             ->schema([
                                 Repeater::make('allowed_header_metas')
@@ -62,7 +62,7 @@ class LibrarySettingsPage extends Component implements HasForms
                                     ->label('Pattern Codes')
                                     ->keyLabel('Code')
                                     ->valueLabel('Pattern Description'),
-                           ]),
+                            ]),
                         Tabs\Tab::make('LDView Settings')
                             ->schema([
                                 KeyValue::make('ldview_options')
@@ -86,12 +86,12 @@ class LibrarySettingsPage extends Component implements HasForms
                                         TextInput::make('max_thumb_width')
                                             ->required()
                                             ->integer(),
-                                        
+
                                     ])
-                                    ->columns(2)
+                                    ->columns(2),
                             ]),
-                            
-                    ])
+
+                    ]),
             ])
             ->statePath('data');
     }
@@ -114,7 +114,7 @@ class LibrarySettingsPage extends Component implements HasForms
         ];
         $this->form->fill($form_data);
     }
-    
+
     public function saveSettings(LibrarySettings $settings)
     {
         $form_data = $this->form->getState();
@@ -145,7 +145,7 @@ class LibrarySettingsPage extends Component implements HasForms
         }
 
     }
-    
+
     #[Layout('components.layout.admin')]
     public function render()
     {

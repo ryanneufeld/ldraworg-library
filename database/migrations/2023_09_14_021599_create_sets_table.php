@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->year('year');
             $table->string('rb_url');
-            $table->foreignIdFor(\App\Models\Omr\Theme::class)->constrained()->nullable();            
+            $table->foreignIdFor(\App\Models\Omr\Theme::class)->constrained()->nullable();
         });
     }
 

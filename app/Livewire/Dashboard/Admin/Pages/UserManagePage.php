@@ -25,7 +25,7 @@ class UserManagePage extends BasicResourceManagePage
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public string $title = "Manage Users";
+    public string $title = 'Manage Users';
 
     public function table(Table $table): Table
     {
@@ -52,7 +52,7 @@ class UserManagePage extends BasicResourceManagePage
                 TextColumn::make('parts_count')
                     ->counts('parts')
                     ->sortable()
-                    ->url(fn (User $u) => route('search.part', ['s' => $u->name, 'user_id' => $u->id]))
+                    ->url(fn (User $u) => route('search.part', ['s' => $u->name, 'user_id' => $u->id])),
             ])
             ->filters([
                 SelectFilter::make('license')
@@ -71,14 +71,15 @@ class UserManagePage extends BasicResourceManagePage
                     ->form($this->formSchema())
                     ->mutateFormDataUsing(function (array $data): array {
                         $data['password'] = bcrypt(Str::random(40));
-                        return $data;            
+
+                        return $data;
                     })
-                    ->visible(fn () => Auth::user()?->can('create', User::class))
+                    ->visible(fn () => Auth::user()?->can('create', User::class)),
             ])
             ->actions([
                 EditAction::make()
                     ->form($this->formSchema())
-                    ->visible(fn (User $u) => Auth::user()?->can('update', $u))
+                    ->visible(fn (User $u) => Auth::user()?->can('update', $u)),
             ]);
     }
 
@@ -88,7 +89,7 @@ class UserManagePage extends BasicResourceManagePage
             Select::make('forum_user_id')
                 ->label('Forum User Name')
                 ->options(
-                    MybbUser::whereNotIn('usergroup', [5,7])
+                    MybbUser::whereNotIn('usergroup', [5, 7])
                         ->whereNotIn('uid', User::whereNotNull('forum_user_id')->pluck('forum_user_id')->all())
                         ->orderBy('loginname')
                         ->pluck('loginname', 'uid')
@@ -97,12 +98,12 @@ class UserManagePage extends BasicResourceManagePage
                 ->live()
                 ->searchable()
                 ->afterStateUpdated(function (Set $set, int $state) {
-                        $user = MybbUser::find($state);
-                        if (!is_null($user)) {
-                            $set('realname', $user->username);
-                            $set('name', $user->loginname);
-                            $set('email', $user->email);
-                        }
+                    $user = MybbUser::find($state);
+                    if (! is_null($user)) {
+                        $set('realname', $user->username);
+                        $set('name', $user->loginname);
+                        $set('email', $user->email);
+                    }
                 })
                 ->hiddenOn('edit'),
             TextInput::make('name')
@@ -133,7 +134,7 @@ class UserManagePage extends BasicResourceManagePage
                     Checkbox::make('is_synthetic')
                         ->label('Synthetic User'),
                     Checkbox::make('is_ptadmin')
-                        ->label('Parts Tracker Automated User'),        
+                        ->label('Parts Tracker Automated User'),
                 ])
                 ->columns(3),
         ];

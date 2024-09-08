@@ -2,19 +2,18 @@
 
 namespace App\Jobs;
 
+use App\LDraw\ZipFiles;
+use App\Models\Part;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-use App\Models\Part;
-use App\LDraw\ZipFiles;
-
 class UpdateZip implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    
+
     /**
      * Create a new job instance.
      *
@@ -23,8 +22,7 @@ class UpdateZip implements ShouldQueue
     public function __construct(
         protected Part $part,
         protected ?string $oldfilename = null
-    )
-    {}
+    ) {}
 
     /**
      * Execute the job.

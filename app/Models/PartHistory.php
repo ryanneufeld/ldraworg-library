@@ -18,11 +18,12 @@ class PartHistory extends Model
     ];
 
     protected $with = ['user'];
-        
-    public function toString(): string 
+
+    public function toString(): string
     {
-        $date = date_format(date_create($this->created_at), "Y-m-d");
+        $date = date_format(date_create($this->created_at), 'Y-m-d');
         $user = $this->user->historyString();
+
         return "0 !HISTORY {$date} {$user} {$this->comment}";
     }
 }

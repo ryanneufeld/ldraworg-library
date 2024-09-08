@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-use App\Models\User;
 use App\Models\PartCategory;
+use App\Models\PartLicense;
 use App\Models\PartRelease;
 use App\Models\PartType;
 use App\Models\PartTypeQualifier;
-use App\Models\PartLicense;
+use App\Models\User;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreatePartsTable extends Migration
 {
@@ -39,7 +39,7 @@ class CreatePartsTable extends Migration
             $table->integer('vote_sort')->default(1);
             $table->index('user_id');
             $table->index('part_category_id');
-            $table->unique(['filename','part_release_id']);
+            $table->unique(['filename', 'part_release_id']);
         });
     }
 

@@ -18,7 +18,7 @@ class PartLicenseManagePage extends BasicResourceManagePage
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public string $title = "Manage Part Licenses";
+    public string $title = 'Manage Part Licenses';
 
     public function table(Table $table): Table
     {
@@ -35,7 +35,7 @@ class PartLicenseManagePage extends BasicResourceManagePage
                 TextColumn::make('parts_count')
                     ->counts('parts')
                     ->label('Number of Parts')
-                    ->sortable()
+                    ->sortable(),
             ])
 /*
             ->actions([
@@ -45,7 +45,7 @@ class PartLicenseManagePage extends BasicResourceManagePage
 */
             ->headerActions([
                 CreateAction::make()
-                    ->form($this->formSchema())
+                    ->form($this->formSchema()),
             ]);
     }
 
@@ -58,7 +58,7 @@ class PartLicenseManagePage extends BasicResourceManagePage
             Textarea::make('text')
                 ->string()
                 ->required(),
-            Toggle::make('in_use')
+            Toggle::make('in_use'),
         ];
     }
 }

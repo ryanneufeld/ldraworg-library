@@ -1,27 +1,26 @@
 <?php
 
 use App\Http\Controllers\DocumentShowController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\Omr\SetController;
 use App\Http\Controllers\Part\LastDayDownloadZipController;
 use App\Http\Controllers\Part\LatestPartsController;
-use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartDownloadController;
 use App\Http\Controllers\Part\PartDownloadZipController;
+use App\Http\Controllers\Part\PartUpdateController;
 use App\Http\Controllers\Part\PartWebGLController;
 use App\Http\Controllers\ReviewSummaryController;
+use App\Http\Controllers\SupportFilesController;
 use App\Http\Controllers\TrackerHistoryController;
 use App\Livewire\Dashboard\Admin\Index as AdminIndex;
 use App\Livewire\Dashboard\Admin\Pages\DocumentCategoryManagePage;
 use App\Livewire\Dashboard\Admin\Pages\DocumentManagePage;
-use App\Livewire\Dashboard\Admin\Pages\ReviewSummaryManagePage;
-use App\Livewire\Dashboard\Admin\Pages\RoleManagePage;
-use App\Livewire\Dashboard\Admin\Pages\UserManagePage;
 use App\Livewire\Dashboard\Admin\Pages\LibrarySettingsPage;
 use App\Livewire\Dashboard\Admin\Pages\PartCategoryManagePage;
 use App\Livewire\Dashboard\Admin\Pages\PartLicenseManagePage;
 use App\Livewire\Dashboard\Admin\Pages\PartTypeManagePage;
+use App\Livewire\Dashboard\Admin\Pages\ReviewSummaryManagePage;
+use App\Livewire\Dashboard\Admin\Pages\RoleManagePage;
+use App\Livewire\Dashboard\Admin\Pages\UserManagePage;
 use App\Livewire\Dashboard\User;
 use App\Livewire\Omr\Set\Index;
 use App\Livewire\Part\Index as PartIndex;
@@ -35,6 +34,7 @@ use App\Livewire\Search\Parts;
 use App\Livewire\Search\StickerSummary;
 use App\Livewire\Search\Suffix;
 use App\Livewire\Tracker\ConfirmCA;
+use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'index')->name('index');
 
@@ -44,7 +44,7 @@ Route::middleware(['throttle:file'])->group(function () {
     Route::get('/library.csv', [SupportFilesController::class, 'librarycsv'])->name('library-csv');
     Route::get('/ptreleases/{output}', [SupportFilesController::class, 'ptreleases'])->name('ptreleases');
     Route::redirect('/ptreleases', '/ptreleases/tab');
-    Route::get('/ldbi/part/{part}', PartWebGLController::class)->name('part.ldbi');    
+    Route::get('/ldbi/part/{part}', PartWebGLController::class)->name('part.ldbi');
     Route::get('/tracker/latest-parts', LatestPartsController::class)->name('part.latest');
     Route::get('/tracker/ldrawunf-last-day.zip', LastDayDownloadZipController::class)->name('tracker.last-day');
 });
@@ -71,7 +71,7 @@ Route::prefix('tracker')->name('tracker.')->group(function () {
     Route::view('/next-release', 'part.nextrelease')->name('next-release');
 
     Route::middleware(['can:release.create'])->get('/release/create', Create::class)->name('release.create');
-    
+
     Route::get('/{unofficialpart}', Show::class)->name('show.filename');
     Route::get('/{part}', Show::class)->name('show');
 });
@@ -82,7 +82,6 @@ Route::prefix('omr')->name('omr.')->group(function () {
     Route::resource('sets', SetController::class)->only(['show']);
     Route::get('/set/{setnumber}', [SetController::class, 'show'])->name('show.setnumber');
 });
-
 
 Route::prefix('documentation')->name('documentation.')->group(function () {
     Route::view('/', 'documents.index')->name('index');
@@ -103,11 +102,9 @@ Route::middleware(['auth', 'can:admin.view-dashboard'])->prefix('admin')->name('
     Route::middleware(['can:settings.edit'])->get('/settings', LibrarySettingsPage::class)->name('settings.index');
 });
 
-
 Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(function () {
     Route::get('/', User::class)->name('index');
 });
-
 
 Route::get('/updates', [PartUpdateController::class, 'index'])->name('part-update.index');
 Route::get('/updates/view{release:short}', [PartUpdateController::class, 'view'])->name('part-update.view');
@@ -135,8 +132,6 @@ Route::middleware(['throttle:file'])->get('/library/unofficial/{unofficialpartzi
 
 Route::middleware(['auth'])->get('/logout', function () {
     auth()->logout();
+
     return back();
 });
-
-
-

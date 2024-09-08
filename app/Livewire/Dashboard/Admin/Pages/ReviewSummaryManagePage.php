@@ -20,7 +20,7 @@ class ReviewSummaryManagePage extends BasicResourceManagePage
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public string $title = "Manage Review Summaries";
+    public string $title = 'Manage Review Summaries';
 
     public function table(Table $table): Table
     {
@@ -30,19 +30,20 @@ class ReviewSummaryManagePage extends BasicResourceManagePage
             ->reorderable('order')
             ->heading('Part Review Summary Management')
             ->columns([
-                TextColumn::make('header')
+                TextColumn::make('header'),
             ])
             ->actions([
                 EditAction::make()
                     ->form($this->formSchema())
                     ->mutateRecordDataUsing(function (ReviewSummary $summary, array $data): array {
                         $data['manualEntry'] = $summary->toString();
+
                         return $data;
                     })
                     ->using(fn (ReviewSummary $summary, array $data) => $this->saveEditData($summary, $data)),
                 DeleteAction::make()
-                    ->before(fn (ReviewSummary $summary) => $summary->items()->delete())
-                    
+                    ->before(fn (ReviewSummary $summary) => $summary->items()->delete()),
+
             ])
             ->headerActions([
                 CreateAction::make()
@@ -60,49 +61,50 @@ class ReviewSummaryManagePage extends BasicResourceManagePage
             Textarea::make('manualEntry')
                 ->rows(30)
                 ->string()
-                ->required()
+                ->required(),
         ];
     }
 
     protected function saveEditData(ReviewSummary $summary, array $data)
     {
-        if(is_null($summary->id)) {
+        if (is_null($summary->id)) {
             $summary->header = $data['header'];
             $summary->order = ReviewSummary::nextOrder();
             $summary->save();
         }
-        $summary->header = $data['header'];      
+        $summary->header = $data['header'];
         $summary->save();
-        if(isset($data['manualEntry'])) {
+        if (isset($data['manualEntry'])) {
             $summary->items()->delete();
             $lines = explode("\n", $data['manualEntry']);
             $order = 1;
-            foreach($lines as $line) {
+            foreach ($lines as $line) {
                 $line = trim($line);
                 if (empty($line)) {
                     continue;
                 }
                 if ($line[0] == '/') {
-                    $heading = explode(" ", $line, 2)[1] ?? '';
+                    $heading = explode(' ', $line, 2)[1] ?? '';
                     ReviewSummaryItem::create([
                         'heading' => empty($heading) ? '' : $heading,
                         'order' => $order + 1,
-                        'review_summary_id' => $summary->id
-                    ]);            
+                        'review_summary_id' => $summary->id,
+                    ]);
                 } else {
                     $part = Part::unofficial()->firstWhere('filename', $line) ?? Part::official()->firstWhere('filename', $line);
-                    if (!empty($part)) {
+                    if (! empty($part)) {
                         ReviewSummaryItem::create([
                             'part_id' => $part->id,
                             'order' => $order + 1,
-                            'review_summary_id' => $summary->id
-                        ]);            
+                            'review_summary_id' => $summary->id,
+                        ]);
                     }
                 }
                 $order++;
             }
             $summary->refresh();
         }
+
         return $summary;
     }
 }

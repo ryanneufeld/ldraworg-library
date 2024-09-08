@@ -5,16 +5,15 @@ namespace App\Providers;
 use App\Listeners\PartEventSubscriber;
 use App\Models\Omr\Set;
 use App\Models\Part;
-use App\Settings\LibrarySettings;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,9 +22,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
-    {
-    } 
+    public function register() {}
 
     /**
      * Bootstrap any application services.
@@ -34,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Model::preventSilentlyDiscardingAttributes(!$this->app->isProduction());
+        Model::preventSilentlyDiscardingAttributes(! $this->app->isProduction());
         // Model::preventLazyLoading(! $this->app->isProduction());
 
         // Route bindings
@@ -43,26 +40,20 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('unofficialpart', '[a-z0-9_/-]+\.(dat|png)');
         Route::pattern('unofficialpartzip', '[a-z0-9_/-]+\.zip');
         Route::pattern('setnumber', '[a-z0-9]+(-\d+)?');
-        Route::bind('officialpart', fn (string $value): Part =>
-            Part::official()->where('filename', $value)->firstOrFail()
+        Route::bind('officialpart', fn (string $value): Part => Part::official()->where('filename', $value)->firstOrFail()
         );
-        Route::bind('unofficialpart', fn (string $value): Part =>
-            Part::unofficial()->where('filename', $value)->firstOrFail()
+        Route::bind('unofficialpart', fn (string $value): Part => Part::unofficial()->where('filename', $value)->firstOrFail()
         );
-        Route::bind('officialpartzip', fn (string $value): Part =>
-            Part::official()
-                ->where('filename', str_replace('.zip', '.dat', $value))
-                ->firstOrFail()
+        Route::bind('officialpartzip', fn (string $value): Part => Part::official()
+            ->where('filename', str_replace('.zip', '.dat', $value))
+            ->firstOrFail()
         );
-        Route::bind('unofficialpartzip', fn (string $value): Part =>
-            Part::unofficial()
-                ->where('filename', str_replace('.zip', '.dat', $value))
-                ->firstOrFail()
+        Route::bind('unofficialpartzip', fn (string $value): Part => Part::unofficial()
+            ->where('filename', str_replace('.zip', '.dat', $value))
+            ->firstOrFail()
         );
-        Route::bind('setnumber', fn (string $value): Set =>
-            Set::where(fn (Builder $q) =>
-                $q->orWhere('number', $value)->orWhere('number', "{$value}-1")
-            )
+        Route::bind('setnumber', fn (string $value): Set => Set::where(fn (Builder $q) => $q->orWhere('number', $value)->orWhere('number', "{$value}-1")
+        )
             ->firstOrFail()
         );
 
@@ -73,7 +64,6 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('file', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
-
 
         // Allow Super Users full access
         Gate::before(function ($user, $ability) {

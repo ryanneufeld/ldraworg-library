@@ -18,7 +18,7 @@ class RoleManagePage extends BasicResourceManagePage
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public string $title = "Manage Roles";
+    public string $title = 'Manage Roles';
 
     public function table(Table $table): Table
     {
@@ -28,16 +28,16 @@ class RoleManagePage extends BasicResourceManagePage
             ->heading('Role Management')
             ->paginated(false)
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('name'),
             ])
             ->actions([
                 EditAction::make()
                     ->form($this->formSchema()),
-                DeleteAction::make()
+                DeleteAction::make(),
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->form($this->formSchema())
+                    ->form($this->formSchema()),
             ]);
     }
 

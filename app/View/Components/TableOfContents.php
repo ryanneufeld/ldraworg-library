@@ -16,8 +16,7 @@ class TableOfContents extends Component
      */
     public function __construct(
         protected Document $document
-    )
-    {
+    ) {
         $this->toc = $this->table_of_contents();
     }
 
@@ -26,11 +25,12 @@ class TableOfContents extends Component
         $toc = [];
         $pattern = '#<a\h+name="([a-z-0-9_]+)"(?:.*?)><\/a>(?:.*?)<h(\d)(?:.*?)>(.*?)<\/h\d>#ius';
         preg_match_all($pattern, $this->document->content, $match);
-        if (!empty($match[0])) {
+        if (! empty($match[0])) {
             foreach ($match[0] as $key => $value) {
-                $toc[] = array('level' => $match[2][$key], 'anchor' => $match[1][$key], 'heading' => $match[3][$key]);
+                $toc[] = ['level' => $match[2][$key], 'anchor' => $match[1][$key], 'heading' => $match[3][$key]];
             }
         }
+
         return $toc;
     }
 

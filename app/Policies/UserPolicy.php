@@ -27,8 +27,8 @@ class UserPolicy
 
     public function update(User $user, User $model)
     {
-        return Auth::user()?->id !== $user->id 
-            ? !in_array($user->id, config('auth.superusers')) && $user->can('user.modify.superuser')
-            : $user->can('user.modify');;
+        return Auth::user()?->id !== $user->id
+            ? ! in_array($user->id, config('auth.superusers')) && $user->can('user.modify.superuser')
+            : $user->can('user.modify');
     }
 }

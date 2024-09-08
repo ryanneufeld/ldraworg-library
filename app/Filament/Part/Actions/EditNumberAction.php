@@ -25,7 +25,7 @@ class EditNumberAction
             ->record($part)
             ->form(self::formSchema($part))
             ->successNotificationTitle('Renumber/Move Successful')
-            ->using(fn(Part $p, array $data) => self::updateMove($p, $data))
+            ->using(fn (Part $p, array $data) => self::updateMove($p, $data))
             ->visible(Auth::user()?->can('move', $part) ?? false);
     }
 
@@ -42,14 +42,14 @@ class EditNumberAction
                 ->disabled(),
             Radio::make('part_type_id')
                 ->label('Select destination folder:')
-                ->options(function() use ($part): array 
-                {
+                ->options(function () use ($part): array {
                     $options = [];
                     foreach (PartType::where('format', $part->type->format)->pluck('folder', 'id')->unique() as $id => $option) {
                         $types = implode(', ', PartType::where('folder', $option)->pluck('name')->all());
-                        $options[$id] = "{$option} ({$types})"; 
+                        $options[$id] = "{$option} ({$types})";
                     }
-                    return $options;                   
+
+                    return $options;
                 }),
             TextInput::make('newname')
                 ->label('New Name')
@@ -57,23 +57,22 @@ class EditNumberAction
                 ->nullable()
                 ->string()
                 ->rules([
-                    fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get, $part)
-                    {
-                        if (!empty($get('part_type_id'))) {
+                    fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get, $part) {
+                        if (! empty($get('part_type_id'))) {
                             $newType = PartType::find($get('part_type_id'));
                             $p = Part::find($part->id);
-                            if (!empty($newType) && !empty($p)) {
+                            if (! empty($newType) && ! empty($p)) {
                                 $newName = basename($value, ".{$p->type->format}");
                                 $newName = "{$newType->folder}{$newName}.{$newType->format}";
                                 $oldp = Part::firstWhere('filename', $newName);
-                                if (!is_null($oldp))  {
-                                    $fail($newName . " already exists");
-                                }          
-                            }    
+                                if (! is_null($oldp)) {
+                                    $fail($newName.' already exists');
+                                }
+                            }
                         }
-                    }
+                    },
                 ]),
-            ];
+        ];
     }
 
     protected static function updateMove(Part $part, array $data): Part
@@ -94,7 +93,7 @@ class EditNumberAction
                 PartHistory::create([
                     'part_id' => $upart->id,
                     'user_id' => Auth::user()->id,
-                    'comment' => 'Moved from ' . $part->name(),
+                    'comment' => 'Moved from '.$part->name(),
                 ]);
                 $upart->refresh();
                 $manager->movePart($upart, $newName, $newType);
@@ -106,6 +105,7 @@ class EditNumberAction
             $mpart->save();
             PartSubmitted::dispatch($mpart, Auth::user());
         }
+
         return $part;
     }
 }

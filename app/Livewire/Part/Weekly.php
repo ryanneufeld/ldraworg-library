@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Part;
 
-use App\Models\Part;
 use App\Filament\Part\Tables\PartTable;
+use App\Models\Part;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -18,7 +18,6 @@ class Weekly extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-
     public function table(Table $table): Table
     {
 
@@ -31,11 +30,10 @@ class Weekly extends Component implements HasForms, HasTable
                 Group::make('week')
                     ->date(),
             ])
-            ->actions(PartTable::actions()) 
-            ->defaultGroup('week')   
+            ->actions(PartTable::actions())
+            ->defaultGroup('week')
             ->recordUrl(
-                fn (Part $p): string => 
-                    route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
+                fn (Part $p): string => route($p->isUnofficial() ? 'tracker.show' : 'official.show', ['part' => $p])
             );
     }
 

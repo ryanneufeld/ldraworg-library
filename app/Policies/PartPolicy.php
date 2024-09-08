@@ -11,23 +11,23 @@ class PartPolicy
     public function __construct(
         protected LibrarySettings $settings
     ) {}
-    
+
     public function create(User $user)
     {
-        return !$this->settings->tracker_locked &&
+        return ! $this->settings->tracker_locked &&
             $user->can('part.submit.regular');
     }
 
     public function update(User $user, Part $part)
     {
-        return !$this->settings->tracker_locked &&
-            $part->isUnofficial() && 
+        return ! $this->settings->tracker_locked &&
+            $part->isUnofficial() &&
             $user->can('part.edit.header') && $user->ca_confirm === true;
     }
 
     public function move(User $user, Part $part)
     {
-        return !$this->settings->tracker_locked &&
+        return ! $this->settings->tracker_locked &&
             $user->can('part.edit.number') && $user->ca_confirm === true;
     }
 
@@ -43,8 +43,7 @@ class PartPolicy
 
     public function delete(User $user, Part $part)
     {
-        return !$this->settings->tracker_locked &&
+        return ! $this->settings->tracker_locked &&
             $part->isUnofficial() && $user->can('part.delete');
     }
-
 }
